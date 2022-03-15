@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.soot-oss:soot:4.3.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/soot-oss/soot/4.3.0-SNAPSHOT/soot-4.3.0-20220304.191635-263.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/soot-oss/soot/4.3.0-SNAPSHOT/soot-4.3.0-20220304.191635-263-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/soot-oss/soot/4.3.0-SNAPSHOT/soot-4.3.0-20220304.191635-263-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
