@@ -15,6 +15,7 @@ import main.java.MyConfig;
 import main.java.analyze.utils.ConstantUtils;
 import main.java.analyze.utils.SootUtils;
 import main.java.analyze.utils.output.PrintUtils;
+import main.java.client.exception.ExceptionInfo;
 import main.java.client.obj.model.component.ActivityModel;
 import main.java.client.obj.model.component.ComponentModel;
 import soot.SootClass;
@@ -85,7 +86,7 @@ public class AppModel implements Serializable {
 	private Map<SootClass, SootClass> fragment2Component;
 	private Map<Unit, List<ParameterSource>> unit2ParameterSource;
 	private Map<String, Set<String>> ICCStringMap;
-	private Map<SootMethod, Map<String, Set<String>>> exceptionMap;
+	private Set<ExceptionInfo> exceptionMap;
 
 	
 	public AppModel() {
@@ -132,7 +133,7 @@ public class AppModel implements Serializable {
 		unit2ParameterSource = new HashMap<Unit, List<ParameterSource>>();
 		setExtendedPakgs(new HashSet<String>());
 		this.ICCStringMap = new HashMap<String, Set<String>>();
-		exceptionMap = new HashMap<SootMethod, Map<String, Set<String>>>();
+		exceptionMap = new HashSet<ExceptionInfo>();
 	}
 
 	@Override
@@ -541,8 +542,8 @@ public class AppModel implements Serializable {
 	}
 
 	/**
-	 * @param applicationClasses
-	 *            the applicationClasses to set
+	 * @param sc
+	 * the applicationClasses to set
 	 */
 	public void addApplicationClassNames(String sc) {
 		this.applicationClassNames.add(sc);
@@ -592,11 +593,11 @@ public class AppModel implements Serializable {
 		ICCStringMap = iCCStringMap;
 	}
 
-	public Map<SootMethod, Map<String, Set<String>>> getExceptionMap() {
+	public Set<ExceptionInfo> getExceptionMap() {
 		return exceptionMap;
 	}
 
-	public void setExceptionMap(Map<SootMethod, Map<String, Set<String>>> exceptionMap) {
+	public void setExceptionMap(Set<ExceptionInfo> exceptionMap) {
 		this.exceptionMap = exceptionMap;
 	}
 }

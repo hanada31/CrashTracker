@@ -33,20 +33,16 @@ public class ExceptionInfoClient extends BaseClient {
             sootAnalyzer.analyze();
         }
 
-        if (!MyConfig.getInstance().isCallGraphAnalyzeFinish()) {
-            new CallGraphofJavaClient().start();
-            MyConfig.getInstance().setCallGraphAnalyzeFinish(true);
-        }
+//        if (!MyConfig.getInstance().isCallGraphAnalyzeFinish()) {
+//            new CallGraphofJavaClient().start();
+//            MyConfig.getInstance().setCallGraphAnalyzeFinish(true);
+//        }
 //        if (!MyConfig.getInstance().isStaitiucValueAnalyzeFinish()) {
 //            if (MyConfig.getInstance().getMySwithch().isStaticFieldSwitch()) {
 //                StaticValueAnalyzer staticValueAnalyzer = new StaticValueAnalyzer();
 //                staticValueAnalyzer.analyze();
 //                MyConfig.getInstance().setStaitiucValueAnalyzeFinish(true);
 //            }
-//        }
-//        for (List<SootMethod> topoQueue : Global.v().getAppModel().getTopoMethodQueueSet()) {
-//            Analyzer analyzer = new ExceptionAnalyzer(topoQueue, result);
-//            analyzer.analyze();
 //        }
         System.out.println("Start analyze with ExceptionInfoClient.");
         Analyzer analyzer = new ExceptionAnalyzer(result);

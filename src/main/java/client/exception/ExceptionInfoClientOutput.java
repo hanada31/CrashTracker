@@ -4,8 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import main.java.analyze.utils.output.PrintUtils;
 import main.java.client.statistic.model.StatisticResult;
 import soot.SootMethod;
+import soot.Value;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -53,36 +55,35 @@ public class ExceptionInfoClientOutput {
         }
     }
 
-    public void writeToJson(String path, Map<SootMethod, Map<String, Set<String>>> result){
+    public void writeToJson(String path, Set<ExceptionInfo> result){
         JSONObject rootElement = new JSONObject(new LinkedHashMap());
         rootElement.put("system", "");
         rootElement.put("version", "");
-        JSONObject methodMapElement  = new JSONObject(new LinkedHashMap<>());
-        rootElement.put("methodMap", methodMapElement);
-
         File file = new File(path);
         try {
             file.createNewFile();
-            for (Map.Entry<SootMethod, Map<String, Set<String>>> sootMethodMap : result.entrySet()) {
-                SootMethod method = sootMethodMap.getKey();
-                Map<String, Set<String>> value = sootMethodMap.getValue();
-                JSONArray exceptionListElement  = new JSONArray(new ArrayList<>());
-                methodMapElement.put(method.getSignature(), exceptionListElement);
+            JSONArray exceptionListElement  = new JSONArray(new ArrayList<>());
+            rootElement.put("methodMap", exceptionListElement);
+            for(ExceptionInfo info :result){
+                JSONObject jsonObject = new JSONObject(true);
+                jsonObject.put("method", info.getSootMethod().getSignature());
+                jsonObject.put("type", info.getExceptionType());
+                jsonObject.put("message", info.getExceptionMsg());
+                JSONArray conds  = new JSONArray(new ArrayList<>());
+//                for(Value condValue: info.getConditions()){
+//                    JSONObject jsonObjectTemp = new JSONObject(true);
+//                    jsonObjectTemp.put("cond", condValue.getClass().getName()+"-->"+condValue.toString());
+//                    conds.add(jsonObjectTemp);
+//                }
+//                jsonObject.put("conds",conds);
 
-                for (Map.Entry<String, Set<String>> exceptionMap : value.entrySet()) {
-                    String name = exceptionMap.getKey();
-                    Set<String> message = exceptionMap.getValue();
-                    if(message.size() ==0){
-                        message.add("");
-                    }
-                    for (String s : message) {
-                        JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("name", name);
-                        jsonObject.put("message", s);
-                        exceptionListElement.add(jsonObject);
-                    }
+                jsonObject.put("conditions", PrintUtils.printList(info.getConditions()));
 
-                }
+                jsonObject.put("paramValues", PrintUtils.printList(info.getRelatedParamValues()));
+                jsonObject.put("staticValues", PrintUtils.printList(info.getRelatedStaticValues()));
+                jsonObject.put("relatedValues", PrintUtils.printList(info.getRelatedParamValues())+";"+PrintUtils.printList(info.getRelatedStaticValues()));
+
+                exceptionListElement.add(jsonObject);
             }
             PrintWriter printWriter = new PrintWriter(file);
             String jsonString = JSON.toJSONString(rootElement, SerializerFeature.PrettyFormat,

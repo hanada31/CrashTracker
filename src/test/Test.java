@@ -3,6 +3,7 @@ package test;
 import main.java.MainClass;
 import main.java.MyConfig;
 import main.java.SummaryLevel;
+import main.java.client.exception.ExceptionInfoClient;
 import soot.options.Options;
 
 import java.io.File;
@@ -41,7 +42,7 @@ public class Test {
         MyConfig.getInstance().setTimeLimit(10);
         MyConfig.getInstance().setAndroidJar("lib/platforms");
         MyConfig.getInstance().setSrc_prec(Options.src_prec_only_class);
-        MyConfig.getInstance().setJimple(false);
+//        MyConfig.getInstance().setJimple(false);
         MyConfig.getInstance().setFileSuffixLength(0);
     }
 
