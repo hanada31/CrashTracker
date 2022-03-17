@@ -67,9 +67,10 @@ public class ExceptionInfoClientOutput {
             for(ExceptionInfo info :result){
                 JSONObject jsonObject = new JSONObject(true);
                 jsonObject.put("method", info.getSootMethod().getSignature());
+                jsonObject.put("modifier", info.getModifier());
                 jsonObject.put("type", info.getExceptionType());
                 jsonObject.put("message", info.getExceptionMsg());
-                JSONArray conds  = new JSONArray(new ArrayList<>());
+//                JSONArray conds  = new JSONArray(new ArrayList<>());
 //                for(Value condValue: info.getConditions()){
 //                    JSONObject jsonObjectTemp = new JSONObject(true);
 //                    jsonObjectTemp.put("cond", condValue.getClass().getName()+"-->"+condValue.toString());
@@ -81,8 +82,9 @@ public class ExceptionInfoClientOutput {
 
                 jsonObject.put("paramValues", PrintUtils.printList(info.getRelatedParamValues()));
                 jsonObject.put("staticValues", PrintUtils.printList(info.getRelatedStaticValues()));
-                jsonObject.put("relatedValues", PrintUtils.printList(info.getRelatedParamValues())+";"+PrintUtils.printList(info.getRelatedStaticValues()));
-
+                jsonObject.put("caughtedValues", PrintUtils.printList(info.getCaughtedValues()));
+                jsonObject.put("relatedValues", PrintUtils.printList(info.getRelatedParamValues())+"; "
+                        +PrintUtils.printList(info.getRelatedStaticValues()) +"; "+ PrintUtils.printList(info.getCaughtedValues()));
                 exceptionListElement.add(jsonObject);
             }
             PrintWriter printWriter = new PrintWriter(file);

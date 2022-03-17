@@ -18,8 +18,10 @@ public class ExceptionInfo {
     private  String exceptionMsg;
     private List<Value> relatedParamValues;
     private List<Value> relatedStaticValues;
+    private List<Value> caughtedValues;
     private List<SootMethod> relatedMethods;
     private List<Value> conditions;
+    private String modifier;
 
 
     private List<Unit> tracedUnits;
@@ -27,15 +29,39 @@ public class ExceptionInfo {
     private  SootMethod sootMethod;
     private  Unit unit;
 
-    public ExceptionInfo(SootMethod sootMethod, Unit unit, String exceptionType){
+    public ExceptionInfo(SootMethod sootMethod, Unit unit, String exceptionType) {
         this.sootMethod = sootMethod;
         this.unit = unit;
         this.exceptionType = exceptionType;
         this.relatedParamValues = new ArrayList<Value>();
         this.relatedStaticValues = new ArrayList<Value>();
+        this.caughtedValues = new ArrayList<Value>();
         this.relatedMethods = new ArrayList<SootMethod>();
         this.conditions = new ArrayList<Value>();
         this.tracedUnits = new ArrayList<Unit>();
+        initModifier();
+    }
+
+    private void initModifier() {
+        if(sootMethod.isPublic())
+            setModifier("public");
+        else if(sootMethod.isPrivate())
+            setModifier("private");
+        else if(sootMethod.isProtected())
+            setModifier("protected");
+        else
+            setModifier("default");
+            
+
+    }
+
+
+    public String getModifier() {
+        return modifier;
+    }
+
+    public void setModifier(String modifier) {
+        this.modifier = modifier;
     }
 
     public List<Unit> getTracedUnits() {
@@ -106,5 +132,13 @@ public class ExceptionInfo {
             relatedParamValues.add(v);
     }
 
+    public List<Value> getCaughtedValues() {
+        return caughtedValues;
+    }
+
+    public void addCaughtedValues(Value v) {
+        if(!caughtedValues.contains(v))
+            caughtedValues.add(v);
+    }
 }
 

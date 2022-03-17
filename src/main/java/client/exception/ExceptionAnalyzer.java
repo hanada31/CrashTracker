@@ -11,6 +11,8 @@ import soot.jimple.*;
 import soot.jimple.internal.*;
 import soot.shimple.PhiExpr;
 import soot.toolkits.graph.BriefUnitGraph;
+import soot.toolkits.graph.ExceptionalUnitGraph;
+import soot.toolkits.graph.UnitGraph;
 import soot.toolkits.scalar.ValueUnitPair;
 
 import java.util.*;
@@ -39,9 +41,9 @@ public class ExceptionAnalyzer extends Analyzer {
             HashSet<SootMethod> sootMethods = new HashSet<SootMethod>(sootClass.getMethods());
             for (SootMethod sootMethod : sootMethods) {
                 if (sootMethod.hasActiveBody()) {
-//                    if (!sootMethod.getSignature().contains("removeOnUidImportanceListener")) {
+                    if (!sootMethod.getSignature().contains("android.util.proto.ProtoOutputStream: void writeUtf8String")) {
 //                        continue;
-//                    }
+                    }
                     try {
                         analyzeMethod(sootMethod);
                     } catch (Exception |  Error e) {
@@ -62,7 +64,6 @@ public class ExceptionAnalyzer extends Analyzer {
      */
     public void analyzeMethod(SootMethod sootMethod){
         Body body = sootMethod.getActiveBody();
-        BriefUnitGraph unitGraph = new BriefUnitGraph(body);
         for (Unit unit : body.getUnits()) {
             if (unit instanceof ThrowStmt) {
                 ThrowStmt throwStmt = (ThrowStmt) unit;
@@ -203,6 +204,16 @@ public class ExceptionAnalyzer extends Analyzer {
                     Value value = ((ConditionExpr)cond).getOp1();
                     extendRelatedValues(exceptionInfo, predUnit, value, new ArrayList<Value>());
                 }
+            }else if (predUnit instanceof SwitchStmt) {
+                exceptionInfo.getTracedUnits().add(predUnit);
+                SwitchStmt swStmt = (SwitchStmt) predUnit;
+                Value key = swStmt.getKey();
+                extendRelatedValues(exceptionInfo, predUnit, key, new ArrayList<Value>());
+            }else if (predUnit instanceof JIdentityStmt ) {
+                JIdentityStmt stmt = (JIdentityStmt) predUnit;
+                if(stmt.getRightOp() instanceof CaughtExceptionRef){
+                    exceptionInfo.addCaughtedValues(stmt.getRightOp());
+                }
             }
             getExceptionCondition(sootMethod, predUnit, exceptionInfo,times);
         }
@@ -232,7 +243,7 @@ public class ExceptionAnalyzer extends Analyzer {
                     exceptionInfo.addRelatedStaticValues(value);
                 } else if(identityStmt.getRightOp() instanceof  ParameterRef) {
                     //from parameter
-                    exceptionInfo.addRelatedParamValue(value);
+                    exceptionInfo.addRelatedParamValue(identityStmt.getRightOp());
                 }
             } else if (defUnit instanceof JAssignStmt) {
                 JAssignStmt assignStmt = (JAssignStmt) defUnit;
