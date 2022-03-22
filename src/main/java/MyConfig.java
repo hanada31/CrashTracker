@@ -42,9 +42,12 @@ public class MyConfig {
 	private Switch mySwithch = new Switch();
 	private int src_prec = Options.src_prec_apk;
 	private int fileSuffixLength = 4;
+
 	private static class SingletonInstance {
 		private static final MyConfig INSTANCE = new MyConfig();
 	}
+	private String CrashInfoFilePath;
+	private String ExceptionSummaryFilePath;
 
 	public static MyConfig getInstance() {
 		return SingletonInstance.INSTANCE;
@@ -364,6 +367,21 @@ public class MyConfig {
 
 	public void setFileSuffixLength(int fileSuffixLength) {
 		this.fileSuffixLength = fileSuffixLength;
+	}
+	public String getCrashInfoFilePath() {
+		return CrashInfoFilePath;
+	}
+
+	public void setCrashInfoFilePath(String crashInfoFilePath) {
+		CrashInfoFilePath = crashInfoFilePath;
+	}
+
+	public String getExceptionSummaryFilePath() {
+		return ExceptionSummaryFilePath;
+	}
+
+	public void setExceptionSummaryFilePath(String exceptionSummaryFilePath) {
+		ExceptionSummaryFilePath = exceptionSummaryFilePath;
 	}
 
 }

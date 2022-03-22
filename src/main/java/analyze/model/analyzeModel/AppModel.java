@@ -86,7 +86,7 @@ public class AppModel implements Serializable {
 	private Map<SootClass, SootClass> fragment2Component;
 	private Map<Unit, List<ParameterSource>> unit2ParameterSource;
 	private Map<String, Set<String>> ICCStringMap;
-	private Set<ExceptionInfo> exceptionMap;
+	private List<ExceptionInfo> exceptionInfoList;
 
 	
 	public AppModel() {
@@ -133,7 +133,7 @@ public class AppModel implements Serializable {
 		unit2ParameterSource = new HashMap<Unit, List<ParameterSource>>();
 		setExtendedPakgs(new HashSet<String>());
 		this.ICCStringMap = new HashMap<String, Set<String>>();
-		exceptionMap = new HashSet<ExceptionInfo>();
+		exceptionInfoList = new ArrayList<>();
 	}
 
 	@Override
@@ -593,11 +593,12 @@ public class AppModel implements Serializable {
 		ICCStringMap = iCCStringMap;
 	}
 
-	public Set<ExceptionInfo> getExceptionMap() {
-		return exceptionMap;
+
+	public List<ExceptionInfo> getExceptionInfoList() {
+		return exceptionInfoList;
 	}
 
-	public void setExceptionMap(Set<ExceptionInfo> exceptionMap) {
-		this.exceptionMap = exceptionMap;
+	public void setExceptionInfoList(List<ExceptionInfo> exceptionInfoList) {
+		this.exceptionInfoList = exceptionInfoList;
 	}
 }

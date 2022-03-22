@@ -25,8 +25,6 @@ public class CgClientOutput {
 	 * @param dir
 	 * @param file
 	 * @param cg
-	 * @param AppModel
-	 *            .getInstance()
 	 */
 	public static void writeCG(String dir, String file, CallGraph cg) {
 		FileUtils.createFolder(dir);

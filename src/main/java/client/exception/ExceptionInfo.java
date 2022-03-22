@@ -1,5 +1,6 @@
 package main.java.client.exception;
 
+import soot.SootField;
 import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
@@ -14,31 +15,35 @@ import java.util.List;
  */
 public class ExceptionInfo {
 
+
     private  String exceptionType;
     private  String exceptionMsg;
     private List<Value> relatedParamValues;
-    private List<Value> relatedStaticValues;
+    private List<SootField> relatedFieldValues;
     private List<Value> caughtedValues;
-    private List<SootMethod> relatedMethods;
+    private List<RelatedMethod> relatedMethodsInSameClass;
+    private List<RelatedMethod> relatedMethodsInDiffClass;
+    private List<String> relatedMethods;
     private List<Value> conditions;
     private String modifier;
-
-
     private List<Unit> tracedUnits;
-
     private  SootMethod sootMethod;
     private  Unit unit;
+    public ExceptionInfo() {
 
+    }
     public ExceptionInfo(SootMethod sootMethod, Unit unit, String exceptionType) {
         this.sootMethod = sootMethod;
         this.unit = unit;
         this.exceptionType = exceptionType;
-        this.relatedParamValues = new ArrayList<Value>();
-        this.relatedStaticValues = new ArrayList<Value>();
-        this.caughtedValues = new ArrayList<Value>();
-        this.relatedMethods = new ArrayList<SootMethod>();
-        this.conditions = new ArrayList<Value>();
-        this.tracedUnits = new ArrayList<Unit>();
+        this.relatedParamValues = new ArrayList<>();
+        this.relatedFieldValues = new ArrayList<>();
+        this.caughtedValues = new ArrayList<>();
+        this.relatedMethodsInSameClass = new ArrayList<>();
+        this.relatedMethodsInDiffClass = new ArrayList<>();
+        this.relatedMethods = new ArrayList<>();
+        this.conditions = new ArrayList<>();
+        this.tracedUnits = new ArrayList<>();
         initModifier();
     }
 
@@ -95,33 +100,37 @@ public class ExceptionInfo {
         return sootMethod;
     }
 
-
-
-
-
-    public List<SootMethod> getRelatedMethods() {
-        return relatedMethods;
+    public List<RelatedMethod> getRelatedMethodsInSameClass() {
+        return relatedMethodsInSameClass;
+    }
+    public void addRelatedMethodsInSameClass(RelatedMethod m) {
+        if(!relatedMethods.contains(m.getMethod()))
+            relatedMethodsInSameClass.add(m);
     }
 
-    public void setRelatedMethods(List<SootMethod> relatedMethods) {
-        this.relatedMethods = relatedMethods;
+    public List<RelatedMethod> getRelatedMethodsInDiffClass() {
+        return relatedMethodsInDiffClass;
+    }
+
+    public void addRelatedMethodsInDiffClass(RelatedMethod m) {
+        if(!relatedMethods.contains(m.getMethod()))
+            relatedMethodsInDiffClass.add(m);
     }
 
     public List<Value> getConditions() {
         return conditions;
     }
-
-    public void setConditions(List<Value> conditions) {
-        this.conditions = conditions;
+    public void addRelatedCondition(Value condition) {
+        if(!conditions.contains(condition))
+            conditions.add(condition);
     }
 
-    public List<Value> getRelatedStaticValues() {
-        return relatedStaticValues;
+    public List<SootField> getRelatedFieldValues() {
+        return relatedFieldValues;
     }
-
-    public void addRelatedStaticValues(Value v) {
-        if(!relatedStaticValues.contains(v))
-            relatedStaticValues.add(v);
+    public void addRelatedFieldValues(SootField v) {
+        if(!relatedFieldValues.contains(v))
+            relatedFieldValues.add(v);
     }
 
     public List<Value> getRelatedParamValues() {
@@ -135,10 +144,73 @@ public class ExceptionInfo {
     public List<Value> getCaughtedValues() {
         return caughtedValues;
     }
-
     public void addCaughtedValues(Value v) {
         if(!caughtedValues.contains(v))
             caughtedValues.add(v);
+    }
+
+    public List<String> getRelatedMethods() {
+        return relatedMethods;
+    }
+
+    public void addRelatedMethods(String sm) {
+        if(!relatedMethods.contains(sm))
+            relatedMethods.add(sm);
+    }
+
+    public void setExceptionType(String exceptionType) {
+        this.exceptionType = exceptionType;
+    }
+
+    public void setRelatedParamValues(List<Value> relatedParamValues) {
+        this.relatedParamValues = relatedParamValues;
+    }
+
+    public void setRelatedFieldValues(List<SootField> relatedFieldValues) {
+        this.relatedFieldValues = relatedFieldValues;
+    }
+
+    public void setCaughtedValues(List<Value> caughtedValues) {
+        this.caughtedValues = caughtedValues;
+    }
+
+    public void setRelatedMethodsInSameClass(List<RelatedMethod> relatedMethodsInSameClass) {
+        this.relatedMethodsInSameClass = relatedMethodsInSameClass;
+    }
+
+    public void setRelatedMethodsInDiffClass(List<RelatedMethod> relatedMethodsInDiffClass) {
+        this.relatedMethodsInDiffClass = relatedMethodsInDiffClass;
+    }
+
+    public void setRelatedMethods(List<String> relatedMethods) {
+        this.relatedMethods = relatedMethods;
+    }
+
+    public void setConditions(List<Value> conditions) {
+        this.conditions = conditions;
+    }
+
+    public void setSootMethod(SootMethod sootMethod) {
+        this.sootMethod = sootMethod;
+    }
+
+    @Override
+    public String toString() {
+        return "ExceptionInfo{" +
+                "exceptionType='" + exceptionType + '\'' +
+                ", exceptionMsg='" + exceptionMsg + '\'' +
+                ", relatedParamValues=" + relatedParamValues +
+                ", relatedFieldValues=" + relatedFieldValues +
+                ", caughtedValues=" + caughtedValues +
+                ", relatedMethodsInSameClass=" + relatedMethodsInSameClass +
+                ", relatedMethodsInDiffClass=" + relatedMethodsInDiffClass +
+                ", relatedMethods=" + relatedMethods +
+                ", conditions=" + conditions +
+                ", modifier='" + modifier + '\'' +
+                ", tracedUnits=" + tracedUnits +
+                ", sootMethod=" + sootMethod +
+                ", unit=" + unit +
+                '}';
     }
 }
 

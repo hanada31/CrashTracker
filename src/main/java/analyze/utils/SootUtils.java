@@ -1,6 +1,5 @@
 package main.java.analyze.utils;
 
-import com.google.common.collect.Lists;
 import heros.solver.Pair;
 
 import java.io.File;
@@ -56,6 +55,7 @@ import soot.shimple.ShimpleBody;
 import soot.shimple.internal.SPhiExpr;
 import soot.shimple.toolkits.scalar.ShimpleLocalDefs;
 import soot.shimple.toolkits.scalar.ShimpleLocalUses;
+import soot.toolkits.graph.BriefUnitGraph;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 import soot.toolkits.scalar.SimpleLocalDefs;
@@ -136,7 +136,7 @@ public class SootUtils {
 	/**
 	 * get Type of ClassName
 	 * 
-	 * @param sc
+	 * @param className
 	 * @return
 	 */
 	public static String getTypeofClassName(String className) {
@@ -242,9 +242,8 @@ public class SootUtils {
 
 	/**
 	 * judege a method is entry callback or not
-	 * 
-	 * @param methodName
-	 * @param className
+	 *
+	 * @param method
 	 * @return
 	 */
 	public static boolean isComponentEntryMethod(SootMethod method) {
@@ -260,8 +259,7 @@ public class SootUtils {
 	/**
 	 * judege a method is entry callback or not
 	 * 
-	 * @param methodName
-	 * @param className
+	 * @param method
 	 * @return
 	 */
 	public static boolean isStubEntryMethod(SootMethod method) {
@@ -575,7 +573,6 @@ public class SootUtils {
 	/**
 	 * getSingleInvokedMethod
 	 * 
-	 * @param invoke
 	 * @param u
 	 */
 	public static InvokeExpr getSingleInvokedMethod(Unit u) {
@@ -639,9 +636,7 @@ public class SootUtils {
 	/**
 	 * get body of sm, without add it to methodsToBeProcessed
 	 * 
-	 * @param target
 	 * @param sm
-	 * @param appModel
 	 * @return
 	 */
 	public static List<Body> getBodySetofMethod(SootMethod sm) {
@@ -710,11 +705,9 @@ public class SootUtils {
 	/**
 	 * addInvokedMethods in cg construction
 	 * 
-	 * @param sourceCls
 	 * @param sm
 	 * @param u
 	 * @param invoke
-	 * @param listenerAdd
 	 * @return
 	 */
 	public static Set<SootMethod> addInvokedMethods(SootMethod sm, Unit u, InvokeExpr invoke) {
@@ -1035,7 +1028,6 @@ public class SootUtils {
 	/**
 	 * get Def Of Local
 	 * 
-	 * @param local
 	 * @param u
 	 * @return
 	 */
@@ -1083,10 +1075,6 @@ public class SootUtils {
 
 	/**
 	 * get Use Of Local
-	 * 
-	 * @param appModel
-	 * @param mc
-	 * @param unit
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -1449,4 +1437,26 @@ public class SootUtils {
 		return units;
 	}
 
+	public static void getAllPredsofUnit(SootMethod sootMethod, Unit unit, List<Unit> res) {
+		BriefUnitGraph unitGraph = new BriefUnitGraph(sootMethod.getActiveBody());
+		List<Unit> predsOf = unitGraph.getPredsOf(unit);
+		for (Unit predUnit : predsOf) {
+			if(!res.contains(predUnit)) {
+				res.add(predUnit);
+				getAllPredsofUnit(sootMethod, predUnit, res);
+			}
+		}
+	}
+
+	public static void getAllSuccsofUnit(SootMethod sootMethod, Unit unit, List<Unit> res) {
+		BriefUnitGraph unitGraph = new BriefUnitGraph(sootMethod.getActiveBody());
+		List<Unit> succesOf = unitGraph.getPredsOf(unit);
+		for (Unit succ : succesOf) {
+			if(!res.contains(succ)) {
+				res.add(succ);
+				getAllSuccsofUnit(sootMethod, succ, res);
+			}
+
+		}
+	}
 }

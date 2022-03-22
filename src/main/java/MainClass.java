@@ -5,6 +5,7 @@ import java.io.File;
 import main.java.analyze.utils.TimeUtilsofProject;
 import main.java.client.BaseClient;
 import main.java.client.cg.cgApk.CallGraphofApkClient;
+import main.java.client.crash.CrashAnalysisClient;
 import main.java.client.exception.ExceptionInfoClient;
 import main.java.client.gator.GatorClient;
 import main.java.client.manifest.ManifestClient;
@@ -144,6 +145,9 @@ public class MainClass {
 				break;
 			case "ExceptionInfoClient":
 				client = new ExceptionInfoClient();
+				break;
+			case "CrashAnalysisClient":
+				client = new CrashAnalysisClient();
 				break;
 			default:
 				client = new CTGClient();

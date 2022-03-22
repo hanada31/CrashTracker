@@ -7,14 +7,10 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import main.java.analyze.utils.output.PrintUtils;
 import main.java.client.statistic.model.StatisticResult;
 import soot.SootMethod;
-import soot.Value;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @Author hanada
@@ -55,7 +51,7 @@ public class ExceptionInfoClientOutput {
         }
     }
 
-    public void writeToJson(String path, Set<ExceptionInfo> result){
+    public void writeToJson(String path, List<ExceptionInfo> result){
         JSONObject rootElement = new JSONObject(new LinkedHashMap());
         rootElement.put("system", "");
         rootElement.put("version", "");
@@ -66,6 +62,8 @@ public class ExceptionInfoClientOutput {
             rootElement.put("methodMap", exceptionListElement);
             for(ExceptionInfo info :result){
                 JSONObject jsonObject = new JSONObject(true);
+                exceptionListElement.add(jsonObject);
+
                 jsonObject.put("method", info.getSootMethod().getSignature());
                 jsonObject.put("modifier", info.getModifier());
                 jsonObject.put("type", info.getExceptionType());
@@ -77,22 +75,49 @@ public class ExceptionInfoClientOutput {
 //                    conds.add(jsonObjectTemp);
 //                }
 //                jsonObject.put("conds",conds);
+                if(info.getConditions().size()>0)
+                    jsonObject.put("conditions", PrintUtils.printList(info.getConditions()));
 
-                jsonObject.put("conditions", PrintUtils.printList(info.getConditions()));
+                if(info.getRelatedParamValues().size()>0)
+                    jsonObject.put("paramValues", PrintUtils.printList(info.getRelatedParamValues()));
+                if(info.getRelatedFieldValues().size()>0)
+                    jsonObject.put("fieldValues", PrintUtils.printList(info.getRelatedFieldValues()));
+                if(info.getCaughtedValues().size()>0)
+                    jsonObject.put("caughtValues", PrintUtils.printList(info.getCaughtedValues()));
+                if(info.getRelatedParamValues().size() + info.getRelatedFieldValues().size() + info.getCaughtedValues().size()>0)
+                    jsonObject.put("relatedValues", PrintUtils.printList(info.getRelatedParamValues())+"; "
+                        +PrintUtils.printList(info.getRelatedFieldValues()) +"; "+ PrintUtils.printList(info.getCaughtedValues()));
+//                if(info.getCallerMethods().size()>0){
+//                    int i = 1;
+//                    for (SootMethod sm: info.getCallerMethods()){
+//                        jsonObject.put("relatedMethod_"+(i++), sm.toString());
+//                    }
+//                }
+                jsonObject.put("relatedMethodsInSameClass", info.getRelatedMethodsInSameClass().size());
+                jsonObject.put("relatedMethodsInDiffClass", info.getRelatedMethodsInDiffClass().size());
+                if(info.getRelatedMethodsInSameClass().size()>0){
+                    int i = 1;
+                    for (RelatedMethod mtd: info.getRelatedMethodsInSameClass()){
+                        String mtdString = JSONObject.toJSONString(mtd);
+                        JSONObject mtdObject = JSONObject.parseObject(mtdString);  // 转换为json对象
+                        jsonObject.put("relatedMethodSameClass_"+(i++), mtdObject);
+                    }
+                }
+                if(info.getRelatedMethodsInDiffClass().size()>0){
+                    int i = 1;
+                    for (RelatedMethod mtd: info.getRelatedMethodsInDiffClass()){
+                        String mtdString = JSONObject.toJSONString(mtd);
+                        JSONObject mtdObject = JSONObject.parseObject(mtdString);  // 转换为json对象
+                        jsonObject.put("relatedMethodDiffClass_"+(i++), mtdObject);
+                    }
+                }
 
-                jsonObject.put("paramValues", PrintUtils.printList(info.getRelatedParamValues()));
-                jsonObject.put("staticValues", PrintUtils.printList(info.getRelatedStaticValues()));
-                jsonObject.put("caughtedValues", PrintUtils.printList(info.getCaughtedValues()));
-                jsonObject.put("relatedValues", PrintUtils.printList(info.getRelatedParamValues())+"; "
-                        +PrintUtils.printList(info.getRelatedStaticValues()) +"; "+ PrintUtils.printList(info.getCaughtedValues()));
-                exceptionListElement.add(jsonObject);
             }
             PrintWriter printWriter = new PrintWriter(file);
             String jsonString = JSON.toJSONString(rootElement, SerializerFeature.PrettyFormat,
                     SerializerFeature.DisableCircularReferenceDetect);
             printWriter.write(jsonString.toString());
             printWriter.close();
-
         } catch (Exception e) {
             e.printStackTrace();
         }

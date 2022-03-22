@@ -3,16 +3,16 @@ package test;
 import main.java.MainClass;
 import main.java.MyConfig;
 import main.java.SummaryLevel;
-import main.java.client.exception.ExceptionInfoClient;
 import soot.options.Options;
 
 import java.io.File;
+
 /**
  * @Author hanada
  * @Date 2022/3/11 15:27
  * @Version 1.0
  */
-public class Test {
+public class TestAPP {
 
     @org.junit.Test
     public void testConfig() {
@@ -25,11 +25,10 @@ public class Test {
 
     private void setArgs() {
         String path;
-        path = "D:\\SoftwareData\\AcademicTool\\Library\\android-framework\\9.0\\classes";
+        path = "D:\\SoftwareData\\ToolsInREST\\yanjiwei\\ICCBot\\Tool\\Empirical500\\";
         String name;
-        name = "miui";
-        String client = "IROutputClient";
-        client = "ExceptionInfoClient";
+        name = "com.justnote.apk";
+        String client = "CrashAnalysisClient";
 
         MyConfig.getInstance().setAppName(name);
         MyConfig.getInstance().setAppPath(path + File.separator);
@@ -41,9 +40,10 @@ public class Test {
         MyConfig.getInstance().setResultFolder(MyConfig.getInstance().getResultWarpperFolder()+ "output" + File.separator);
         MyConfig.getInstance().setTimeLimit(10);
         MyConfig.getInstance().setAndroidJar("lib/platforms");
-        MyConfig.getInstance().setSrc_prec(Options.src_prec_only_class);
-//        MyConfig.getInstance().setJimple(false);
-        MyConfig.getInstance().setFileSuffixLength(0);
+        MyConfig.getInstance().setSrc_prec(Options.src_prec_apk);
+        MyConfig.getInstance().setFileSuffixLength(4);
+        MyConfig.getInstance().setCrashInfoFilePath("D:\\ProjectData\\IdeaProjects\\LoFDroid\\Files\\crashInfo.json");
+        MyConfig.getInstance().setExceptionSummaryFilePath("D:\\ProjectData\\IdeaProjects\\LoFDroid\\Files\\android.json");
     }
 
     /**

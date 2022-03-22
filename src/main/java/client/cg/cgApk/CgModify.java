@@ -200,8 +200,10 @@ public class CgModify extends Analyzer {
 					if (invoke != null) { // u is invoke stmt
 						Set<SootMethod> targetSet = SootUtils.getInvokedMethodSet(sm, u);
 						for (SootMethod target : targetSet) {
-							Edge e = new Edge(sm, (Stmt) u, target);
-							callGraph.addEdge(e);
+							if(target.hasActiveBody()) {
+								Edge e = new Edge(sm, (Stmt) u, target);
+								callGraph.addEdge(e);
+							}
 						}
 					}
 				}
