@@ -15,6 +15,9 @@ public class RelatedMethod {
     RelatedMethodSource source;
     int depth;
 
+    public RelatedMethod() {
+    }
+
     public RelatedMethod(String method, RelatedMethodSource source, int depth) {
         this.method = method;
         this.source = source;

@@ -30,6 +30,14 @@ public class ExceptionInfo {
     private  SootMethod sootMethod;
     private  Unit unit;
     public ExceptionInfo() {
+        this.relatedParamValues = new ArrayList<>();
+        this.relatedFieldValues = new ArrayList<>();
+        this.caughtedValues = new ArrayList<>();
+        this.relatedMethodsInSameClass = new ArrayList<>();
+        this.relatedMethodsInDiffClass = new ArrayList<>();
+        this.relatedMethods = new ArrayList<>();
+        this.conditions = new ArrayList<>();
+        this.tracedUnits = new ArrayList<>();
 
     }
     public ExceptionInfo(SootMethod sootMethod, Unit unit, String exceptionType) {
@@ -56,8 +64,6 @@ public class ExceptionInfo {
             setModifier("protected");
         else
             setModifier("default");
-            
-
     }
 
 

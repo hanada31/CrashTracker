@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import main.java.Analyzer;
 import main.java.MyConfig;
+import main.java.analyze.utils.SootUtils;
 import main.java.analyze.utils.output.FileUtils;
 import main.java.client.exception.ExceptionInfo;
 import main.java.client.exception.RelatedMethod;
@@ -39,13 +40,14 @@ public class CrashAnalysis extends Analyzer {
     }
 
     private void analyzeCrashInApp() {
+
     }
 
     private void readExceptionSummary() {
         String fn = MyConfig.getInstance().getExceptionSummaryFilePath();
         String jsonString = FileUtils.readJsonFile(fn);
-        JSONObject warpperObject = (JSONObject) JSONObject.parse(jsonString);
-        JSONArray methods = warpperObject.getJSONArray("methodMap");//构建JSONArray数组
+        JSONObject wrapperObject = (JSONObject) JSONObject.parse(jsonString);
+        JSONArray methods = wrapperObject.getJSONArray("methodMap");//构建JSONArray数组
         for (int i = 0 ; i < methods.size();i++){
             JSONObject jsonObject = (JSONObject)methods.get(i);
             ExceptionInfo exceptionInfo = new ExceptionInfo();
@@ -53,18 +55,25 @@ public class CrashAnalysis extends Analyzer {
             exceptionInfo.setExceptionType(jsonObject.getString("type"));
             exceptionInfo.setExceptionMsg(jsonObject.getString("message"));
             exceptionInfo.setModifier(jsonObject.getString("modifier"));
-
-//            exceptionInfo.setSootMethod(jsonObject.getString("method"));
-//            exceptionInfo.setTracedUnits(jsonObject.getString("real"));
-////            exceptionInfo.setUnit(jsonObject.getString("unit"));
-//            exceptionInfo.setRelatedFieldValues(jsonObject.getString("fieldValues"));
-//            exceptionInfo.setRelatedParamValues(jsonObject.getString("paramValues"));
-//            exceptionInfo.setCaughtedValues(jsonObject.getString("caughtValues"));
-//            exceptionInfo.setRelatedMethodsInSameClass(jsonObject.getString("relatedMethodsInSameClass"));
-//            exceptionInfo.setRelatedMethodsInDiffClass(jsonObject.getString("relatedMethodsInDiffClass"));
+            SootMethod sootMethod = SootUtils.getSootMethodBySignature(jsonObject.getString("method"));
+            exceptionInfo.setSootMethod(sootMethod);
+            for(int m=1; m<= jsonObject.getInteger("relatedMethodsInSameClass"); m++) {
+                JSONObject sameClsObj = jsonObject.getJSONObject("relatedMethodSameClass_" + m);
+                RelatedMethod relatedMethod = new RelatedMethod();
+                relatedMethod.setMethod(sameClsObj.getString("method"));
+                relatedMethod.setDepth(sameClsObj.getInteger("depth"));
+//                relatedMethod.setSource(jsonObject.getInteger("source"));
+                exceptionInfo.addRelatedMethodsInSameClass(relatedMethod);
+            }
+            for(int n=1; n<= jsonObject.getInteger("relatedMethodsInDiffClass"); n++) {
+                JSONObject diffClsObj = jsonObject.getJSONObject("relatedMethodDiffClass_" + n);
+                RelatedMethod relatedMethod = new RelatedMethod();
+//                relatedMethod.setMethod();
+                relatedMethod.setDepth(diffClsObj.getInteger("depth"));
+//                relatedMethod.setSource(jsonObject.getInteger("source"));
+                exceptionInfo.addRelatedMethodsInDiffClass(relatedMethod);
+            }
 //            exceptionInfo.setConditions(jsonObject.getString("conditions"));
-
-
             System.out.println(exceptionInfo.toString());
 
             exceptionInfoList.add(exceptionInfo);
