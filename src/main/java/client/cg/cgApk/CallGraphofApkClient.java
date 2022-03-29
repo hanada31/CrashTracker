@@ -26,16 +26,10 @@ public class CallGraphofApkClient extends BaseClient {
 			new ManifestClient().start();
 			MyConfig.getInstance().setManifestAnalyzeFinish(true);
 		}
-
 		CgConstructor cgAnalyzer = new CgConstructor();
 		cgAnalyzer.analyze();
-		System.out.println("Call Graph Construction finish.");
 		CgModify cgModify = new CgModify();
 		cgModify.analyze();
-		System.out.println("Call Graph Enhancing finish.");
-		System.out.println("Call Graph has " + Scene.v().getCallGraph().size() + " edges.");
-		System.out.println("Successfully analyze with CallGraphClient.");
-
 	}
 
 	@Override

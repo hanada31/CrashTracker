@@ -15,6 +15,7 @@ import main.java.MyConfig;
 import main.java.analyze.utils.ConstantUtils;
 import main.java.analyze.utils.SootUtils;
 import main.java.analyze.utils.output.PrintUtils;
+import main.java.client.crash.CrashInfo;
 import main.java.client.exception.ExceptionInfo;
 import main.java.client.obj.model.component.ActivityModel;
 import main.java.client.obj.model.component.ComponentModel;
@@ -87,6 +88,7 @@ public class AppModel implements Serializable {
 	private Map<Unit, List<ParameterSource>> unit2ParameterSource;
 	private Map<String, Set<String>> ICCStringMap;
 	private List<ExceptionInfo> exceptionInfoList;
+	private List<CrashInfo> crashInfoList;
 
 	
 	public AppModel() {
@@ -134,6 +136,7 @@ public class AppModel implements Serializable {
 		setExtendedPakgs(new HashSet<String>());
 		this.ICCStringMap = new HashMap<String, Set<String>>();
 		exceptionInfoList = new ArrayList<>();
+		crashInfoList = new ArrayList<>();
 	}
 
 	@Override
@@ -168,7 +171,15 @@ public class AppModel implements Serializable {
 		}
 	}
 
-	
+
+	public List<CrashInfo> getCrashInfoList() {
+		return crashInfoList;
+	}
+
+	public void setCrashInfoList(List<CrashInfo> crashInfoList) {
+		this.crashInfoList = crashInfoList;
+	}
+
 	public Map<String, Attribute> getUnit2Attribute() {
 		return unit2Attribute;
 	}

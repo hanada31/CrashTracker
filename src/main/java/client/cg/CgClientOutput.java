@@ -37,11 +37,10 @@ public class CgClientOutput {
 			Iterator<Edge> it = cg.iterator();
 			while (it.hasNext()) {
 				Edge edge = it.next();
-				if (SootUtils.hasSootActiveBody(edge.getTgt().method())) {
-					String caller = edge.getSrc().method().getSignature();
-					String callee = edge.getTgt().method().getSignature();
-					writer.write(caller + " -> " + callee + "\n");
-				}
+				String caller = edge.getSrc().method().getSignature();
+				String callee = edge.getTgt().method().getSignature();
+				writer.write(caller + " -> " + callee + "\n");
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -68,9 +67,8 @@ public class CgClientOutput {
 			Iterator<Edge> it = cg.iterator();
 			while (it.hasNext()) {
 				Edge edge = it.next();
-				if (SootUtils.hasSootActiveBody(edge.getTgt().method())) {
-					writer.write(edge.toString() + "\n");
-				}
+				writer.write(edge.toString() + "\n");
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

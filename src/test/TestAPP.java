@@ -27,7 +27,12 @@ public class TestAPP {
         String path;
         path = "D:\\SoftwareData\\ToolsInREST\\yanjiwei\\ICCBot\\Tool\\Empirical500\\";
         String name;
-        name = "com.justnote.apk";
+        name = "com.justnote-78.apk";
+        name = "com.ccemusic.downloader-151.apk";
+        name = "com.streema.podcast-22.apk";
+//        name = "com.microcell.MyHouse-398.apk";
+//        name = "com.xy.mobile.shaketoflashlight-52.apk";
+//        name = "com.ftbpro.app-240.apk";
         String client = "CrashAnalysisClient";
 
         MyConfig.getInstance().setAppName(name);
@@ -43,7 +48,8 @@ public class TestAPP {
         MyConfig.getInstance().setSrc_prec(Options.src_prec_apk);
         MyConfig.getInstance().setFileSuffixLength(4);
         MyConfig.getInstance().setCrashInfoFilePath("D:\\ProjectData\\IdeaProjects\\LoFDroid\\Files\\crashInfo.json");
-        MyConfig.getInstance().setExceptionSummaryFilePath("D:\\ProjectData\\IdeaProjects\\LoFDroid\\Files\\android.json");
+        MyConfig.getInstance().setExceptionSummaryFilePath("D:\\ProjectData\\IdeaProjects\\LoFDroid\\results\\output\\android\\exceptionInfo\\");
+
     }
 
     /**

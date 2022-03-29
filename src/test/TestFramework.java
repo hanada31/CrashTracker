@@ -38,7 +38,7 @@ public class TestFramework {
         MyConfig.getInstance().setMaxObjectSummarySize(100);
         MyConfig.getInstance().setResultWarpperFolder("results/" + File.separator);
         MyConfig.getInstance().setResultFolder(MyConfig.getInstance().getResultWarpperFolder()+ "output" + File.separator);
-        MyConfig.getInstance().setTimeLimit(10);
+        MyConfig.getInstance().setTimeLimit(100);
         MyConfig.getInstance().setAndroidJar("lib/platforms");
         MyConfig.getInstance().setSrc_prec(Options.src_prec_only_class);
 //        MyConfig.getInstance().setJimple(false);

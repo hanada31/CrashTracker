@@ -1,12 +1,16 @@
 package main.java.client.exception;
 
+import main.java.analyze.utils.output.PrintUtils;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
+import soot.jimple.StringConstant;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Author hanada
@@ -14,11 +18,10 @@ import java.util.List;
  * @Version 1.0
  */
 public class ExceptionInfo {
-
-
-    private  String exceptionType;
-    private  String exceptionMsg;
+    private String exceptionType;
+    private String exceptionMsg;
     private List<Value> relatedParamValues;
+    private Set<Integer> relatedValueIndex;
     private List<SootField> relatedFieldValues;
     private List<Value> caughtedValues;
     private List<RelatedMethod> relatedMethodsInSameClass;
@@ -27,8 +30,11 @@ public class ExceptionInfo {
     private List<Value> conditions;
     private String modifier;
     private List<Unit> tracedUnits;
-    private  SootMethod sootMethod;
-    private  Unit unit;
+    private SootMethod sootMethod;
+    private String sootMethodName;
+    private Unit unit;
+    private RelatedVarType relatedVarType;
+
     public ExceptionInfo() {
         this.relatedParamValues = new ArrayList<>();
         this.relatedFieldValues = new ArrayList<>();
@@ -38,21 +44,16 @@ public class ExceptionInfo {
         this.relatedMethods = new ArrayList<>();
         this.conditions = new ArrayList<>();
         this.tracedUnits = new ArrayList<>();
+        this.relatedValueIndex = new HashSet<>();
 
     }
     public ExceptionInfo(SootMethod sootMethod, Unit unit, String exceptionType) {
+        this();
         this.sootMethod = sootMethod;
+        initModifier();
         this.unit = unit;
         this.exceptionType = exceptionType;
-        this.relatedParamValues = new ArrayList<>();
-        this.relatedFieldValues = new ArrayList<>();
-        this.caughtedValues = new ArrayList<>();
-        this.relatedMethodsInSameClass = new ArrayList<>();
-        this.relatedMethodsInDiffClass = new ArrayList<>();
-        this.relatedMethods = new ArrayList<>();
-        this.conditions = new ArrayList<>();
-        this.tracedUnits = new ArrayList<>();
-        initModifier();
+
     }
 
     private void initModifier() {
@@ -66,6 +67,45 @@ public class ExceptionInfo {
             setModifier("default");
     }
 
+    public void setRelatedVarType(RelatedVarType relatedVarType) {
+        this.relatedVarType = relatedVarType;
+    }
+
+    public RelatedVarType getRelatedVarType() {
+        if(isOverrideMissing()) return  RelatedVarType.OverrideMissing;
+        if(isParameterOnly()) return  RelatedVarType.ParameterOnly;
+        if(isFieldOnly()) return  RelatedVarType.FieldOnly;
+        if(isParaAndField()) return  RelatedVarType.ParaAndField;
+        return relatedVarType;
+    }
+
+    public boolean isOverrideMissing() {
+        if(getRelatedMethods().size() ==0 && getConditions().size() ==0 )
+            return true;
+        else
+            return false;
+    }
+
+    public boolean isParameterOnly() {
+        if(getRelatedParamValues().size()>0 && getRelatedFieldValues().size()==0 )
+            return true;
+        else
+            return false;
+    }
+
+    public boolean isFieldOnly() {
+        if(getRelatedParamValues().size()==0 && getRelatedFieldValues().size()>0 )
+            return true;
+        else
+            return false;
+    }
+
+    public boolean isParaAndField() {
+        if(getRelatedParamValues().size()> 0 && getRelatedFieldValues().size()>0 )
+            return true;
+        else
+            return false;
+    }
 
     public String getModifier() {
         return modifier;
@@ -192,8 +232,16 @@ public class ExceptionInfo {
         this.relatedMethods = relatedMethods;
     }
 
-    public void setConditions(List<Value> conditions) {
-        this.conditions = conditions;
+    public void setConditions(String conditions) {
+        if(conditions == null) return;
+        conditions= conditions.replace("\"","");
+        conditions= conditions.replace("[","").replace("]","");
+        conditions= conditions.replace("at ","");
+        String ss[] = conditions.split(", ");
+        for(String t: ss){
+            this.conditions.add(StringConstant.v(t));
+        }
+
     }
 
     public void setSootMethod(SootMethod sootMethod) {
@@ -217,6 +265,34 @@ public class ExceptionInfo {
                 ", sootMethod=" + sootMethod +
                 ", unit=" + unit +
                 '}';
+    }
+
+    public String getSootMethodName() {
+        return sootMethodName;
+    }
+
+    public void setSootMethodName(String sootMethodName) {
+        //			"method":"<android.database.sqlite.SQLiteClosable: void acquireReference()>",
+        String ss[] = sootMethodName.split(" ");
+        String prefix = ss[0].replace("<","").replace(":",".");
+        String suffix = ss[2].split("\\(")[0];
+        this.sootMethodName = prefix+suffix;
+    }
+
+    public String printRelatedMethodsInSameClass() {
+        return  PrintUtils.printList(relatedMethodsInSameClass,"\n");
+    }
+
+    public String printRelatedMethodsInDiffClass() {
+        return  PrintUtils.printList(relatedMethodsInDiffClass,"\n");
+    }
+
+    public Set<Integer> getRelatedValueIndex() {
+        return relatedValueIndex;
+    }
+
+    public void setRelatedValueIndex(Set<Integer> relatedValueIndex) {
+        this.relatedValueIndex = relatedValueIndex;
     }
 }
 

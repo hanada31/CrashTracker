@@ -5,6 +5,7 @@ import main.java.Global;
 import main.java.MyConfig;
 import main.java.analyze.utils.output.FileUtils;
 import main.java.client.BaseClient;
+import main.java.client.cg.cgApk.CallGraphofApkClient;
 import main.java.client.cg.cgJava.CallGraphofJavaClient;
 import main.java.client.exception.ExceptionAnalyzer;
 import main.java.client.exception.ExceptionInfoClientOutput;
@@ -25,15 +26,15 @@ public class CrashAnalysisClient extends BaseClient {
     @Override
     protected void clientAnalyze() {
         result = new StatisticResult();
-//        if (!MyConfig.getInstance().isSootAnalyzeFinish()) {
-//            SootAnalyzer sootAnalyzer = new SootAnalyzer();
-//            sootAnalyzer.analyze();
-//        }
-//
-//        if (!MyConfig.getInstance().isCallGraphAnalyzeFinish()) {
-//            new CallGraphofJavaClient().start();
-//            MyConfig.getInstance().setCallGraphAnalyzeFinish(true);
-//        }
+        if (!MyConfig.getInstance().isSootAnalyzeFinish()) {
+            SootAnalyzer sootAnalyzer = new SootAnalyzer();
+            sootAnalyzer.analyze();
+        }
+
+        if (!MyConfig.getInstance().isCallGraphAnalyzeFinish()) {
+            new CallGraphofApkClient().start();
+            MyConfig.getInstance().setCallGraphAnalyzeFinish(true);
+        }
 //        if (!MyConfig.getInstance().isStaitiucValueAnalyzeFinish()) {
 //            if (MyConfig.getInstance().getMySwithch().isStaticFieldSwitch()) {
 //                StaticValueAnalyzer staticValueAnalyzer = new StaticValueAnalyzer();
@@ -55,7 +56,7 @@ public class CrashAnalysisClient extends BaseClient {
         FileUtils.createFolder(summary_app_dir);
 
         CrashAnalysisClientOutput outer = new CrashAnalysisClientOutput(this.result);
-//        outer.writeToJson(summary_app_dir+Global.v().getAppModel().getAppName()+".json", Global.v().getAppModel().getExceptionInfoList());
+        outer.writeToJson(summary_app_dir+Global.v().getAppModel().getAppName()+".json", Global.v().getAppModel().getCrashInfoList());
 
     }
 }

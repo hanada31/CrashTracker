@@ -27,7 +27,12 @@ public class TestIR {
         String path;
         path = "D:\\SoftwareData\\ToolsInREST\\yanjiwei\\ICCBot\\Tool\\Empirical500\\";
         String name;
+        name = "com.justnote-78.apk";
+        name = "com.ccemusic.downloader-151.apk";
+        name = "com.streema.podcast-22.apk";
         name = "com.microcell.MyHouse-398.apk";
+        name = "com.xy.mobile.shaketoflashlight-52.apk";
+        name = "com.ftbpro.app-240.apk";
         String client = "IROutputClient";
 
         MyConfig.getInstance().setAppName(name);

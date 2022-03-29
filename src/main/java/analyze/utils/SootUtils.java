@@ -714,6 +714,7 @@ public class SootUtils {
 		Set<SootMethod> targetSet = new HashSet<SootMethod>();
 		SootMethod invMethod = invoke.getMethod();
 		if (invMethod != null) {
+			targetSet.add(invMethod);
 			if (MyConfig.getInstance().getMySwithch().isAsyncMethodSwitch()) {
 				if (invMethod.toString().contains("<java.lang.Thread: void start()>")) {
 					SootMethod runMethod = transformStart2Run(sm, invoke, u);
@@ -753,7 +754,7 @@ public class SootUtils {
 							}
 						}
 					}
-					targetSet.add(invMethod);
+//					targetSet.add(invMethod);
 				}
 				Pair<SootMethod, Unit> pair = new Pair<SootMethod, Unit>(sm, u);
 				Set<SootMethod> listenerMehods = Global.v().getAppModel().getEntryMethod2MethodAddThisCallBack()

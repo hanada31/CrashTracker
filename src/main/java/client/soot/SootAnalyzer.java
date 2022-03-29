@@ -97,7 +97,7 @@ public class SootAnalyzer extends Analyzer {
 	 */
 	public static void setExcludePackage() {
 		ArrayList<String> excludeList = new ArrayList<String>();
-//		excludeList.add("android.*");
+		excludeList.add("android.*");
 		excludeList.add("androidx.*");
 		excludeList.add("kotlin.*");
 		excludeList.add("com.*");

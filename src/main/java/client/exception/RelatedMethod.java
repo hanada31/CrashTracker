@@ -47,4 +47,13 @@ public class RelatedMethod {
     public void setDepth(int depth) {
         this.depth = depth;
     }
+
+    @Override
+    public String toString() {
+        return "RelatedMethod{" +
+                "method='" + method + '\'' +
+                ", source=" + source +
+                ", depth=" + depth +
+                '}';
+    }
 }

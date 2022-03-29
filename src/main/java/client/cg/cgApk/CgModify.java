@@ -30,7 +30,7 @@ public class CgModify extends Analyzer {
 
 	@Override
 	public void analyze() {
-		boolean lightMode = true;
+		boolean lightMode = false;
 		if(lightMode){
 			addTopoForSupplySingle();
 		}else{
@@ -200,10 +200,8 @@ public class CgModify extends Analyzer {
 					if (invoke != null) { // u is invoke stmt
 						Set<SootMethod> targetSet = SootUtils.getInvokedMethodSet(sm, u);
 						for (SootMethod target : targetSet) {
-							if(target.hasActiveBody()) {
-								Edge e = new Edge(sm, (Stmt) u, target);
-								callGraph.addEdge(e);
-							}
+							Edge e = new Edge(sm, (Stmt) u, target);
+							callGraph.addEdge(e);
 						}
 					}
 				}
