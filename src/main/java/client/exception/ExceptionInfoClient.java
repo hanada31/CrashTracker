@@ -28,6 +28,7 @@ public class ExceptionInfoClient extends BaseClient {
     @Override
     protected void clientAnalyze() {
         result = new StatisticResult();
+        MyConfig.getInstance().setFileSuffixLength(0);
         if (!MyConfig.getInstance().isSootAnalyzeFinish()) {
             SootAnalyzer sootAnalyzer = new SootAnalyzer();
             sootAnalyzer.analyze();

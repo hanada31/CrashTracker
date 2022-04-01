@@ -37,12 +37,11 @@ public class TestFramework {
         MyConfig.getInstance().setMaxFunctionExpandNumber(5); //10?
         MyConfig.getInstance().setMaxObjectSummarySize(100);
         MyConfig.getInstance().setResultWarpperFolder("results/" + File.separator);
-        MyConfig.getInstance().setResultFolder(MyConfig.getInstance().getResultWarpperFolder()+ "output" + File.separator);
+        MyConfig.getInstance().setResultFolder("Files" + File.separator);
         MyConfig.getInstance().setTimeLimit(100);
         MyConfig.getInstance().setAndroidJar("lib/platforms");
         MyConfig.getInstance().setSrc_prec(Options.src_prec_only_class);
 //        MyConfig.getInstance().setJimple(false);
-        MyConfig.getInstance().setFileSuffixLength(0);
     }
 
     /**

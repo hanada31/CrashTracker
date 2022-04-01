@@ -88,6 +88,7 @@ public class CrashAnalysisClientOutput {
         ExceptionInfo exceptionInfo = crashInfo.getExceptionInfo();
         if(exceptionInfo!=null) {
             jsonObject.put("reg message", crashInfo.getExceptionInfo().getExceptionMsg());
+            jsonObject.put("relatedVarType", crashInfo.getExceptionInfo().getRelatedVarType());
         }
         jsonObject.put("labeledBuggyAPI", crashInfo.getBuggyApi());
         jsonObject.put("labeledRealBuggy", crashInfo.getReal());

@@ -11,6 +11,8 @@ import java.util.*;
  * @Version 1.0
  */
 public class CrashInfo {
+
+    String id;
     String methodName;
     String className;
     String real;
@@ -22,12 +24,54 @@ public class CrashInfo {
     String category;
     String identifier;
     String reason;
+    String signaler;
+    String crashAPI;
+    String crashMethod;
+    List<String> crashMethodList = new ArrayList<>();
+    String crashCallBack;
     ExceptionInfo exceptionInfo;
     List<Edge> edges = new ArrayList<>();
     Map<Integer, ArrayList<Edge>> edgeMap = new TreeMap<Integer, ArrayList<Edge>>();
     List<String> classesInTrace= new ArrayList<>();
     List<String> buggyMethods = new ArrayList<>();
     List<String> buggyMethods_weak = new ArrayList<>();
+
+
+    public List<String> getCrashMethodList() {
+        return crashMethodList;
+    }
+
+    public String getSignaler() {
+        return signaler;
+    }
+
+    public void setSignaler(String signaler) {
+        this.signaler = signaler;
+    }
+
+    public String getCrashAPI() {
+        return crashAPI;
+    }
+
+    public void setCrashAPI(String crashAPI) {
+        this.crashAPI = crashAPI;
+    }
+
+    public String getCrashMethod() {
+        return crashMethod;
+    }
+
+    public void setCrashMethod(String crashMethod) {
+        this.crashMethod = crashMethod;
+    }
+
+    public String getCrashCallBack() {
+        return crashCallBack;
+    }
+
+    public void setCrashCallBack(String crashCallBack) {
+        this.crashCallBack = crashCallBack;
+    }
 
 
     public String getReal() {
@@ -55,12 +99,33 @@ public class CrashInfo {
         trace= trace.replace("[","").replace("]","");
         trace= trace.replace("at ","");
         String ss[] = trace.split(",");
-        for(String t: ss){
-            this.trace.add(t);
-//            System.out.println(t);
-            if(t.lastIndexOf(".")>=0)
-                this.classesInTrace.add(t.substring(0, t.lastIndexOf(".")));
+        for(int i=0; i< ss.length;i++){
+            String method = ss[i];
+            if(method.contains(" ") || !method.contains(".")) continue;
+            this.trace.add(method);
+            if(method.lastIndexOf(".")>=0)
+                this.classesInTrace.add(method.substring(0, method.lastIndexOf(".")));
+            if(i==0)
+                setSignaler(method);
+            else if(getCrashAPI()==null && ss[i-1].startsWith("android") && !method.startsWith("android")){
+                setCrashAPI(ss[i-1]);
+                setCrashMethod(method);
+            }else if(getCrashAPI()!=null && getCrashCallBack()==null
+                    && (method.startsWith("android.")|| method.startsWith("com.android.")|| method.startsWith("java")) ) {
+                setCrashCallBack(method);
+            }
+            if(!method.startsWith("android.") &&!method.startsWith("com.android.") && !method.startsWith("java")) {
+                crashMethodList.add(method);
+            }
+
         }
+    }
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getBuggyApi() {

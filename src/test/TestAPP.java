@@ -28,11 +28,17 @@ public class TestAPP {
         path = "D:\\SoftwareData\\ToolsInREST\\yanjiwei\\ICCBot\\Tool\\Empirical500\\";
         String name;
         name = "com.justnote-78.apk";
-        name = "com.ccemusic.downloader-151.apk";
-        name = "com.streema.podcast-22.apk";
-//        name = "com.microcell.MyHouse-398.apk";
+//        name = "com.ccemusic.downloader-151.apk";
+//        name = "com.streema.podcast-22.apk";
+        name = "com.microcell.MyHouse-398.apk";
 //        name = "com.xy.mobile.shaketoflashlight-52.apk";
 //        name = "com.ftbpro.app-240.apk";
+        name = "com.winit.starnews.hin-81.apk";
+        name = "se.nansen.coop-463.apk";
+        name = "com.birkot-101.apk";
+        name = "me.selfish.android-456.apk";
+
+
         String client = "CrashAnalysisClient";
 
         MyConfig.getInstance().setAppName(name);
@@ -46,9 +52,8 @@ public class TestAPP {
         MyConfig.getInstance().setTimeLimit(10);
         MyConfig.getInstance().setAndroidJar("lib/platforms");
         MyConfig.getInstance().setSrc_prec(Options.src_prec_apk);
-        MyConfig.getInstance().setFileSuffixLength(4);
-        MyConfig.getInstance().setCrashInfoFilePath("D:\\ProjectData\\IdeaProjects\\LoFDroid\\Files\\crashInfo.json");
-        MyConfig.getInstance().setExceptionSummaryFilePath("D:\\ProjectData\\IdeaProjects\\LoFDroid\\results\\output\\android\\exceptionInfo\\");
+        MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfo.json");
+        MyConfig.getInstance().setExceptionSummaryFilePath("Files\\android\\exceptionInfo\\");
 
     }
 

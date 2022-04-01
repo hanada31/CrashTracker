@@ -47,7 +47,7 @@ public class MyConfig {
 		private static final MyConfig INSTANCE = new MyConfig();
 	}
 	private String CrashInfoFilePath;
-	private String ExceptionSummaryFilePath;
+	private String ExceptionSummaryFilePath ;
 
 	public static MyConfig getInstance() {
 		return SingletonInstance.INSTANCE;

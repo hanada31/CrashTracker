@@ -1,14 +1,20 @@
 package main.java.client.manifest;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.*;
 
 
 //import jymbolic.android.resources.controls.ProcessManifest;
 //import jymbolic.android.resources.xml.AXmlNode;
 import main.java.Analyzer;
 import main.java.Global;
+import main.java.MyConfig;
 import main.java.analyze.model.analyzeModel.AppModel;
+import main.java.analyze.utils.ConstantUtils;
 import main.java.analyze.utils.SootUtils;
 import main.java.client.obj.model.component.ActivityModel;
 import main.java.client.obj.model.component.BroadcastReceiverModel;
@@ -17,6 +23,7 @@ import main.java.client.obj.model.component.ContentProviderModel;
 import main.java.client.obj.model.component.Data;
 import main.java.client.obj.model.component.IntentFilterModel;
 import main.java.client.obj.model.component.ServiceModel;
+import org.dom4j.DocumentException;
 import soot.jimple.infoflow.android.axml.AXmlNode;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 
@@ -40,15 +47,9 @@ public class MainfestAnalyzer extends Analyzer {
 	 */
 	@Override
 	public void analyze() {
-		try {
-			manifestManager = new ProcessManifest(appModel.getAppPath());
-			appModel.setManifestString(getManifestString());
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException("no manifest is available.");
-		}
-		if (manifestManager == null)
-			return;
+		executeManifestAnalyzer();
+		if (manifestManager == null)  return;
+		appModel.setManifestString(getManifestString());
 		String pkg = manifestManager.getPackageName();
 		// the ".debug" will cause the imprecise of -exlib
 		if (pkg.endsWith(".debug"))
@@ -86,9 +87,37 @@ public class MainfestAnalyzer extends Analyzer {
 				appModel.getExportedComponentMap().put(component.getComponetName(), component);
 			}
 		}
-
 	}
 
+	/**
+	 * execute ManifestAnalyzer in another thread
+	 */
+	public void executeManifestAnalyzer(){
+		final ExecutorService exec = Executors.newSingleThreadExecutor();
+		Callable<String> call = new Callable<String>(){
+			@Override
+			public String call() throws Exception{
+				try {
+					manifestManager = new ProcessManifest(appModel.getAppPath());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return "Timer finish";
+			}
+		};
+
+		Future<String> future = exec.submit(call);
+		try{
+			future.get(60 * ConstantUtils.MANIFESTTIMEOUT, TimeUnit.SECONDS);
+		}catch(InterruptedException e){
+			e.printStackTrace();
+		}catch(ExecutionException e){
+			e.printStackTrace();
+		}catch(TimeoutException e){
+			System.err.println("Failed to extract Manifest File");
+		}
+		exec.shutdown();
+	}
 	/**
 	 * parse activity + service + contentProvider + broadcastReceiver node in
 	 * manifest

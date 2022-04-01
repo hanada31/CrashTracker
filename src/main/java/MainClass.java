@@ -172,7 +172,9 @@ public class MainClass {
 		options.addOption("path", true, "-path: Set the path to the apk under analysis.");
 		options.addOption("androidJar", true, "-androidJar: Set the path of android.jar.");
 		options.addOption("version", true, "-version [default:23]: Version of Android SDK.");
-		
+		options.addOption("crashPath", true, "-crashPath: crash info file.");
+		options.addOption("exceptionPath", true, "-exceptionPath: exception file folder.");
+
 		/** analysis config **/
 		options.addOption("client", true, "-client "
 			
@@ -191,6 +193,8 @@ public class MainClass {
 				+ "TestGenerationClient: Generate test cases for components based on the static results.\n"
 				+ "MisEACheckerClient: Report the mis-exported activities.\n"
 				+ "GatorClient: Invoke the client in Gator tool.\n"
+				+ "CrashAnalysisClient: Analysis the crash information for an apk.\n"
+				+ "ExceptionInfoClient: Extract exception information from Android framework.\n"
 			);
 		/** analysis config **/
 		options.addOption("time", true, "-time [default:90]: Set the max running time (min).");
@@ -261,6 +265,8 @@ public class MainClass {
 		MyConfig.getInstance().setAppPath(mCmd.getOptionValue("path", System.getProperty("user.dir")) + File.separator);
 		MyConfig.getInstance().setAndroidJar(mCmd.getOptionValue("androidJar", "lib/platforms") + File.separator);
 		MyConfig.getInstance().setAndroidVersion("android-" + mCmd.getOptionValue("version", "23"));
+		MyConfig.getInstance().setCrashInfoFilePath(mCmd.getOptionValue("crashPath","Files\\crashInfo.json"));
+		MyConfig.getInstance().setExceptionSummaryFilePath(mCmd.getOptionValue("exceptionPath","Files\\android\\exceptionInfo\\"));
 		if (mCmd.hasOption("sootOutput"))
 			MyConfig.getInstance().setWriteSootOutput(true);
 		

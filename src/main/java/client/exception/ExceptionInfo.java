@@ -6,6 +6,7 @@ import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
 import soot.jimple.StringConstant;
+import soot.jimple.internal.JInstanceFieldRef;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -21,8 +22,11 @@ public class ExceptionInfo {
     private String exceptionType;
     private String exceptionMsg;
     private List<Value> relatedParamValues;
+    private List<String> relatedParamValuesInStr;
     private Set<Integer> relatedValueIndex;
     private List<SootField> relatedFieldValues;
+    private List<String> relatedFieldValuesInStr;
+
     private List<Value> caughtedValues;
     private List<RelatedMethod> relatedMethodsInSameClass;
     private List<RelatedMethod> relatedMethodsInDiffClass;
@@ -44,6 +48,8 @@ public class ExceptionInfo {
         this.relatedMethods = new ArrayList<>();
         this.conditions = new ArrayList<>();
         this.tracedUnits = new ArrayList<>();
+        this.relatedParamValuesInStr = new ArrayList<>();
+        this.relatedFieldValuesInStr = new ArrayList<>();
         this.relatedValueIndex = new HashSet<>();
 
     }
@@ -208,12 +214,34 @@ public class ExceptionInfo {
         this.exceptionType = exceptionType;
     }
 
-    public void setRelatedParamValues(List<Value> relatedParamValues) {
-        this.relatedParamValues = relatedParamValues;
+
+    public List<String> getRelatedParamValuesInStr() {
+        return relatedParamValuesInStr;
     }
 
-    public void setRelatedFieldValues(List<SootField> relatedFieldValues) {
-        this.relatedFieldValues = relatedFieldValues;
+    public List<String> getRelatedFieldValuesInStr() {
+        return relatedFieldValuesInStr;
+    }
+
+    public void setRelatedParamValuesInStr(String relatedParamValues) {
+        if(relatedParamValues == null) return;
+        relatedParamValues= relatedParamValues.replace("<","");
+        relatedParamValues= relatedParamValues.replace(">","");
+        String ss[] = relatedParamValues.split(", ");
+        for(String t: ss){
+            if(t.contains(": "))
+                this.relatedParamValuesInStr.add(t.split(": ")[1]);
+        }
+    }
+
+    public void setRelatedFieldValuesInStr(String relatedFieldValues) {
+        if(relatedFieldValues == null) return;
+        relatedFieldValues= relatedFieldValues.replace("<","");
+        relatedFieldValues= relatedFieldValues.replace(">","");
+        String ss[] = relatedFieldValues.split(", ");
+        for(String t: ss){
+            this.relatedFieldValuesInStr.add(t);
+        }
     }
 
     public void setCaughtedValues(List<Value> caughtedValues) {

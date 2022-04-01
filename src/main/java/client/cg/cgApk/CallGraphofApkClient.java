@@ -21,7 +21,6 @@ public class CallGraphofApkClient extends BaseClient {
 
 	@Override
 	protected void clientAnalyze() {
-
 		if (!MyConfig.getInstance().isManifestAnalyzeFinish()) {
 			new ManifestClient().start();
 			MyConfig.getInstance().setManifestAnalyzeFinish(true);

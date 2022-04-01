@@ -6,10 +6,6 @@ import main.java.MyConfig;
 import main.java.analyze.utils.output.FileUtils;
 import main.java.client.BaseClient;
 import main.java.client.cg.cgApk.CallGraphofApkClient;
-import main.java.client.cg.cgJava.CallGraphofJavaClient;
-import main.java.client.exception.ExceptionAnalyzer;
-import main.java.client.exception.ExceptionInfoClientOutput;
-import main.java.client.obj.target.ctg.StaticValueAnalyzer;
 import main.java.client.soot.SootAnalyzer;
 import main.java.client.statistic.model.StatisticResult;
 import org.dom4j.DocumentException;
@@ -26,6 +22,7 @@ public class CrashAnalysisClient extends BaseClient {
     @Override
     protected void clientAnalyze() {
         result = new StatisticResult();
+        MyConfig.getInstance().setFileSuffixLength(4);
         if (!MyConfig.getInstance().isSootAnalyzeFinish()) {
             SootAnalyzer sootAnalyzer = new SootAnalyzer();
             sootAnalyzer.analyze();
