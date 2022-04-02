@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import main.java.analyze.utils.CollectionUtils;
 import main.java.client.exception.ExceptionInfo;
 import main.java.client.exception.RelatedMethod;
 import main.java.client.statistic.model.StatisticResult;
@@ -41,7 +42,7 @@ public class CrashAnalysisClientOutput {
                 addBuggyTraces(jsonObject, crashInfo);
 
                 addBuggyMethods(jsonObject, crashInfo);
-                addEdges(jsonObject, crashInfo);
+//                addEdges(jsonObject, crashInfo);
                 addRelatedMethods(jsonObject, crashInfo);
             }
 
@@ -58,12 +59,12 @@ public class CrashAnalysisClientOutput {
     private void addRelatedMethods(JSONObject jsonObject, CrashInfo crashInfo) {
         ExceptionInfo exceptionInfo = crashInfo.getExceptionInfo();
         if(exceptionInfo==null) return;
-        jsonObject.put("relatedMethodsInSameClass", exceptionInfo.getRelatedMethodsInSameClass().size());
-        jsonObject.put("relatedMethodsInDiffClass", exceptionInfo.getRelatedMethodsInDiffClass().size());
+        jsonObject.put("relatedMethodsInSameClass", exceptionInfo.getRelatedMethodsInSameClass(false).size());
+        jsonObject.put("relatedMethodsInDiffClass", exceptionInfo.getRelatedMethodsInDiffClass(false).size());
 
         JSONArray relatedMethodsSameArray = new JSONArray();
-        if (exceptionInfo.getRelatedMethodsInSameClass().size() > 0) {
-            for (RelatedMethod mtd : exceptionInfo.getRelatedMethodsInSameClass()) {
+        if (exceptionInfo.getRelatedMethodsInSameClass(false).size() > 0) {
+            for (RelatedMethod mtd : exceptionInfo.getRelatedMethodsInSameClass(false)) {
                 String mtdString = JSONObject.toJSONString(mtd);
                 JSONObject mtdObject = JSONObject.parseObject(mtdString);  // 转换为json对象
                 relatedMethodsSameArray.add(mtdObject);
@@ -72,8 +73,8 @@ public class CrashAnalysisClientOutput {
         jsonObject.put("relatedMethodsInSameClass" , relatedMethodsSameArray);
 
         JSONArray relatedMethodsDiffArray = new JSONArray();
-        if (exceptionInfo.getRelatedMethodsInDiffClass().size() > 0) {
-            for (RelatedMethod mtd : exceptionInfo.getRelatedMethodsInDiffClass()) {
+        if (exceptionInfo.getRelatedMethodsInDiffClass(false).size() > 0) {
+            for (RelatedMethod mtd : exceptionInfo.getRelatedMethodsInDiffClass(false)) {
                 String mtdString = JSONObject.toJSONString(mtd);
                 JSONObject mtdObject = JSONObject.parseObject(mtdString);  // 转换为json对象
                 relatedMethodsDiffArray.add(mtdObject);
@@ -105,25 +106,24 @@ public class CrashAnalysisClientOutput {
         jsonObject.put("stack trace" , traceArray);
     }
 
+
     private void addBuggyMethods(JSONObject jsonObject, CrashInfo crashInfo) {
         JSONArray buggyArray = new JSONArray();
-        for (String  buggy: crashInfo.getBuggyMethods()) {
+        List<Map.Entry<String, Integer>> treeMapList = CollectionUtils.getTreeMapEntriesSortedByValue(crashInfo.getBuggyCandidates());
+        for (int i = 0; i < treeMapList.size(); i++) {
+            String buggy = treeMapList.get(i).toString();
             buggyArray.add(buggy);
         }
         jsonObject.put("locatedBuggyMethod" , buggyArray);
-
-        JSONArray buggyweakArray = new JSONArray();
-        for (String  buggy: crashInfo.getBuggyMethods_weak()) {
-            buggyweakArray.add(buggy);
-        }
-        jsonObject.put("locatedBuggyMethod_weak" , buggyweakArray);
     }
+
+
 
     private void addEdges(JSONObject jsonObject, CrashInfo crashInfo) {
         JSONArray edgeArray = new JSONArray();
         for (Map.Entry entry: crashInfo.getEdgeMap().entrySet()) {
             for(Edge edge :(List<Edge>)entry.getValue()){
-                edgeArray.add(edge.getSrc().method().getSignature());
+                edgeArray.add(edge.toString());
             }
         }
         jsonObject.put("edges" , edgeArray);

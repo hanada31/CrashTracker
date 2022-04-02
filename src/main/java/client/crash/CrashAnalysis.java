@@ -2,9 +2,13 @@ package main.java.client.crash;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.sun.xml.bind.v2.runtime.reflect.opt.Const;
 import main.java.Analyzer;
 import main.java.Global;
 import main.java.MyConfig;
+import main.java.analyze.utils.CollectionUtils;
+import main.java.analyze.utils.ConstantUtils;
+import main.java.analyze.utils.SootUtils;
 import main.java.analyze.utils.output.FileUtils;
 import main.java.client.exception.*;
 import main.java.client.statistic.model.StatisticResult;
@@ -44,124 +48,192 @@ public class CrashAnalysis extends Analyzer {
 
     private void printCrash2Edges() {
         for(CrashInfo crashInfo : crashInfoList){
-//            if(crashInfo.getExceptionInfo()==null) continue;
             System.out.println("methodName::"+ crashInfo.getMethodName());
             System.out.println("msg::"+ crashInfo.getMsg());
-            int i = 0;
-
             String buggyRanking = getRankingString(crashInfo, "XXX", crashInfo.getReal(), -999);
-            for(String buggy : crashInfo.getBuggyMethods()) {
-                System.out.println("Buggy "+ (++i)+"::"+buggy);
+            List<Map.Entry<String, Integer>> treeMapList = CollectionUtils.getTreeMapEntriesSortedByValue(crashInfo.getBuggyCandidates());
+            for (int i = 0; i < treeMapList.size(); i++) {
+                String buggy = treeMapList.get(i).getKey();
+                System.out.println((i+1)+" @ " +treeMapList.get(i).toString() );
                 if(crashInfo.getReal().equals(buggy)){
-                    buggyRanking = getRankingString(crashInfo, "Buggy", buggy, i);
+                    buggyRanking = getRankingString(crashInfo, "Buggy", buggy, i+1);
                 }
             }
-
-            for(String buggy : crashInfo.getBuggyMethods_weak()) {
-                System.out.println("Buggy weak "+ (++i)+"::"+buggy);
-                if(crashInfo.getReal().equals(buggy)){
-                    buggyRanking = getRankingString(crashInfo, "WeakBuggy", buggy, i);
-                }
-            }
+            System.out.println(buggyRanking);
             FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"buggyRanking.txt", buggyRanking, true);
         }
     }
 
     private String getRankingString(CrashInfo crashInfo, String tag, String method, int location) {
-        int size1 = crashInfo.getBuggyMethods().size();
-        int size2 = size1 + crashInfo.getBuggyMethods_weak().size();
-        String size = "/ "+ size1+ " / "+size2;
-        return crashInfo.getRealCate() + "\t" + crashInfo.getId() +"\t" + tag + "\t" + method  +"\t@\t"+ location + "\t" +size + "\n" ;
+        int sizeAll = crashInfo.getBuggyCandidates().size();
+        String size = "/ "+ sizeAll;
+        String res = crashInfo.getRealCate() + "\t" + crashInfo.getId() +"\t" + tag + "\t" + method  +"\t@\t"+ location + "\t" +size + "\n";
+        return  res;
     }
 
     /**
      * find candidates according to the type of corresponding exception
      */
     private void getCandidateBuggyMethods() {
-        List<String> buggyCandidates = new ArrayList<>();
         for(CrashInfo crashInfo : crashInfoList){
             ExceptionInfo exceptionInfo = crashInfo.getExceptionInfo();
             if(exceptionInfo != null && exceptionInfo.getRelatedVarType()!=null) {
                 switch (exceptionInfo.getRelatedVarType()) {
                     case OverrideMissing:
-                        overrideMissingHandler(crashInfo, buggyCandidates);
-                        sortBuggyMethodsByTrace(crashInfo, buggyCandidates, false);
+                        overrideMissingHandler(crashInfo, false);
+                        noExceptionHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo, false);
                         break;
                     case ParameterOnly:
-                        parameterOnlyHandler(crashInfo, buggyCandidates);
-                        sortBuggyMethodsByTrace(crashInfo, buggyCandidates, true);
+                        parameterOnlyHandler(crashInfo);
+                        getBuggyFromUserCode(crashInfo);
+                        break;
+                    case ParaAndField:
+                        withFieldHandler(crashInfo, true);
+                        getBuggyFromUserCode(crashInfo);
+                        noExceptionHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo, false);
                         break;
                     case FieldOnly:
-                    case ParaAndField:
-                        parameterOnlyHandler(crashInfo, buggyCandidates);
-                        sortBuggyMethodsByTrace(crashInfo, buggyCandidates, false);
+                        withFieldHandler(crashInfo, false);
+                        getBuggyFromUserCode(crashInfo);
+                        noExceptionHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo, false);
                         break;
                 }
-            }else{
-                sortBuggyMethodsByTrace(crashInfo, buggyCandidates, false);
+            }else {
+                noExceptionHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo, false);
             }
         }
     }
 
-    private void addCrashMethodsAsBuggy(CrashInfo crashInfo, List<String> buggyCandidates) {
-        for(String traceMethod: crashInfo.getCrashMethodList()){
-            if(!buggyCandidates.contains(traceMethod))
-                buggyCandidates.add(traceMethod);
-        }
-    }
-
     /**
-     * FieldOnly type
+     * parameterOonlyHandler
      * @param crashInfo
-     * @param buggyCandidates
      */
-    private void fieldOnlyHandler(CrashInfo crashInfo, List<String> buggyCandidates) {
+    private void parameterOnlyHandler(CrashInfo crashInfo) {
+        for(String candi : crashInfo.getCrashMethodList()){
+            boolean isParaPassed = false;
+            SootMethod sm = getSootMethodBySimpleName(candi);
+            for(String paraTye: crashInfo.getExceptionInfo().getRelatedParamValuesInStr()){
+                if(sm.getSignature().contains(paraTye)){
+                    isParaPassed = true;
+                }
+            }
+            if(!isParaPassed) {
+                crashInfo.addBuggyCandidates(candi, ConstantUtils.INITSCORE);
+                break;
+            }
+        }
+        //TODO delete or ??
+        int score = ConstantUtils.INITSCORE-20;
+        for(String candi : crashInfo.getCrashMethodList()){
+            if(!crashInfo.buggyCandidates.containsKey(candi))
+                crashInfo.addBuggyCandidates(candi, score--);
+        }
     }
 
     /**
      * ParameterOnly type
      * @param crashInfo
-     * @param buggyCandidates
+     * @param required
+     *
      */
-    private void parameterOnlyHandler(CrashInfo crashInfo, List<String> buggyCandidates) {
+    private void withFieldHandler(CrashInfo crashInfo, boolean required) {
+        System.out.println("parameterOrFieldHandler...");
         ExceptionInfo exceptionInfo = crashInfo.getExceptionInfo();
-        for(RelatedMethod method: exceptionInfo.getRelatedMethodsInSameClass()){
-            getBuggyFromRelatedMethods(crashInfo, method);
+        for(RelatedMethod method: exceptionInfo.getRelatedMethodsInSameClass(false)){
+            getBuggyFromRelatedMethods(crashInfo, method, required);
         }
-        for(RelatedMethod method: exceptionInfo.getRelatedMethodsInDiffClass()){
-            getBuggyFromRelatedMethods(crashInfo, method);
-        }
-        for(Integer depth: crashInfo.getEdgeMap().keySet()){
-            for(Edge edge: crashInfo.getEdgeMap().get(depth)) {
-                SootMethod method = edge.getSrc().method();
-                buggyCandidates.add(method.getDeclaringClass().getName() + "." + method.getName());
+        if(crashInfo.getEdgeMap().size()==0) {
+            //add diff class results, when the same class results returns nothing
+            for (RelatedMethod method : exceptionInfo.getRelatedMethodsInDiffClass(false)) {
+                getBuggyFromRelatedMethods(crashInfo, method, required);
             }
         }
-        getBuggyFromUserCode(crashInfo, buggyCandidates);
+    }
+    private void noExceptionHandler(int initScore, CrashInfo crashInfo, boolean required) {
+        System.out.println("noExceptionHandler...");
+        for(String candi : crashInfo.getCrashMethodList()){
+            crashInfo.addBuggyCandidates(candi, initScore--);
+        }
+//            boolean isParaPassed = false;
+//            SootMethod sm = getSootMethodBySimpleName(candi);
+//            for(String paraTye: crashInfo.getExceptionInfo().getRelatedParamValuesInStr()){
+//                if(sm.getSignature().contains(paraTye)){
+//                    isParaPassed = true;
+//                }
+//            }
+//            if(!isParaPassed)
+//                crashInfo.addBuggyCandidates(candi, initScore--);
+//        }
     }
 
-    private void getBuggyFromUserCode(CrashInfo crashInfo, List<String> buggyCandidates) {
+
+    /**
+     * getBuggyFromRelatedMethods
+     * @param crashInfo
+     * @param method
+     * @param required
+     */
+    private void getBuggyFromRelatedMethods(CrashInfo crashInfo, RelatedMethod method, boolean required) {
+        for (Iterator<Edge> it = Global.v().getAppModel().getCg().iterator(); it.hasNext(); ) {
+            Edge edge = it.next();
+            if(edge.getTgt().method().getSignature().equals(method.getMethod())){
+                crashInfo.add2EdgeMap(0, edge);
+                SootMethod sourceMtd = edge.getSrc().method();
+                if(sourceMtd.getDeclaringClass().getName().startsWith("java") || sourceMtd.getDeclaringClass().getName().startsWith("android"))
+                    continue;
+                addCallersOfSourceOfEdge(edge, method, crashInfo, sourceMtd, 1, required);
+            }
+        }
+    }
+
+    /**
+     * addCallersOfSourceOfEdge
+     * @param edge
+     * @param method
+     * @param crashInfo
+     * @param sootMethod
+     * @param depth
+     * @param required
+     */
+    private void addCallersOfSourceOfEdge(Edge edge, RelatedMethod method, CrashInfo crashInfo, SootMethod sootMethod, int depth, boolean required) {
+        //TODO
+        String candi = sootMethod.getDeclaringClass().getName()+ "." + sootMethod.getName();
+        int score = ConstantUtils.INITSCORE - getOrderInTrace(crashInfo, candi, required)*5 - method.getDepth()*2 - depth;
+        System.out.println(candi +" " +score +" " + " 5*" +getOrderInTrace(crashInfo, candi, required) + " 2*" +method.getDepth()+ " 1*" +depth);
+        crashInfo.addBuggyCandidates(candi, score);
+
+        //if the buggy type is not passed by parametere, do not find its caller
+        Set<Integer> paramIndexCaller = SootUtils.getIndexesFromMethod(edge, crashInfo.exceptionInfo.getRelatedValueIndex());
+        System.out.println(sootMethod.getSignature() +" "+ paramIndexCaller.size() );
+        if(paramIndexCaller.size() == 0) return;
+
+        for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesInto(sootMethod); it.hasNext(); ) {
+            Edge edge2 = it.next();
+            if(!crashInfo.getEdges().contains(edge2) && !edge2.toString().contains("dummyMainMethod")){
+                crashInfo.add2EdgeMap(depth,edge2);
+                addCallersOfSourceOfEdge(edge2, method, crashInfo, edge2.getSrc().method(), depth+1, required);
+            }
+        }
+    }
+
+    /**
+     * getBuggyFromUserCode
+     * @param crashInfo
+     */
+    private void getBuggyFromUserCode(CrashInfo crashInfo) {
+        System.out.println("getBuggyFromUserCode......");
         SootMethod crashMethod = getCrashSootMethod(crashInfo);
         List<SootField> keyFields = getKeySootFields(crashMethod, crashInfo);
-        List<SootMethod> fieldRelatedMethods = getMethodsUsedField(crashMethod, keyFields,buggyCandidates);
-        for(SootMethod method :fieldRelatedMethods)
-            buggyCandidates.add(method.getDeclaringClass().getName()+"."+method.getName());
-
-    }
-
-
-    private List<SootMethod>  getMethodsUsedField(SootMethod sootMethod, List<SootField> keyFields, List<String> buggyCandidates) {
-        List<SootMethod> fieldRelatedMethods = new ArrayList<>();
-        if(sootMethod==null) return fieldRelatedMethods;
         for(SootField field: keyFields) {
-            for (SootMethod otherMethod : sootMethod.getDeclaringClass().getMethods()) {
+            for (SootMethod otherMethod : crashMethod.getDeclaringClass().getMethods()) {
                 if (!otherMethod.hasActiveBody()) continue;
-                if (ExceptionAnalyzer.fieldIsChanged(field, otherMethod)) {
-                    fieldRelatedMethods.add(otherMethod);
+                if (SootUtils.fieldIsChanged(field, otherMethod)) {
+                    //TODO
+                    int score = ConstantUtils.INITSCORE - ConstantUtils.USERFIELDMTDSCORE;
+                    crashInfo.addBuggyCandidates(otherMethod.getDeclaringClass().getName() + "." + otherMethod.getName(), score);
                 }
             }
         }
-        return fieldRelatedMethods;
     }
 
     /**
@@ -188,23 +260,33 @@ public class CrashAnalysis extends Analyzer {
      * @return
      */
     private SootMethod getCrashSootMethod(CrashInfo crashInfo) {
+        return getSootMethodBySimpleName(crashInfo.getCrashMethod());
+    }
+
+    /**
+     * getSootMethodBySimpleName
+     * @param simpleName
+     * @return
+     */
+    private SootMethod getSootMethodBySimpleName(String simpleName){
         for(SootClass sc: Scene.v().getApplicationClasses()) {
             for(SootMethod method: sc.getMethods()){
                 String name = method.getDeclaringClass().getName()+"."+ method.getName();
-                if(name.equals(crashInfo.getCrashMethod())){
+                if(name.equals(simpleName)){
                     return method;
                 }
             }
         }
         return null;
     }
-
     /**
      * OverrideMissing type
      * @param crashInfo
-     * @param buggyCandidates
+     * @param required
+     *
      */
-    private void overrideMissingHandler(CrashInfo crashInfo, List<String> buggyCandidates) {
+    private void overrideMissingHandler(CrashInfo crashInfo, boolean required) {
+        System.out.println("overrideMissingHandler...");
         for(SootClass sc: Scene.v().getApplicationClasses()){
             if(!sc.hasSuperclass()) continue;
             if(sc.getSuperclass().getName().equals(crashInfo.getClssName())){
@@ -215,66 +297,51 @@ public class CrashAnalysis extends Analyzer {
                             hasMethod = true;
                         }
                     }
-                    if(!hasMethod)
-                        buggyCandidates.add(sub.getName() + "." + crashInfo.getSubMethodName());
+                    if(!hasMethod) {
+                        String candi = sub.getName() + "." + crashInfo.getSubMethodName();
+                        int score = ConstantUtils.INITSCORE - getOrderInTrace(crashInfo, candi, required);
+                        //TODO
+                        crashInfo.addBuggyCandidates(candi, score);
+                    }
                 }
             }
         }
     }
 
     /**
-     * sort buggy methods by the order in trace
+     * getOrderInTrace
      * @param crashInfo
-     * @param buggyCandidates
+     * @param candi
+     * @param requireEqual
+     * @return
      */
-    private void sortBuggyMethodsByTrace(CrashInfo crashInfo, List<String> buggyCandidates, boolean requireEqual) {
-        addCrashMethodsAsBuggy(crashInfo,buggyCandidates);
-        for(int i = 0; i< crashInfo.getTrace().size(); i++) {
-            if (requireEqual) {
-                String tag = crashInfo.getTrace().get(i);
-                for (String candi : buggyCandidates) {
-                    if (candi.equals(tag)) {
-                        crashInfo.addBuggyMethods(candi);
-                    }
+    private int getOrderInTrace(CrashInfo crashInfo, String candi, boolean requireEqual) {
+        int order = 0;
+        if (requireEqual) {
+            for (String tag : crashInfo.getTrace()) {
+                if(tag.startsWith("android") ||tag.startsWith("java")) continue;
+                order++;
+                if (candi.equals(tag)) {
+                    return order;
                 }
             }
-        }
-        for(int i = 0; i< crashInfo.getClassesInTrace().size(); i++) {
-            String tag = crashInfo.getClassesInTrace().get(i);
-            for (String candi : buggyCandidates) {
+        }else {
+            for (String tag : crashInfo.getClassesInTrace()) {
+                if(tag.startsWith("android") ||tag.startsWith("java")) continue;
+                if (tag.contains("$"))   tag = tag.split("\\$")[0];
+                order++;
                 if (candi.contains(tag)) {
-                    crashInfo.addBuggyMethods(candi);
+                    return order;
                 }
             }
         }
-        for(String candi: buggyCandidates) {
-            if (!crashInfo.getBuggyMethods().contains(candi)){
-                crashInfo.addBuggyMethods_weak(candi);
-            }
-        }
-    }
-
-    private void getBuggyFromRelatedMethods(CrashInfo crashInfo, RelatedMethod method) {
-        for (Iterator<Edge> it = Global.v().getAppModel().getCg().iterator(); it.hasNext(); ) {
-            Edge edge = it.next();
-            if(edge.getTgt().method().getSignature().equals(method.getMethod())){
-                crashInfo.add2EdgeMap(0, edge);
-                addCallersOfSourceOfEdge(crashInfo, edge.getSrc().method(), 1);
-            }
-        }
+        return order+2;
     }
 
 
-    private void addCallersOfSourceOfEdge(CrashInfo crashInfo, SootMethod sootMethod, int depth) {
-        for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesInto(sootMethod); it.hasNext(); ) {
-            Edge edge = it.next();
-            if(!crashInfo.getEdges().contains(edge) && !edge.toString().contains("dummyMainMethod")){
-                crashInfo.add2EdgeMap(depth,edge);
-                addCallersOfSourceOfEdge(crashInfo, edge.getSrc().method(), depth+1);
-            }
-        }
-    }
-
+    /**
+     * getExceptionOfCrashInfo
+     */
     private void getExceptionOfCrashInfo() {
         for(CrashInfo crashInfo : crashInfoList){
             if(crashInfo.getTrace().size()==0 ) continue;
@@ -284,9 +351,6 @@ public class CrashAnalysis extends Analyzer {
                 if(exceptionInfo.getExceptionMsg() == null) continue;
                 Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg().replace("()",""));
                 Matcher m = p.matcher(crashInfo.getMsg().replace("()",""));
-//                System.out.println("exception::" + p);
-//                System.out.println("crash::" +crashInfo.getMsg());
-//                System.out.println("matches::" +m.matches());
                 if(exceptionInfo.getExceptionMsg().equals(crashInfo.getMsg()) || m.matches()){
                     crashInfo.setExceptionInfo(exceptionInfo);
                 }
@@ -295,6 +359,10 @@ public class CrashAnalysis extends Analyzer {
         }
     }
 
+    /**
+     * readExceptionSummary
+     * @param sootclass
+     */
     private void readExceptionSummary(String sootclass) {
         String fn = MyConfig.getInstance().getExceptionSummaryFilePath()+sootclass+".json";
         if(loadedExceptionSummary.contains(fn)) return;
@@ -328,16 +396,15 @@ public class CrashAnalysis extends Analyzer {
                 relatedMethod.setSource(RelatedMethodSource.valueOf(sameClsObj.getString("source")));
                 exceptionInfo.addRelatedMethodsInSameClass(relatedMethod);
             }
-
-//            JSONArray diffClsObjs = jsonObject.getJSONArray("relatedMethodDiffClass");
-//            for (Iterator<Object> it = diffClsObjs.iterator(); it.hasNext(); ) {
-//                JSONObject sameClsObj = (JSONObject) it.next();
-//                RelatedMethod relatedMethod = new RelatedMethod();
-//                relatedMethod.setMethod(sameClsObj.getString("method"));
-//                relatedMethod.setDepth(sameClsObj.getInteger("depth"));
-//                relatedMethod.setSource(RelatedMethodSource.valueOf(sameClsObj.getString("source")));
-//                exceptionInfo.addRelatedMethodsInDiffClass(relatedMethod);
-//            }
+            JSONArray diffClsObjs = jsonObject.getJSONArray("relatedMethodDiffClass");
+            for (Iterator<Object> it = diffClsObjs.iterator(); it.hasNext(); ) {
+                JSONObject sameClsObj = (JSONObject) it.next();
+                RelatedMethod relatedMethod = new RelatedMethod();
+                relatedMethod.setMethod(sameClsObj.getString("method"));
+                relatedMethod.setDepth(sameClsObj.getInteger("depth"));
+                relatedMethod.setSource(RelatedMethodSource.valueOf(sameClsObj.getString("source")));
+                exceptionInfo.addRelatedMethodsInDiffClass(relatedMethod);
+            }
 
             if(!exceptionInfoMap.containsKey(exceptionInfo.getSootMethodName()))
                 exceptionInfoMap.put(exceptionInfo.getSootMethodName(), new HashSet<>());
@@ -345,6 +412,9 @@ public class CrashAnalysis extends Analyzer {
         }
     }
 
+    /**
+     * readCrashInfo
+     */
     private void readCrashInfo() {
         String fn = MyConfig.getInstance().getCrashInfoFilePath();
         System.out.println(fn);
@@ -374,6 +444,5 @@ public class CrashAnalysis extends Analyzer {
                     crashInfoList.add(crashInfo);
             }
         }
-//        System.out.println(PrintUtils.printList(crashInfoList));
     }
 }

@@ -42,24 +42,24 @@ public class ExceptionAnalyzer extends Analyzer {
     private boolean filterMethod(SootMethod sootMethod) {
         List<String> mtds = new ArrayList<>();
         mtds.add("acquireReference");
-        mtds.add("executeOnExecutor");
-        mtds.add("throwIfClosedLocked");
-        mtds.add("onDowngrade");
-        mtds.add("bindServiceCommon");
-        mtds.add("checkListener");
-        mtds.add("forgetReceiverDispatcher");
-        mtds.add("forgetServiceDispatcher");
-        mtds.add("Spinner: void setAdapter");
-        mtds.add(" startRecording");
-        mtds.add(" readException(");
-        mtds.add(" checkStartActivityResult(");
-        mtds.add(" getText(");
-        mtds.add(" setView(");
-        mtds.add(" getString(");
-        mtds.add(" bindString(");
-        mtds.add(" missingDialog(");
-        mtds.add(" checkRange(");
-        mtds.add(" enqueueAction(");
+//        mtds.add("executeOnExecutor");
+//        mtds.add("throwIfClosedLocked");
+//        mtds.add("onDowngrade");
+//        mtds.add("bindServiceCommon");
+//        mtds.add("checkListener");
+//        mtds.add("forgetReceiverDispatcher");
+//        mtds.add("forgetServiceDispatcher");
+//        mtds.add("Spinner: void setAdapter");
+//        mtds.add(" startRecording");
+//        mtds.add(" readException(");
+//        mtds.add(" checkStartActivityResult(");
+//        mtds.add(" getText(");
+//        mtds.add(" setView(");
+//        mtds.add(" getString(");
+//        mtds.add(" bindString(");
+//        mtds.add(" missingDialog(");
+//        mtds.add(" checkRange(");
+//        mtds.add(" enqueueMessage(");
         for(String tag: mtds){
             if (sootMethod.getSignature().contains(tag)) {
                 return false;
@@ -202,7 +202,7 @@ public class ExceptionAnalyzer extends Analyzer {
         getExceptionCondition(sootMethod, unit, exceptionInfo, new HashSet<>());
         if(exceptionInfo.getRelatedParamValues().size()>0 && exceptionInfo.getRelatedFieldValues().size() ==0) {
             RelatedMethod addMethod = new RelatedMethod(sootMethod.getSignature(), RelatedMethodSource.CALLER, 0);
-            exceptionInfo.addRelatedMethodsInSameClass(addMethod);
+            exceptionInfo.addRelatedMethodsInSameClassMap(addMethod);
             getExceptionCallerByParam(sootMethod, exceptionInfo, new HashSet<>(), 1, RelatedMethodSource.CALLER, exceptionInfo.getRelatedValueIndex());
         }else if(exceptionInfo.getRelatedParamValues().size()==0 && exceptionInfo.getRelatedFieldValues().size()>0) {
             getExceptionCallerByField(sootMethod, exceptionInfo, new HashSet<>(), 1,RelatedMethodSource.FIELD);
@@ -227,7 +227,7 @@ public class ExceptionAnalyzer extends Analyzer {
             SootMethod edgeSource = edge.getSrc().method();
             Set<Integer> paramIndexCaller = new HashSet<>();
             if(mtdSource == RelatedMethodSource.CALLER){
-                paramIndexCaller = getIndexesFromMethod(edge, paramIndexCallee);
+                paramIndexCaller = SootUtils.getIndexesFromMethod(edge, paramIndexCallee);
                 if(paramIndexCaller.size() ==0 ) continue;
             }
 
@@ -243,9 +243,9 @@ public class ExceptionAnalyzer extends Analyzer {
                     if(edgeSource.isPublic()) {
                         RelatedMethod addMethod = new RelatedMethod(signature, mtdSource, depth);
                         if (edgeSource.getDeclaringClass() == exceptionInfo.getSootMethod().getDeclaringClass())
-                            exceptionInfo.addRelatedMethodsInSameClass(addMethod);
+                            exceptionInfo.addRelatedMethodsInSameClassMap(addMethod);
                         else
-                            exceptionInfo.addRelatedMethodsInDiffClass(addMethod);
+                            exceptionInfo.addRelatedMethodsInDiffClassMap(addMethod);
                         exceptionInfo.addRelatedMethods(signature);
                     }
                     getExceptionCallerByParam(edgeSource, exceptionInfo, callerHistory, depth + 1, mtdSource, paramIndexCaller);
@@ -266,73 +266,6 @@ public class ExceptionAnalyzer extends Analyzer {
         return  prefix;
     }
 
-    private Set<Integer> getIndexesFromMethod(Edge edge, Set<Integer> paramIndexCallee) {
-        SootMethod caller = edge.getSrc().method();
-        SootMethod callee = edge.getTgt().method();
-        Set<Integer> paramIndexCaller = new HashSet<>();
-        for(Unit unit: caller.getActiveBody().getUnits()){
-            InvokeExpr invoke = SootUtils.getInvokeExp(unit);
-            if(invoke!=null && invoke.getMethod() == callee){
-                for(int index: paramIndexCallee){
-                    Value value = invoke.getArg(index);
-                    getIndexesFromUnit(new ArrayList<>(),caller, unit, value, paramIndexCaller);
-                }
-            }
-        }
-
-        return paramIndexCaller;
-    }
-
-    private void getIndexesFromUnit(List<Value> valueHistory, SootMethod caller, Unit unit, Value value, Set<Integer> paramIndexCaller) {
-        if(valueHistory.contains(value) ) return;  // if defUnit is not a pred of unit
-        valueHistory.add(value);
-        if(!(value instanceof  Local)) return;
-        for(Unit defUnit: SootUtils.getDefOfLocal(caller.getSignature(),value, unit)) {
-            if (defUnit instanceof JIdentityStmt) {
-                JIdentityStmt identityStmt = (JIdentityStmt) defUnit;
-                identityStmt.getRightOp();
-                if (identityStmt.getRightOp() instanceof ParameterRef) {
-                    //from parameter
-                    paramIndexCaller.add(((ParameterRef) identityStmt.getRightOp()).getIndex());
-                }
-            } else if (defUnit instanceof JAssignStmt) {
-                Value rightOp = ((JAssignStmt) defUnit).getRightOp();
-                if (rightOp instanceof Local) {
-                    getIndexesFromUnit( valueHistory, caller, defUnit, rightOp, paramIndexCaller);
-                } else if (rightOp instanceof Expr) {
-                    if (rightOp instanceof InvokeExpr) {
-                        InvokeExpr invokeExpr = SootUtils.getInvokeExp(defUnit);
-                        for (Value val : invokeExpr.getArgs())
-                            getIndexesFromUnit( valueHistory, caller, defUnit, val, paramIndexCaller);
-                        if (rightOp instanceof InstanceInvokeExpr) {
-                            getIndexesFromUnit( valueHistory, caller, defUnit, ((InstanceInvokeExpr) rightOp).getBase(), paramIndexCaller);
-                        }
-                    } else if (rightOp instanceof AbstractInstanceOfExpr || rightOp instanceof AbstractCastExpr
-                            || rightOp instanceof AbstractBinopExpr || rightOp instanceof AbstractUnopExpr) {
-                        for (ValueBox vb : rightOp.getUseBoxes()) {
-                            getIndexesFromUnit( valueHistory, caller, defUnit, vb.getValue(), paramIndexCaller);
-                        }
-                    } else if (rightOp instanceof NewExpr) {
-                        List<UnitValueBoxPair> usesOfOps = SootUtils.getUseOfLocal(caller.getSignature(), defUnit);
-                        for (UnitValueBoxPair use : usesOfOps) {
-                            for (ValueBox vb : use.getUnit().getUseBoxes())
-                                getIndexesFromUnit( valueHistory, caller, defUnit, vb.getValue(), paramIndexCaller);
-                        }
-                    }
-                }else if (rightOp instanceof JArrayRef) {
-                    JArrayRef jArrayRef = (JArrayRef) rightOp;
-                    getIndexesFromUnit( valueHistory, caller, defUnit, jArrayRef.getBase(), paramIndexCaller);
-                }else if (rightOp instanceof JInstanceFieldRef) {
-                    JInstanceFieldRef jInstanceFieldRef = (JInstanceFieldRef) rightOp;
-                    getIndexesFromUnit( valueHistory, caller, defUnit, jInstanceFieldRef.getBase(), paramIndexCaller);
-                } else {
-//                    rvalue = constant | local | expr | array_ref | instance_field_ref |
-//                            next_next_stmt_address | static_field_ref;
-//                    System.err.println(rightOp.getClass());
-                }
-            }
-        }
-    }
 
 
 
@@ -343,13 +276,13 @@ public class ExceptionAnalyzer extends Analyzer {
         for(SootField field: exceptionInfo.getRelatedFieldValues()){
             for(SootMethod otherMethod: sootMethod.getDeclaringClass().getMethods()){
                 if(!otherMethod.hasActiveBody()) continue;
-                if(fieldIsChanged(field, otherMethod)){
+                if(SootUtils.fieldIsChanged(field, otherMethod)){
                     if(otherMethod.isPublic()) {
                         RelatedMethod addMethod = new RelatedMethod(otherMethod.getSignature(),mtdSource,depth);
                         if(otherMethod.getDeclaringClass() == exceptionInfo.getSootMethod().getDeclaringClass())
-                            exceptionInfo.addRelatedMethodsInSameClass(addMethod);
+                            exceptionInfo.addRelatedMethodsInSameClassMap(addMethod);
                         else
-                            exceptionInfo.addRelatedMethodsInDiffClass(addMethod);
+                            exceptionInfo.addRelatedMethodsInDiffClassMap(addMethod);
                         exceptionInfo.addRelatedMethods(otherMethod.getSignature());
                     }
                     getExceptionCallerByParam(otherMethod, exceptionInfo, callerHistory, depth+1, RelatedMethodSource.FIELDCALLER, new HashSet<>());
@@ -358,34 +291,6 @@ public class ExceptionAnalyzer extends Analyzer {
         }
     }
 
-    public static boolean fieldIsChanged(SootField field, SootMethod sootMethod) {
-        for(Unit u: sootMethod.getActiveBody().getUnits()){
-            if(u instanceof  JAssignStmt){
-                JAssignStmt jAssignStmt = (JAssignStmt) u;
-                if(jAssignStmt.getLeftOp() instanceof  FieldRef){
-                    if (field ==  jAssignStmt.getFieldRef().getField()) {
-                        return true;
-                    }
-                }else if(jAssignStmt.getRightOp() instanceof  FieldRef){
-                    if (field ==  jAssignStmt.getFieldRef().getField()) {
-                        List<UnitValueBoxPair> uses = SootUtils.getUseOfLocal(sootMethod.getSignature(), jAssignStmt);
-                        for(UnitValueBoxPair pair:uses){
-                            if(pair.getUnit() instanceof JAssignStmt){
-                                JAssignStmt jAssignStmt2 = (JAssignStmt) pair.getUnit();
-                                if(jAssignStmt2.getRightOp() == pair.getValueBox().getValue()){
-                                    return  false;
-                                }
-                                return true;
-                            }else if(pair.getUnit() instanceof JInvokeStmt){
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
 
 
     /**
@@ -431,9 +336,9 @@ public class ExceptionAnalyzer extends Analyzer {
     /**
      * tracing the values relates to the one used in if condition
      */
-    private void extendRelatedValues(List<Unit> allPreds, ExceptionInfo exceptionInfo, Unit unit, Value value,
+    private String extendRelatedValues(List<Unit> allPreds, ExceptionInfo exceptionInfo, Unit unit, Value value,
                                      List<Value> valueHistory, Set<Unit> getCondHistory) {
-        if(valueHistory.contains(value) || !allPreds.contains(unit)) return;// if defUnit is not a pred of unit
+        if(valueHistory.contains(value) || !allPreds.contains(unit)) return "";// if defUnit is not a pred of unit
         valueHistory.add(value);
         if(value instanceof  Local) {
             String methodSig = exceptionInfo.getSootMethod().getSignature();
@@ -442,22 +347,31 @@ public class ExceptionAnalyzer extends Analyzer {
                 if (defUnit instanceof JIdentityStmt) {
                     JIdentityStmt identityStmt = (JIdentityStmt) defUnit;
                     identityStmt.getRightOp();
-                    if (identityStmt.getRightOp() instanceof ParameterRef) {
-                        //from parameter
+                    if (identityStmt.getRightOp() instanceof ParameterRef) {//from parameter
                         exceptionInfo.addRelatedParamValue(identityStmt.getRightOp());
-                        if(identityStmt.getRightOp() instanceof  ParameterRef)
+                        if(identityStmt.getRightOp() instanceof  ParameterRef) {
                             exceptionInfo.getRelatedValueIndex().add(((ParameterRef) identityStmt.getRightOp()).getIndex());
+                            return "ParameterRef";
+                        }
                     }else if(identityStmt.getRightOp() instanceof CaughtExceptionRef){
                         exceptionInfo.addCaughtedValues(identityStmt.getRightOp());
+                        return "CaughtExceptionRef";
+                    }else if(identityStmt.getRightOp() instanceof ThisRef){
+                       return "ThisRef";
                     }
                 } else if (defUnit instanceof JAssignStmt) {
                     Value rightOp = ((JAssignStmt) defUnit).getRightOp();
                     if (rightOp instanceof Local) {
                         extendRelatedValues(allPreds, exceptionInfo, defUnit, rightOp, valueHistory, getCondHistory);
                     } else if (rightOp instanceof AbstractInstanceFieldRef) {
-                        SootField f = ((AbstractInstanceFieldRef) rightOp).getField();
-                        exceptionInfo.addRelatedFieldValues(f);
-                    } else if (rightOp instanceof Expr) {
+                        //if base is from parameter, field is omitted, if base is this, parameter is recorded
+                        Value base = ((AbstractInstanceFieldRef) rightOp).getBase();
+                        String defType = extendRelatedValues(allPreds, exceptionInfo, defUnit, base, valueHistory, getCondHistory);
+                        if(defType.equals("ThisRef")){
+                            SootField f = ((AbstractInstanceFieldRef) rightOp).getField();
+                            exceptionInfo.addRelatedFieldValues(f);
+                        }
+                } else if (rightOp instanceof Expr) {
                         if (rightOp instanceof InvokeExpr) {
                             InvokeExpr invokeExpr = SootUtils.getInvokeExp(defUnit);
                             for (Value val : invokeExpr.getArgs())
@@ -482,7 +396,6 @@ public class ExceptionAnalyzer extends Analyzer {
                     } else if (rightOp instanceof StaticFieldRef) {
                         //from static field value
                         exceptionInfo.addRelatedFieldValues(((StaticFieldRef) rightOp).getField());
-                        return;
                     }else if (rightOp instanceof JArrayRef) {
                         JArrayRef jArrayRef = (JArrayRef) rightOp;
                         extendRelatedValues(allPreds, exceptionInfo, defUnit, jArrayRef.getBase(), valueHistory, getCondHistory);
@@ -497,6 +410,7 @@ public class ExceptionAnalyzer extends Analyzer {
                 }
             }
         }
+        return "";
     }
 
     /**

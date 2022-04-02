@@ -32,7 +32,11 @@ public class TestIR {
         name = "com.streema.podcast-22.apk";
         name = "com.microcell.MyHouse-398.apk";
         name = "com.xy.mobile.shaketoflashlight-52.apk";
-        name = "com.ftbpro.app-240.apk";
+        name = "com.shenyuan.militarynews-80.apk";
+//        name = "com.masslight.nrmp-235.apk";
+//        name = "org.voicenightlight.v3-471.apk";
+
+
         String client = "IROutputClient";
 
         MyConfig.getInstance().setAppName(name);

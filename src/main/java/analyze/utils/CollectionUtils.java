@@ -19,6 +19,16 @@ import main.java.client.obj.model.ctg.ICCMsg;
 
 public class CollectionUtils {
 
+	public static List<Map.Entry<String, Integer>> getTreeMapEntriesSortedByValue(Map<String, Integer> map) {
+		List<Map.Entry<String, Integer>> treeMapList =
+				new ArrayList<Map.Entry<String, Integer>>(map.entrySet());
+		Collections.sort(treeMapList, new Comparator<Map.Entry<String, Integer>>() {
+			public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+				return (o2.getValue() - o1.getValue());
+			}
+		});
+		return treeMapList;
+	}
 	/**
 	 * add New Msg to Map
 	 * 

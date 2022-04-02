@@ -3,14 +3,7 @@ package main.java.analyze.utils;
 import heros.solver.Pair;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import main.java.Global;
 import main.java.MyConfig;
@@ -18,39 +11,10 @@ import main.java.analyze.model.analyzeModel.StaticFiledInfo;
 import main.java.analyze.model.sootAnalysisModel.Context;
 import main.java.analyze.model.sootAnalysisModel.Counter;
 import main.java.analyze.utils.output.FileUtils;
-import soot.Body;
-import soot.Local;
-import soot.PrimType;
-import soot.RefType;
-import soot.Scene;
-import soot.SootClass;
-import soot.SootField;
-import soot.SootMethod;
-import soot.Type;
-import soot.Unit;
-import soot.Value;
-import soot.jimple.InvokeExpr;
-import soot.jimple.ParameterRef;
-import soot.jimple.StaticFieldRef;
-import soot.jimple.Stmt;
-import soot.jimple.ThisRef;
-import soot.jimple.internal.AbstractDefinitionStmt;
-import soot.jimple.internal.AbstractInstanceInvokeExpr;
-import soot.jimple.internal.AbstractInvokeExpr;
-import soot.jimple.internal.JAssignStmt;
-import soot.jimple.internal.JCastExpr;
-import soot.jimple.internal.JIdentityStmt;
-import soot.jimple.internal.JInstanceFieldRef;
-import soot.jimple.internal.JInvokeStmt;
-import soot.jimple.internal.JLookupSwitchStmt;
-import soot.jimple.internal.JNewExpr;
-import soot.jimple.internal.JRetStmt;
-import soot.jimple.internal.JReturnStmt;
-import soot.jimple.internal.JReturnVoidStmt;
-import soot.jimple.internal.JSpecialInvokeExpr;
-import soot.jimple.internal.JStaticInvokeExpr;
-import soot.jimple.internal.JVirtualInvokeExpr;
-import soot.jimple.internal.JimpleLocal;
+import soot.*;
+import soot.jimple.*;
+import soot.jimple.internal.*;
+import soot.jimple.toolkits.callgraph.Edge;
 import soot.shimple.ShimpleBody;
 import soot.shimple.internal.SPhiExpr;
 import soot.shimple.toolkits.scalar.ShimpleLocalDefs;
@@ -720,7 +684,11 @@ public class SootUtils {
 					SootMethod runMethod = transformStart2Run(sm, invoke, u);
 					if (runMethod != null)
 						targetSet.add(runMethod);
-				} else if (invMethod.toString().contains("void runOnUiThread(java.lang.Runnable)")) {
+				} else if (invMethod.toString().contains("java.lang.Thread: void <init>()")) {
+					SootMethod runMethod = transformInit2Run(sm, invoke, u);
+					if (runMethod != null)
+						targetSet.add(runMethod);
+				}else if (invMethod.toString().contains("void runOnUiThread(java.lang.Runnable)")) {
 					SootMethod runMethod = transformStart2runOnUiThread(sm, invoke, u);
 					if (runMethod != null)
 						targetSet.add(runMethod);
@@ -770,6 +738,7 @@ public class SootUtils {
 		Global.v().getAppModel().getUnit2TargetsMap().put(u.toString() + u.hashCode(), targetSet);
 		return targetSet;
 	}
+
 
 	public static boolean isClassInSystemPackage(String className) {
 		return className.startsWith("android.") || className.startsWith("java.") || className.startsWith("javax.")
@@ -845,8 +814,7 @@ public class SootUtils {
 	 */
 	protected static SootMethod transformStart2Run(SootMethod sm, InvokeExpr invoke, Unit u) {
 		String runSignature = "";
-		List<Unit> defs = SootUtils
-				.getDefOfLocal(sm.getSignature(), ((AbstractInstanceInvokeExpr) invoke).getBase(), u);
+		List<Unit> defs = SootUtils.getDefOfLocal(sm.getSignature(), ((AbstractInstanceInvokeExpr) invoke).getBase(), u);
 		for (Unit def : defs) {
 			String type = SootUtils.getTargetClassOfUnit(sm, def);
 			if (type.equals("java.lang.Thread")) {
@@ -874,6 +842,26 @@ public class SootUtils {
 		}
 		return null;
 	}
+
+	private static SootMethod transformInit2Run(SootMethod sm, InvokeExpr invoke, Unit u) {
+
+		if(!(invoke instanceof AbstractInstanceInvokeExpr)) return null;
+		Value base = ((AbstractInstanceInvokeExpr) invoke).getBase();
+		String runSignature = "";
+		List<Unit> defs = SootUtils.getDefOfLocal(sm.getSignature(), base, u);
+		for (Unit def : defs) {
+			String type = SootUtils.getTargetClassOfUnit(sm, def);
+			runSignature = "<" + type + ": void run()>";
+		}
+		if (runSignature.length() > 0) {
+			SootMethod runMethod = SootUtils.getSootMethodBySignature(runSignature);
+			if (runMethod != null) {
+				return runMethod;
+			}
+		}
+		return null;
+	}
+
 
 	/**
 	 * transformpostDelayed2Eun add call edge
@@ -1053,7 +1041,7 @@ public class SootUtils {
 		Body b = getSootActiveBody(sm);
 		if (b == null)
 			return res;
-		UnitGraph graph = new ExceptionalUnitGraph(b);
+		UnitGraph graph = new BriefUnitGraph(b);
 		if (MyConfig.getInstance().isJimple()) {
 			try {
 				SimpleLocalDefs defs = new SimpleLocalDefs(graph);
@@ -1088,7 +1076,7 @@ public class SootUtils {
 		Body b = getSootActiveBody(sm);
 		if (b == null)
 			return res;
-		UnitGraph graph = new ExceptionalUnitGraph(b);
+		UnitGraph graph = new BriefUnitGraph(b);
 		if (MyConfig.getInstance().isJimple()) {
 			try {
 				SimpleLocalUses uses = new SimpleLocalUses(graph, new SimpleLocalDefs(graph));
@@ -1473,4 +1461,104 @@ public class SootUtils {
 		}
 		return subClasses;
 	}
+
+
+	public static Set<Integer> getIndexesFromMethod(Edge edge, Set<Integer> paramIndexCallee) {
+		SootMethod caller = edge.getSrc().method();
+		SootMethod callee = edge.getTgt().method();
+		Set<Integer> paramIndexCaller = new HashSet<>();
+		for(Unit unit: caller.getActiveBody().getUnits()){
+			InvokeExpr invoke = SootUtils.getInvokeExp(unit);
+			if(invoke!=null && invoke.getMethod() == callee){
+				for(int index: paramIndexCallee){
+					Value value = invoke.getArg(index);
+					getIndexesFromUnit(new ArrayList<>(),caller, unit, value, paramIndexCaller);
+				}
+			}
+		}
+
+		return paramIndexCaller;
+	}
+
+	public static void getIndexesFromUnit(List<Value> valueHistory, SootMethod caller, Unit unit, Value value, Set<Integer> paramIndexCaller) {
+		if(valueHistory.contains(value) ) return;  // if defUnit is not a pred of unit
+		valueHistory.add(value);
+		if(!(value instanceof  Local)) return;
+		for(Unit defUnit: SootUtils.getDefOfLocal(caller.getSignature(),value, unit)) {
+			if (defUnit instanceof JIdentityStmt) {
+				JIdentityStmt identityStmt = (JIdentityStmt) defUnit;
+				identityStmt.getRightOp();
+				if (identityStmt.getRightOp() instanceof ParameterRef) {
+					//from parameter
+					paramIndexCaller.add(((ParameterRef) identityStmt.getRightOp()).getIndex());
+				}
+			} else if (defUnit instanceof JAssignStmt) {
+				Value rightOp = ((JAssignStmt) defUnit).getRightOp();
+				if (rightOp instanceof Local) {
+					getIndexesFromUnit( valueHistory, caller, defUnit, rightOp, paramIndexCaller);
+				} else if (rightOp instanceof Expr) {
+					if (rightOp instanceof InvokeExpr) {
+						InvokeExpr invokeExpr = SootUtils.getInvokeExp(defUnit);
+						for (Value val : invokeExpr.getArgs())
+							getIndexesFromUnit( valueHistory, caller, defUnit, val, paramIndexCaller);
+						if (rightOp instanceof InstanceInvokeExpr) {
+							getIndexesFromUnit( valueHistory, caller, defUnit, ((InstanceInvokeExpr) rightOp).getBase(), paramIndexCaller);
+						}
+					} else if (rightOp instanceof AbstractInstanceOfExpr || rightOp instanceof AbstractCastExpr
+							|| rightOp instanceof AbstractBinopExpr || rightOp instanceof AbstractUnopExpr) {
+						for (ValueBox vb : rightOp.getUseBoxes()) {
+							getIndexesFromUnit( valueHistory, caller, defUnit, vb.getValue(), paramIndexCaller);
+						}
+					} else if (rightOp instanceof NewExpr) {
+						List<UnitValueBoxPair> usesOfOps = SootUtils.getUseOfLocal(caller.getSignature(), defUnit);
+						for (UnitValueBoxPair use : usesOfOps) {
+							for (ValueBox vb : use.getUnit().getUseBoxes())
+								getIndexesFromUnit( valueHistory, caller, defUnit, vb.getValue(), paramIndexCaller);
+						}
+					}
+				}else if (rightOp instanceof JArrayRef) {
+					JArrayRef jArrayRef = (JArrayRef) rightOp;
+					getIndexesFromUnit( valueHistory, caller, defUnit, jArrayRef.getBase(), paramIndexCaller);
+				}else if (rightOp instanceof JInstanceFieldRef) {
+					JInstanceFieldRef jInstanceFieldRef = (JInstanceFieldRef) rightOp;
+					getIndexesFromUnit( valueHistory, caller, defUnit, jInstanceFieldRef.getBase(), paramIndexCaller);
+				} else {
+//                    rvalue = constant | local | expr | array_ref | instance_field_ref |
+//                            next_next_stmt_address | static_field_ref;
+//                    System.err.println(rightOp.getClass());
+				}
+			}
+		}
+	}
+
+
+	public static boolean fieldIsChanged(SootField field, SootMethod sootMethod) {
+		for(Unit u: sootMethod.getActiveBody().getUnits()){
+			if(u instanceof  JAssignStmt){
+				JAssignStmt jAssignStmt = (JAssignStmt) u;
+				if(jAssignStmt.getLeftOp() instanceof  FieldRef){
+					if (field ==  jAssignStmt.getFieldRef().getField()) {
+						return true;
+					}
+				}else if(jAssignStmt.getRightOp() instanceof  FieldRef){
+					if (field ==  jAssignStmt.getFieldRef().getField()) {
+						List<UnitValueBoxPair> uses = SootUtils.getUseOfLocal(sootMethod.getSignature(), jAssignStmt);
+						for(UnitValueBoxPair pair:uses){
+							if(pair.getUnit() instanceof JAssignStmt){
+								JAssignStmt jAssignStmt2 = (JAssignStmt) pair.getUnit();
+								if(jAssignStmt2.getRightOp() == pair.getValueBox().getValue()){
+									return  false;
+								}
+								return true;
+							}else if(pair.getUnit() instanceof JInvokeStmt){
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
 }

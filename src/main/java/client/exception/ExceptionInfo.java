@@ -1,17 +1,16 @@
 package main.java.client.exception;
 
 import main.java.analyze.utils.output.PrintUtils;
+import org.checkerframework.checker.units.qual.A;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
 import soot.jimple.StringConstant;
 import soot.jimple.internal.JInstanceFieldRef;
+import soot.jimple.toolkits.callgraph.Edge;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @Author hanada
@@ -31,6 +30,8 @@ public class ExceptionInfo {
     private List<RelatedMethod> relatedMethodsInSameClass;
     private List<RelatedMethod> relatedMethodsInDiffClass;
     private List<String> relatedMethods;
+    private Map<Integer, ArrayList<RelatedMethod>> relatedMethodsInSameClassMap;
+    private Map<Integer, ArrayList<RelatedMethod>> relatedMethodsInDiffClassMap;
     private List<Value> conditions;
     private String modifier;
     private List<Unit> tracedUnits;
@@ -51,7 +52,8 @@ public class ExceptionInfo {
         this.relatedParamValuesInStr = new ArrayList<>();
         this.relatedFieldValuesInStr = new ArrayList<>();
         this.relatedValueIndex = new HashSet<>();
-
+        this.relatedMethodsInSameClassMap = new TreeMap<Integer, ArrayList<RelatedMethod>>();
+        this.relatedMethodsInDiffClassMap = new TreeMap<Integer, ArrayList<RelatedMethod>>();
     }
     public ExceptionInfo(SootMethod sootMethod, Unit unit, String exceptionType) {
         this();
@@ -152,23 +154,54 @@ public class ExceptionInfo {
         return sootMethod;
     }
 
-    public List<RelatedMethod> getRelatedMethodsInSameClass() {
+    public Map<Integer, ArrayList<RelatedMethod>> getRelatedMethodsInSameClassMap() {
+        return relatedMethodsInSameClassMap;
+    }
+
+    public Map<Integer, ArrayList<RelatedMethod>> getRelatedMethodsInDiffClassMap() {
+        return relatedMethodsInDiffClassMap;
+    }
+
+    public void addRelatedMethodsInSameClassMap(RelatedMethod m) {
+        if(!relatedMethodsInSameClassMap.containsKey(m.getDepth()))
+            relatedMethodsInSameClassMap.put(m.getDepth(), new ArrayList<>());
+        if(!relatedMethods.contains(m.getMethod()))
+            relatedMethodsInSameClassMap.get(m.getDepth()).add(m);
+    }
+
+    public void addRelatedMethodsInDiffClassMap(RelatedMethod m) {
+        if(!relatedMethodsInDiffClassMap.containsKey(m.getDepth()))
+            relatedMethodsInDiffClassMap.put(m.getDepth(), new ArrayList<>());
+        if(!relatedMethods.contains(m.getMethod()))
+            relatedMethodsInDiffClassMap.get(m.getDepth()).add(m);
+    }
+
+    public List<RelatedMethod> getRelatedMethodsInSameClass(boolean compute) {
+        if(!compute) return  relatedMethodsInSameClass;
+        for(Integer depth:relatedMethodsInSameClassMap.keySet()) {
+            for (RelatedMethod relatedMethod : relatedMethodsInSameClassMap.get(depth)) {
+                addRelatedMethodsInSameClass(relatedMethod);
+            }
+        }
         return relatedMethodsInSameClass;
     }
-    public void addRelatedMethodsInSameClass(RelatedMethod m) {
-        if(!relatedMethods.contains(m.getMethod()))
-            relatedMethodsInSameClass.add(m);
-    }
-
-    public List<RelatedMethod> getRelatedMethodsInDiffClass() {
+    public List<RelatedMethod> getRelatedMethodsInDiffClass(boolean compute) {
+        if(!compute) return  relatedMethodsInDiffClass;
+        for(Integer depth:relatedMethodsInDiffClassMap.keySet()) {
+            for (RelatedMethod relatedMethod : relatedMethodsInDiffClassMap.get(depth)) {
+                addRelatedMethodsInDiffClass(relatedMethod);
+            }
+        }
         return relatedMethodsInDiffClass;
     }
-
+    public void addRelatedMethodsInSameClass(RelatedMethod m) {
+        if(!relatedMethodsInSameClass.contains(m))
+            relatedMethodsInSameClass.add(m);
+    }
     public void addRelatedMethodsInDiffClass(RelatedMethod m) {
-        if(!relatedMethods.contains(m.getMethod()))
+        if(!relatedMethodsInDiffClass.contains(m))
             relatedMethodsInDiffClass.add(m);
     }
-
     public List<Value> getConditions() {
         return conditions;
     }

@@ -9,6 +9,7 @@ import main.java.client.cg.cgApk.CallGraphofApkClient;
 import main.java.client.soot.SootAnalyzer;
 import main.java.client.statistic.model.StatisticResult;
 import org.dom4j.DocumentException;
+import soot.PackManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +28,7 @@ public class CrashAnalysisClient extends BaseClient {
             SootAnalyzer sootAnalyzer = new SootAnalyzer();
             sootAnalyzer.analyze();
         }
+        PackManager.v().writeOutput();
 
         if (!MyConfig.getInstance().isCallGraphAnalyzeFinish()) {
             new CallGraphofApkClient().start();

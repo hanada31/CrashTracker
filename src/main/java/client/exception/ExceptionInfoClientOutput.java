@@ -88,12 +88,12 @@ public class ExceptionInfoClientOutput {
 
     private static void addRelatedMethods(JSONObject jsonObject, ExceptionInfo exceptionInfo) {
         if(exceptionInfo==null) return;
-        jsonObject.put("relatedMethodsInSameClass", exceptionInfo.getRelatedMethodsInSameClass().size());
-        jsonObject.put("relatedMethodsInDiffClass", exceptionInfo.getRelatedMethodsInDiffClass().size());
+        jsonObject.put("relatedMethodsInSameClass", exceptionInfo.getRelatedMethodsInSameClass(true).size());
+        jsonObject.put("relatedMethodsInDiffClass", exceptionInfo.getRelatedMethodsInDiffClass(true).size());
 
         JSONArray relatedMethodsSameArray = new JSONArray();
-        if (exceptionInfo.getRelatedMethodsInSameClass().size() > 0) {
-            for (RelatedMethod mtd : exceptionInfo.getRelatedMethodsInSameClass()) {
+        if (exceptionInfo.getRelatedMethodsInSameClass(false).size() > 0) {
+            for (RelatedMethod mtd : exceptionInfo.getRelatedMethodsInSameClass(false)) {
                 String mtdString = JSONObject.toJSONString(mtd);
                 JSONObject mtdObject = JSONObject.parseObject(mtdString);  // 转换为json对象
                 relatedMethodsSameArray.add(mtdObject);
@@ -102,8 +102,8 @@ public class ExceptionInfoClientOutput {
         jsonObject.put("relatedMethodSameClass" , relatedMethodsSameArray);
 
         JSONArray relatedMethodsDiffArray = new JSONArray();
-        if (exceptionInfo.getRelatedMethodsInDiffClass().size() > 0) {
-            for (RelatedMethod mtd : exceptionInfo.getRelatedMethodsInDiffClass()) {
+        if (exceptionInfo.getRelatedMethodsInDiffClass(false).size() > 0) {
+            for (RelatedMethod mtd : exceptionInfo.getRelatedMethodsInDiffClass(false)) {
                 String mtdString = JSONObject.toJSONString(mtd);
                 JSONObject mtdObject = JSONObject.parseObject(mtdString);  // 转换为json对象
                 relatedMethodsDiffArray.add(mtdObject);

@@ -33,8 +33,17 @@ public class CrashInfo {
     List<Edge> edges = new ArrayList<>();
     Map<Integer, ArrayList<Edge>> edgeMap = new TreeMap<Integer, ArrayList<Edge>>();
     List<String> classesInTrace= new ArrayList<>();
-    List<String> buggyMethods = new ArrayList<>();
-    List<String> buggyMethods_weak = new ArrayList<>();
+    Map<String, Integer> buggyCandidates = new TreeMap<>();
+
+    public Map<String, Integer> getBuggyCandidates() {
+        return buggyCandidates;
+    }
+
+    public void addBuggyCandidates(String candi, int score) {
+        if(this.buggyCandidates.containsKey(candi) && this.buggyCandidates.get(candi) > score)
+            return;
+        this.buggyCandidates.put(candi, score);
+    }
 
 
     public List<String> getCrashMethodList() {
@@ -99,6 +108,7 @@ public class CrashInfo {
         trace= trace.replace("[","").replace("]","");
         trace= trace.replace("at ","");
         String ss[] = trace.split(",");
+        boolean firstUserAPI= true;
         for(int i=0; i< ss.length;i++){
             String method = ss[i];
             if(method.contains(" ") || !method.contains(".")) continue;
@@ -115,7 +125,10 @@ public class CrashInfo {
                 setCrashCallBack(method);
             }
             if(!method.startsWith("android.") &&!method.startsWith("com.android.") && !method.startsWith("java")) {
-                crashMethodList.add(method);
+                if(firstUserAPI)
+                    crashMethodList.add(method);
+            }else{
+                if(crashMethodList.size()>0)  firstUserAPI = false;
             }
 
         }
@@ -217,33 +230,6 @@ public class CrashInfo {
     public List<String> getClassesInTrace() {
         return classesInTrace;
     }
-
-
-    public List<String> getBuggyMethods() {
-        return buggyMethods;
-    }
-
-    public void setBuggyMethods(List<String> buggyMethods) {
-        this.buggyMethods = buggyMethods;
-    }
-
-    public void addBuggyMethods(String buggyMethod) {
-        if(!buggyMethods.contains(buggyMethod))
-            this.buggyMethods.add(buggyMethod);
-    }
-
-    public List<String> getBuggyMethods_weak() {
-        return buggyMethods_weak;
-    }
-
-    public void setBuggyMethods_weak(List<String> buggyMethods_weak) {
-        this.buggyMethods_weak = buggyMethods_weak;
-    }
-
-    public void addBuggyMethods_weak(String buggyMethod) {
-        this.buggyMethods_weak.add(buggyMethod);
-    }
-
 
     public Map<Integer, ArrayList<Edge>> getEdgeMap() {
         return edgeMap;

@@ -172,6 +172,9 @@ public class ConstantUtils {
 	public static final int CALLDEPTH = 8;
     public static final String PKGPREFIX = "android";
     public static final int MANIFESTTIMEOUT =2 ;
+    public static final int INITSCORE = 100;
+	public static final int NOEXCEPTIONSCORE = 70;
+    public static final int USERFIELDMTDSCORE = 10 ;
 
 
     private static final String[] activityMethods = { ACTIVITY_ONCREATE, ACTIVITY_ONDESTROY, ACTIVITY_ONPAUSE,

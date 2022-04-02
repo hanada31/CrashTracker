@@ -28,15 +28,14 @@ public class TestAPP {
         path = "D:\\SoftwareData\\ToolsInREST\\yanjiwei\\ICCBot\\Tool\\Empirical500\\";
         String name;
         name = "com.justnote-78.apk";
-//        name = "com.ccemusic.downloader-151.apk";
-//        name = "com.streema.podcast-22.apk";
-        name = "com.microcell.MyHouse-398.apk";
-//        name = "com.xy.mobile.shaketoflashlight-52.apk";
-//        name = "com.ftbpro.app-240.apk";
-        name = "com.winit.starnews.hin-81.apk";
-        name = "se.nansen.coop-463.apk";
-        name = "com.birkot-101.apk";
-        name = "me.selfish.android-456.apk";
+        name = "com.shenyuan.militarynews-80.apk";
+        name = "com.sillens.shapeupclub-415.apk";
+        name = "com.ccemusic.downloader-151.apk";
+        name = "com.avpig.exam-245.apk";
+        name = "com.apps.salad.bengali.recipe-229.apk";
+        name = "qukean.spaceship-327.apk";
+        name = "com.xy.mobile.shaketoflashlight-52.apk";
+        name = "com.infomil.leclercdrive-277.apk";
 
 
         String client = "CrashAnalysisClient";
