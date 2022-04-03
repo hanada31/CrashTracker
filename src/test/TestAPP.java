@@ -35,7 +35,7 @@ public class TestAPP {
         name = "com.apps.salad.bengali.recipe-229.apk";
         name = "qukean.spaceship-327.apk";
         name = "com.xy.mobile.shaketoflashlight-52.apk";
-        name = "com.infomil.leclercdrive-277.apk";
+        name = "qukean.spaceship-327.apk";
 
 
         String client = "CrashAnalysisClient";

@@ -2,7 +2,6 @@ package main.java.client.crash;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.sun.xml.bind.v2.runtime.reflect.opt.Const;
 import main.java.Analyzer;
 import main.java.Global;
 import main.java.MyConfig;
@@ -67,8 +66,7 @@ public class CrashAnalysis extends Analyzer {
     private String getRankingString(CrashInfo crashInfo, String tag, String method, int location) {
         int sizeAll = crashInfo.getBuggyCandidates().size();
         String size = "/ "+ sizeAll;
-        String res = crashInfo.getRealCate() + "\t" + crashInfo.getId() +"\t" + tag + "\t" + method  +"\t@\t"+ location + "\t" +size + "\n";
-        return  res;
+        return  crashInfo.getRealCate() + "\t" + crashInfo.getId() +"\t" + tag + "\t" + method  +"\t@\t"+ location + "\t" +size + "\n";
     }
 
     /**
@@ -80,38 +78,40 @@ public class CrashAnalysis extends Analyzer {
             if(exceptionInfo != null && exceptionInfo.getRelatedVarType()!=null) {
                 switch (exceptionInfo.getRelatedVarType()) {
                     case OverrideMissing:
-                        overrideMissingHandler(crashInfo, false);
-                        noExceptionHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo, false);
+                        overrideMissingHandler(crashInfo);
+                        noExceptionHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo);
                         break;
                     case ParameterOnly:
-                        parameterOnlyHandler(crashInfo);
+                        withParameterHandler(crashInfo);
                         getBuggyFromUserCode(crashInfo);
-                        break;
-                    case ParaAndField:
-                        withFieldHandler(crashInfo, true);
-                        getBuggyFromUserCode(crashInfo);
-                        noExceptionHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo, false);
                         break;
                     case FieldOnly:
-                        withFieldHandler(crashInfo, false);
+                        withFieldHandler(crashInfo);
                         getBuggyFromUserCode(crashInfo);
-                        noExceptionHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo, false);
+                        noExceptionHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo);
                         break;
+                    case ParaAndField:
+                        withFieldHandler(crashInfo);
+                        withParameterHandler(crashInfo);
+                        getBuggyFromUserCode(crashInfo);
+                        break;
+
                 }
             }else {
-                noExceptionHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo, false);
+                noExceptionHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo);
             }
         }
     }
 
     /**
-     * parameterOonlyHandler
+     * parameterOnlyHandler
      * @param crashInfo
      */
-    private void parameterOnlyHandler(CrashInfo crashInfo) {
+    private void withParameterHandler(CrashInfo crashInfo) {
         for(String candi : crashInfo.getCrashMethodList()){
             boolean isParaPassed = false;
             SootMethod sm = getSootMethodBySimpleName(candi);
+            if(sm == null) continue;
             for(String paraTye: crashInfo.getExceptionInfo().getRelatedParamValuesInStr()){
                 if(sm.getSignature().contains(paraTye)){
                     isParaPassed = true;
@@ -133,23 +133,22 @@ public class CrashAnalysis extends Analyzer {
     /**
      * ParameterOnly type
      * @param crashInfo
-     * @param required
      *
      */
-    private void withFieldHandler(CrashInfo crashInfo, boolean required) {
+    private void withFieldHandler(CrashInfo crashInfo) {
         System.out.println("parameterOrFieldHandler...");
         ExceptionInfo exceptionInfo = crashInfo.getExceptionInfo();
         for(RelatedMethod method: exceptionInfo.getRelatedMethodsInSameClass(false)){
-            getBuggyFromRelatedMethods(crashInfo, method, required);
+            getBuggyFromRelatedMethods(crashInfo, method);
         }
         if(crashInfo.getEdgeMap().size()==0) {
             //add diff class results, when the same class results returns nothing
             for (RelatedMethod method : exceptionInfo.getRelatedMethodsInDiffClass(false)) {
-                getBuggyFromRelatedMethods(crashInfo, method, required);
+                getBuggyFromRelatedMethods(crashInfo, method);
             }
         }
     }
-    private void noExceptionHandler(int initScore, CrashInfo crashInfo, boolean required) {
+    private void noExceptionHandler(int initScore, CrashInfo crashInfo) {
         System.out.println("noExceptionHandler...");
         for(String candi : crashInfo.getCrashMethodList()){
             crashInfo.addBuggyCandidates(candi, initScore--);
@@ -171,9 +170,8 @@ public class CrashAnalysis extends Analyzer {
      * getBuggyFromRelatedMethods
      * @param crashInfo
      * @param method
-     * @param required
      */
-    private void getBuggyFromRelatedMethods(CrashInfo crashInfo, RelatedMethod method, boolean required) {
+    private void getBuggyFromRelatedMethods(CrashInfo crashInfo, RelatedMethod method ) {
         for (Iterator<Edge> it = Global.v().getAppModel().getCg().iterator(); it.hasNext(); ) {
             Edge edge = it.next();
             if(edge.getTgt().method().getSignature().equals(method.getMethod())){
@@ -181,7 +179,7 @@ public class CrashAnalysis extends Analyzer {
                 SootMethod sourceMtd = edge.getSrc().method();
                 if(sourceMtd.getDeclaringClass().getName().startsWith("java") || sourceMtd.getDeclaringClass().getName().startsWith("android"))
                     continue;
-                addCallersOfSourceOfEdge(edge, method, crashInfo, sourceMtd, 1, required);
+                addCallersOfSourceOfEdge(edge, method, crashInfo, sourceMtd, 1);
             }
         }
     }
@@ -193,16 +191,15 @@ public class CrashAnalysis extends Analyzer {
      * @param crashInfo
      * @param sootMethod
      * @param depth
-     * @param required
      */
-    private void addCallersOfSourceOfEdge(Edge edge, RelatedMethod method, CrashInfo crashInfo, SootMethod sootMethod, int depth, boolean required) {
+    private void addCallersOfSourceOfEdge(Edge edge, RelatedMethod method, CrashInfo crashInfo, SootMethod sootMethod, int depth ) {
         //TODO
         String candi = sootMethod.getDeclaringClass().getName()+ "." + sootMethod.getName();
-        int score = ConstantUtils.INITSCORE - getOrderInTrace(crashInfo, candi, required)*5 - method.getDepth()*2 - depth;
-        System.out.println(candi +" " +score +" " + " 5*" +getOrderInTrace(crashInfo, candi, required) + " 2*" +method.getDepth()+ " 1*" +depth);
+        int score = ConstantUtils.INITSCORE - getOrderInTrace(crashInfo, candi)*5 - method.getDepth()*2 - depth;
+        System.out.println(candi +" " +score +" " + " 5*" +getOrderInTrace(crashInfo, candi) + " 2*" +method.getDepth()+ " 1*" +depth);
         crashInfo.addBuggyCandidates(candi, score);
 
-        //if the buggy type is not passed by parametere, do not find its caller
+        //if the buggy type is not passed by parameter, do not find its caller
         Set<Integer> paramIndexCaller = SootUtils.getIndexesFromMethod(edge, crashInfo.exceptionInfo.getRelatedValueIndex());
         System.out.println(sootMethod.getSignature() +" "+ paramIndexCaller.size() );
         if(paramIndexCaller.size() == 0) return;
@@ -211,7 +208,7 @@ public class CrashAnalysis extends Analyzer {
             Edge edge2 = it.next();
             if(!crashInfo.getEdges().contains(edge2) && !edge2.toString().contains("dummyMainMethod")){
                 crashInfo.add2EdgeMap(depth,edge2);
-                addCallersOfSourceOfEdge(edge2, method, crashInfo, edge2.getSrc().method(), depth+1, required);
+                addCallersOfSourceOfEdge(edge2, method, crashInfo, edge2.getSrc().method(), depth+1);
             }
         }
     }
@@ -282,10 +279,9 @@ public class CrashAnalysis extends Analyzer {
     /**
      * OverrideMissing type
      * @param crashInfo
-     * @param required
      *
      */
-    private void overrideMissingHandler(CrashInfo crashInfo, boolean required) {
+    private void overrideMissingHandler(CrashInfo crashInfo) {
         System.out.println("overrideMissingHandler...");
         for(SootClass sc: Scene.v().getApplicationClasses()){
             if(!sc.hasSuperclass()) continue;
@@ -299,7 +295,7 @@ public class CrashAnalysis extends Analyzer {
                     }
                     if(!hasMethod) {
                         String candi = sub.getName() + "." + crashInfo.getSubMethodName();
-                        int score = ConstantUtils.INITSCORE - getOrderInTrace(crashInfo, candi, required);
+                        int score = ConstantUtils.INITSCORE - getOrderInTrace(crashInfo, candi);
                         //TODO
                         crashInfo.addBuggyCandidates(candi, score);
                     }
@@ -312,29 +308,19 @@ public class CrashAnalysis extends Analyzer {
      * getOrderInTrace
      * @param crashInfo
      * @param candi
-     * @param requireEqual
      * @return
      */
-    private int getOrderInTrace(CrashInfo crashInfo, String candi, boolean requireEqual) {
+    private int getOrderInTrace(CrashInfo crashInfo, String candi) {
         int order = 0;
-        if (requireEqual) {
-            for (String tag : crashInfo.getTrace()) {
-                if(tag.startsWith("android") ||tag.startsWith("java")) continue;
-                order++;
-                if (candi.equals(tag)) {
-                    return order;
-                }
-            }
-        }else {
-            for (String tag : crashInfo.getClassesInTrace()) {
-                if(tag.startsWith("android") ||tag.startsWith("java")) continue;
-                if (tag.contains("$"))   tag = tag.split("\\$")[0];
-                order++;
-                if (candi.contains(tag)) {
-                    return order;
-                }
+        for (String tag : crashInfo.getClassesInTrace()) {
+            if(tag.startsWith("android") ||tag.startsWith("java")) continue;
+            if (tag.contains("$"))   tag = tag.split("\\$")[0];
+            order++;
+            if (candi.contains(tag)) {
+                return order;
             }
         }
+
         return order+2;
     }
 
