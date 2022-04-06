@@ -24,12 +24,11 @@ public class CrashAnalysisClient extends BaseClient {
     protected void clientAnalyze() {
         result = new StatisticResult();
         MyConfig.getInstance().setFileSuffixLength(4);
+
         if (!MyConfig.getInstance().isSootAnalyzeFinish()) {
             SootAnalyzer sootAnalyzer = new SootAnalyzer();
             sootAnalyzer.analyze();
         }
-        PackManager.v().writeOutput();
-
         if (!MyConfig.getInstance().isCallGraphAnalyzeFinish()) {
             new CallGraphofApkClient().start();
             MyConfig.getInstance().setCallGraphAnalyzeFinish(true);
@@ -46,6 +45,8 @@ public class CrashAnalysisClient extends BaseClient {
         Analyzer analyzer = new CrashAnalysis(result);
         analyzer.analyze();
         System.out.println("Successfully analyze with CrashAnalysisClient.");
+        //        PackManager.v().writeOutput();
+
     }
 
     @Override

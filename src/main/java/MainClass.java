@@ -174,6 +174,7 @@ public class MainClass {
 		options.addOption("version", true, "-version [default:23]: Version of Android SDK.");
 		options.addOption("crashPath", true, "-crashPath: crash info file.");
 		options.addOption("exceptionPath", true, "-exceptionPath: exception file folder.");
+		options.addOption("androidCGPath", true, "-androidCGPath: Android CallGraph file.");
 
 		/** analysis config **/
 		options.addOption("client", true, "-client "
@@ -267,6 +268,8 @@ public class MainClass {
 		MyConfig.getInstance().setAndroidVersion("android-" + mCmd.getOptionValue("version", "23"));
 		MyConfig.getInstance().setCrashInfoFilePath(mCmd.getOptionValue("crashPath","Files\\crashInfo.json"));
 		MyConfig.getInstance().setExceptionSummaryFilePath(mCmd.getOptionValue("exceptionPath","Files\\android\\exceptionInfo\\"));
+		MyConfig.getInstance().setAndroidCGFilePath(mCmd.getOptionValue("androidCGPath","Files\\android\\CallGraphInfo\\cg.txt"));
+
 		if (mCmd.hasOption("sootOutput"))
 			MyConfig.getInstance().setWriteSootOutput(true);
 		

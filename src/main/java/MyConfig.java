@@ -42,12 +42,12 @@ public class MyConfig {
 	private Switch mySwithch = new Switch();
 	private int src_prec = Options.src_prec_apk;
 	private int fileSuffixLength = 4;
-
 	private static class SingletonInstance {
 		private static final MyConfig INSTANCE = new MyConfig();
 	}
 	private String CrashInfoFilePath;
 	private String ExceptionSummaryFilePath ;
+	private String AndroidCGFilePath ;
 
 	public static MyConfig getInstance() {
 		return SingletonInstance.INSTANCE;
@@ -382,6 +382,14 @@ public class MyConfig {
 
 	public void setExceptionSummaryFilePath(String exceptionSummaryFilePath) {
 		ExceptionSummaryFilePath = exceptionSummaryFilePath;
+	}
+
+	public String getAndroidCGFilePath() {
+		return AndroidCGFilePath;
+	}
+
+	public void setAndroidCGFilePath(String androidCGFilePath) {
+		AndroidCGFilePath = androidCGFilePath;
 	}
 
 }
