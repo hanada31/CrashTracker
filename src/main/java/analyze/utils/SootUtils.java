@@ -1467,6 +1467,7 @@ public class SootUtils {
 		SootMethod caller = edge.getSrc().method();
 		SootMethod callee = edge.getTgt().method();
 		Set<Integer> paramIndexCaller = new HashSet<>();
+		if(!caller.hasActiveBody()) return paramIndexCaller;
 		for(Unit unit: caller.getActiveBody().getUnits()){
 			InvokeExpr invoke = SootUtils.getInvokeExp(unit);
 			if(invoke!=null && invoke.getMethod() == callee){

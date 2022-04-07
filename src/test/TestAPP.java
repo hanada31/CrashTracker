@@ -40,7 +40,8 @@ public class TestAPP {
 //        name = "hk.gogovan.GoGoVanClient2-180.apk";
 //        name = "com.infomil.leclercdrive-277.apk";
 //        name = "com.calendar.example-109.apk";
-//        name = "com.calendar.example-109.apk";
+        name = "com.shenyuan.militarynews-80.apk";
+//        name = "com.kalpvaig.quest-150.apk";
 
 
         String client = "CrashAnalysisClient";

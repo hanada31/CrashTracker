@@ -40,8 +40,6 @@ public class CrashAnalysis extends Analyzer {
     public void analyze() {
         readCrashInfo();
         System.out.println("readCrashInfo Finish...");
-        readAndroidCG();
-        System.out.println("readAndroidCG Finish...");
         getExceptionOfCrashInfo();
         System.out.println("getExceptionOfCrashInfo Finish...");
         getCandidateBuggyMethods();
@@ -55,7 +53,7 @@ public class CrashAnalysis extends Analyzer {
         for(CrashInfo crashInfo : crashInfoList){
             System.out.println("methodName::"+ crashInfo.getMethodName());
             System.out.println("msg::"+ crashInfo.getMsg());
-            String buggyRanking = getRankingString(crashInfo, -999);
+            String buggyRanking = getRankingString(crashInfo, 999);
             List<Map.Entry<String, Integer>> treeMapList = CollectionUtils.getTreeMapEntriesSortedByValue(crashInfo.getBuggyCandidates());
             for (int i = 0; i < treeMapList.size(); i++) {
                 String buggy = treeMapList.get(i).getKey();
@@ -164,19 +162,22 @@ public class CrashAnalysis extends Analyzer {
         System.out.println("parameterOrFieldHandler...");
         ExceptionInfo exceptionInfo = crashInfo.getExceptionInfo();
         for(RelatedMethod method: exceptionInfo.getRelatedMethodsInSameClass(false)){
-            getBuggyFromRelatedMethods(crashInfo, method);
+            getBuggyFromRelatedMethods(crashInfo, method, ConstantUtils.INITSCORE);
         }
-        if(crashInfo.getEdgeMap().size()==0) {
+        boolean isDiff = true;
+        Collection<Integer> vals = crashInfo.getBuggyCandidates().values();
+        for(int val :vals){
+            if(val > ConstantUtils.INITSCORE - ConstantUtils.DIFFCLASS) isDiff =false;
+        }
+        if(isDiff) {
             //add diff class results, when the same class results returns nothing
             for (RelatedMethod method : exceptionInfo.getRelatedMethodsInDiffClass(false)) {
-                getBuggyFromRelatedMethods(crashInfo, method);
+                getBuggyFromRelatedMethods(crashInfo, method, ConstantUtils.INITSCORE-ConstantUtils.DIFFCLASS);
             }
         }
         getBuggyFromUserCode(crashInfo, ConstantUtils.INITSCORE-ConstantUtils.USERFIELDMTDSCORE);
-
     }
     private void noExceptionHandler(int initScore, CrashInfo crashInfo) {
-
         System.out.println("noExceptionHandler...");
         int start = 0, end= crashInfo.getTrace().size()-1;
         for(int i=0; i<crashInfo.getTrace().size(); i++){
@@ -194,8 +195,9 @@ public class CrashAnalysis extends Analyzer {
             }
         }
         crashInfo.setEdges(new ArrayList<>());
-        List<SootClass> supers = new ArrayList<>();
+        SootClass superCls = null;
         String sub ="";
+        List<String> history = new ArrayList<>();
         for(int k=start; k<=end; k++){
             String candi = crashInfo.getTrace().get(k);
             if(!candi.startsWith("android.") &&!candi.startsWith("com.android.") && !candi.startsWith("java")) {
@@ -203,28 +205,41 @@ public class CrashAnalysis extends Analyzer {
                 SootMethod sm = getSootMethodBySimpleName(candi);
                 if(sm!=null){
                     sub = sm.getDeclaringClass().getName();
-                    supers = Scene.v().getActiveHierarchy().getSuperclassesOf(sm.getDeclaringClass());
-                }
-            }else{
-                String candiClassName = candi.substring(0,candi.lastIndexOf("."));
-                for(SootClass sc: supers){
-                    if(sc.getName().equals(candiClassName)){
-                        for(String callee:  androidCGMap.get(candi)){
-                            if(callee.contains(candiClassName)) {
-                                String realCallee = callee.replace(candiClassName, sub);
-                                SootMethod realSootMethod = getSootMethodBySimpleName(realCallee);
-                                if(realSootMethod!=null ) {
-                                    addCalleesOfSourceOfEdge(initScore, crashInfo, realSootMethod, 0);
-                                }
-                            }
+                    superCls = Scene.v().getActiveHierarchy().getSuperclassesOf(sm.getDeclaringClass()).get(0);
+                    for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesOutOf(sm); it.hasNext(); ) {
+                        Edge outEdge = it.next();
+                        SootMethod callee = outEdge.getTgt().method();
+                        if(callee.getSignature().contains(superCls.getName() )){
+                            getCalleeOfAndroidMethods(initScore,crashInfo, getMethodSimpleNameFromSignature(callee.getSignature()) , sub, history);
                         }
                     }
+                }
+            }else{
+                if(candi.contains(superCls.getName() )){
+                    getCalleeOfAndroidMethods(initScore,crashInfo, candi , sub, history);
                 }
                 initScore--;
             }
         }
     }
 
+    private void getCalleeOfAndroidMethods(int initScore, CrashInfo crashInfo, String candi, String sub, List<String> history) {
+        if(history.contains(candi)) return;
+        history.add(candi);
+        readAndroidCG();
+        if(!androidCGMap.containsKey(candi)) return;
+        String candiClassName = candi.substring(0,candi.lastIndexOf("."));
+        for(String callee: androidCGMap.get(candi)){
+            if(callee.contains(candiClassName)) {
+                String realCallee = callee.replace(candiClassName, sub);
+                SootMethod realSootMethod = getSootMethodBySimpleName(realCallee);
+                if(realSootMethod!=null ) {
+                    addCalleesOfSourceOfEdge(initScore, crashInfo, realSootMethod, 0);
+                }
+                getCalleeOfAndroidMethods(initScore, crashInfo,  callee, sub, history);
+            }
+        }
+    }
 
     /**
      * addCalleesOfSourceOfEdge
@@ -256,25 +271,25 @@ public class CrashAnalysis extends Analyzer {
      * @param sootMethod
      * @param depth
      */
-    private void addCallersOfSourceOfEdge(Edge edge, RelatedMethod method, CrashInfo crashInfo, SootMethod sootMethod, int depth ) {
+    private void addCallersOfSourceOfEdge(int initScore, Edge edge, RelatedMethod method, CrashInfo crashInfo, SootMethod sootMethod, int depth ) {
         //TODO
         String candi = sootMethod.getDeclaringClass().getName()+ "." + sootMethod.getName();
 //        if(candi.startsWith("android") || candi.startsWith("java")) return;
-        int score = ConstantUtils.INITSCORE - getOrderInTrace(crashInfo, candi)*5 - method.getDepth()*2 - depth;
+        int score = initScore - getOrderInTrace(crashInfo, candi)*5 - method.getDepth()*2 - depth;
 //        System.out.println(candi +" " +score +" " + " 5*" +getOrderInTrace(crashInfo, candi) + " 2*" +method.getDepth()+ " 1*" +depth);
         crashInfo.addBuggyCandidates(candi, score);
 
         //if the buggy type is not passed by parameter, do not find its caller
         Set<Integer> paramIndexCaller = SootUtils.getIndexesFromMethod(edge, crashInfo.exceptionInfo.getRelatedValueIndex());
-        System.out.println(sootMethod.getSignature() +" "+ paramIndexCaller.size() );
         if(paramIndexCaller.size() == 0) return;
 
         for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesInto(sootMethod); it.hasNext(); ) {
             Edge edge2 = it.next();
-            if(!crashInfo.getEdges().contains(edge2) && !edge2.toString().contains("dummyMainMethod")){
-                crashInfo.add2EdgeMap(depth,edge2);
-                addCallersOfSourceOfEdge(edge2, method, crashInfo, edge2.getSrc().method(), depth+1);
-            }
+            if(edge2.toString().contains("dummyMainMethod")) continue;
+            if( crashInfo.getEdges().contains(edge2) ) continue;
+            crashInfo.add2EdgeMap(depth,edge2);
+            addCallersOfSourceOfEdge(initScore, edge2, method, crashInfo, edge2.getSrc().method(), depth+1);
+
         }
     }
 
@@ -283,16 +298,16 @@ public class CrashAnalysis extends Analyzer {
      * @param crashInfo
      * @param method
      */
-    private void getBuggyFromRelatedMethods(CrashInfo crashInfo, RelatedMethod method ) {
+    private void getBuggyFromRelatedMethods( CrashInfo crashInfo, RelatedMethod method ,int initScore) {
         crashInfo.setEdges(new ArrayList<>());
         for (Iterator<Edge> it = Global.v().getAppModel().getCg().iterator(); it.hasNext(); ) {
             Edge edge = it.next();
             if(edge.getTgt().method().getSignature().equals(method.getMethod())){
-                crashInfo.add2EdgeMap(0, edge);
                 SootMethod sourceMtd = edge.getSrc().method();
                 if(sourceMtd.getDeclaringClass().getName().startsWith("java") || sourceMtd.getDeclaringClass().getName().startsWith("android"))
                     continue;
-                addCallersOfSourceOfEdge(edge, method, crashInfo, sourceMtd, 1);
+                crashInfo.add2EdgeMap(0, edge);
+                addCallersOfSourceOfEdge(initScore, edge, method, crashInfo, sourceMtd, 1);
             }
         }
     }
@@ -353,12 +368,13 @@ public class CrashAnalysis extends Analyzer {
                 for(SootClass sub: Scene.v().getActiveHierarchy().getSubclassesOfIncluding(sc)){
                     boolean hasMethod = false;
                     for(SootMethod sm : sub.getMethods()){
-                        if(sm.getName().equals(crashInfo.getSubMethodName())){
+                        if(sm.getName().equals(crashInfo.getSubMethodName()) && sm.hasActiveBody()){
                             hasMethod = true;
                         }
                     }
                     if(!hasMethod) {
                         String candi = sub.getName() + "." + crashInfo.getSubMethodName();
+
                         int score = ConstantUtils.INITSCORE - getOrderInTrace(crashInfo, candi);
                         //TODO
                         crashInfo.addBuggyCandidates(candi, score);
@@ -488,15 +504,15 @@ public class CrashAnalysis extends Analyzer {
                 crashInfo.setId(crashInfo.getIdentifier()+"-"+ jsonObject.getString("id"));
             crashInfo.setReason(jsonObject.getString("reason"));
             crashInfo.setMethodName(crashInfo.getTrace().get(0));
+            if(Global.v().getAppModel().getPackageName().length()==0 && Global.v().getAppModel().getAppName().contains(crashInfo.getIdentifier()))
+                Global.v().getAppModel().setPackageName(crashInfo.getIdentifier());
             if(crashInfo.getIdentifier().equals(Global.v().getAppModel().getPackageName())) {
                 crashInfoList.add(crashInfo);
-            }else{
-                if(Global.v().getAppModel().getPackageName().length()==0 && Global.v().getAppModel().getAppName().contains(crashInfo.getIdentifier()))
-                    crashInfoList.add(crashInfo);
             }
         }
     }
     private void readAndroidCG() {
+        if(androidCGMap.size()>0) return;
         String fn = MyConfig.getInstance().getAndroidCGFilePath();
         System.out.println("readAndroidCG::"+fn);
         List<String> edges = FileUtils.getListFromFile(fn);

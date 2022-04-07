@@ -176,6 +176,9 @@ public class ConstantUtils {
 	public static final int NOEXCEPTIONSCORE = 70;
     public static final int USERFIELDMTDSCORE = 10 ;
 	public static final int METHODOUTTACE = 5;
+    public static final int OUTOFPKGSCORE = 20;
+	public static final int BOTTOMSCORE = 0;
+	public static final int DIFFCLASS = 20;
 
 
 	private static final String[] activityMethods = { ACTIVITY_ONCREATE, ACTIVITY_ONDESTROY, ACTIVITY_ONPAUSE,
