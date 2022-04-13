@@ -1,6 +1,7 @@
 package main.java.client.crash;
 import main.java.Global;
 import main.java.analyze.utils.ConstantUtils;
+import main.java.analyze.utils.StringUtils;
 import main.java.client.exception.ExceptionInfo;
 import soot.jimple.toolkits.callgraph.Edge;
 import soot.util.Cons;
@@ -42,7 +43,8 @@ public class CrashInfo {
     }
 
     public void addBuggyCandidates(String candi, int score) {
-        if(!candi.contains(Global.v().getAppModel().getPackageName())) score = score - ConstantUtils.OUTOFPKGSCORE;
+        String pkgPrefix = StringUtils.getPkgPrefix(Global.v().getAppModel().getPackageName(),2);
+        if(!candi.contains(pkgPrefix)) score = score - ConstantUtils.OUTOFPKGSCORE;
         if(this.buggyCandidates.containsKey(candi) && this.buggyCandidates.get(candi) > score)
             return;
         if(score > ConstantUtils.BOTTOMSCORE)
@@ -221,7 +223,7 @@ public class CrashInfo {
     }
 
 
-    public String getClssName() {
+    public String getClassName() {
         return className;
     }
 

@@ -39,9 +39,8 @@ public class TestAPP {
 //        name = "com.turkusoz_tablet-287.apk";
 //        name = "hk.gogovan.GoGoVanClient2-180.apk";
 //        name = "com.infomil.leclercdrive-277.apk";
-//        name = "com.calendar.example-109.apk";
-        name = "com.shenyuan.militarynews-80.apk";
-//        name = "com.kalpvaig.quest-150.apk";
+        name = "com.kalpvaig.quest-150.apk";
+//        name = "hamsoft.inc.barcodegen-466.apk";
 
 
         String client = "CrashAnalysisClient";
@@ -58,8 +57,9 @@ public class TestAPP {
         MyConfig.getInstance().setAndroidJar("lib/platforms");
         MyConfig.getInstance().setSrc_prec(Options.src_prec_apk);
         MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfo.json");
-        MyConfig.getInstance().setExceptionSummaryFilePath("Files\\android\\exceptionInfo\\");
+        MyConfig.getInstance().setExceptionFilePath("Files\\android\\exceptionInfo\\");
         MyConfig.getInstance().setAndroidCGFilePath("Files\\android\\CallGraphInfo\\cg.txt");
+        MyConfig.getInstance().setPermissionFilePath("Files\\android\\Permission\\permission.txt");
 
     }
 

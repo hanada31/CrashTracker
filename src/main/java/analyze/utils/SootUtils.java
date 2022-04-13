@@ -1547,12 +1547,13 @@ public class SootUtils {
 						for(UnitValueBoxPair pair:uses){
 							if(pair.getUnit() instanceof JAssignStmt){
 								JAssignStmt jAssignStmt2 = (JAssignStmt) pair.getUnit();
-								if(jAssignStmt2.getRightOp() == pair.getValueBox().getValue()){
-									return  false;
+								if(jAssignStmt2.getRightOp() != pair.getValueBox().getValue()){
+									return true;
 								}
-								return true;
 							}else if(pair.getUnit() instanceof JInvokeStmt){
-								return true;
+								SootMethod met = ((JInvokeStmt) pair.getUnit()).getInvokeExpr().getMethod();
+								if(!met.getName().startsWith("get"))
+									return true;
 							}
 						}
 					}

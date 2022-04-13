@@ -1,6 +1,5 @@
 package main.java;
 
-import main.java.MyConfig;
 import soot.options.Options;
 
 /**
@@ -46,7 +45,8 @@ public class MyConfig {
 		private static final MyConfig INSTANCE = new MyConfig();
 	}
 	private String CrashInfoFilePath;
-	private String ExceptionSummaryFilePath ;
+	private String ExceptionFilePath;
+	private String PermissionFilePath;
 	private String AndroidCGFilePath ;
 
 	public static MyConfig getInstance() {
@@ -376,12 +376,12 @@ public class MyConfig {
 		CrashInfoFilePath = crashInfoFilePath;
 	}
 
-	public String getExceptionSummaryFilePath() {
-		return ExceptionSummaryFilePath;
+	public String getExceptionFilePath() {
+		return ExceptionFilePath;
 	}
 
-	public void setExceptionSummaryFilePath(String exceptionSummaryFilePath) {
-		ExceptionSummaryFilePath = exceptionSummaryFilePath;
+	public void setExceptionFilePath(String exceptionFilePath) {
+		ExceptionFilePath = exceptionFilePath;
 	}
 
 	public String getAndroidCGFilePath() {
@@ -391,5 +391,15 @@ public class MyConfig {
 	public void setAndroidCGFilePath(String androidCGFilePath) {
 		AndroidCGFilePath = androidCGFilePath;
 	}
+
+
+	public String getPermissionFilePath() {
+		return PermissionFilePath;
+	}
+
+	public void setPermissionFilePath(String permissionFilePath) {
+		PermissionFilePath = permissionFilePath;
+	}
+
 
 }

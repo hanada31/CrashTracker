@@ -1,14 +1,11 @@
 package main.java.client.exception;
 
 import main.java.analyze.utils.output.PrintUtils;
-import org.checkerframework.checker.units.qual.A;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
 import soot.jimple.StringConstant;
-import soot.jimple.internal.JInstanceFieldRef;
-import soot.jimple.toolkits.callgraph.Edge;
 
 import java.util.*;
 
@@ -33,12 +30,18 @@ public class ExceptionInfo {
     private Map<Integer, ArrayList<RelatedMethod>> relatedMethodsInSameClassMap;
     private Map<Integer, ArrayList<RelatedMethod>> relatedMethodsInDiffClassMap;
     private List<Value> conditions;
+    private Set<Unit> conditionUnits;
     private String modifier;
     private List<Unit> tracedUnits;
     private SootMethod sootMethod;
     private String sootMethodName;
     private Unit unit;
     private RelatedVarType relatedVarType;
+    private boolean isOsVersionRelated;
+    private boolean isAssessRelated;
+    private boolean isManifestRelated;
+    private boolean isResourceRelated;
+    private boolean isHardwareRelated;
 
     public ExceptionInfo() {
         this.relatedParamValues = new ArrayList<>();
@@ -48,6 +51,7 @@ public class ExceptionInfo {
         this.relatedMethodsInDiffClass = new ArrayList<>();
         this.relatedMethods = new ArrayList<>();
         this.conditions = new ArrayList<>();
+        this.conditionUnits = new HashSet<>();
         this.tracedUnits = new ArrayList<>();
         this.relatedParamValuesInStr = new ArrayList<>();
         this.relatedFieldValuesInStr = new ArrayList<>();
@@ -354,6 +358,54 @@ public class ExceptionInfo {
 
     public void setRelatedValueIndex(Set<Integer> relatedValueIndex) {
         this.relatedValueIndex = relatedValueIndex;
+    }
+
+    public boolean isOsVersionRelated() {
+        return isOsVersionRelated;
+    }
+
+    public void setOsVersionRelated(boolean osVersionRelated) {
+        isOsVersionRelated = osVersionRelated;
+    }
+
+    public boolean isAssessRelated() {
+        return isAssessRelated;
+    }
+
+    public void setAssessRelated(boolean assessRelated) {
+        isAssessRelated = assessRelated;
+    }
+
+    public boolean isManifestRelated() {
+        return isManifestRelated;
+    }
+
+    public void setManifestRelated(boolean manifestRelated) {
+        isManifestRelated = manifestRelated;
+    }
+
+    public boolean isResourceRelated() {
+        return isResourceRelated;
+    }
+
+    public void setResourceRelated(boolean resourceRelated) {
+        isResourceRelated = resourceRelated;
+    }
+
+    public boolean isHardwareRelated() {
+        return isHardwareRelated;
+    }
+
+    public void setHardwareRelated(boolean hardwareRelated) {
+        isHardwareRelated = hardwareRelated;
+    }
+
+    public Set<Unit> getConditionUnits() {
+        return conditionUnits;
+    }
+
+    public void setConditionUnits(Set<Unit> conditionUnits) {
+        this.conditionUnits = conditionUnits;
     }
 }
 

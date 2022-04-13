@@ -4,9 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import main.java.Global;
+import main.java.MyConfig;
+import main.java.analyze.utils.output.FileUtils;
 import main.java.analyze.utils.output.PrintUtils;
 import main.java.client.crash.CrashInfo;
 import main.java.client.statistic.model.StatisticResult;
+import soot.SootClass;
 import soot.SootMethod;
 
 import java.io.File;
@@ -25,19 +29,60 @@ public class ExceptionInfoClientOutput {
     }
 
 
+
+    /**
+     * write to Json File after each class is Analyzed
+     * @param sootClass
+     */
+    public static void writeJsonForCurrentClass(SootClass sootClass, List<ExceptionInfo> exceptionInfoList, JSONArray exceptionListElement) {
+        String summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
+                + File.separator + "exceptionInfo" +File.separator;
+        FileUtils.createFolder(summary_app_dir);
+        if(exceptionInfoList.size()>0) {
+            ExceptionInfoClientOutput.writeToJson(summary_app_dir + sootClass.getName() + ".json", exceptionInfoList);
+            for(ExceptionInfo info :exceptionInfoList){
+                JSONObject jsonObject = new JSONObject(true);
+                exceptionListElement.add(jsonObject);
+                addBasic1(jsonObject, info);
+                addBasic2(jsonObject, info);
+                addConditions(jsonObject, info);
+                addRelatedValues(jsonObject, info);
+            }
+        }
+    }
+
+
+    public static void writeJsonForFramework(JSONArray exceptionListElement) {
+        String path = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
+                + File.separator + "exceptionInfo" +File.separator+ "summary"+ File.separator;
+        FileUtils.createFolder(path);
+        JSONObject rootElement = new JSONObject(new LinkedHashMap());
+        File file = new File(path+ "exception.json");
+        try {
+            file.createNewFile();
+            rootElement.put("exceptions", exceptionListElement);
+            PrintWriter printWriter = new PrintWriter(file);
+            String jsonString = JSON.toJSONString(rootElement, SerializerFeature.PrettyFormat,
+                    SerializerFeature.DisableCircularReferenceDetect);
+            printWriter.write(jsonString);
+            printWriter.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void writeToJson(String path, List<ExceptionInfo> result){
         JSONObject rootElement = new JSONObject(new LinkedHashMap());
-        rootElement.put("system", "");
-        rootElement.put("version", "");
         File file = new File(path);
         try {
             file.createNewFile();
             JSONArray exceptionListElement  = new JSONArray(new ArrayList<>());
-            rootElement.put("methodMap", exceptionListElement);
+            rootElement.put("exceptions", exceptionListElement);
             for(ExceptionInfo info :result){
                 JSONObject jsonObject = new JSONObject(true);
                 exceptionListElement.add(jsonObject);
-                addBasic(jsonObject, info);
+                addBasic1(jsonObject, info);
+                addBasic2(jsonObject, info);
                 addConditions(jsonObject, info);
                 addRelatedValues(jsonObject, info);
                 addRelatedMethods(jsonObject, info);
@@ -52,15 +97,23 @@ public class ExceptionInfoClientOutput {
         }
     }
 
-    private static void addBasic(JSONObject jsonObject, ExceptionInfo info) {
+    public static void addBasic1(JSONObject jsonObject, ExceptionInfo info) {
         jsonObject.put("method", info.getSootMethod().getSignature());
-        jsonObject.put("relatedVarType", info.getRelatedVarType());
-        jsonObject.put("modifier", info.getModifier());
-        jsonObject.put("type", info.getExceptionType());
         jsonObject.put("message", info.getExceptionMsg());
     }
 
-    private static void addConditions(JSONObject jsonObject, ExceptionInfo info) {
+    public static void addBasic2(JSONObject jsonObject, ExceptionInfo info) {
+        jsonObject.put("relatedVarType", info.getRelatedVarType());
+        jsonObject.put("modifier", info.getModifier());
+        jsonObject.put("type", info.getExceptionType());
+        jsonObject.put("osVersionRelated", info.isOsVersionRelated());
+        jsonObject.put("resourceRelated", info.isResourceRelated());
+        jsonObject.put("assessRelated", info.isAssessRelated());
+        jsonObject.put("hardwareRelated", info.isHardwareRelated());
+        jsonObject.put("manifestRelated", info.isManifestRelated());
+    }
+
+    public static void addConditions(JSONObject jsonObject, ExceptionInfo info) {
 //        JSONArray conds  = new JSONArray(new ArrayList<>());
 //        for(Value condValue: info.getConditions()){
 //            JSONObject jsonObjectTemp = new JSONObject(true);
@@ -73,7 +126,7 @@ public class ExceptionInfoClientOutput {
             jsonObject.put("conditions", PrintUtils.printList(info.getConditions()));
     }
 
-    private static void addRelatedValues(JSONObject jsonObject, ExceptionInfo info) {
+    public static void addRelatedValues(JSONObject jsonObject, ExceptionInfo info) {
         if(info.getRelatedParamValues().size()>0)
             jsonObject.put("paramValues", PrintUtils.printList(info.getRelatedParamValues()));
         if(info.getRelatedFieldValues().size()>0)
@@ -86,7 +139,7 @@ public class ExceptionInfoClientOutput {
     }
 
 
-    private static void addRelatedMethods(JSONObject jsonObject, ExceptionInfo exceptionInfo) {
+    public static void addRelatedMethods(JSONObject jsonObject, ExceptionInfo exceptionInfo) {
         if(exceptionInfo==null) return;
         jsonObject.put("relatedMethodsInSameClass", exceptionInfo.getRelatedMethodsInSameClass(true).size());
         jsonObject.put("relatedMethodsInDiffClass", exceptionInfo.getRelatedMethodsInDiffClass(true).size());

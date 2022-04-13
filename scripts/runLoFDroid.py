@@ -3,7 +3,7 @@ import sys
 import shutil
 
 reRun = True
-
+filterList = list()
 def analyzeApk(apkPath, resPath, sdk):
     id=0
     logDir = resPath+"/logs"
@@ -14,9 +14,12 @@ def analyzeApk(apkPath, resPath, sdk):
         os.makedirs(outputDir) 
         
     if(os.path.exists(apkPath)): 
+        
         apks = os.listdir(apkPath)
         extraArgs = "" #"-noLibCode "# 
         for apk in apks:
+            if len(filterList)>0  and apk not in filterList:
+                continue
             if apk[-4:] ==".apk":
                 id+=1
                 print ("\n\n\nThis is the "+str(id)+"th app " +apk)
@@ -26,10 +29,20 @@ def analyzeApk(apkPath, resPath, sdk):
                     os.system("java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms "+ extraArgs +" -time 5 -maxPathNumber 100 -client CrashAnalysisClient -outputDir "+outputDir+" >> "+logDir+"/"+apk[:-4]+".txt")
 
 
+def readFilterFile(filterFile):
+    f = open(filterFile, 'r')
+    lines = f.readlines()
+    f.close()
+    for line in lines:
+        filterList.append(line.strip()+".apk")
+    
 if __name__ == '__main__' :
+    sdk = "lib/"   
+    jarFile = "LoFDroid.jar"
+    
     apkPath = sys.argv[1]
     resPath = sys.argv[2]
-    jarFile = "LoFDroid.jar"
+    filterFile = sys.argv[3]
     
     os.system("mvn -f pom.xml package -q")
     if os.path.exists("target/LoFDroid.jar"):
@@ -39,6 +52,7 @@ if __name__ == '__main__' :
     else:
         print("Fail to build! Please run \"mvn -f pom.xml package\" to see the detail info.")
     
-    sdk = "lib/"    
+     
+    readFilterFile(filterFile)
     analyzeApk(apkPath, resPath, sdk)
     

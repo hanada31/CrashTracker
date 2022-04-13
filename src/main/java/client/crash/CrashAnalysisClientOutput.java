@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import main.java.analyze.utils.CollectionUtils;
+import main.java.analyze.utils.output.PrintUtils;
 import main.java.client.exception.ExceptionInfo;
 import main.java.client.exception.RelatedMethod;
 import main.java.client.statistic.model.StatisticResult;
@@ -42,7 +43,6 @@ public class CrashAnalysisClientOutput {
                 addBuggyTraces(jsonObject, crashInfo);
 
                 addBuggyMethods(jsonObject, crashInfo);
-//                addEdges(jsonObject, crashInfo);
                 addRelatedMethods(jsonObject, crashInfo);
             }
 
@@ -90,6 +90,13 @@ public class CrashAnalysisClientOutput {
         if(exceptionInfo!=null) {
             jsonObject.put("reg message", crashInfo.getExceptionInfo().getExceptionMsg());
             jsonObject.put("relatedVarType", crashInfo.getExceptionInfo().getRelatedVarType());
+            jsonObject.put("conditions", crashInfo.getExceptionInfo().getConditions());
+            if(crashInfo.getExceptionInfo().getConditions().size()>0)
+                jsonObject.put("conditions", PrintUtils.printList(crashInfo.getExceptionInfo().getConditions()));
+            if(crashInfo.getExceptionInfo().getRelatedFieldValues().size()>0)
+                jsonObject.put("fieldValues", PrintUtils.printList(crashInfo.getExceptionInfo().getRelatedFieldValues()));
+            if(crashInfo.getExceptionInfo().getRelatedParamValues().size()>0)
+                jsonObject.put("paramValues", PrintUtils.printList(crashInfo.getExceptionInfo().getRelatedParamValues()));
         }
         jsonObject.put("labeledBuggyAPI", crashInfo.getBuggyApi());
         jsonObject.put("labeledRealBuggy", crashInfo.getReal());
