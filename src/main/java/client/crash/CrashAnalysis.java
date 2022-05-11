@@ -13,6 +13,7 @@ import main.java.analyze.utils.output.FileUtils;
 import main.java.client.exception.*;
 import main.java.client.statistic.model.StatisticResult;
 import soot.*;
+import soot.jimple.InvokeExpr;
 import soot.jimple.toolkits.callgraph.Edge;
 import soot.toolkits.graph.BriefUnitGraph;
 
@@ -113,24 +114,70 @@ public class CrashAnalysis extends Analyzer {
         removeCDataFlowIrrelevantTrace(crashInfo, extendedCallDepth);
     }
 
+    //add callback related edges
     private void getExtendedCallTrace(CrashInfo crashInfo, Map<String, Integer> extendedCallDepth) {
         for(int index = crashInfo.getCrashMethodList().size()-1; index>=0; index--) {
             String candi = crashInfo.getCrashMethodList().get(index);
             extendedCallDepth.put(candi, 1);
 
+            //all function in the last method
+            //methods that preds of the next one in call stack
             Set<SootMethod> methods = getSootMethodBySimpleName(candi);
             for(SootMethod sm: methods) {
-                if(index < crashInfo.getCrashMethodList().size()-1){
-                    String last = crashInfo.getCrashMethodList().get(index+1);
-                    BriefUnitGraph graph = new BriefUnitGraph(SootUtils.getSootActiveBody(sm));
+                if(index == crashInfo.getCrashMethodList().size()-1) {
+                    addAllCallee2ExtendedCG(sm, extendedCallDepth, 2);
+                }else{
                     for(Unit u : sm.getActiveBody().getUnits()){
-                        if (u.toString().contains(last)) {
-                            //
+                        InvokeExpr invoke = SootUtils.getSingleInvokedMethod(u);
+                        if (invoke != null) { // u is invoke stmt
+                            String callee = invoke.getMethod().getDeclaringClass().getName()+ "." + invoke.getMethod().getName();
+                            String last = crashInfo.getCrashMethodList().get(index+1);
+                            if(callee.equals(last)){
+                                addPredsOfUnit2ExtendedCG(u, sm, extendedCallDepth, 2);
+                            }
                         }
                     }
                 }
+            }
+        }
+    }
 
+    private void addPredsOfUnit2ExtendedCG(Unit u, SootMethod sm, Map<String, Integer> extendedCallDepth, int depth) {
+        BriefUnitGraph graph = new BriefUnitGraph(SootUtils.getSootActiveBody(sm));
+        List<Unit> worklist = new ArrayList<>();
+        List<Unit> results = new ArrayList<>();
+        worklist.add(u);
+        while(worklist.size()>0){
+            Unit todo = worklist.get(0);
+            worklist.remove(0);
+            List<Unit> preds = graph.getPredsOf(todo);
+            for(Unit pred: preds){
+                if(!results.contains(pred)){
+                    results.add(pred);
+                    worklist.add(pred);
+                }
+            }
+        }
+        for(Unit pred: results){
+            Set<SootMethod> calleeMethod = SootUtils.getInvokedMethodSet(sm, pred);
+            for(SootMethod method: calleeMethod){
+                String callee = method.getDeclaringClass().getName()+ "." + method.getName();
+                if(!extendedCallDepth.containsKey(callee) || extendedCallDepth.get(callee)>depth ) {
+                    extendedCallDepth.put(callee, depth);
+                    addAllCallee2ExtendedCG(method, extendedCallDepth, depth+1);
+                }
+            }
+        }
+    }
 
+    private void addAllCallee2ExtendedCG(SootMethod sm, Map<String, Integer> extendedCallDepth, int depth) {
+        if(depth> ConstantUtils.EXTENDCGDEPTH) return;
+        for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesOutOf(sm); it.hasNext(); ) {
+            Edge edge = it.next();
+            String callee = edge.getTgt().method().getDeclaringClass().getName()+ "." + edge.getTgt().method().getName();
+            if(!extendedCallDepth.containsKey(callee) || extendedCallDepth.get(callee)>depth ) {
+                extendedCallDepth.put(callee, depth);
+                addAllCallee2ExtendedCG(edge.getTgt().method(), extendedCallDepth, depth+1);
             }
         }
     }
