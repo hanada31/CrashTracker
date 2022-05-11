@@ -100,13 +100,11 @@ public class SootAnalyzer extends Analyzer {
 		excludeList.add("android.*");
 		excludeList.add("androidx.*");
 		excludeList.add("kotlin.*");
-		excludeList.add("com.*");
 		excludeList.add("soot.*");
 		excludeList.add("junit.*");
 		excludeList.add("java.*");
 		excludeList.add("javax.*");
 		excludeList.add("sun.*");
-		excludeList.add("org.*");
 		Options.v().set_exclude(excludeList);
 	}
 }

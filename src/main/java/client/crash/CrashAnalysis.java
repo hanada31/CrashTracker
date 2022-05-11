@@ -14,6 +14,7 @@ import main.java.client.exception.*;
 import main.java.client.statistic.model.StatisticResult;
 import soot.*;
 import soot.jimple.toolkits.callgraph.Edge;
+import soot.toolkits.graph.BriefUnitGraph;
 
 import java.io.File;
 import java.util.*;
@@ -52,32 +53,8 @@ public class CrashAnalysis extends Analyzer {
     }
 
 
-
-    private void printCrash2Edges() {
-        for(CrashInfo crashInfo : crashInfoList){
-            System.out.println("methodName::"+ crashInfo.getMethodName());
-            System.out.println("msg::"+ crashInfo.getMsg());
-            String buggyRanking = getRankingString(crashInfo, 999);
-            List<Map.Entry<String, Integer>> treeMapList = CollectionUtils.getTreeMapEntriesSortedByValue(crashInfo.getBuggyCandidates());
-            for (int i = 0; i < treeMapList.size(); i++) {
-                String buggy = treeMapList.get(i).getKey();
-                System.out.println((i+1)+" @ " +treeMapList.get(i).toString() );
-                if(crashInfo.getReal().equals(buggy)){
-                    buggyRanking = getRankingString(crashInfo,  i+1);
-                }
-            }
-            System.out.println(buggyRanking);
-            FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"buggyRanking.txt", buggyRanking, true);
-        }
-    }
-
-    private String getRankingString(CrashInfo crashInfo, int location) {
-        int sizeAll = crashInfo.getBuggyCandidates().size();
-        String size = "/ "+ sizeAll;
-        return  crashInfo.getRealCate() + "\t" + crashInfo.getId() +"\t" + crashInfo.getMethodName() + "\t" + crashInfo.getReal()  +"\t"+ location + "\t" +size + "\n";
-    }
-
     /**
+     * key method
      * find candidates according to the type of corresponding exception
      */
     private void getCandidateBuggyMethods() {
@@ -87,21 +64,20 @@ public class CrashAnalysis extends Analyzer {
             if(exceptionInfo!=null && exceptionInfo.getRelatedVarType()!=null) {
                 switch (exceptionInfo.getRelatedVarType()) {
                     case OverrideMissing:
-                        overrideMissingHandler(crashInfo);
-                        withParameterHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo);
+                        overrideMissingHandler(crashInfo); //OMA
+                        withParameterHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo); //TMA'
                         break;
                     case ParameterOnly:
-                        withParameterHandler(ConstantUtils.INITSCORE, crashInfo);
+                        withParameterHandler(ConstantUtils.INITSCORE, crashInfo); //TMA
                         break;
                     case FieldOnly:
-                        withFieldHandler(crashInfo);
-                        withParameterHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo);
+                        withFieldHandler(crashInfo); //FCA
+                        withParameterHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo);//TMA'
                         break;
                     case ParaAndField:
-                        withParameterHandler(ConstantUtils.INITSCORE, crashInfo);
-                        withFieldHandler(crashInfo);
+                        withParameterHandler(ConstantUtils.INITSCORE, crashInfo); //TMA
+                        withFieldHandler(crashInfo); //FCA
                         break;
-
                 }
             }else {
                 // native and other no exception.
@@ -112,46 +88,58 @@ public class CrashAnalysis extends Analyzer {
         }
     }
 
-    //TODO
-    private void checkIsNoAppRelated(CrashInfo crashInfo) {
-        ExceptionInfo info = crashInfo.getExceptionInfo();
-        if(info!=null && info.isOsVersionRelated()){
-            crashInfo.addBuggyCandidates("OS Update", ConstantUtils.INITSCORE + ConstantUtils.OUTOFPKGSCORE);
-        }
 
-        if(info!=null && info.isAssessRelated()){
-            crashInfo.addBuggyCandidates("Asset", ConstantUtils.INITSCORE  + ConstantUtils.OUTOFPKGSCORE );
-        }
+    /**
+     * parameterOnlyHandler
+     * @param score
+     * @param crashInfo
+     */
+    private void withParameterHandler(int score, CrashInfo crashInfo) {
+        int n = getParameterTerminateMethod(crashInfo);
+        int m = noParameterPassingMethodScore(ConstantUtils.INITSCORE-n,crashInfo);
+        int maxScore = Math.max(ConstantUtils.INITSCORE-ConstantUtils.USERFIELDMTDSCORE, score-n-m);
+        getBuggyFromUserCode(crashInfo, maxScore);
+        useTheCrashLocatorStrategy(crashInfo);
+    }
 
-        if(info!=null && info.isManifestRelated()){
-            crashInfo.addBuggyCandidates("Manifest XML", ConstantUtils.INITSCORE  + ConstantUtils.OUTOFPKGSCORE );
-        } else if(containPermissionString(crashInfo.getMsg())){
-            crashInfo.addBuggyCandidates("Manifest XML", ConstantUtils.INITSCORE  + ConstantUtils.OUTOFPKGSCORE );
-        }
+    /**
+     * use the same strategy as CrashLocator, extend cg, remove control flow and data flow unrelated edges
+     * @param crashInfo
+     */
+    private void useTheCrashLocatorStrategy(CrashInfo crashInfo) {
+        Map<String, Integer> extendedCallDepth = new HashMap<String, Integer>();
+        getExtendedCallTrace(crashInfo, extendedCallDepth);
+        removeControlFlowIrrelevantTrace(crashInfo, extendedCallDepth);
+        removeCDataFlowIrrelevantTrace(crashInfo, extendedCallDepth);
+    }
 
-        if(info!=null && info.isHardwareRelated()) {
-            crashInfo.addBuggyCandidates("Hardware", ConstantUtils.INITSCORE  + ConstantUtils.OUTOFPKGSCORE );
-        } else if(crashInfo.getCrashAPI() !=null && (crashInfo.getCrashAPI().contains("hardware") || crashInfo.getCrashAPI().contains("opengl")
-                || crashInfo.getCrashAPI().contains("nfc") || crashInfo.getCrashAPI().contains("bluetooth") )) {
-            crashInfo.addBuggyCandidates("Hardware", ConstantUtils.INITSCORE  + ConstantUtils.OUTOFPKGSCORE );
-        }
+    private void getExtendedCallTrace(CrashInfo crashInfo, Map<String, Integer> extendedCallDepth) {
+        for(int index = crashInfo.getCrashMethodList().size()-1; index>=0; index--) {
+            String candi = crashInfo.getCrashMethodList().get(index);
+            extendedCallDepth.put(candi, 1);
 
-        if(info!=null && info.isResourceRelated()){
-            crashInfo.addBuggyCandidates("Resource XML", ConstantUtils.INITSCORE  + ConstantUtils.OUTOFPKGSCORE );
+            Set<SootMethod> methods = getSootMethodBySimpleName(candi);
+            for(SootMethod sm: methods) {
+                if(index < crashInfo.getCrashMethodList().size()-1){
+                    String last = crashInfo.getCrashMethodList().get(index+1);
+                    BriefUnitGraph graph = new BriefUnitGraph(SootUtils.getSootActiveBody(sm));
+                    for(Unit u : sm.getActiveBody().getUnits()){
+                        if (u.toString().contains(last)) {
+                            //
+                        }
+                    }
+                }
+
+
+            }
         }
     }
 
-    private boolean containPermissionString(String msg) {
-        String fn = MyConfig.getInstance().getPermissionFilePath();
-        System.out.println(fn);
-        List<String> list = FileUtils.getListFromFile(fn);
-        for(String str: list){
-            str = str.trim().replace("android.permission.","");
-            if(msg.contains(str) && str.length()>0){
-                return true;
-            }
-        }
-        return  false;
+    private void removeCDataFlowIrrelevantTrace(CrashInfo crashInfo, Map<String, Integer> extendedCallDepth) {
+
+    }
+
+    private void removeControlFlowIrrelevantTrace(CrashInfo crashInfo, Map<String, Integer> extendedCallDepth) {
     }
 
 
@@ -176,6 +164,7 @@ public class CrashAnalysis extends Analyzer {
             }
         }
     }
+
     /**
      * ParameterOnly type
      * @param crashInfo
@@ -198,18 +187,6 @@ public class CrashAnalysis extends Analyzer {
                 getBuggyFromRelatedMethods(crashInfo, method, ConstantUtils.INITSCORE-ConstantUtils.DIFFCLASS);
             }
         }
-        getBuggyFromUserCode(crashInfo, ConstantUtils.INITSCORE-ConstantUtils.USERFIELDMTDSCORE);
-    }
-
-    /**
-     * parameterOnlyHandler
-     * @param score
-     * @param crashInfo
-     */
-    private void withParameterHandler(int score, CrashInfo crashInfo) {
-        int n = getParameterTerminateMethod(crashInfo);
-        int m = noParameterPassingMethodScore(ConstantUtils.INITSCORE-n,crashInfo);
-        getBuggyFromUserCode(crashInfo, score-n-m);
     }
 
     private int getParameterTerminateMethod(CrashInfo crashInfo) {
@@ -652,6 +629,75 @@ public class CrashAnalysis extends Analyzer {
         String res1 = ss[0].replace("<","").replace(":","");
         String res2 = ss[2].split("\\(")[0];
         return res1 + "." + res2;
+    }
+
+
+
+    //TODO
+    private void checkIsNoAppRelated(CrashInfo crashInfo) {
+        ExceptionInfo info = crashInfo.getExceptionInfo();
+        if(info!=null && info.isOsVersionRelated()){
+            crashInfo.addBuggyCandidates("OS Update", ConstantUtils.INITSCORE + ConstantUtils.OUTOFPKGSCORE);
+        }
+
+        if(info!=null && info.isAssessRelated()){
+            crashInfo.addBuggyCandidates("Asset", ConstantUtils.INITSCORE  + ConstantUtils.OUTOFPKGSCORE );
+        }
+
+        if(info!=null && info.isManifestRelated()){
+            crashInfo.addBuggyCandidates("Manifest XML", ConstantUtils.INITSCORE  + ConstantUtils.OUTOFPKGSCORE );
+        } else if(containPermissionString(crashInfo.getMsg())){
+            crashInfo.addBuggyCandidates("Manifest XML", ConstantUtils.INITSCORE  + ConstantUtils.OUTOFPKGSCORE );
+        }
+
+        if(info!=null && info.isHardwareRelated()) {
+            crashInfo.addBuggyCandidates("Hardware", ConstantUtils.INITSCORE  + ConstantUtils.OUTOFPKGSCORE );
+        } else if(crashInfo.getCrashAPI() !=null && (crashInfo.getCrashAPI().contains("hardware") || crashInfo.getCrashAPI().contains("opengl")
+                || crashInfo.getCrashAPI().contains("nfc") || crashInfo.getCrashAPI().contains("bluetooth") )) {
+            crashInfo.addBuggyCandidates("Hardware", ConstantUtils.INITSCORE  + ConstantUtils.OUTOFPKGSCORE );
+        }
+
+        if(info!=null && info.isResourceRelated()){
+            crashInfo.addBuggyCandidates("Resource XML", ConstantUtils.INITSCORE  + ConstantUtils.OUTOFPKGSCORE );
+        }
+    }
+
+    private boolean containPermissionString(String msg) {
+        String fn = MyConfig.getInstance().getPermissionFilePath();
+        System.out.println(fn);
+        List<String> list = FileUtils.getListFromFile(fn);
+        for(String str: list){
+            str = str.trim().replace("android.permission.","");
+            if(msg.contains(str) && str.length()>0){
+                return true;
+            }
+        }
+        return  false;
+    }
+
+
+    private void printCrash2Edges() {
+        for(CrashInfo crashInfo : crashInfoList){
+            System.out.println("methodName::"+ crashInfo.getMethodName());
+            System.out.println("msg::"+ crashInfo.getMsg());
+            String buggyRanking = getRankingString(crashInfo, 999);
+            List<Map.Entry<String, Integer>> treeMapList = CollectionUtils.getTreeMapEntriesSortedByValue(crashInfo.getBuggyCandidates());
+            for (int i = 0; i < treeMapList.size(); i++) {
+                String buggy = treeMapList.get(i).getKey();
+                System.out.println((i+1)+" @ " +treeMapList.get(i).toString() );
+                if(crashInfo.getReal().equals(buggy)){
+                    buggyRanking = getRankingString(crashInfo,  i+1);
+                }
+            }
+            System.out.println(buggyRanking);
+            FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"buggyRanking.txt", buggyRanking, true);
+        }
+    }
+
+    private String getRankingString(CrashInfo crashInfo, int location) {
+        int sizeAll = crashInfo.getBuggyCandidates().size();
+        String size = "/ "+ sizeAll;
+        return  crashInfo.getRealCate() + "\t" + crashInfo.getId() +"\t" + crashInfo.getMethodName() + "\t" + crashInfo.getReal()  +"\t"+ location + "\t" +size + "\n";
     }
 
 }

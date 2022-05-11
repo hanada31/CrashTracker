@@ -170,7 +170,7 @@ public class ConstantUtils {
 	public static final String onOptionsItemSelected = "boolean onOptionsItemSelected(android.view.MenuItem)";
     public static final int CONDITIONHISTORYSIZE = 50;
 	public static final int CALLDEPTH = 8;
-    public static final String PKGPREFIX = "android";
+    public static String PKGPREFIX = "android";
     public static final int MANIFESTTIMEOUT =2 ;
     public static final int INITSCORE = 100;
 	public static final int NOEXCEPTIONSCORE = 70;

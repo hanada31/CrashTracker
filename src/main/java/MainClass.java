@@ -176,6 +176,7 @@ public class MainClass {
 		options.addOption("exceptionPath", true, "-exceptionPath: exception file folder.");
 		options.addOption("androidCGPath", true, "-androidCGPath: Android CallGraph file.");
 		options.addOption("permissionPath", true, "-permissionPath: Android permissionPath file.");
+		options.addOption("SDKVersion", true, "-SDKVersion: Android SDK version");
 
 		/** analysis config **/
 		options.addOption("client", true, "-client "
@@ -268,9 +269,11 @@ public class MainClass {
 		MyConfig.getInstance().setAndroidJar(mCmd.getOptionValue("androidJar", "lib/platforms") + File.separator);
 		MyConfig.getInstance().setAndroidVersion("android-" + mCmd.getOptionValue("version", "23"));
 		MyConfig.getInstance().setCrashInfoFilePath(mCmd.getOptionValue("crashPath","Files\\crashInfo.json"));
-		MyConfig.getInstance().setExceptionFilePath(mCmd.getOptionValue("exceptionPath","Files\\android\\exceptionInfo\\"));
-		MyConfig.getInstance().setAndroidCGFilePath(mCmd.getOptionValue("androidCGPath","Files\\android\\CallGraphInfo\\cg.txt"));
-		MyConfig.getInstance().setPermissionFilePath(mCmd.getOptionValue("permissionPath","Files\\android\\Permission\\permission.txt"));
+
+		String sdkVersion = mCmd.getOptionValue("SDKVersion","9.0");
+		MyConfig.getInstance().setExceptionFilePath(mCmd.getOptionValue("exceptionPath","Files\\android"+sdkVersion+"\\exceptionInfo\\"));
+		MyConfig.getInstance().setAndroidCGFilePath(mCmd.getOptionValue("androidCGPath","Files\\android"+sdkVersion+"\\CallGraphInfo\\cg.txt"));
+		MyConfig.getInstance().setPermissionFilePath(mCmd.getOptionValue("permissionPath","Files\\android"+sdkVersion+"\\Permission\\permission.txt"));
 
 		if (mCmd.hasOption("sootOutput"))
 			MyConfig.getInstance().setWriteSootOutput(true);

@@ -17,7 +17,7 @@ public class CallGraphBuilder {
 	private static CallGraph cg = Scene.v().getCallGraph();
 
 	static {
-		filterEdges(cg);
+//		filterEdges(cg);
 		System.out.println("filtered CG Edge Size ***** " + cg.size());
 		addEdgesByOurAnalyze(cg);
 		System.out.println("enhanced CG Edge Size ***** " + cg.size());

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.google.common.collect.Lists;
 import main.java.Analyzer;
 import main.java.Global;
+import main.java.MyConfig;
 import main.java.analyze.utils.ConstantUtils;
 import main.java.analyze.utils.SootUtils;
 import main.java.analyze.utils.StringUtils;
@@ -61,11 +62,12 @@ public class ExceptionAnalyzer extends Analyzer {
     private void getExceptionList() {
         HashSet<SootClass> applicationClasses = new HashSet<>(Scene.v().getApplicationClasses());
         for (SootClass sootClass : applicationClasses) {
+            List<SootClass> inters = Scene.v().getActiveHierarchy().getSuperinterfacesOf(sootClass);
             if(!sootClass.getPackageName().startsWith(ConstantUtils.PKGPREFIX)) continue;
             exceptionInfoList = new ArrayList<>();
             for (SootMethod sootMethod : sootClass.getMethods()) {
 //                if(filterMethod(sootMethod)) continue;
-                System.out.println(sootMethod.getSignature());
+//                System.out.println(sootMethod.getSignature());
                 if (sootMethod.hasActiveBody()) {
                     try {
                         Map<Unit, String> unit2Message = new HashMap<>();
@@ -98,14 +100,16 @@ public class ExceptionAnalyzer extends Analyzer {
                     for(Unit u: sootMethod.getActiveBody().getUnits()){
                         if(u.toString().contains("android.permission.")){
                             String str = u.toString().substring(u.toString().indexOf("android.permission."), u.toString().length());
-                            str = str.substring(0, str.indexOf('"'));
-                            permissionSet.add(str);
+                            if(str.indexOf('"')>0) {
+                                str = str.substring(0, str.indexOf('"'));
+                                permissionSet.add(str);
+                            }
                         }
                     }
                 }
             }
         }
-        String folder = "Files"+File.separator+"android"+File.separator+"Permission"+File.separator;
+        String folder = "Files"+File.separator+ MyConfig.getInstance().getAppName()+File.separator+"Permission"+File.separator;
         FileUtils.createFolder(folder);
         FileUtils.writeList2File(folder,"permission.txt", permissionSet,false);
         System.out.println("permissionSet:::" + permissionSet.size());
@@ -255,6 +259,7 @@ public class ExceptionAnalyzer extends Analyzer {
         if(exceptionInfo.getRelatedParamValues().size()>0 && exceptionInfo.getRelatedFieldValues().size() ==0) {
             RelatedMethod addMethod = new RelatedMethod(sootMethod.getSignature(), RelatedMethodSource.CALLER, 0);
             exceptionInfo.addRelatedMethodsInSameClassMap(addMethod);
+            exceptionInfo.addRelatedMethods(sootMethod.getSignature());
             getExceptionCallerByParam(sootMethod, exceptionInfo, new HashSet<>(), 1, RelatedMethodSource.CALLER, exceptionInfo.getRelatedValueIndex());
         }else if(exceptionInfo.getRelatedParamValues().size()==0 && exceptionInfo.getRelatedFieldValues().size()>0) {
             getExceptionCallerByField(sootMethod, exceptionInfo, new HashSet<>(), 1,RelatedMethodSource.FIELD);

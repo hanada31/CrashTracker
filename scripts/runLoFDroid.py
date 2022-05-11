@@ -4,6 +4,8 @@ import shutil
 
 reRun = True
 filterList = list()
+SDKVersion= "8.0"
+
 def analyzeApk(apkPath, resPath, sdk):
     id=0
     logDir = resPath+"/logs"
@@ -25,8 +27,8 @@ def analyzeApk(apkPath, resPath, sdk):
                 print ("\n\n\nThis is the "+str(id)+"th app " +apk)
                 resFile = logDir+"/"+apk[:-4]+".txt"
                 if(reRun or not os.path.exists(resFile)): 
-                    print("java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms  "+ extraArgs +" -time 5 -maxPathNumber 100 -client CrashAnalysisClient  -outputDir "+outputDir+" >> "+logDir+"/"+apk[:-4]+".txt")
-                    os.system("java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms "+ extraArgs +" -time 5 -maxPathNumber 100 -client CrashAnalysisClient -outputDir "+outputDir+" >> "+logDir+"/"+apk[:-4]+".txt")
+                    print("java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms  "+ extraArgs +"-client CrashAnalysisClient  -SDKVersion " + SDKVersion +" -outputDir "+outputDir+" >> "+logDir+"/"+apk[:-4]+".txt")
+                    os.system("java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms "+ extraArgs +" -client CrashAnalysisClient  -SDKVersion " + SDKVersion +" -outputDir "+outputDir+" >> "+logDir+"/"+apk[:-4]+".txt")
 
 
 def readFilterFile(filterFile):
@@ -42,7 +44,7 @@ if __name__ == '__main__' :
     
     apkPath = sys.argv[1]
     resPath = sys.argv[2]
-    filterFile = sys.argv[3]
+    
     
     os.system("mvn -f pom.xml package -q")
     if os.path.exists("target/LoFDroid.jar"):
@@ -52,7 +54,8 @@ if __name__ == '__main__' :
     else:
         print("Fail to build! Please run \"mvn -f pom.xml package\" to see the detail info.")
     
-     
-    readFilterFile(filterFile)
+    if len(sys.argv)>3:
+        filterFile = sys.argv[3]    
+        readFilterFile(filterFile)
     analyzeApk(apkPath, resPath, sdk)
     

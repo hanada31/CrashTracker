@@ -27,7 +27,7 @@ public class TestAPP {
         String path;
         path = "D:\\SoftwareData\\ToolsInREST\\yanjiwei\\ICCBot\\Tool\\Empirical500\\";
         String name;
-        name = "com.justnote-78.apk";
+        name = "com.melero.music-159.apk";
 //        name = "com.shenyuan.militarynews-80.apk";
 //        name = "com.sillens.shapeupclub-415.apk";
 //        name = "com.ccemusic.downloader-151.apk";
@@ -39,11 +39,11 @@ public class TestAPP {
 //        name = "com.turkusoz_tablet-287.apk";
 //        name = "hk.gogovan.GoGoVanClient2-180.apk";
 //        name = "com.infomil.leclercdrive-277.apk";
-        name = "com.kalpvaig.quest-150.apk";
+//        name = "com.kalpvaig.quest-150.apk";
 //        name = "hamsoft.inc.barcodegen-466.apk";
 
-
         String client = "CrashAnalysisClient";
+        String version = "10.0";
 
         MyConfig.getInstance().setAppName(name);
         MyConfig.getInstance().setAppPath(path + File.separator);
@@ -57,9 +57,9 @@ public class TestAPP {
         MyConfig.getInstance().setAndroidJar("lib/platforms");
         MyConfig.getInstance().setSrc_prec(Options.src_prec_apk);
         MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfo.json");
-        MyConfig.getInstance().setExceptionFilePath("Files\\android\\exceptionInfo\\");
-        MyConfig.getInstance().setAndroidCGFilePath("Files\\android\\CallGraphInfo\\cg.txt");
-        MyConfig.getInstance().setPermissionFilePath("Files\\android\\Permission\\permission.txt");
+        MyConfig.getInstance().setExceptionFilePath("Files\\android"+version+"\\exceptionInfo\\");
+        MyConfig.getInstance().setAndroidCGFilePath("Files\\android"+version+"\\CallGraphInfo\\cg.txt");
+        MyConfig.getInstance().setPermissionFilePath("Files\\android"+version+"\\Permission\\permission.txt");
 
     }
 
