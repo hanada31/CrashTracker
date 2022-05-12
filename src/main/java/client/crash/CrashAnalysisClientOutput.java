@@ -40,6 +40,7 @@ public class CrashAnalysisClientOutput {
                 arrayElement.add(jsonObject);
 
                 addBasic(jsonObject, crashInfo);
+                addExtendedCG(jsonObject, crashInfo);
                 addBuggyTraces(jsonObject, crashInfo);
 
                 addBuggyMethods(jsonObject, crashInfo);
@@ -55,6 +56,8 @@ public class CrashAnalysisClientOutput {
             e.printStackTrace();
         }
     }
+
+
 
     private void addRelatedMethods(JSONObject jsonObject, CrashInfo crashInfo) {
         ExceptionInfo exceptionInfo = crashInfo.getExceptionInfo();
@@ -112,7 +115,13 @@ public class CrashAnalysisClientOutput {
         }
         jsonObject.put("stack trace" , traceArray);
     }
-
+    private void addExtendedCG(JSONObject jsonObject, CrashInfo crashInfo) {
+        JSONArray extendedCG = new JSONArray();
+        crashInfo.getExtendedCallDepth().forEach((key, value) -> {
+            extendedCG.add(key+"-->"+value);
+        });
+        jsonObject.put("extended CG" , extendedCG);
+    }
 
     private void addBuggyMethods(JSONObject jsonObject, CrashInfo crashInfo) {
         JSONArray buggyArray = new JSONArray();

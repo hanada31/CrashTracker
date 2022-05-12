@@ -37,18 +37,42 @@ public class CrashInfo {
     Map<Integer, ArrayList<Edge>> edgeMap = new TreeMap<Integer, ArrayList<Edge>>();
     List<String> classesInTrace= new ArrayList<>();
     Map<String, Integer> buggyCandidates = new TreeMap<>();
+    Map<String, Integer> extendedCallDepth = new HashMap<String, Integer>();
+    boolean findCandidateInTrace = false;
+    int minScore = ConstantUtils.INITSCORE;
+
+    public Map<String, Integer> getExtendedCallDepth() {
+        return extendedCallDepth;
+    }
+
+    public boolean addExtendedCallDepth(String key, int value) {
+        if(key.startsWith("java") || key.startsWith("android") || key.startsWith("com.android")) return false;
+        if(!extendedCallDepth.containsKey(key) || extendedCallDepth.get(key)>value ) {
+            extendedCallDepth.put(key, value);
+            return true;
+        }
+        return false;
+    }
+
+
 
     public Map<String, Integer> getBuggyCandidates() {
         return buggyCandidates;
     }
 
-    public void addBuggyCandidates(String candi, int score) {
+    public void addBuggyCandidates(String candi, int score, boolean filterByExtendedCG) {
+        if(filterByExtendedCG && !extendedCallDepth.containsKey(candi))
+            return;
+//        if(!extendedCallDepth.containsKey(candi))
+//            score = score - ConstantUtils.NOTINEXTENDEDCG;
         String pkgPrefix = StringUtils.getPkgPrefix(Global.v().getAppModel().getPackageName(),2);
         if(!candi.contains(pkgPrefix)) score = score - ConstantUtils.OUTOFPKGSCORE;
         if(this.buggyCandidates.containsKey(candi) && this.buggyCandidates.get(candi) > score)
             return;
-        if(score > ConstantUtils.BOTTOMSCORE)
+        if(score > ConstantUtils.BOTTOMSCORE) {
             this.buggyCandidates.put(candi, score);
+            if(score< minScore) minScore = score;
+        }
     }
 
 

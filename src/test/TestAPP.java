@@ -27,20 +27,8 @@ public class TestAPP {
         String path;
         path = "D:\\SoftwareData\\ToolsInREST\\yanjiwei\\ICCBot\\Tool\\Empirical500\\";
         String name;
-        name = "com.melero.music-159.apk";
-//        name = "com.shenyuan.militarynews-80.apk";
-//        name = "com.sillens.shapeupclub-415.apk";
-//        name = "com.ccemusic.downloader-151.apk";
-//        name = "com.avpig.exam-245.apk";
-//        name = "com.apps.salad.bengali.recipe-229.apk";
-//        name = "qukean.spaceship-327.apk";
-//        name = "com.xy.mobile.shaketoflashlight-52.apk";
-//        name = "com.gb.compassleveler-158.apk";
-//        name = "com.turkusoz_tablet-287.apk";
-//        name = "hk.gogovan.GoGoVanClient2-180.apk";
-//        name = "com.infomil.leclercdrive-277.apk";
-//        name = "com.kalpvaig.quest-150.apk";
-//        name = "hamsoft.inc.barcodegen-466.apk";
+        name = "com.Android56-123.apk";
+//        name = "com.chimani.parks.free-247.apk";
 
         String client = "CrashAnalysisClient";
         String version = "10.0";
