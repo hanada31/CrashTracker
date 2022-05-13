@@ -4,7 +4,7 @@ import shutil
 
 reRun = True
 filterList = list()
-SDKVersion= "8.0"
+SDKVersion= "10.0"
 
 def analyzeApk(apkPath, resPath, sdk):
     id=0

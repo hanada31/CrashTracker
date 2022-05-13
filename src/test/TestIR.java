@@ -25,14 +25,14 @@ public class TestIR {
 
     private void setArgs() {
         String path;
-        path = "D:\\SoftwareData\\ToolsInREST\\yanjiwei\\ICCBot\\Tool\\Empirical500\\";
+        path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
         String name;
         name = "com.justnote-78.apk";
         name = "com.ccemusic.downloader-151.apk";
         name = "com.streema.podcast-22.apk";
         name = "com.microcell.MyHouse-398.apk";
         name = "com.xy.mobile.shaketoflashlight-52.apk";
-        name = "com.shenyuan.militarynews-80.apk";
+        name = "com.wowgames.labyrinth-324.apk";
 //        name = "com.masslight.nrmp-235.apk";
 //        name = "org.voicenightlight.v3-471.apk";
 
