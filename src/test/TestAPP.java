@@ -25,10 +25,10 @@ public class TestAPP {
 
     private void setArgs() {
         String path;
-        path = "D:\\SoftwareData\\dataset\\apk\\cateB\\";
+        path = "D:\\SoftwareData\\dataset\\apk\\\\Empirical500\\";
         String name;
-        name = "br.com.msapp.mycurriculumvitae.free-177.apk";
-//        name = "com.chimani.parks.free-247.apk";
+        name = "com.rjfittime.app-106.apk";
+        name = "com.yuanyu.tinber-119.apk";
 
         String client = "CrashAnalysisClient";
         String version = "10.0";

@@ -46,7 +46,7 @@ public class CrashInfo {
     }
 
     public boolean addExtendedCallDepth(String key, int value) {
-        if(key.startsWith("java") || key.startsWith("android") || key.startsWith("com.android")) return false;
+        if(key.startsWith("java.") || key.startsWith("android.") || key.startsWith("com.android.")) return false;
         if(!extendedCallDepth.containsKey(key) || extendedCallDepth.get(key)>value ) {
             extendedCallDepth.put(key, value);
             return true;
@@ -224,7 +224,33 @@ public class CrashInfo {
     }
 
     public void setExceptionInfo(ExceptionInfo exceptionInfo) {
-        this.exceptionInfo = exceptionInfo;
+        if(this.exceptionInfo!=null){
+            this.exceptionInfo.getConditions().addAll(exceptionInfo.getConditions());
+            this.exceptionInfo.getConditionUnits().addAll(exceptionInfo.getConditionUnits());
+
+            this.exceptionInfo.getRelatedParamValues().addAll(exceptionInfo.getRelatedParamValues());
+            this.exceptionInfo.getRelatedFieldValues().addAll(exceptionInfo.getRelatedFieldValues());
+            this.exceptionInfo.getCaughtedValues().addAll(exceptionInfo.getCaughtedValues());
+            this.exceptionInfo.getRelatedValueIndex().addAll(exceptionInfo.getRelatedValueIndex());
+            this.exceptionInfo.getRelatedFieldValuesInStr().addAll(exceptionInfo.getRelatedFieldValuesInStr());
+            this.exceptionInfo.getRelatedParamValuesInStr().addAll(exceptionInfo.getRelatedParamValuesInStr());
+
+
+            this.exceptionInfo.getRelatedMethods().addAll(exceptionInfo.getRelatedMethods());
+            this.exceptionInfo.getRelatedMethodsInDiffClass(false).addAll(exceptionInfo.getRelatedMethodsInDiffClass(false));
+            this.exceptionInfo.getRelatedMethodsInSameClass(false).addAll(exceptionInfo.getRelatedMethodsInSameClass(false));
+
+            this.exceptionInfo.getTracedUnits().addAll(exceptionInfo.getTracedUnits());
+
+            this.exceptionInfo.setResourceRelated(this.exceptionInfo.isResourceRelated() | exceptionInfo.isResourceRelated());
+            this.exceptionInfo.setHardwareRelated(this.exceptionInfo.isHardwareRelated() | exceptionInfo.isHardwareRelated());
+            this.exceptionInfo.setManifestRelated(this.exceptionInfo.isManifestRelated() | exceptionInfo.isManifestRelated());
+            this.exceptionInfo.setAssessRelated(this.exceptionInfo.isAssessRelated() | exceptionInfo.isAssessRelated());
+            this.exceptionInfo.setOsVersionRelated(this.exceptionInfo.isOsVersionRelated() | exceptionInfo.isOsVersionRelated());
+
+        }else{
+            this.exceptionInfo = exceptionInfo;
+        }
     }
 
     public List<Edge> getEdges() {

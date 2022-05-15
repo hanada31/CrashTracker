@@ -74,30 +74,24 @@ public class CrashAnalysis extends Analyzer {
                         break;
                     case ParameterOnly:
                         System.out.println("@@@ ParameterOnly");
-                        if(crashMehthodHasParamter(crashInfo)){
-                            withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
-                            appFieldCallHandler(crashInfo, crashInfo.minScore-1, true);
-                        }else {
-                            appFieldCallHandler(crashInfo, ConstantUtils.INITSCORE, true);
-                            withParameterHandler(crashInfo.minScore-1, crashInfo, false); //TMA
-                        }
+//                        if(crashMehthodHasParamter(crashInfo)){
+                        withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
+                        appFieldCallHandler(crashInfo, crashInfo.minScore-1, true);
                         break;
                     case FieldOnly:
                         System.out.println("@@@ FieldOnly");
                         withFieldHandler(ConstantUtils.INITSCORE, crashInfo, false); //FCA
+                        addCrashTraces(crashInfo.minScore-1,crashInfo,false);
 //                        withParameterHandler(crashInfo.minScore-1, crashInfo, false);//TMA'
 //                        appFieldCallHandler(crashInfo, crashInfo.minScore-1, true);
                         break;
                     case ParaAndField:
                         System.out.println("@@@ ParaAndField");
-                        if(crashMehthodHasParamter(crashInfo)){
-                            withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
-                            appFieldCallHandler(crashInfo, crashInfo.minScore-1, true);
-                            withFieldHandler(ConstantUtils.INITSCORE, crashInfo, true); //FCA
-                        }else {
-                            withFieldHandler(ConstantUtils.INITSCORE, crashInfo, true); //FCA
-                            appFieldCallHandler(crashInfo, crashInfo.minScore-1, true);
-                        }
+//                        if(crashMehthodHasParamter(crashInfo)){
+                        withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
+                        appFieldCallHandler(crashInfo, crashInfo.minScore-1, true);
+                        withFieldHandler(ConstantUtils.INITSCORE, crashInfo, true); //FCA
+
                         System.out.println(crashInfo.minScore);
                         break;
                 }
@@ -108,6 +102,12 @@ public class CrashAnalysis extends Analyzer {
                 System.out.println("@@@ other");
                 withParameterHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo, true);
             }
+        }
+    }
+
+    private void addCrashTraces(int initscore, CrashInfo crashInfo, boolean filterExtendCG) {
+        for(String candi: crashInfo.getCrashMethodList()){
+            crashInfo.addBuggyCandidates(candi,initscore--,filterExtendCG);
         }
     }
 
@@ -132,13 +132,6 @@ public class CrashAnalysis extends Analyzer {
      * @param crashInfo
      */
     private void getExtendedCallTrace(CrashInfo crashInfo) {
-        expandCallTrace(crashInfo);
-        removeCDataFlowIrrelevantTrace(crashInfo);
-    }
-
-
-    //add callback related edges
-    private void expandCallTrace(CrashInfo crashInfo) {
         for(int index = crashInfo.getCrashMethodList().size()-1; index>=0; index--) {
             String candi = crashInfo.getCrashMethodList().get(index);
             crashInfo.addExtendedCallDepth(candi, 1);
@@ -155,6 +148,7 @@ public class CrashAnalysis extends Analyzer {
     }
 
     private void addPredCallersOfMethodsInStack(String last, SootMethod sm, CrashInfo crashInfo) {
+        if(!sm.hasActiveBody())return;
         for(Unit u : sm.getActiveBody().getUnits()){
             InvokeExpr invoke = SootUtils.getSingleInvokedMethod(u);
             if (invoke != null) { // u is invoke stmt
@@ -167,6 +161,7 @@ public class CrashAnalysis extends Analyzer {
     }
 
     private void addEntryMethods2ExtendedCG(SootMethod sm, CrashInfo crashInfo) {
+        if(!sm.hasActiveBody())return;
         for(SootMethod entry: sm.getDeclaringClass().getMethods()) {
             if(appModel.getEntryMethods().contains(entry) || entry.getName().startsWith("on")){
                 String callee = entry.getDeclaringClass().getName()+ "." + entry.getName();
@@ -301,12 +296,6 @@ public class CrashAnalysis extends Analyzer {
         }
     }
 
-    private void removeCDataFlowIrrelevantTrace(CrashInfo crashInfo) {
-
-    }
-
-    private void removeControlFlowIrrelevantTrace(CrashInfo crashInfo) {
-    }
 
 
 
@@ -456,7 +445,7 @@ public class CrashAnalysis extends Analyzer {
      */
     private void addCalleesOfSourceOfEdge(int initScore, CrashInfo crashInfo, SootMethod sootMethod, int depth, boolean filterExtendCG) {
         String candi = sootMethod.getDeclaringClass().getName()+ "." + sootMethod.getName();
-        if(candi.startsWith("android") || candi.startsWith("java")) return;
+        if(isLibraryMethod(candi)) return;
         int score = initScore - getOrderInTrace(crashInfo, candi)  - depth;
 //        System.out.println(candi +" " +initScore + " - 5*" +getOrderInTrace(crashInfo, candi) + " - 1*" +depth);
         crashInfo.addBuggyCandidates(candi, score, filterExtendCG);
@@ -509,7 +498,7 @@ public class CrashAnalysis extends Analyzer {
             Edge edge = it.next();
             if(edge.getTgt().method().getSignature().equals(method.getMethod())){
                 SootMethod sourceMtd = edge.getSrc().method();
-                if(sourceMtd.getDeclaringClass().getName().startsWith("java") || sourceMtd.getDeclaringClass().getName().startsWith("android"))
+                if(isLibraryMethod(sourceMtd.getDeclaringClass().getName()))
                     continue;
                 crashInfo.add2EdgeMap(0, edge);
                 addCallersOfSourceOfEdge(initScore, edge, method, crashInfo, sourceMtd, 1, filterExtendedCG);
@@ -537,7 +526,7 @@ public class CrashAnalysis extends Analyzer {
         return 0;
     }
     private boolean isLibraryMethod(String candi) {
-        return candi.startsWith("android.")  || candi.startsWith("com.android.") || candi.startsWith("java");
+        return candi.startsWith("android.")  || candi.startsWith("com.android.") || candi.startsWith("java.");
     }
 
     /**
@@ -623,7 +612,7 @@ public class CrashAnalysis extends Analyzer {
     private int getOrderInTrace(CrashInfo crashInfo, String candi) {
         int order = 0;
         for (String tag : crashInfo.getClassesInTrace()) {
-            if(tag.startsWith("android") ||tag.startsWith("java")) continue;
+            if(isLibraryMethod(tag)) continue;
             //TODO whether consider $ or not ??
             if (tag.contains("$"))  tag = tag.split("\\$")[0];
             order++;
@@ -674,7 +663,7 @@ public class CrashAnalysis extends Analyzer {
     }
 
     private void updateExceptionInCls2CrashInfo(CrashInfo crashInfo, ExceptionInfo exceptionInfo) {
-        if (exceptionInfo.getExceptionMsg() == null) return;
+;        if (exceptionInfo.getExceptionMsg() == null) return;
         Pattern p = Pattern.compile(StringUtils.filterRegex(exceptionInfo.getExceptionMsg()));
         Matcher m = p.matcher(crashInfo.getMsg());
         if (exceptionInfo.getExceptionMsg().equals(crashInfo.getMsg()) || m.matches()) {

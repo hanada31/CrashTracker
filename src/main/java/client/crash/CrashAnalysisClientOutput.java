@@ -40,11 +40,11 @@ public class CrashAnalysisClientOutput {
                 arrayElement.add(jsonObject);
 
                 addBasic(jsonObject, crashInfo);
-                addExtendedCG(jsonObject, crashInfo);
+//                addExtendedCG(jsonObject, crashInfo);
                 addBuggyTraces(jsonObject, crashInfo);
 
                 addBuggyMethods(jsonObject, crashInfo);
-                addRelatedMethods(jsonObject, crashInfo);
+//                addRelatedMethods(jsonObject, crashInfo);
             }
 
             PrintWriter printWriter = new PrintWriter(file);
