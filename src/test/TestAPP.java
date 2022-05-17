@@ -21,11 +21,13 @@ public class TestAPP {
         MainClass.startAnalyze();
         System.out.println("Finish...\n");
         System.exit(0);
+
     }
 
     private void setArgs() {
         String path;
-        path = "D:\\SoftwareData\\dataset\\apk\\\\Empirical500\\";
+//        path = "D:\\SoftwareData\\dataset\\apk\\\\Empirical500\\";
+        path = "C:\\Users\\yanjw\\programs\\Empirical500";
         String name;
         name = "com.rjfittime.app-106.apk";
         name = "com.yuanyu.tinber-119.apk";

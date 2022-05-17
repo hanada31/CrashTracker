@@ -34,7 +34,7 @@ public class CrashAnalysis extends Analyzer {
     Set<String> loadedExceptionSummary;
     Map<String, Set<String>> androidCGMap;
     Map<String, Set<String>> message2Methods;
-
+    String relatedVarType="";
     public CrashAnalysis(StatisticResult result) {
         crashInfoList = Global.v().getAppModel().getCrashInfoList();
         exceptionInfoMap = new HashMap<>();
@@ -67,26 +67,26 @@ public class CrashAnalysis extends Analyzer {
             if(exceptionInfo!=null && exceptionInfo.getRelatedVarType()!=null) {
                 switch (exceptionInfo.getRelatedVarType()) {
                     case OverrideMissing:
-                        System.out.println("@@@ OverrideMissing");
+                        relatedVarType="OverrideMissing";
                         overrideMissingHandler(ConstantUtils.INITSCORE,crashInfo, false); //OMA
 //                        withParameterHandler(crashInfo.minScore-1, crashInfo, false); //TMA'
 //                        appFieldCallHandler(crashInfo, crashInfo.minScore-1, true);
                         break;
                     case ParameterOnly:
-                        System.out.println("@@@ ParameterOnly");
+                        relatedVarType="ParameterOnly";
 //                        if(crashMehthodHasParamter(crashInfo)){
                         withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
                         appFieldCallHandler(crashInfo, crashInfo.minScore-1, true);
                         break;
                     case FieldOnly:
-                        System.out.println("@@@ FieldOnly");
+                        relatedVarType="FieldOnly";
                         withFieldHandler(ConstantUtils.INITSCORE, crashInfo, false); //FCA
                         addCrashTraces(crashInfo.minScore-1,crashInfo,false);
 //                        withParameterHandler(crashInfo.minScore-1, crashInfo, false);//TMA'
 //                        appFieldCallHandler(crashInfo, crashInfo.minScore-1, true);
                         break;
                     case ParaAndField:
-                        System.out.println("@@@ ParaAndField");
+                        relatedVarType="ParaAndField";
 //                        if(crashMehthodHasParamter(crashInfo)){
                         withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
                         appFieldCallHandler(crashInfo, crashInfo.minScore-1, true);
@@ -99,7 +99,7 @@ public class CrashAnalysis extends Analyzer {
                 // native and other no exception.
                 //database related
                 //non-database related
-                System.out.println("@@@ other");
+                relatedVarType="unknown";
                 withParameterHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo, true);
             }
         }
@@ -874,7 +874,8 @@ public class CrashAnalysis extends Analyzer {
     private String getRankingString(CrashInfo crashInfo, int location) {
         int sizeAll = crashInfo.getBuggyCandidates().size();
         String size = "/\t"+ sizeAll;
-        return  crashInfo.getRealCate() + "\t" + crashInfo.getId() +"\t" + crashInfo.getMethodName() + "\t" + crashInfo.getReal()  +"\t"+ location + "\t" +size + "\n";
+        return  crashInfo.getRealCate() + "\t" + crashInfo.getId() +"\t" +
+                crashInfo.getMethodName() + "\t" + relatedVarType  +"\t"+ location + "\t" +size + "\n";
     }
 
 }
