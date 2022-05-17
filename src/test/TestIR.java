@@ -25,17 +25,10 @@ public class TestIR {
 
     private void setArgs() {
         String path;
-        path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
+//        path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
+        path = "C:\\Users\\yanjw\\programs\\Empirical500";
         String name;
-        name = "com.justnote-78.apk";
-        name = "com.ccemusic.downloader-151.apk";
-        name = "com.streema.podcast-22.apk";
-        name = "com.microcell.MyHouse-398.apk";
-        name = "com.xy.mobile.shaketoflashlight-52.apk";
-        name = "com.wowgames.labyrinth-324.apk";
-//        name = "com.masslight.nrmp-235.apk";
-//        name = "org.voicenightlight.v3-471.apk";
-
+        name = "com.lenovo.leos.cloud.sync-388.apk";
 
         String client = "IROutputClient";
 

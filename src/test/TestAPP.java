@@ -29,8 +29,8 @@ public class TestAPP {
 //        path = "D:\\SoftwareData\\dataset\\apk\\\\Empirical500\\";
         path = "C:\\Users\\yanjw\\programs\\Empirical500";
         String name;
-        name = "com.justnote-781.apk";
-
+        name = "org.voicenightlight.v3-471.apk";
+        name = "myprograms.application.thermometer-376.apk";
         String client = "CrashAnalysisClient";
         String version = "10.0";
 
