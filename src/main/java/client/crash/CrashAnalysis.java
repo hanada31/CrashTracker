@@ -389,7 +389,6 @@ public class CrashAnalysis extends Analyzer {
         for(int k=start; k<=end; k++){
             String candi = crashInfo.getTrace().get(k);
             if(!isLibraryMethod(candi)){
-                System.err.println(candi);
                 crashInfo.addBuggyCandidates(candi, initScore--, filterExtendCG);
                 Set<SootMethod> methods = getSootMethodBySimpleName(candi);
                 for(SootMethod sm: methods) {

@@ -44,7 +44,7 @@ public class ExceptionAnalyzer extends Analyzer {
      */
     private boolean filterMethod(SootMethod sootMethod) {
         List<String> mtds = new ArrayList<>();
-        mtds.add("forgetServiceDispatcher");
+        mtds.add("checkNotReleasedLocked");
         for(String tag: mtds){
             if (sootMethod.getSignature().contains(tag)) {
                 return false;
@@ -66,7 +66,7 @@ public class ExceptionAnalyzer extends Analyzer {
             if(!sootClass.getPackageName().startsWith(ConstantUtils.PKGPREFIX)) continue;
             exceptionInfoList = new ArrayList<>();
             for (SootMethod sootMethod : sootClass.getMethods()) {
-//                if(filterMethod(sootMethod)) continue;
+                if(filterMethod(sootMethod)) continue;
 //                System.out.println(sootMethod.getSignature());
                 if (sootMethod.hasActiveBody()) {
                     try {
@@ -259,7 +259,7 @@ public class ExceptionAnalyzer extends Analyzer {
         if(exceptionInfo.getRelatedParamValues().size()>0 && exceptionInfo.getRelatedFieldValues().size() ==0) {
             RelatedMethod addMethod = new RelatedMethod(sootMethod.getSignature(), RelatedMethodSource.CALLER, 0);
             exceptionInfo.addRelatedMethodsInSameClassMap(addMethod);
-            exceptionInfo.addRelatedMethods(sootMethod.getSignature());
+            exceptionInfo.addRelatedMethods(sootMethod, sootMethod.getSignature());
             getExceptionCallerByParam(sootMethod, exceptionInfo, new HashSet<>(), 1, RelatedMethodSource.CALLER, exceptionInfo.getRelatedValueIndex());
         }else if(exceptionInfo.getRelatedParamValues().size()==0 && exceptionInfo.getRelatedFieldValues().size()>0) {
             getExceptionCallerByField(sootMethod, exceptionInfo, new HashSet<>(), 1,RelatedMethodSource.FIELD);
@@ -329,14 +329,15 @@ public class ExceptionAnalyzer extends Analyzer {
                             exceptionInfo.addRelatedMethodsInSameClassMap(addMethod);
                         else
                             exceptionInfo.addRelatedMethodsInDiffClassMap(addMethod);
-                        exceptionInfo.addRelatedMethods(otherMethod.getSignature());
+
+                        //addInterface
+                        exceptionInfo.addRelatedMethods(otherMethod, otherMethod.getSignature());
                     }
                     getExceptionCallerByParam(otherMethod, exceptionInfo, callerHistory, depth+1, RelatedMethodSource.FIELDCALLER, new HashSet<>());
                 }
             }
         }
     }
-
 
 
     /**

@@ -47,6 +47,11 @@ public class SootAnalyzer extends Analyzer {
 		soot.G.reset();
 		if(Global.v().getAppModel().getAppPath().endsWith(".apk") ){
 			Options.v().set_android_jars(MyConfig.getInstance().getAndroidJar());
+			MyConfig.getInstance().setSrc_prec(Options.src_prec_apk);
+			MyConfig.getInstance().setFileSuffixLength(4);
+		}else{
+			MyConfig.getInstance().setSrc_prec(Options.src_prec_only_class);
+			MyConfig.getInstance().setFileSuffixLength(0);
 		}
 		List<String> processDir = Lists.newArrayList();
 		processDir.add( Global.v().getAppModel().getAppPath());

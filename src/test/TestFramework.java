@@ -25,11 +25,10 @@ public class TestFramework {
 
     private void setArgs() {
         String path, name;
-        path = "D:\\SoftwareData\\AcademicTool\\Library\\android-framework\\classes\\";
+        path = "C:\\Users\\yanjw\\programs\\framework\\classes\\";
         name = "android10.0";
 
-        String client = "IROutputClient";
-//        client = "ExceptionInfoClient";
+        String client = "ExceptionInfoClient";
 
         MyConfig.getInstance().setAppName(name);
         MyConfig.getInstance().setAppPath(path + File.separator);

@@ -1,10 +1,7 @@
 package main.java.client.exception;
 
 import main.java.analyze.utils.output.PrintUtils;
-import soot.SootField;
-import soot.SootMethod;
-import soot.Unit;
-import soot.Value;
+import soot.*;
 import soot.jimple.StringConstant;
 
 import java.util.*;
@@ -242,10 +239,7 @@ public class ExceptionInfo {
         return relatedMethods;
     }
 
-    public void addRelatedMethods(String sm) {
-        if(!relatedMethods.contains(sm))
-            relatedMethods.add(sm);
-    }
+
 
     public void setExceptionType(String exceptionType) {
         this.exceptionType = exceptionType;
@@ -406,6 +400,23 @@ public class ExceptionInfo {
 
     public void setConditionUnits(Set<Unit> conditionUnits) {
         this.conditionUnits = conditionUnits;
+    }
+
+    public void addRelatedMethods(SootMethod otherMethod, String sm) {
+        Iterator<SootClass> it = otherMethod.getDeclaringClass().getInterfaces().iterator();
+        while(it.hasNext()){
+            SootClass interfaceSC = it.next();
+            if(Scene.v().getActiveHierarchy().getImplementersOf(interfaceSC).contains(otherMethod)){
+                otherMethod.getSignature().replace(otherMethod.getDeclaringClass().getName(), interfaceSC.getName());
+                addRelatedMethods(otherMethod.getSignature());
+            }
+        }
+        addRelatedMethods(sm);
+    }
+
+    public void addRelatedMethods(String sm) {
+        if(!relatedMethods.contains(sm))
+            relatedMethods.add(sm);
     }
 }
 

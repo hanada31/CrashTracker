@@ -44,7 +44,7 @@ public class CrashAnalysisClientOutput {
                 addBuggyTraces(jsonObject, crashInfo);
 
                 addBuggyMethods(jsonObject, crashInfo);
-//                addRelatedMethods(jsonObject, crashInfo);
+                addRelatedMethods(jsonObject, crashInfo);
             }
 
             PrintWriter printWriter = new PrintWriter(file);
