@@ -21,7 +21,7 @@ def analyzeApk(apkPath, resPath, sdk):
         apks = os.listdir(apkPath)
         extraArgs = "" #"-noLibCode "# 
         
-        pool = ThreadPoolExecutor(max_workers=2)
+        pool = ThreadPoolExecutor(max_workers=4)
 
         for apk in apks:
             if len(filterList)>0  and apk not in filterList:
@@ -31,7 +31,7 @@ def analyzeApk(apkPath, resPath, sdk):
                 if(reRun or not os.path.exists(resFile)): 
                     command = "java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms  "+ extraArgs +"-client CrashAnalysisClient  -SDKVersion " + SDKVersion +" -outputDir "+outputDir+" >> "+logDir+"/"+apk[:-4]+".txt"
                     #executeCmd(cmd)
-                    future1 = pool.submit(executeCmd, cmd)
+                    future1 = pool.submit(executeCmd, command)
 
         pool.shutdown()
 

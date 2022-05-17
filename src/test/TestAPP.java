@@ -30,7 +30,7 @@ public class TestAPP {
         path = "C:\\Users\\yanjw\\programs\\Empirical500";
         String name;
         name = "org.voicenightlight.v3-471.apk";
-        name = "myprograms.application.thermometer-376.apk";
+        name = "com.jawfin.sol3d-307.apk";
         String client = "CrashAnalysisClient";
         String version = "10.0";
 

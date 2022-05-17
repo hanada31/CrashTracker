@@ -28,7 +28,7 @@ public class TestIR {
 //        path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
         path = "C:\\Users\\yanjw\\programs\\Empirical500";
         String name;
-        name = "com.lenovo.leos.cloud.sync-388.apk";
+        name = "com.jawfin.sol3d-307.apk";
 
         String client = "IROutputClient";
 

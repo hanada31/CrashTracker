@@ -389,6 +389,7 @@ public class CrashAnalysis extends Analyzer {
         for(int k=start; k<=end; k++){
             String candi = crashInfo.getTrace().get(k);
             if(!isLibraryMethod(candi)){
+                System.err.println(candi);
                 crashInfo.addBuggyCandidates(candi, initScore--, filterExtendCG);
                 Set<SootMethod> methods = getSootMethodBySimpleName(candi);
                 for(SootMethod sm: methods) {
@@ -763,23 +764,23 @@ public class CrashAnalysis extends Analyzer {
             JSONObject jsonObject = (JSONObject)jsonArray.get(i);
             CrashInfo crashInfo = new CrashInfo();
             crashInfo.setIdentifier(jsonObject.getString("identifier"));
-            crashInfo.setReal(jsonObject.getString("real"));
-            crashInfo.setException(jsonObject.getString("exception"));
-            crashInfo.setTrace(jsonObject.getString("trace"));
-            crashInfo.setBuggyApi(jsonObject.getString("buggyApi"));
-            crashInfo.setMsg(jsonObject.getString("msg").trim());
-            crashInfo.setRealCate(jsonObject.getString("realCate"));
-            crashInfo.setCategory(jsonObject.getString("category"));
-            if(jsonObject.getString("fileName")!=null)
-                crashInfo.setId(jsonObject.getString("fileName"));
-            else
-                crashInfo.setId(crashInfo.getIdentifier()+"-"+ jsonObject.getString("id"));
-            crashInfo.setReason(jsonObject.getString("reason"));
-            crashInfo.setMethodName(crashInfo.getTrace().get(0));
-            if(Global.v().getAppModel().getPackageName().length()==0 && Global.v().getAppModel().getAppName().contains(crashInfo.getIdentifier()))
-                Global.v().getAppModel().setPackageName(crashInfo.getIdentifier());
             if(crashInfo.getIdentifier().equals(Global.v().getAppModel().getPackageName())) {
                 crashInfoList.add(crashInfo);
+                crashInfo.setReal(jsonObject.getString("real"));
+                crashInfo.setException(jsonObject.getString("exception"));
+                crashInfo.setTrace(jsonObject.getString("trace"));
+                crashInfo.setBuggyApi(jsonObject.getString("buggyApi"));
+                crashInfo.setMsg(jsonObject.getString("msg").trim());
+                crashInfo.setRealCate(jsonObject.getString("realCate"));
+                crashInfo.setCategory(jsonObject.getString("category"));
+                if(jsonObject.getString("fileName")!=null)
+                    crashInfo.setId(jsonObject.getString("fileName"));
+                else
+                    crashInfo.setId(crashInfo.getIdentifier()+"-"+ jsonObject.getString("id"));
+                crashInfo.setReason(jsonObject.getString("reason"));
+                crashInfo.setMethodName(crashInfo.getTrace().get(0));
+                if(Global.v().getAppModel().getPackageName().length()==0 && Global.v().getAppModel().getAppName().contains(crashInfo.getIdentifier()))
+                    Global.v().getAppModel().setPackageName(crashInfo.getIdentifier());
             }
         }
     }

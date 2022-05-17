@@ -7441,7 +7441,7 @@
         "sha256": "DF58D2BE0B18976B9BA54258329E10E7BA8BDB26DA2A5B7B804CDF69D9F93A2A",
         "link": "https://stackoverflow.com/questions/12853752/eaccess-permission-denied-in-android/12853922#12853922",
         "tag": "OS Update",
-        "real": "com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run",
+        "real": "com.rjfittime.app.util.UpdateUtils.downloadUpdatedPackage",
         "tool": "Monkey",
         "trace": [
             "at android.app.DownloadManager$Request.setDestinationInExternalPublicDir",
@@ -17533,7 +17533,7 @@
         "sha256": "a9d1a716ee4f28698169d5de7434e022873ae31ba87c73770bfacdb10aee813f",
         "crashLog": ": java.lang.RuntimeException: Font asset not found courier.ttf-Ragnarok-09-18 00:30:23.850 28143 28143 E AndroidRuntime: \tat android.graphics.Typeface.createFromAsset(Typeface.java:190)-Ragnarok-09-18 00:30:23.850 28143 28143 E AndroidRuntime: \tat au.com.tapstyle.BaseApplication.onCreate(SourceFile:107)-Ragnarok-09-18 00:30:23.850 28143 28143 E AndroidRuntime: \tat android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1013)-Ragnarok-09-18 00:30:23.850 28143 28143 E AndroidRuntime: \tat android.app.ActivityThread.handleBindApplication(ActivityThread.java:4707)-Ragnarok-09-18 00:30:23.850 28143 28143 E AndroidRuntime: \t... 8 more-Ragnarok-",
         "tag": "Asset",
-        "real": "Asset",
+        "real": "au.com.tapstyle.BaseApplication.onCreate",
         "id": "344",
         "category": "res",
         "tool": "Droidbot",

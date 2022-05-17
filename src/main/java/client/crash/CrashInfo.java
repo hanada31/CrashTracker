@@ -155,7 +155,7 @@ public class CrashInfo {
                 setCrashCallBack(method);
             }
             if(!method.startsWith("android.") &&!method.startsWith("com.android.") && !method.startsWith("java")) {
-                if(firstUserAPI)
+//                if(firstUserAPI)
                     crashMethodList.add(method);
             }else{
                 if(crashMethodList.size()>0)  firstUserAPI = false;
