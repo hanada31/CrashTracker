@@ -266,14 +266,14 @@ public class MainClass {
 		MyConfig.getInstance().setJimple(true);
 		MyConfig.getInstance().setAppName(mCmd.getOptionValue("name", ""));
 		MyConfig.getInstance().setAppPath(mCmd.getOptionValue("path", System.getProperty("user.dir")) + File.separator);
-		MyConfig.getInstance().setAndroidJar(mCmd.getOptionValue("androidJar", "lib/platforms") + File.separator);
+		MyConfig.getInstance().setAndroidJar(mCmd.getOptionValue("androidJar", "lib"+File.separator+"platforms") + File.separator);
 		MyConfig.getInstance().setAndroidVersion("android-" + mCmd.getOptionValue("version", "23"));
-		MyConfig.getInstance().setCrashInfoFilePath(mCmd.getOptionValue("crashPath","Files\\crashInfo.json"));
+		MyConfig.getInstance().setCrashInfoFilePath(mCmd.getOptionValue("crashPath","Files"+File.separator+"crashInfo.json"));
 
 		String sdkVersion = mCmd.getOptionValue("SDKVersion","9.0");
-		MyConfig.getInstance().setExceptionFilePath(mCmd.getOptionValue("exceptionPath","Files\\android"+sdkVersion+"\\exceptionInfo\\"));
-		MyConfig.getInstance().setAndroidCGFilePath(mCmd.getOptionValue("androidCGPath","Files\\android"+sdkVersion+"\\CallGraphInfo\\cg.txt"));
-		MyConfig.getInstance().setPermissionFilePath(mCmd.getOptionValue("permissionPath","Files\\android"+sdkVersion+"\\Permission\\permission.txt"));
+		MyConfig.getInstance().setExceptionFilePath(mCmd.getOptionValue("exceptionPath","Files"+File.separator+"android"+File.separator+sdkVersion+"exceptionInfo"+File.separator));
+		MyConfig.getInstance().setAndroidCGFilePath(mCmd.getOptionValue("androidCGPath","Files"+File.separator+"android"+File.separator+sdkVersion+"CallGraphInfo"+File.separator+"cg.txt"));
+		MyConfig.getInstance().setPermissionFilePath(mCmd.getOptionValue("permissionPath","Files "+File.separator+" android"+sdkVersion+File.separator+"Permission"+File.separator+"permission.txt"));
 
 		if (mCmd.hasOption("sootOutput"))
 			MyConfig.getInstance().setWriteSootOutput(true);
@@ -292,12 +292,9 @@ public class MainClass {
 		MyConfig.getInstance().setGatorClient(mCmd.getOptionValue("gatorClient", gatorClient));
 
 		MyConfig.getInstance().setResultFolder(mCmd.getOptionValue("outputDir", "outputDir") + File.separator);
-		String resFolder = mCmd.getOptionValue("outputDir", "results/outputDir");
-		if(resFolder.contains("/")){
-			resFolder = resFolder.substring(0,resFolder.lastIndexOf("/"));
-			MyConfig.getInstance().setResultWarpperFolder(resFolder+ File.separator);
-		}else if(resFolder.contains("\\")){
-			resFolder = resFolder.substring(0,resFolder.lastIndexOf("\\"));
+		String resFolder = mCmd.getOptionValue("outputDir", "results"+File.separator+"outputDir");
+		if(resFolder.contains(File.separator)){
+			resFolder = resFolder.substring(0,resFolder.lastIndexOf(File.separator));
 			MyConfig.getInstance().setResultWarpperFolder(resFolder+ File.separator);
 		}
 		
