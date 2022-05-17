@@ -62,7 +62,7 @@ public class CrashAnalysis extends Analyzer {
     private void getCandidateBuggyMethods() {
         for(CrashInfo crashInfo : crashInfoList){
             ExceptionInfo exceptionInfo = crashInfo.getExceptionInfo();
-            checkIsNoAppRelatedHandler(crashInfo);
+//            checkIsNoAppRelatedHandler(crashInfo);
             getExtendedCallTrace(crashInfo);
             if(exceptionInfo!=null && exceptionInfo.getRelatedVarType()!=null) {
                 switch (exceptionInfo.getRelatedVarType()) {
