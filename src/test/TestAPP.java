@@ -29,7 +29,7 @@ public class TestAPP {
 //        path = "D:\\SoftwareData\\dataset\\apk\\\\Empirical500\\";
         path = "C:\\Users\\yanjw\\programs\\Empirical500";
         String name;
-        name = "com.justnote-78.apk";
+        name = "com.justnote-781.apk";
 
         String client = "CrashAnalysisClient";
         String version = "10.0";

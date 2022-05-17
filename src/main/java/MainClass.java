@@ -271,9 +271,10 @@ public class MainClass {
 		MyConfig.getInstance().setCrashInfoFilePath(mCmd.getOptionValue("crashPath","Files"+File.separator+"crashInfo.json"));
 
 		String sdkVersion = mCmd.getOptionValue("SDKVersion","9.0");
-		MyConfig.getInstance().setExceptionFilePath(mCmd.getOptionValue("exceptionPath","Files"+File.separator+"android"+File.separator+sdkVersion+"exceptionInfo"+File.separator));
-		MyConfig.getInstance().setAndroidCGFilePath(mCmd.getOptionValue("androidCGPath","Files"+File.separator+"android"+File.separator+sdkVersion+"CallGraphInfo"+File.separator+"cg.txt"));
-		MyConfig.getInstance().setPermissionFilePath(mCmd.getOptionValue("permissionPath","Files "+File.separator+" android"+sdkVersion+File.separator+"Permission"+File.separator+"permission.txt"));
+		String androidFolder = "Files"+File.separator+"android"+File.separator+sdkVersion+File.separator;
+		MyConfig.getInstance().setExceptionFilePath(mCmd.getOptionValue("exceptionPath",androidFolder+"exceptionInfo"+File.separator));
+		MyConfig.getInstance().setAndroidCGFilePath(mCmd.getOptionValue("androidCGPath",androidFolder+"CallGraphInfo"+File.separator+"cg.txt"));
+		MyConfig.getInstance().setPermissionFilePath(mCmd.getOptionValue("permissionPath",androidFolder+"Permission"+File.separator+"permission.txt"));
 
 		if (mCmd.hasOption("sootOutput"))
 			MyConfig.getInstance().setWriteSootOutput(true);
