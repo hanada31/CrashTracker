@@ -66,7 +66,7 @@ public class ExceptionAnalyzer extends Analyzer {
             exceptionInfoList = new ArrayList<>();
             for (SootMethod sootMethod : sootClass.getMethods()) {
 //                if(filterMethod(sootMethod)) continue;
-                System.out.println(sootMethod.getSignature());
+//                System.out.println(sootMethod.getSignature());
                 if (sootMethod.hasActiveBody()) {
                     try {
                         Map<Unit, String> unit2Message = new HashMap<>();
