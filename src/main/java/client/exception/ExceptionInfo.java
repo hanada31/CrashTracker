@@ -1,5 +1,6 @@
 package main.java.client.exception;
 
+import main.java.analyze.utils.SootUtils;
 import main.java.analyze.utils.output.FileUtils;
 import main.java.analyze.utils.output.PrintUtils;
 import soot.*;
@@ -423,7 +424,10 @@ public class ExceptionInfo {
     }
 
     public void addRelatedMethods(String signature) {
-        if(!relatedMethods.contains(signature))
+        if(SootUtils.getSootMethodBySignature(signature)!=null){
+            addRelatedMethods(SootUtils.getSootMethodBySignature(signature), signature);
+        }
+        else if(!relatedMethods.contains(signature))
             relatedMethods.add(signature);
     }
 }
