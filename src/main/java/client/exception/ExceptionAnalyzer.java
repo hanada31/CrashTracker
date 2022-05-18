@@ -259,8 +259,6 @@ public class ExceptionAnalyzer extends Analyzer {
             RelatedMethod addMethod = new RelatedMethod(sootMethod.getSignature(), RelatedMethodSource.CALLER, 0);
             exceptionInfo.addRelatedMethodsInSameClassMap(addMethod);
             exceptionInfo.addRelatedMethods(sootMethod.getSignature());
-//            FileUtils.writeText2File("/home/yanjw/myTools/LoFDroid-develop/www.txt",
-//                    "getConditionandValueFromUnit@"+sootMethod.getSignature()"\n",true );
             getExceptionCallerByParam(sootMethod, exceptionInfo, new HashSet<>(), 1, RelatedMethodSource.CALLER, exceptionInfo.getRelatedValueIndex());
         }else if(exceptionInfo.getRelatedParamValues().size()==0 && exceptionInfo.getRelatedFieldValues().size()>0) {
             getExceptionCallerByField(sootMethod, exceptionInfo, new HashSet<>(), 1,RelatedMethodSource.FIELD);
@@ -276,7 +274,8 @@ public class ExceptionAnalyzer extends Analyzer {
      * @param exceptionInfo
      */
     private void getExceptionCallerByParam(SootMethod sootMethod, ExceptionInfo exceptionInfo,
-                                           Set<SootMethod> callerHistory, int depth, RelatedMethodSource mtdSource, Set<Integer> paramIndexCallee) {
+                                           Set<SootMethod> callerHistory, int depth,
+                                           RelatedMethodSource mtdSource, Set<Integer> paramIndexCallee) {
         if(callerHistory.contains(sootMethod) || depth >ConstantUtils.CALLDEPTH)  return;
         callerHistory.add(sootMethod);
         for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesInto(sootMethod); it.hasNext(); ) {
@@ -302,8 +301,6 @@ public class ExceptionAnalyzer extends Analyzer {
                             exceptionInfo.addRelatedMethodsInSameClassMap(addMethod);
                         else
                             exceptionInfo.addRelatedMethodsInDiffClassMap(addMethod);
-//                        FileUtils.writeText2File("/home/yanjw/myTools/LoFDroid-develop/www.txt",
-//                                edgeSource.getSignature()+" --> "+signature+"\n",true );
                         exceptionInfo.addRelatedMethods(signature);
                     }
                     getExceptionCallerByParam(edgeSource, exceptionInfo, callerHistory, depth + 1, mtdSource, paramIndexCaller);
@@ -332,12 +329,10 @@ public class ExceptionAnalyzer extends Analyzer {
                             exceptionInfo.addRelatedMethodsInSameClassMap(addMethod);
                         else
                             exceptionInfo.addRelatedMethodsInDiffClassMap(addMethod);
-
-//                        FileUtils.writeText2File("/home/yanjw/myTools/LoFDroid-develop/www.txt",
-//                                "getExceptionCallerByField@"+otherMethod.getSignature()+"\n",true );
                         exceptionInfo.addRelatedMethods(otherMethod.getSignature());
                     }
-                    getExceptionCallerByParam(otherMethod, exceptionInfo, callerHistory, depth+1, RelatedMethodSource.FIELDCALLER, new HashSet<>());
+                    getExceptionCallerByParam(otherMethod, exceptionInfo, callerHistory,
+                            depth+1, RelatedMethodSource.FIELDCALLER, new HashSet<>());
                 }
             }
         }

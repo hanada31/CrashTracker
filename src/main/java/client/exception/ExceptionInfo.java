@@ -413,12 +413,12 @@ public class ExceptionInfo {
                         sm.getSignature()+"'s interface is " +interfaceSC.getName()+"\n",true);
                 FileUtils.writeText2File("www.txt",
                        PrintUtils.printList(Scene.v().getActiveHierarchy().getImplementersOf(interfaceSC),"\n")+"\n",true);
-                if(Scene.v().getActiveHierarchy().getImplementersOf(interfaceSC).contains(sm)){
-                    sm.getSignature().replace(sm.getDeclaringClass().getName(), interfaceSC.getName());
-                    addRelatedMethods(sm.getSignature());
+                for(SootMethod interfaceSM: interfaceSC.getMethods()){
+                    if(interfaceSM.getName().equals(sm.getName())){
+                        addRelatedMethods(interfaceSM.getSignature());
+                    }
                 }
             }
-
         }
     }
 
