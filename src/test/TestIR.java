@@ -28,7 +28,8 @@ public class TestIR {
 //        path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
         path = "C:\\Users\\yanjw\\programs\\Empirical500";
         String name;
-        name = "org.sensortracker.sensor_zh-487.apk";
+        name = "com.avpig.exam-245.apk";
+        name = "com.blizzardscale.befemall-102.apk";
 
         String client = "IROutputClient";
 

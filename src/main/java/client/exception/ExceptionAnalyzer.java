@@ -44,7 +44,7 @@ public class ExceptionAnalyzer extends Analyzer {
      */
     private boolean filterMethod(SootMethod sootMethod) {
         List<String> mtds = new ArrayList<>();
-        mtds.add("checkNotReleasedLocked");
+        mtds.add("android.view.Surface: void checkNotReleasedLocked()");
         for(String tag: mtds){
             if (sootMethod.getSignature().contains(tag)) {
                 return false;
@@ -62,12 +62,11 @@ public class ExceptionAnalyzer extends Analyzer {
     private void getExceptionList() {
         HashSet<SootClass> applicationClasses = new HashSet<>(Scene.v().getApplicationClasses());
         for (SootClass sootClass : applicationClasses) {
-            List<SootClass> inters = Scene.v().getActiveHierarchy().getSuperinterfacesOf(sootClass);
             if(!sootClass.getPackageName().startsWith(ConstantUtils.PKGPREFIX)) continue;
             exceptionInfoList = new ArrayList<>();
             for (SootMethod sootMethod : sootClass.getMethods()) {
                 if(filterMethod(sootMethod)) continue;
-//                System.out.println(sootMethod.getSignature());
+                System.out.println(sootMethod.getSignature());
                 if (sootMethod.hasActiveBody()) {
                     try {
                         Map<Unit, String> unit2Message = new HashMap<>();
@@ -259,7 +258,9 @@ public class ExceptionAnalyzer extends Analyzer {
         if(exceptionInfo.getRelatedParamValues().size()>0 && exceptionInfo.getRelatedFieldValues().size() ==0) {
             RelatedMethod addMethod = new RelatedMethod(sootMethod.getSignature(), RelatedMethodSource.CALLER, 0);
             exceptionInfo.addRelatedMethodsInSameClassMap(addMethod);
-            exceptionInfo.addRelatedMethods(sootMethod, sootMethod.getSignature());
+            exceptionInfo.addRelatedMethods(sootMethod.getSignature());
+//            FileUtils.writeText2File("/home/yanjw/myTools/LoFDroid-develop/www.txt",
+//                    "getConditionandValueFromUnit@"+sootMethod.getSignature()"\n",true );
             getExceptionCallerByParam(sootMethod, exceptionInfo, new HashSet<>(), 1, RelatedMethodSource.CALLER, exceptionInfo.getRelatedValueIndex());
         }else if(exceptionInfo.getRelatedParamValues().size()==0 && exceptionInfo.getRelatedFieldValues().size()>0) {
             getExceptionCallerByField(sootMethod, exceptionInfo, new HashSet<>(), 1,RelatedMethodSource.FIELD);
@@ -286,12 +287,12 @@ public class ExceptionAnalyzer extends Analyzer {
                 paramIndexCaller = SootUtils.getIndexesFromMethod(edge, paramIndexCallee);
                 if(paramIndexCaller.size() ==0 ) continue;
             }
+            exceptionInfo.addRelatedMethods(edgeSource, edgeSource.getSignature());
 
             List<SootClass> subClasses = SootUtils.getSubClasses(edgeSource);
-//          subClasses.add(edgeSource.getDeclaringClass());
             for (SootClass sootClass : subClasses) {
                 String signature = edgeSource.getSignature().replace(edgeSource.getDeclaringClass().getName(), sootClass.getName());
-                if(SootUtils.getSootMethodBySignature(signature) == null || sootClass == edgeSource.getDeclaringClass()) {
+                if(SootUtils.getSootMethodBySignature(signature) == null) {
                     String pkg1 = sootClass.getPackageName();
                     String pkg2 = exceptionInfo.getSootMethod().getDeclaringClass().getPackageName();
                     //filter a set of candidates!!!
@@ -302,6 +303,8 @@ public class ExceptionAnalyzer extends Analyzer {
                             exceptionInfo.addRelatedMethodsInSameClassMap(addMethod);
                         else
                             exceptionInfo.addRelatedMethodsInDiffClassMap(addMethod);
+//                        FileUtils.writeText2File("/home/yanjw/myTools/LoFDroid-develop/www.txt",
+//                                edgeSource.getSignature()+" --> "+signature+"\n",true );
                         exceptionInfo.addRelatedMethods(signature);
                     }
                     getExceptionCallerByParam(edgeSource, exceptionInfo, callerHistory, depth + 1, mtdSource, paramIndexCaller);
@@ -330,8 +333,9 @@ public class ExceptionAnalyzer extends Analyzer {
                         else
                             exceptionInfo.addRelatedMethodsInDiffClassMap(addMethod);
 
-                        //addInterface
-                        exceptionInfo.addRelatedMethods(otherMethod, otherMethod.getSignature());
+//                        FileUtils.writeText2File("/home/yanjw/myTools/LoFDroid-develop/www.txt",
+//                                "getExceptionCallerByField@"+otherMethod.getSignature()+"\n",true );
+                        exceptionInfo.addRelatedMethods(otherMethod.getSignature());
                     }
                     getExceptionCallerByParam(otherMethod, exceptionInfo, callerHistory, depth+1, RelatedMethodSource.FIELDCALLER, new HashSet<>());
                 }

@@ -270,7 +270,7 @@ public class MainClass {
 		MyConfig.getInstance().setAndroidVersion("android-" + mCmd.getOptionValue("version", "23"));
 		MyConfig.getInstance().setCrashInfoFilePath(mCmd.getOptionValue("crashPath","Files"+File.separator+"crashInfo.json"));
 
-		String sdkVersion = mCmd.getOptionValue("SDKVersion","9.0");
+		String sdkVersion = mCmd.getOptionValue("SDKVersion","10.0");
 		String androidFolder = "Files"+File.separator+"android"+sdkVersion+File.separator;
 		MyConfig.getInstance().setExceptionFilePath(mCmd.getOptionValue("exceptionPath",androidFolder+"exceptionInfo"+File.separator));
 		MyConfig.getInstance().setAndroidCGFilePath(mCmd.getOptionValue("androidCGPath",androidFolder+"CallGraphInfo"+File.separator+"cg.txt"));

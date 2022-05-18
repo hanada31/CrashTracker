@@ -1,5 +1,6 @@
 package main.java.client.exception;
 
+import main.java.analyze.utils.output.FileUtils;
 import main.java.analyze.utils.output.PrintUtils;
 import soot.*;
 import soot.jimple.StringConstant;
@@ -402,21 +403,29 @@ public class ExceptionInfo {
         this.conditionUnits = conditionUnits;
     }
 
-    public void addRelatedMethods(SootMethod otherMethod, String sm) {
-        Iterator<SootClass> it = otherMethod.getDeclaringClass().getInterfaces().iterator();
-        while(it.hasNext()){
-            SootClass interfaceSC = it.next();
-            if(Scene.v().getActiveHierarchy().getImplementersOf(interfaceSC).contains(otherMethod)){
-                otherMethod.getSignature().replace(otherMethod.getDeclaringClass().getName(), interfaceSC.getName());
-                addRelatedMethods(otherMethod.getSignature());
+    public void addRelatedMethods(SootMethod sm, String signature) {
+        if(!relatedMethods.contains(signature)){
+            relatedMethods.add(signature);
+            Iterator<SootClass> it = sm.getDeclaringClass().getInterfaces().iterator();
+            while(it.hasNext()){
+                SootClass interfaceSC = it.next();
+                System.out.println(sm+" interface is " +interfaceSC.getName());
+                FileUtils.writeText2File("www.txt",
+                        sm.getSignature()+"'s interface is " +interfaceSC.getName(),true);
+                FileUtils.writeText2File("www.txt",
+                       PrintUtils.printList(Scene.v().getActiveHierarchy().getImplementersOf(interfaceSC),"\n")+"\n",true);
+                if(Scene.v().getActiveHierarchy().getImplementersOf(interfaceSC).contains(sm)){
+                    sm.getSignature().replace(sm.getDeclaringClass().getName(), interfaceSC.getName());
+                    addRelatedMethods(sm.getSignature());
+                }
             }
+
         }
-        addRelatedMethods(sm);
     }
 
-    public void addRelatedMethods(String sm) {
-        if(!relatedMethods.contains(sm))
-            relatedMethods.add(sm);
+    public void addRelatedMethods(String signature) {
+        if(!relatedMethods.contains(signature))
+            relatedMethods.add(signature);
     }
 }
 

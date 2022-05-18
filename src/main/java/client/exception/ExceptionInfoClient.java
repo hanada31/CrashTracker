@@ -32,7 +32,6 @@ public class ExceptionInfoClient extends BaseClient {
             SootAnalyzer sootAnalyzer = new SootAnalyzer();
             sootAnalyzer.analyze();
         }
-
         if (!MyConfig.getInstance().isCallGraphAnalyzeFinish()) {
             new CallGraphofJavaClient().start();
             MyConfig.getInstance().setCallGraphAnalyzeFinish(true);
