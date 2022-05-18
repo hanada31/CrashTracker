@@ -280,39 +280,55 @@ public class ExceptionAnalyzer extends Analyzer {
         callerHistory.add(sootMethod);
         for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesInto(sootMethod); it.hasNext(); ) {
             Edge edge = it.next();
-            SootMethod edgeSource = edge.getSrc().method();
+            SootMethod edgeSourceMtd = edge.getSrc().method();
             Set<Integer> paramIndexCaller = new HashSet<>();
             if(mtdSource == RelatedMethodSource.CALLER){
                 paramIndexCaller = SootUtils.getIndexesFromMethod(edge, paramIndexCallee);
                 if(paramIndexCaller.size() ==0 ) continue;
             }
 
-            List<SootClass> subClasses = SootUtils.getSubClasses(edgeSource);
+            List<SootClass> subClasses = SootUtils.getSubClasses(edgeSourceMtd);
             for (SootClass sootClass : subClasses) {
-                String signature = edgeSource.getSignature().replace(edgeSource.getDeclaringClass().getName(), sootClass.getName());
-                if(SootUtils.getSootMethodBySignature(signature) == null|| sootClass == edgeSource.getDeclaringClass()) {
+                String signature = edgeSourceMtd.getSignature().replace(edgeSourceMtd.getDeclaringClass().getName(), sootClass.getName());
+                SootMethod sm = SootUtils.getSootMethodBySignature(signature);
+                if(sm == null|| sootClass == edgeSourceMtd.getDeclaringClass()) {
                     String pkg1 = sootClass.getPackageName();
                     String pkg2 = exceptionInfo.getSootMethod().getDeclaringClass().getPackageName();
                     //filter a set of candidates!!!
-                    if(!StringUtils.getPkgPrefix(pkg1, 2).equals(StringUtils.getPkgPrefix(pkg2,2))) continue;
-                    if(edgeSource.isPublic()) {
-                        RelatedMethod addMethod = new RelatedMethod(signature, mtdSource, depth);
-                        if (edgeSource.getDeclaringClass() == exceptionInfo.getSootMethod().getDeclaringClass())
-                            exceptionInfo.addRelatedMethodsInSameClassMap(addMethod);
-                        else
-                            exceptionInfo.addRelatedMethodsInDiffClassMap(addMethod);
-                        exceptionInfo.addRelatedMethods(signature);
-                    }
-                    getExceptionCallerByParam(edgeSource, exceptionInfo, callerHistory, depth + 1, mtdSource, paramIndexCaller);
+                    if (!StringUtils.getPkgPrefix(pkg1, 2).equals(StringUtils.getPkgPrefix(pkg2, 2)))
+                        continue;
+                    RelatedMethod addMethodObj = new RelatedMethod(signature, mtdSource, depth);
+                    addRelatedMethodInstance(edgeSourceMtd, addMethodObj, exceptionInfo);
                 }
+                if(sm!=null) {
+                    Iterator<SootClass> it2 = sm.getDeclaringClass().getInterfaces().iterator();
+                    while (it.hasNext()) {
+                        SootClass interfaceSC = it2.next();
+//                        FileUtils.writeText2File("www.txt",
+//                                "\n" + sm.getSignature() + "'s interface is " + interfaceSC.getName() + "; ", true);
+                        for (SootMethod interfaceSM : interfaceSC.getMethods()) {
+                            if (interfaceSM.getSubSignature().equals(sm.getSubSignature())) {
+                                RelatedMethod addMethodObj = new RelatedMethod(interfaceSM.getSignature(), mtdSource, depth);
+                                addRelatedMethodInstance(edgeSourceMtd, addMethodObj, exceptionInfo);
+//                                FileUtils.writeText2File("www.txt", interfaceSM.getSignature() + ";", true);
+                            }
+                        }
+                    }
+                }
+                getExceptionCallerByParam(edgeSourceMtd, exceptionInfo, callerHistory, depth + 1, mtdSource, paramIndexCaller);
             }
-            exceptionInfo.addRelatedMethods(edgeSource, edgeSource.getSignature());
-
         }
     }
 
-
-
+    private void addRelatedMethodInstance(SootMethod edgeSource, RelatedMethod addMethod, ExceptionInfo exceptionInfo) {
+        if(edgeSource.isPublic()) {
+            if (edgeSource.getDeclaringClass() == exceptionInfo.getSootMethod().getDeclaringClass())
+                exceptionInfo.addRelatedMethodsInSameClassMap(addMethod);
+            else
+                exceptionInfo.addRelatedMethodsInDiffClassMap(addMethod);
+            exceptionInfo.addRelatedMethods(addMethod.getMethod());
+        }
+    }
 
 
     private void getExceptionCallerByField(SootMethod sootMethod, ExceptionInfo exceptionInfo, HashSet<SootMethod> callerHistory, int depth,RelatedMethodSource mtdSource) {

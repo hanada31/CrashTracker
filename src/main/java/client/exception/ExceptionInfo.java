@@ -404,29 +404,13 @@ public class ExceptionInfo {
         this.conditionUnits = conditionUnits;
     }
 
-    public void addRelatedMethods(SootMethod sm, String signature) {
-        if(!relatedMethods.contains(signature)){
-            relatedMethods.add(signature);
-            Iterator<SootClass> it = sm.getDeclaringClass().getInterfaces().iterator();
-            while(it.hasNext()){
-                SootClass interfaceSC = it.next();
-                FileUtils.writeText2File("www.txt",
-                        "\n"+sm.getSignature()+"'s interface is " +interfaceSC.getName()+"; ",true);
-                for(SootMethod interfaceSM: interfaceSC.getMethods()){
-                    if(interfaceSM.getSubSignature().equals(sm.getSubSignature())){
-                        if (!relatedMethods.contains(interfaceSM.getSignature()))
-                            relatedMethods.add(signature);
-                        FileUtils.writeText2File("www.txt", interfaceSM.getSignature()+";",true);
-                    }
-                }
-            }
-        }
-    }
+
 
     public void addRelatedMethods(String signature) {
-        if (SootUtils.getSootMethodBySignature(signature) != null) {
-            addRelatedMethods(SootUtils.getSootMethodBySignature(signature), signature);
-        } else if (!relatedMethods.contains(signature))
+//        if (SootUtils.getSootMethodBySignature(signature) != null) {
+//            addRelatedMethods(SootUtils.getSootMethodBySignature(signature), signature);
+//        } else
+            if (!relatedMethods.contains(signature))
             relatedMethods.add(signature);
     }
 }
