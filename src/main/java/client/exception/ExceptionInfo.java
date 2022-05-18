@@ -411,15 +411,12 @@ public class ExceptionInfo {
             while(it.hasNext()){
                 SootClass interfaceSC = it.next();
                 FileUtils.writeText2File("www.txt",
-                        sm.getSignature()+"'s interface is " +interfaceSC.getName()+"; ",true);
-//                FileUtils.writeText2File("www.txt",
-//                       PrintUtils.printList(Scene.v().getActiveHierarchy().getImplementersOf(interfaceSC),"\n")+"\n",true);
+                        "\n"+sm.getSignature()+"'s interface is " +interfaceSC.getName()+"; ",true);
                 for(SootMethod interfaceSM: interfaceSC.getMethods()){
-                    FileUtils.writeText2File("www.txt", interfaceSM.getName()+"; ",true);
-                    if(interfaceSM.getName().equals(sm.getName())){
-                        addRelatedMethods(interfaceSM.getSignature());
-                        System.out.println(interfaceSM.getSignature());
-                        FileUtils.writeText2File("www.txt", interfaceSM.getSignature()+"\n",true);
+                    if(interfaceSM.getSubSignature().equals(sm.getSubSignature())){
+                        if (!relatedMethods.contains(interfaceSM.getSignature()))
+                            relatedMethods.add(signature);
+                        FileUtils.writeText2File("www.txt", interfaceSM.getSignature()+";",true);
                     }
                 }
             }
@@ -427,10 +424,9 @@ public class ExceptionInfo {
     }
 
     public void addRelatedMethods(String signature) {
-        if(SootUtils.getSootMethodBySignature(signature)!=null){
+        if (SootUtils.getSootMethodBySignature(signature) != null) {
             addRelatedMethods(SootUtils.getSootMethodBySignature(signature), signature);
-        }
-        else if(!relatedMethods.contains(signature))
+        } else if (!relatedMethods.contains(signature))
             relatedMethods.add(signature);
     }
 }
