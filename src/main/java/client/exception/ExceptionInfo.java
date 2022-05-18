@@ -409,9 +409,8 @@ public class ExceptionInfo {
             Iterator<SootClass> it = sm.getDeclaringClass().getInterfaces().iterator();
             while(it.hasNext()){
                 SootClass interfaceSC = it.next();
-                System.out.println(sm+" interface is " +interfaceSC.getName());
                 FileUtils.writeText2File("www.txt",
-                        sm.getSignature()+"'s interface is " +interfaceSC.getName(),true);
+                        sm.getSignature()+"'s interface is " +interfaceSC.getName()+"\n",true);
                 FileUtils.writeText2File("www.txt",
                        PrintUtils.printList(Scene.v().getActiveHierarchy().getImplementersOf(interfaceSC),"\n")+"\n",true);
                 if(Scene.v().getActiveHierarchy().getImplementersOf(interfaceSC).contains(sm)){
