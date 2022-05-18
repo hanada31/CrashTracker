@@ -302,7 +302,7 @@ public class ExceptionAnalyzer extends Analyzer {
                 }
                 if(sm!=null) {
                     Iterator<SootClass> it2 = sm.getDeclaringClass().getInterfaces().iterator();
-                    while (it.hasNext()) {
+                    while (it2.hasNext()) {
                         SootClass interfaceSC = it2.next();
 //                        FileUtils.writeText2File("www.txt",
 //                                "\n" + sm.getSignature() + "'s interface is " + interfaceSC.getName() + "; ", true);
