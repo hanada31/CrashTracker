@@ -411,12 +411,15 @@ public class ExceptionInfo {
             while(it.hasNext()){
                 SootClass interfaceSC = it.next();
                 FileUtils.writeText2File("www.txt",
-                        sm.getSignature()+"'s interface is " +interfaceSC.getName()+"\n",true);
-                FileUtils.writeText2File("www.txt",
-                       PrintUtils.printList(Scene.v().getActiveHierarchy().getImplementersOf(interfaceSC),"\n")+"\n",true);
+                        sm.getSignature()+"'s interface is " +interfaceSC.getName()+"; ",true);
+//                FileUtils.writeText2File("www.txt",
+//                       PrintUtils.printList(Scene.v().getActiveHierarchy().getImplementersOf(interfaceSC),"\n")+"\n",true);
                 for(SootMethod interfaceSM: interfaceSC.getMethods()){
+                    FileUtils.writeText2File("www.txt", interfaceSM.getName()+"; ",true);
                     if(interfaceSM.getName().equals(sm.getName())){
                         addRelatedMethods(interfaceSM.getSignature());
+                        System.out.println(interfaceSM.getSignature());
+                        FileUtils.writeText2File("www.txt", interfaceSM.getSignature()+"\n",true);
                     }
                 }
             }
