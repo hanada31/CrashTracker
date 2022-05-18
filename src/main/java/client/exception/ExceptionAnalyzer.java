@@ -292,7 +292,7 @@ public class ExceptionAnalyzer extends Analyzer {
             List<SootClass> subClasses = SootUtils.getSubClasses(edgeSource);
             for (SootClass sootClass : subClasses) {
                 String signature = edgeSource.getSignature().replace(edgeSource.getDeclaringClass().getName(), sootClass.getName());
-                if(SootUtils.getSootMethodBySignature(signature) == null|| sootClass == edgeSource.getDeclaringClass()) {) {
+                if(SootUtils.getSootMethodBySignature(signature) == null|| sootClass == edgeSource.getDeclaringClass()) {
                     String pkg1 = sootClass.getPackageName();
                     String pkg2 = exceptionInfo.getSootMethod().getDeclaringClass().getPackageName();
                     //filter a set of candidates!!!

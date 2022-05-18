@@ -1458,7 +1458,7 @@ public class SootUtils {
 //			subClasses = Scene.v().getActiveHierarchy().getSubclassesOf(sm.getDeclaringClass());
 //		}
 		if (!sm.isAbstract() && !sm.getDeclaringClass().isInterface()) {
-			subClasses = Scene.v().getActiveHierarchy().getSubclassesOf(sm.getDeclaringClass());
+			subClasses = Scene.v().getActiveHierarchy().getSubclassesOfIncluding(sm.getDeclaringClass());
 		}
 		return subClasses;
 	}
