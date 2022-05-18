@@ -287,7 +287,6 @@ public class ExceptionAnalyzer extends Analyzer {
                 paramIndexCaller = SootUtils.getIndexesFromMethod(edge, paramIndexCallee);
                 if(paramIndexCaller.size() ==0 ) continue;
             }
-            exceptionInfo.addRelatedMethods(edgeSource, edgeSource.getSignature());
 
             List<SootClass> subClasses = SootUtils.getSubClasses(edgeSource);
             for (SootClass sootClass : subClasses) {
@@ -310,6 +309,7 @@ public class ExceptionAnalyzer extends Analyzer {
                     getExceptionCallerByParam(edgeSource, exceptionInfo, callerHistory, depth + 1, mtdSource, paramIndexCaller);
                 }
             }
+            exceptionInfo.addRelatedMethods(edgeSource, edgeSource.getSignature());
 
         }
     }
