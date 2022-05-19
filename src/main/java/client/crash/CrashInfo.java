@@ -64,14 +64,12 @@ public class CrashInfo {
         if(filterByExtendedCG && !extendedCallDepth.containsKey(candi))
             return;
         boolean findPrexInTrace = false;
-        boolean findInTrace = false;
+
         for(String trace: getCrashMethodList()){
-            String prefixInTrace = StringUtils.getPkgPrefix(trace, 2);
+            int id = Math.max(trace.split("\\.").length-2, 2);
+            String prefixInTrace = StringUtils.getPkgPrefix(trace, id);
             if(candi.contains(prefixInTrace)) {
                 findPrexInTrace = true;
-            }
-            if(candi.equals(trace)){
-                findInTrace = true;
             }
         }
         if(!findPrexInTrace) return;
@@ -81,9 +79,6 @@ public class CrashInfo {
         String pkgPrefix = StringUtils.getPkgPrefix(Global.v().getAppModel().getPackageName(),2);
         if(!candi.contains(pkgPrefix)) {
             score = score - ConstantUtils.OUTOFPKGSCORE;
-        }
-        if(findInTrace) {
-            score = score + ConstantUtils.OUTOFPKGSCORE;
         }
         if(this.buggyCandidates.containsKey(candi) && this.buggyCandidates.get(candi) > score)
             return;

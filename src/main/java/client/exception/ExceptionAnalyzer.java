@@ -65,7 +65,7 @@ public class ExceptionAnalyzer extends Analyzer {
             if(!sootClass.getPackageName().startsWith(ConstantUtils.PKGPREFIX)) continue;
             exceptionInfoList = new ArrayList<>();
             for (SootMethod sootMethod : sootClass.getMethods()) {
-                if(filterMethod(sootMethod)) continue;
+//                if(filterMethod(sootMethod)) continue;
 //                System.out.println(sootMethod.getSignature());
                 if (sootMethod.hasActiveBody()) {
                     try {
