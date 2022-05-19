@@ -21,9 +21,9 @@ if __name__ == '__main__' :
         print("Fail to build! Please run \"mvn -f pom.xml package\" to see the detail info.")
     
 
-    path = "C:\\Users\\yanjw\\programs\\framework\\classes\\";
-    name = "android10.0";
+    path = "/home/yanjw/myTools/LoFDroid-develop/framework/classes/";
+    name = "android"+sys.argv[1];
     
-    command = "java -jar "+jarFile+"  -path "+ path +" -name "+name+" -androidJar "+ sdk +"/platforms -client ExceptionInfoClient"  
+    command = "java -jar "+jarFile+"  -path "+ path +" -name "+name+" -androidJar "+ sdk +"/platforms -client ExceptionInfoClient " +" -outputDir Files/"  
     executeCmd(command)
                     

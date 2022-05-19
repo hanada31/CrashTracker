@@ -35,8 +35,7 @@ public class ExceptionInfoClientOutput {
      * @param sootClass
      */
     public static void writeJsonForCurrentClass(SootClass sootClass, List<ExceptionInfo> exceptionInfoList, JSONArray exceptionListElement) {
-        String summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
-                + File.separator + "exceptionInfo" +File.separator;
+        String summary_app_dir = MyConfig.getInstance().getExceptionFilePath();
         FileUtils.createFolder(summary_app_dir);
         if(exceptionInfoList.size()>0) {
             ExceptionInfoClientOutput.writeToJson(summary_app_dir + sootClass.getName() + ".json", exceptionInfoList);

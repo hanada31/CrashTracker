@@ -23,8 +23,6 @@ public class CrashAnalysisClient extends BaseClient {
     @Override
     protected void clientAnalyze() {
         result = new StatisticResult();
-        MyConfig.getInstance().setFileSuffixLength(4);
-
         if (!MyConfig.getInstance().isSootAnalyzeFinish()) {
             SootAnalyzer sootAnalyzer = new SootAnalyzer();
             sootAnalyzer.analyze();

@@ -108,7 +108,7 @@ public class ExceptionAnalyzer extends Analyzer {
                 }
             }
         }
-        String folder = "Files"+File.separator+ MyConfig.getInstance().getAppName()+File.separator+"Permission"+File.separator;
+        String folder = MyConfig.getInstance().getResultFolder() +File.separator+ MyConfig.getInstance().getAppName()+File.separator+"Permission"+File.separator;
         FileUtils.createFolder(folder);
         FileUtils.writeList2File(folder,"permission.txt", permissionSet,false);
         System.out.println("permissionSet:::" + permissionSet.size());
