@@ -63,20 +63,27 @@ public class CrashInfo {
     public void addBuggyCandidates(String candi, int score, boolean filterByExtendedCG) {
         if(filterByExtendedCG && !extendedCallDepth.containsKey(candi))
             return;
+        boolean findPrexInTrace = false;
         boolean findInTrace = false;
         for(String trace: getCrashMethodList()){
             String prefixInTrace = StringUtils.getPkgPrefix(trace, 2);
             if(candi.contains(prefixInTrace)) {
+                findPrexInTrace = true;
+            }
+            if(candi.equals(trace)){
                 findInTrace = true;
             }
         }
-        if(!findInTrace) return;
+        if(!findPrexInTrace) return;
 
 //        if(!extendedCallDepth.containsKey(candi))
 //            score = score - ConstantUtils.NOTINEXTENDEDCG;
         String pkgPrefix = StringUtils.getPkgPrefix(Global.v().getAppModel().getPackageName(),2);
         if(!candi.contains(pkgPrefix)) {
             score = score - ConstantUtils.OUTOFPKGSCORE;
+        }
+        if(findInTrace) {
+            score = score + ConstantUtils.OUTOFPKGSCORE;
         }
         if(this.buggyCandidates.containsKey(candi) && this.buggyCandidates.get(candi) > score)
             return;

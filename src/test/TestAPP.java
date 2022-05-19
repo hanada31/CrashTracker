@@ -29,9 +29,9 @@ public class TestAPP {
 //        path = "D:\\SoftwareData\\dataset\\apk\\\\Empirical500\\";
         path = "C:\\Users\\yanjw\\programs\\Empirical500";
         String name;
-        name = "cnace.net-280.apk";
+        name = "com.tgb.bg.jevcyxr-215.apk";
         String client = "CrashAnalysisClient";
-        String version = "10.0";
+        String version = "6.0";
 
         MyConfig.getInstance().setAppName(name);
         MyConfig.getInstance().setAppPath(path + File.separator);

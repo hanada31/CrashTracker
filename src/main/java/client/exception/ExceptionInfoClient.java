@@ -32,10 +32,10 @@ public class ExceptionInfoClient extends BaseClient {
             SootAnalyzer sootAnalyzer = new SootAnalyzer();
             sootAnalyzer.analyze();
         }
-        if (!MyConfig.getInstance().isCallGraphAnalyzeFinish()) {
-            new CallGraphofJavaClient().start();
-            MyConfig.getInstance().setCallGraphAnalyzeFinish(true);
-        }
+//        if (!MyConfig.getInstance().isCallGraphAnalyzeFinish()) {
+//            new CallGraphofJavaClient().start();
+//            MyConfig.getInstance().setCallGraphAnalyzeFinish(true);
+//        }
 //        if (!MyConfig.getInstance().isStaitiucValueAnalyzeFinish()) {
 //            if (MyConfig.getInstance().getMySwithch().isStaticFieldSwitch()) {
 //                StaticValueAnalyzer staticValueAnalyzer = new StaticValueAnalyzer();

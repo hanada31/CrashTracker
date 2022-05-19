@@ -46,7 +46,7 @@ public class AppModel implements Serializable {
 	// call graph related
 	private Set<SootMethod> allMethods;
 	private Set<SootMethod> entryMethods;
-	private CallGraph cg;
+	private CallGraph cg = new CallGraph();
 	private ReachableMethods reachableMethodsFromCg;
 	private List<SootMethod> topoMethodQueue;
 	private Set<List<SootMethod>> topoMethodQueueSet;

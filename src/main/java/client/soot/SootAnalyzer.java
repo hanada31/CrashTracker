@@ -69,7 +69,7 @@ public class SootAnalyzer extends Analyzer {
 		Options.v().set_src_prec(MyConfig.getInstance().getSrc_prec());
 		Options.v().allow_phantom_refs();
 		Options.v().set_whole_program(true);
-//		setExcludePackage();
+		setExcludePackage();
 	}
 
 
@@ -102,9 +102,9 @@ public class SootAnalyzer extends Analyzer {
 	 */
 	public static void setExcludePackage() {
 		ArrayList<String> excludeList = new ArrayList<String>();
-		excludeList.add("android.*");
-		excludeList.add("androidx.*");
-		excludeList.add("kotlin.*");
+//		excludeList.add("android.*");
+//		excludeList.add("androidx.*");
+//		excludeList.add("kotlin.*");
 		excludeList.add("soot.*");
 		excludeList.add("junit.*");
 		excludeList.add("java.*");

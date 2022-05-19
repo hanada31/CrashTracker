@@ -44,7 +44,7 @@ public class ExceptionAnalyzer extends Analyzer {
      */
     private boolean filterMethod(SootMethod sootMethod) {
         List<String> mtds = new ArrayList<>();
-        mtds.add("android.view.Surface: void checkNotReleasedLocked()");
+        mtds.add("android.view.ViewRootImpl: void setView");
         for(String tag: mtds){
             if (sootMethod.getSignature().contains(tag)) {
                 return false;
@@ -65,7 +65,7 @@ public class ExceptionAnalyzer extends Analyzer {
             if(!sootClass.getPackageName().startsWith(ConstantUtils.PKGPREFIX)) continue;
             exceptionInfoList = new ArrayList<>();
             for (SootMethod sootMethod : sootClass.getMethods()) {
-//                if(filterMethod(sootMethod)) continue;
+                if(filterMethod(sootMethod)) continue;
 //                System.out.println(sootMethod.getSignature());
                 if (sootMethod.hasActiveBody()) {
                     try {
@@ -439,12 +439,18 @@ public class ExceptionAnalyzer extends Analyzer {
                         //if base is from parameter, field is omitted, if base is this, parameter is recorded
                         Value base = ((AbstractInstanceFieldRef) rightOp).getBase();
                         String defType = extendRelatedValues(allPreds, exceptionInfo, defUnit, base, valueHistory, getCondHistory, fromThrow);
+                        //if the this variable is assigned from parameter, it is not field related.
                         if(defType.equals("ThisRef")){
-                            SootField f = ((AbstractInstanceFieldRef) rightOp).getField();
-                            exceptionInfo.addRelatedFieldValues(f);
-                        }
+                            SootField field = ((AbstractInstanceFieldRef) rightOp).getField();
+                            Value baseF = ((AbstractInstanceFieldRef) rightOp).getBase();
+                            List<Value> rightValues = getFiledValueAssigns(baseF, field, allPreds);
+                            for(Value rv: rightValues){
+                                extendRelatedValues(allPreds, exceptionInfo, defUnit, rv, valueHistory, getCondHistory, fromThrow);
+                            }
+                            exceptionInfo.addRelatedFieldValues(field);
 
-                } else if (rightOp instanceof Expr) {
+                        }
+                    } else if (rightOp instanceof Expr) {
                         if (rightOp instanceof InvokeExpr) {
                             InvokeExpr invokeExpr = SootUtils.getInvokeExp(defUnit);
                             for (Value val : invokeExpr.getArgs())
@@ -484,6 +490,25 @@ public class ExceptionAnalyzer extends Analyzer {
             }
         }
         return "";
+    }
+
+    private List<Value> getFiledValueAssigns(Value base, SootField f, List<Unit> allPreds) {
+        List<Value> rightValues = new ArrayList<>();
+        String name = f.getName();
+        for (Unit predUnit : allPreds) {
+            if(predUnit instanceof  AssignStmt){
+                Value left =  ((AssignStmt) predUnit).getLeftOp();
+                if(left instanceof AbstractInstanceFieldRef){
+                    if(((AbstractInstanceFieldRef) left).getField().getName().equals(name)){
+                        if(((AbstractInstanceFieldRef) left).getBase() == base) {
+                            for (ValueBox vb : ((AssignStmt) predUnit).getRightOp().getUseBoxes())
+                                rightValues.add(vb.getValue());
+                        }
+                    }
+                }
+            }
+        }
+        return rightValues;
     }
 
     /**

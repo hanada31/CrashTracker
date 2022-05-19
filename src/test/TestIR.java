@@ -28,8 +28,7 @@ public class TestIR {
 //        path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
         path = "C:\\Users\\yanjw\\programs\\Empirical500";
         String name;
-        name = "com.avpig.exam-245.apk";
-        name = "com.blizzardscale.befemall-102.apk";
+        name = "com.tgb.bg.jevcyxr-215.apk";
 
         String client = "IROutputClient";
 
