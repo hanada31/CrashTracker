@@ -27,10 +27,10 @@ public class CrashAnalysisClient extends BaseClient {
             SootAnalyzer sootAnalyzer = new SootAnalyzer();
             sootAnalyzer.analyze();
         }
-//        if (!MyConfig.getInstance().isCallGraphAnalyzeFinish()) {
-//            new CallGraphofApkClient().start();
-//            MyConfig.getInstance().setCallGraphAnalyzeFinish(true);
-//        }
+        if (!MyConfig.getInstance().isCallGraphAnalyzeFinish()) {
+            new CallGraphofApkClient().start();
+            MyConfig.getInstance().setCallGraphAnalyzeFinish(true);
+        }
 
 //        if (!MyConfig.getInstance().isStaitiucValueAnalyzeFinish()) {
 //            if (MyConfig.getInstance().getMySwithch().isStaticFieldSwitch()) {
@@ -50,12 +50,12 @@ public class CrashAnalysisClient extends BaseClient {
 
     @Override
     public void clientOutput() throws IOException, DocumentException {
-//        String summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
-//                + File.separator;
-//        FileUtils.createFolder(summary_app_dir);
-//
-//        CrashAnalysisClientOutput outer = new CrashAnalysisClientOutput(this.result);
-//        outer.writeToJson(summary_app_dir+Global.v().getAppModel().getAppName()+".json", Global.v().getAppModel().getCrashInfoList());
+        String summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
+                + File.separator;
+        FileUtils.createFolder(summary_app_dir);
+
+        CrashAnalysisClientOutput outer = new CrashAnalysisClientOutput(this.result);
+        outer.writeToJson(summary_app_dir+Global.v().getAppModel().getAppName()+".json", Global.v().getAppModel().getCrashInfoList());
 
     }
 }

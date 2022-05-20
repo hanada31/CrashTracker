@@ -7,9 +7,9 @@ import time
 
 reRun = True
 filterList = list()
-SDKVersion= "10.0"
 
-def analyzeApk(apkPath, resPath, sdk):
+
+def analyzeApk(apkPath, resPath, sdk, SDKVersion):
     logDir = resPath+"/logs"
     outputDir = resPath+"/output"
     if(not os.path.exists(logDir)): 
@@ -52,7 +52,7 @@ if __name__ == '__main__' :
     
     apkPath = sys.argv[1]
     resPath = sys.argv[2]
-    
+    SDKVersion= sys.argv[3];
     
     os.system("mvn -f pom.xml package -q")
     if os.path.exists("target/LoFDroid.jar"):
@@ -62,8 +62,8 @@ if __name__ == '__main__' :
     else:
         print("Fail to build! Please run \"mvn -f pom.xml package\" to see the detail info.")
     
-    if len(sys.argv)>3:
-        filterFile = sys.argv[3]    
+    if len(sys.argv)>4:
+        filterFile = sys.argv[4]    
         readFilterFile(filterFile)
-    analyzeApk(apkPath, resPath, sdk)
+    analyzeApk(apkPath, resPath, sdk, SDKVersion)
     

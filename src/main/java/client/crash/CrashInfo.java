@@ -4,7 +4,6 @@ import main.java.analyze.utils.ConstantUtils;
 import main.java.analyze.utils.StringUtils;
 import main.java.client.exception.ExceptionInfo;
 import soot.jimple.toolkits.callgraph.Edge;
-import soot.util.Cons;
 
 import java.util.*;
 
@@ -37,9 +36,11 @@ public class CrashInfo {
     Map<Integer, ArrayList<Edge>> edgeMap = new TreeMap<Integer, ArrayList<Edge>>();
     List<String> classesInTrace= new ArrayList<>();
     Map<String, Integer> buggyCandidates = new TreeMap<>();
+    Map<String, BuggyCandidate> buggyCandidateObjs = new HashMap<>();
     Map<String, Integer> extendedCallDepth = new HashMap<String, Integer>();
     boolean findCandidateInTrace = false;
     int minScore = ConstantUtils.INITSCORE;
+    List<String> noneCodeLabels = new ArrayList<String>();
 
     public Map<String, Integer> getExtendedCallDepth() {
         return extendedCallDepth;
@@ -60,14 +61,18 @@ public class CrashInfo {
         return buggyCandidates;
     }
 
-    public void addBuggyCandidates(String candi, int score, boolean filterByExtendedCG) {
+    public Map<String, BuggyCandidate> getBuggyCandidateObjs() {
+        return buggyCandidateObjs;
+    }
+
+    public void addBuggyCandidates(String candi, int score, boolean filterByExtendedCG, String reason, List<String> trace) {
         if(filterByExtendedCG && !extendedCallDepth.containsKey(candi))
             return;
         boolean findPrexInTrace = false;
 
-        for(String trace: getCrashMethodList()){
-            int id = Math.max(trace.split("\\.").length-2, 2);
-            String prefixInTrace = StringUtils.getPkgPrefix(trace, id);
+        for(String traceMtd: getCrashMethodList()){
+            int id = Math.max(traceMtd.split("\\.").length-2, 2);
+            String prefixInTrace = StringUtils.getPkgPrefix(traceMtd, id);
             if(candi.contains(prefixInTrace)) {
                 findPrexInTrace = true;
             }
@@ -84,6 +89,8 @@ public class CrashInfo {
             return;
         if(score > ConstantUtils.BOTTOMSCORE) {
             this.buggyCandidates.put(candi, score);
+            BuggyCandidate candiObj = new BuggyCandidate(candi,score,reason,trace);
+            this.buggyCandidateObjs.put(candi, candiObj);
             if(score< minScore) minScore = score;
         }
     }
@@ -334,4 +341,12 @@ public class CrashInfo {
                 '}';
     }
 
+    public void addNoneCodeLabel(String l) {
+        if(!noneCodeLabels.contains(l))
+            noneCodeLabels.add(l);
+    }
+
+    public List<String> getNoneCodeLabel() {
+        return noneCodeLabels;
+    }
 }

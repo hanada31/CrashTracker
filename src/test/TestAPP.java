@@ -29,9 +29,9 @@ public class TestAPP {
 //        path = "D:\\SoftwareData\\dataset\\apk\\\\Empirical500\\";
         path = "C:\\Users\\yanjw\\programs\\Empirical500";
         String name;
-        name = "com.glt.infobank.app-64.apk";
+        name = "org.sensortracker.sensor_zh-487.apk";
         String client = "CrashAnalysisClient";
-        String version = "6.0";
+        String version = "10.0";
 
         MyConfig.getInstance().setAppName(name);
         MyConfig.getInstance().setAppPath(path + File.separator);

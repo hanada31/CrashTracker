@@ -128,9 +128,17 @@ public class CrashAnalysisClientOutput {
         List<Map.Entry<String, Integer>> treeMapList = CollectionUtils.getTreeMapEntriesSortedByValue(crashInfo.getBuggyCandidates());
         for (int i = 0; i < treeMapList.size(); i++) {
             String buggy = treeMapList.get(i).toString();
-            buggyArray.add(buggy);
+            BuggyCandidate bc = crashInfo.getBuggyCandidateObjs().get(treeMapList.get(i).getKey());
+            buggyArray.add(buggy +"    Reason: "+ bc.getReason() +"  @  " +bc.getTrace());
         }
         jsonObject.put("locatedBuggyMethod" , buggyArray);
+
+
+        JSONArray noneCodeLabelArray = new JSONArray();
+        for (String label: crashInfo.getNoneCodeLabel()) {
+            noneCodeLabelArray.add(label);
+        }
+        jsonObject.put("noneCodeLabels" , noneCodeLabelArray);
     }
 
 
