@@ -254,17 +254,30 @@ public class ExceptionAnalyzer extends Analyzer {
     }
 
     private void getConditionandValueFromUnit(SootMethod sootMethod, Unit unit, String exceptionName, ExceptionInfo exceptionInfo, boolean fromThrow) {
+        List<String> trace = new ArrayList<>();
+        String candi = sootMethod.getDeclaringClass().getName()+ "." + sootMethod.getName();
+        trace.add(candi);
+
         getExceptionCondition(sootMethod, unit, exceptionInfo, new HashSet<>(), fromThrow);
         if(exceptionInfo.getRelatedParamValues().size()>0 && exceptionInfo.getRelatedFieldValues().size() ==0) {
-            RelatedMethod addMethod = new RelatedMethod(sootMethod.getSignature(), RelatedMethodSource.CALLER, 0);
+            List<String> newTrace = new ArrayList<>(trace);
+            RelatedMethod addMethod = new RelatedMethod(sootMethod.getSignature(), RelatedMethodSource.CALLER, 0, newTrace);
             exceptionInfo.addRelatedMethodsInSameClassMap(addMethod);
             exceptionInfo.addRelatedMethods(sootMethod.getSignature());
-            getExceptionCallerByParam(sootMethod, exceptionInfo, new HashSet<>(), 1, RelatedMethodSource.CALLER, exceptionInfo.getRelatedValueIndex());
+            List<String> newTrace2 = new ArrayList<>(trace);
+            getExceptionCallerByParam(sootMethod, exceptionInfo, new HashSet<>(), 1,
+                    RelatedMethodSource.CALLER, exceptionInfo.getRelatedValueIndex(), newTrace2);
         }else if(exceptionInfo.getRelatedParamValues().size()==0 && exceptionInfo.getRelatedFieldValues().size()>0) {
-            getExceptionCallerByField(sootMethod, exceptionInfo, new HashSet<>(), 1,RelatedMethodSource.FIELD);
+            List<String> newTrace = new ArrayList<>(trace);
+            getExceptionCallerByField(sootMethod, exceptionInfo, new HashSet<>(), 1,
+                    RelatedMethodSource.FIELD, newTrace);
         }else if(exceptionInfo.getRelatedParamValues().size()>0 && exceptionInfo.getRelatedFieldValues().size()>0){
-            getExceptionCallerByField(sootMethod, exceptionInfo, new HashSet<>(), 1, RelatedMethodSource.FIELD);
-            getExceptionCallerByParam(sootMethod, exceptionInfo, new HashSet<>(),1, RelatedMethodSource.CALLER, exceptionInfo.getRelatedValueIndex());
+            List<String> newTrace = new ArrayList<>(trace);
+            getExceptionCallerByField(sootMethod, exceptionInfo, new HashSet<>(), 1,
+                    RelatedMethodSource.FIELD, newTrace);
+            List<String> newTrace2 = new ArrayList<>(trace);
+            getExceptionCallerByParam(sootMethod, exceptionInfo, new HashSet<>(),1,
+                    RelatedMethodSource.CALLER, exceptionInfo.getRelatedValueIndex(), newTrace2);
         }
     }
 
@@ -272,10 +285,11 @@ public class ExceptionAnalyzer extends Analyzer {
      * getExceptionCaller
      * @param sootMethod
      * @param exceptionInfo
+     * @param trace
      */
     private void getExceptionCallerByParam(SootMethod sootMethod, ExceptionInfo exceptionInfo,
                                            Set<SootMethod> callerHistory, int depth,
-                                           RelatedMethodSource mtdSource, Set<Integer> paramIndexCallee) {
+                                           RelatedMethodSource mtdSource, Set<Integer> paramIndexCallee, List<String> trace) {
         if(callerHistory.contains(sootMethod) || depth >ConstantUtils.CALLDEPTH)  return;
         callerHistory.add(sootMethod);
         for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesInto(sootMethod); it.hasNext(); ) {
@@ -286,7 +300,6 @@ public class ExceptionAnalyzer extends Analyzer {
                 paramIndexCaller = SootUtils.getIndexesFromMethod(edge, paramIndexCallee);
                 if(paramIndexCaller.size() ==0 ) continue;
             }
-
             List<SootClass> subClasses = SootUtils.getSubClasses(edgeSourceMtd);
             for (SootClass sootClass : subClasses) {
                 String signature = edgeSourceMtd.getSignature().replace(edgeSourceMtd.getDeclaringClass().getName(), sootClass.getName());
@@ -297,25 +310,28 @@ public class ExceptionAnalyzer extends Analyzer {
                     //filter a set of candidates!!!
                     if (!StringUtils.getPkgPrefix(pkg1, 2).equals(StringUtils.getPkgPrefix(pkg2, 2)))
                         continue;
-                    RelatedMethod addMethodObj = new RelatedMethod(signature, mtdSource, depth);
+                    List<String> newTrace = new ArrayList<>(trace);
+                    newTrace.add(0,signature);
+                    RelatedMethod addMethodObj = new RelatedMethod(signature, mtdSource, depth, newTrace);
                     addRelatedMethodInstance(edgeSourceMtd, addMethodObj, exceptionInfo);
                 }
                 if(sm!=null) {
                     Iterator<SootClass> it2 = sm.getDeclaringClass().getInterfaces().iterator();
                     while (it2.hasNext()) {
                         SootClass interfaceSC = it2.next();
-//                        FileUtils.writeText2File("www.txt",
-//                                "\n" + sm.getSignature() + "'s interface is " + interfaceSC.getName() + "; ", true);
                         for (SootMethod interfaceSM : interfaceSC.getMethods()) {
                             if (interfaceSM.getSubSignature().equals(sm.getSubSignature())) {
-                                RelatedMethod addMethodObj = new RelatedMethod(interfaceSM.getSignature(), mtdSource, depth);
+                                List<String> newTrace = new ArrayList<>(trace);
+                                newTrace.add(0,interfaceSM.getSignature());
+                                RelatedMethod addMethodObj = new RelatedMethod(interfaceSM.getSignature(), mtdSource, depth, newTrace);
                                 addRelatedMethodInstance(edgeSourceMtd, addMethodObj, exceptionInfo);
-//                                FileUtils.writeText2File("www.txt", interfaceSM.getSignature() + ";", true);
                             }
                         }
                     }
                 }
-                getExceptionCallerByParam(edgeSourceMtd, exceptionInfo, callerHistory, depth + 1, mtdSource, paramIndexCaller);
+                List<String> newTrace = new ArrayList<>(trace);
+                newTrace.add(0,edgeSourceMtd.getSignature());
+                getExceptionCallerByParam(edgeSourceMtd, exceptionInfo, callerHistory, depth + 1, mtdSource, paramIndexCaller, newTrace);
             }
         }
     }
@@ -331,7 +347,16 @@ public class ExceptionAnalyzer extends Analyzer {
     }
 
 
-    private void getExceptionCallerByField(SootMethod sootMethod, ExceptionInfo exceptionInfo, HashSet<SootMethod> callerHistory, int depth,RelatedMethodSource mtdSource) {
+    /**
+     * getExceptionCallerByField
+     * @param sootMethod
+     * @param exceptionInfo
+     * @param callerHistory
+     * @param depth
+     * @param mtdSource
+     * @param trace
+     */
+    private void getExceptionCallerByField(SootMethod sootMethod, ExceptionInfo exceptionInfo, HashSet<SootMethod> callerHistory, int depth, RelatedMethodSource mtdSource, List<String> trace) {
 //        if(callerHistory.contains(sootMethod) || depth >ConstantUtils.CALLDEPTH)
 //            return;
 //        callerHistory.add(sootMethod);
@@ -340,15 +365,22 @@ public class ExceptionAnalyzer extends Analyzer {
                 if(!otherMethod.hasActiveBody()) continue;
                 if(SootUtils.fieldIsChanged(field, otherMethod)){
                     if(otherMethod.isPublic()) {
-                        RelatedMethod addMethod = new RelatedMethod(otherMethod.getSignature(),mtdSource,depth);
+                        List<String> newTrace = new ArrayList<>(trace);
+                        newTrace.add(0,"key field: " + field.toString());
+                        newTrace.add(0,otherMethod.getSignature());
+                        RelatedMethod addMethod = new RelatedMethod(otherMethod.getSignature(),mtdSource,depth, trace);
                         if(otherMethod.getDeclaringClass() == exceptionInfo.getSootMethod().getDeclaringClass())
                             exceptionInfo.addRelatedMethodsInSameClassMap(addMethod);
                         else
                             exceptionInfo.addRelatedMethodsInDiffClassMap(addMethod);
                         exceptionInfo.addRelatedMethods(otherMethod.getSignature());
                     }
+                    List<String> newTrace = new ArrayList<>(trace);
+                    newTrace.add(0,"key field: " + field.toString());
+                    newTrace.add(0,otherMethod.getSignature());
+                    newTrace.add(0,"key field: " + field.toString());
                     getExceptionCallerByParam(otherMethod, exceptionInfo, callerHistory,
-                            depth+1, RelatedMethodSource.FIELDCALLER, new HashSet<>());
+                            depth+1, RelatedMethodSource.FIELDCALLER, new HashSet<>(), newTrace);
                 }
             }
         }

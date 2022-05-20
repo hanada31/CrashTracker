@@ -2,6 +2,9 @@ package main.java.client.exception;
 
 import soot.SootMethod;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @Author hanada
  * @Date 2022/3/22 17:59
@@ -11,17 +14,19 @@ import soot.SootMethod;
 
 public class RelatedMethod {
 
-    String method;
-    RelatedMethodSource source;
-    int depth;
+    private String method;
+    private RelatedMethodSource source;
+    private List<String> trace = new ArrayList<>();
+    private int depth;
 
     public RelatedMethod() {
     }
 
-    public RelatedMethod(String method, RelatedMethodSource source, int depth) {
+    public RelatedMethod(String method, RelatedMethodSource source, int depth, List<String> trace) {
         this.method = method;
         this.source = source;
         this.depth = depth;
+        this.trace = trace;
     }
 
     public String getMethod() {
@@ -55,5 +60,9 @@ public class RelatedMethod {
                 ", source=" + source +
                 ", depth=" + depth +
                 '}';
+    }
+
+    public List<String> getTrace() {
+        return trace;
     }
 }
