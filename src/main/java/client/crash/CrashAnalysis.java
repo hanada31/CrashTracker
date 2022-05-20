@@ -537,22 +537,22 @@ public class CrashAnalysis extends Analyzer {
     /**
      * getBuggyFromRelatedMethods
      * @param crashInfo
-     * @param method
      * @param filterExtendedCG
      */
-    private void getBuggyFromRelatedMethods(CrashInfo crashInfo, RelatedMethod method, int initScore, boolean filterExtendedCG) {
+    private void getBuggyFromRelatedMethods(CrashInfo crashInfo, RelatedMethod relatedMethod, int initScore, boolean filterExtendedCG) {
 
         crashInfo.setEdges(new ArrayList<>());
         for (Iterator<Edge> it = Global.v().getAppModel().getCg().iterator(); it.hasNext(); ) {
             Edge edge = it.next();
-            if(edge.getTgt().method().getSignature().equals(method.getMethod())){
+            if(edge.getTgt().method().getSignature().equals(relatedMethod.getMethod())){
                 SootMethod sourceMtd = edge.getSrc().method();
                 if(isLibraryMethod(sourceMtd.getDeclaringClass().getName()))
                     continue;
                 crashInfo.add2EdgeMap(0, edge);
                 List<String> trace = new ArrayList<>();
-                trace.add(SootUtils.getMethodSimpleNameFromSignature(method.getMethod()));
-                addCallersOfSourceOfEdge(initScore, edge, method, crashInfo, sourceMtd, 1, filterExtendedCG, trace);
+                trace.addAll(relatedMethod.getTrace());
+                trace.add(SootUtils.getMethodSimpleNameFromSignature(relatedMethod.getMethod()));
+                addCallersOfSourceOfEdge(initScore, edge, relatedMethod, crashInfo, sourceMtd, 1, filterExtendedCG, trace);
             }
         }
     }
@@ -765,15 +765,21 @@ public class CrashAnalysis extends Analyzer {
                 relatedMethod.setMethod(sameClsObj.getString("method"));
                 relatedMethod.setDepth(sameClsObj.getInteger("depth"));
                 relatedMethod.setSource(RelatedMethodSource.valueOf(sameClsObj.getString("source")));
+                String trace = sameClsObj.getString("trace");
+                relatedMethod.addTrace("fw: "+trace.replace("[","").
+                        replace("]","").replace("\"","").replace(",",", "));
                 exceptionInfo.addRelatedMethodsInSameClass(relatedMethod);
             }
             JSONArray diffClsObjs = jsonObject.getJSONArray("relatedMethodDiffClass");
             for (Iterator<Object> it = diffClsObjs.iterator(); it.hasNext(); ) {
-                JSONObject sameClsObj = (JSONObject) it.next();
+                JSONObject diffClsObj = (JSONObject) it.next();
                 RelatedMethod relatedMethod = new RelatedMethod();
-                relatedMethod.setMethod(sameClsObj.getString("method"));
-                relatedMethod.setDepth(sameClsObj.getInteger("depth"));
-                relatedMethod.setSource(RelatedMethodSource.valueOf(sameClsObj.getString("source")));
+                relatedMethod.setMethod(diffClsObj.getString("method"));
+                relatedMethod.setDepth(diffClsObj.getInteger("depth"));
+                relatedMethod.setSource(RelatedMethodSource.valueOf(diffClsObj.getString("source")));
+                String trace = diffClsObj.getString("trace");
+                relatedMethod.addTrace("fw: "+trace.replace("[","").
+                        replace("]","").replace("\"","").replace(",",", "));
                 exceptionInfo.addRelatedMethodsInDiffClass(relatedMethod);
             }
 

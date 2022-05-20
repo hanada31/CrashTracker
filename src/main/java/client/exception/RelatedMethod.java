@@ -65,4 +65,10 @@ public class RelatedMethod {
     public List<String> getTrace() {
         return trace;
     }
+    public void setTrace(List<String> trace) {
+        this.trace = trace;
+    }
+    public void addTrace(String t) {
+        this.trace.add(t);
+    }
 }
