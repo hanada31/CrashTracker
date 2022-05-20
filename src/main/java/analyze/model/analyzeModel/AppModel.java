@@ -94,6 +94,11 @@ public class AppModel implements Serializable {
 	public AppModel() {
 		String name = MyConfig.getInstance().getAppName();
 		appPath = MyConfig.getInstance().getAppPath() + name;
+		if(MyConfig.getInstance().getAppName().endsWith(".apk") || MyConfig.getInstance().getAppName().endsWith(".jar")) {
+			MyConfig.getInstance().setFileSuffixLength(4);
+		}else {
+			MyConfig.getInstance().setFileSuffixLength(0);
+		}
 		appName = name.substring(0, name.length() - MyConfig.getInstance().getFileSuffixLength());
 		manifestString = "";
 		packageName = "";
