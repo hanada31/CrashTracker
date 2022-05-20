@@ -29,7 +29,7 @@ public class TestAPP {
 //        path = "D:\\SoftwareData\\dataset\\apk\\\\Empirical500\\";
         path = "C:\\Users\\yanjw\\programs\\Empirical500";
         String name;
-        name = "com.blizzardscale.befemall-102.apk";
+        name = "com.glt.infobank.app-64.apk";
         String client = "CrashAnalysisClient";
         String version = "6.0";
 
