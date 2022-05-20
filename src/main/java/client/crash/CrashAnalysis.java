@@ -168,7 +168,7 @@ public class CrashAnalysis extends Analyzer {
 
             //all function in the last method
             //methods that preds of the next one in call stack
-            Set<SootMethod> methods = getSootMethodBySimpleName(candi);
+            Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
             for(SootMethod sm: methods) {
                 addEntryMethods2ExtendedCG(sm, crashInfo);
                 String last = (index == 0)?crashInfo.getCrashAPI(): crashInfo.getCrashMethodList().get(index-1);
@@ -390,7 +390,7 @@ public class CrashAnalysis extends Analyzer {
         int count =0;
         boolean find = false;
         for(String candi : crashInfo.getCrashMethodList()){
-            Set<SootMethod> methods = getSootMethodBySimpleName(candi);
+            Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
             for(SootMethod sm: methods) {
                 boolean isParaPassed = false;
                 if (sm == null) break;
@@ -427,7 +427,7 @@ public class CrashAnalysis extends Analyzer {
                 List<String> trace = new ArrayList<>();
                 trace.add(candi);
                 crashInfo.addBuggyCandidates(candi, initScore--, filterExtendCG, "crash_trace_method", trace);
-                Set<SootMethod> methods = getSootMethodBySimpleName(candi);
+                Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
                 for(SootMethod sm: methods) {
                     if (sm == null) continue;
                     sub = sm.getDeclaringClass().getName();
@@ -438,7 +438,7 @@ public class CrashAnalysis extends Analyzer {
                         if (callee.getSignature().contains(superCls.getName())) {
                             List<String> trace2 = new ArrayList<>();
                             trace2.add(candi);
-                            getCalleeOfAndroidMethods(initScore, crashInfo, getMethodSimpleNameFromSignature(callee.getSignature()), sub, history, filterExtendCG, trace);
+                            getCalleeOfAndroidMethods(initScore, crashInfo, SootUtils.getMethodSimpleNameFromSignature(callee.getSignature()), sub, history, filterExtendCG, trace);
                         }
                     }
                 }
@@ -465,7 +465,7 @@ public class CrashAnalysis extends Analyzer {
         for(String callee: androidCGMap.get(candi)){
             if(callee.contains(candiClassName)) {
                 String realCallee = callee.replace(candiClassName, sub);
-                Set <SootMethod > methods = getSootMethodBySimpleName(realCallee);
+                Set <SootMethod > methods = SootUtils.getSootMethodBySimpleName(realCallee);
                 for (SootMethod realSootMethod : methods) {
                     if (realSootMethod != null) {
                         List<String> newTrace = new ArrayList<>(trace);
@@ -551,7 +551,7 @@ public class CrashAnalysis extends Analyzer {
                     continue;
                 crashInfo.add2EdgeMap(0, edge);
                 List<String> trace = new ArrayList<>();
-                trace.add(getMethodSimpleNameFromSignature(method.getMethod()));
+                trace.add(SootUtils.getMethodSimpleNameFromSignature(method.getMethod()));
                 addCallersOfSourceOfEdge(initScore, edge, method, crashInfo, sourceMtd, 1, filterExtendedCG, trace);
             }
         }
@@ -604,26 +604,10 @@ public class CrashAnalysis extends Analyzer {
      * @return
      */
     private Set<SootMethod> getCrashSootMethod(CrashInfo crashInfo) {
-        return getSootMethodBySimpleName(crashInfo.getCrashMethod());
+        return SootUtils.getSootMethodBySimpleName(crashInfo.getCrashMethod());
     }
 
-    /**
-     * getSootMethodBySimpleName
-     * @param simpleName
-     * @return
-     */
-    private Set<SootMethod> getSootMethodBySimpleName(String simpleName){
-        Set<SootMethod> methods = new HashSet<SootMethod>();
-        for(SootClass sc: Scene.v().getApplicationClasses()) {
-            for(SootMethod method: sc.getMethods()){
-                String name = method.getDeclaringClass().getName()+"."+ method.getName();
-                if(name.equals(simpleName)){
-                    methods.add(method);
-                }
-            }
-        }
-        return methods;
-    }
+
     /**
      * OverrideMissing type
      * @param crashInfo
@@ -839,26 +823,15 @@ public class CrashAnalysis extends Analyzer {
         List<String> edges = FileUtils.getListFromFile(fn);
         for(String edge: edges){
             if(!edge.contains(" -> ")) continue;
-            String src = getMethodSimpleNameFromSignature(edge.split(" -> ")[0]);
-            String des = getMethodSimpleNameFromSignature(edge.split(" -> ")[1]);
+            String src = SootUtils.getMethodSimpleNameFromSignature(edge.split(" -> ")[0]);
+            String des = SootUtils.getMethodSimpleNameFromSignature(edge.split(" -> ")[1]);
             if(!androidCGMap.containsKey(src))
                 androidCGMap.put(src,new HashSet<>());
             androidCGMap.get(src).add(des);
         }
     }
 
-    /**
-     * getMethodSimpleNameFromSignature
-     * @param str
-     * @return
-     */
-    private String getMethodSimpleNameFromSignature(String str) {
-        //<android.database.sqlite.SQLiteOpenHelper: android.database.sqlite.SQLiteDatabase getDatabaseLocked(boolean)>
-        String ss[] = str.split(" ");
-        String res1 = ss[0].replace("<","").replace(":","");
-        String res2 = ss[2].split("\\(")[0];
-        return res1 + "." + res2;
-    }
+
 
 
     /**

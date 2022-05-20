@@ -255,8 +255,7 @@ public class ExceptionAnalyzer extends Analyzer {
 
     private void getConditionandValueFromUnit(SootMethod sootMethod, Unit unit, String exceptionName, ExceptionInfo exceptionInfo, boolean fromThrow) {
         List<String> trace = new ArrayList<>();
-        String candi = sootMethod.getDeclaringClass().getName()+ "." + sootMethod.getName();
-        trace.add(candi);
+        trace.add(SootUtils.getMethodSimpleNameFromSignature(sootMethod.getSignature()));
 
         getExceptionCondition(sootMethod, unit, exceptionInfo, new HashSet<>(), fromThrow);
         if(exceptionInfo.getRelatedParamValues().size()>0 && exceptionInfo.getRelatedFieldValues().size() ==0) {
@@ -311,7 +310,7 @@ public class ExceptionAnalyzer extends Analyzer {
                     if (!StringUtils.getPkgPrefix(pkg1, 2).equals(StringUtils.getPkgPrefix(pkg2, 2)))
                         continue;
                     List<String> newTrace = new ArrayList<>(trace);
-                    newTrace.add(0,signature);
+                    newTrace.add(0,SootUtils.getMethodSimpleNameFromSignature(signature));
                     RelatedMethod addMethodObj = new RelatedMethod(signature, mtdSource, depth, newTrace);
                     addRelatedMethodInstance(edgeSourceMtd, addMethodObj, exceptionInfo);
                 }
@@ -322,7 +321,7 @@ public class ExceptionAnalyzer extends Analyzer {
                         for (SootMethod interfaceSM : interfaceSC.getMethods()) {
                             if (interfaceSM.getSubSignature().equals(sm.getSubSignature())) {
                                 List<String> newTrace = new ArrayList<>(trace);
-                                newTrace.add(0,interfaceSM.getSignature());
+                                newTrace.add(0,SootUtils.getMethodSimpleNameFromSignature(interfaceSM.getSignature()));
                                 RelatedMethod addMethodObj = new RelatedMethod(interfaceSM.getSignature(), mtdSource, depth, newTrace);
                                 addRelatedMethodInstance(edgeSourceMtd, addMethodObj, exceptionInfo);
                             }
@@ -330,7 +329,7 @@ public class ExceptionAnalyzer extends Analyzer {
                     }
                 }
                 List<String> newTrace = new ArrayList<>(trace);
-                newTrace.add(0,edgeSourceMtd.getSignature());
+                newTrace.add(0,SootUtils.getMethodSimpleNameFromSignature(edgeSourceMtd.getSignature()));
                 getExceptionCallerByParam(edgeSourceMtd, exceptionInfo, callerHistory, depth + 1, mtdSource, paramIndexCaller, newTrace);
             }
         }
@@ -367,7 +366,7 @@ public class ExceptionAnalyzer extends Analyzer {
                     if(otherMethod.isPublic()) {
                         List<String> newTrace = new ArrayList<>(trace);
                         newTrace.add(0,"key field: " + field.toString());
-                        newTrace.add(0,otherMethod.getSignature());
+                        newTrace.add(0,SootUtils.getMethodSimpleNameFromSignature(otherMethod.getSignature()));
                         RelatedMethod addMethod = new RelatedMethod(otherMethod.getSignature(),mtdSource,depth, trace);
                         if(otherMethod.getDeclaringClass() == exceptionInfo.getSootMethod().getDeclaringClass())
                             exceptionInfo.addRelatedMethodsInSameClassMap(addMethod);
@@ -377,8 +376,7 @@ public class ExceptionAnalyzer extends Analyzer {
                     }
                     List<String> newTrace = new ArrayList<>(trace);
                     newTrace.add(0,"key field: " + field.toString());
-                    newTrace.add(0,otherMethod.getSignature());
-                    newTrace.add(0,"key field: " + field.toString());
+                    newTrace.add(0,SootUtils.getMethodSimpleNameFromSignature(otherMethod.getSignature()));
                     getExceptionCallerByParam(otherMethod, exceptionInfo, callerHistory,
                             depth+1, RelatedMethodSource.FIELDCALLER, new HashSet<>(), newTrace);
                 }

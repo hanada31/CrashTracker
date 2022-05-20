@@ -1449,6 +1449,36 @@ public class SootUtils {
 		}
 	}
 
+	/**
+	 * getMethodSimpleNameFromSignature
+	 * @param str
+	 * @return
+	 */
+	public static String getMethodSimpleNameFromSignature(String str) {
+		//<android.database.sqlite.SQLiteOpenHelper: android.database.sqlite.SQLiteDatabase getDatabaseLocked(boolean)>
+		String ss[] = str.split(" ");
+		String res1 = ss[0].replace("<","").replace(":","");
+		String res2 = ss[2].split("\\(")[0];
+		return res1 + "." + res2;
+	}
+	/**
+	 * getSootMethodBySimpleName
+	 * @param simpleName
+	 * @return
+	 */
+	public static Set<SootMethod> getSootMethodBySimpleName(String simpleName){
+		Set<SootMethod> methods = new HashSet<SootMethod>();
+		for(SootClass sc: Scene.v().getApplicationClasses()) {
+			for(SootMethod method: sc.getMethods()){
+				String name = method.getDeclaringClass().getName()+"."+ method.getName();
+				if(name.equals(simpleName)){
+					methods.add(method);
+				}
+			}
+		}
+		return methods;
+	}
+
 	public static List<SootClass> getSubClasses(SootMethod sm) {
 		List<SootClass> subClasses = new ArrayList<>();
 //		if (sm.getDeclaringClass().isInterface()) {
