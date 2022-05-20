@@ -26,7 +26,7 @@ public class TestFramework {
     private void setArgs() {
         String path, name;
         path = "C:\\Users\\yanjw\\programs\\framework\\classes\\";
-        name = "android6.0";
+        name = "android5.0";
 
         String client = "ExceptionInfoClient";
 
@@ -42,6 +42,12 @@ public class TestFramework {
         MyConfig.getInstance().setAndroidJar("lib/platforms");
         MyConfig.getInstance().setSrc_prec(Options.src_prec_only_class);
         MyConfig.getInstance().setFileSuffixLength(0);
+        MyConfig.getInstance().setFileSuffixLength(0);
+        String androidFolder = "Files"+File.separator+name+File.separator;
+        MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);
+        MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
+        MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"cg.txt");
+
 //        MyConfig.getInstance().setJimple(false);
     }
 

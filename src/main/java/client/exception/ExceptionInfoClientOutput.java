@@ -35,25 +35,17 @@ public class ExceptionInfoClientOutput {
      * @param sootClass
      */
     public static void writeJsonForCurrentClass(SootClass sootClass, List<ExceptionInfo> exceptionInfoList, JSONArray exceptionListElement) {
-        String summary_app_dir = MyConfig.getInstance().getExceptionFilePath();
-        FileUtils.createFolder(summary_app_dir);
+        String path = MyConfig.getInstance().getExceptionFilePath();
+        FileUtils.createFolder(path);
         if(exceptionInfoList.size()>0) {
-            ExceptionInfoClientOutput.writeToJson(summary_app_dir + sootClass.getName() + ".json", exceptionInfoList);
-            for(ExceptionInfo info :exceptionInfoList){
-                JSONObject jsonObject = new JSONObject(true);
-                exceptionListElement.add(jsonObject);
-                addBasic1(jsonObject, info);
-                addBasic2(jsonObject, info);
-                addConditions(jsonObject, info);
-                addRelatedValues(jsonObject, info);
-            }
+            System.out.println("writeToJson "+path + sootClass.getName() + ".json");
+            ExceptionInfoClientOutput.writeToJson(path + sootClass.getName() + ".json", exceptionInfoList);
         }
     }
 
 
     public static void writeJsonForFramework(JSONArray exceptionListElement) {
-        String path = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
-                + File.separator + "exceptionInfo" +File.separator+ "summary"+ File.separator;
+        String path = MyConfig.getInstance().getExceptionFilePath()+ "summary"+ File.separator;
         FileUtils.createFolder(path);
         JSONObject rootElement = new JSONObject(new LinkedHashMap());
         File file = new File(path+ "exception.json");
