@@ -345,6 +345,9 @@ public class CrashAnalysis extends Analyzer {
                     if (SootUtils.fieldIsChanged(field, otherMethod)) {
                         String candi = otherMethod.getDeclaringClass().getName() + "." + otherMethod.getName();
                         List<String> trace = new ArrayList<>();
+                        trace.add(otherMethod.getSignature());
+                        trace.add("key field: " + field.toString());
+                        trace.add(crashMethod.getSignature());
                         trace.add("key field: " + field.toString());
                         crashInfo.addBuggyCandidates(candi, score, filterExtendCG,"modify_fields_in_app_crash_method", trace);
                     }
@@ -391,17 +394,24 @@ public class CrashAnalysis extends Analyzer {
         boolean find = false;
         for(String candi : crashInfo.getCrashMethodList()){
             Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
+            String signature = null;
             for(SootMethod sm: methods) {
                 boolean isParaPassed = false;
                 if (sm == null) break;
+                signature = sm.getSignature();
                 for (String paraTye : crashInfo.getExceptionInfo().getRelatedParamValuesInStr()) {
-                    if (sm.getSignature().contains(paraTye)) {
+                    if (signature.contains(paraTye)) {
                         isParaPassed = true;
                     }
                 }
                 if (!isParaPassed) {
                     List<String> trace = new ArrayList<>();
-                    trace.add(candi);
+                    if(signature != null){
+                        trace.add(signature);
+                    }else{
+                        trace.add(candi);
+                    }
+
                     crashInfo.addBuggyCandidates(candi,score, filterExtendCG,"best_match_crash_trace_ method", trace);
                     count++;
                     find = true;
@@ -437,7 +447,8 @@ public class CrashAnalysis extends Analyzer {
                         SootMethod callee = outEdge.getTgt().method();
                         if (callee.getSignature().contains(superCls.getName())) {
                             List<String> trace2 = new ArrayList<>();
-                            trace2.add(candi);
+                            trace2.add(0, sm.getSignature());
+                            trace2.add(0, callee.getSignature());
                             getCalleeOfAndroidMethods(initScore, crashInfo, SootUtils.getMethodSimpleNameFromSignature(callee.getSignature()), sub, history, filterExtendCG, trace);
                         }
                     }
@@ -445,6 +456,7 @@ public class CrashAnalysis extends Analyzer {
             }else{
                 if(candi.contains(superCls.getName() )){
                     List<String> trace = new ArrayList<>();
+                    trace.add(0, candi);
                     getCalleeOfAndroidMethods(initScore,crashInfo, candi , sub, history, filterExtendCG, trace);
                 }
                 initScore--;
@@ -456,7 +468,6 @@ public class CrashAnalysis extends Analyzer {
 
     private void getCalleeOfAndroidMethods(int initScore, CrashInfo crashInfo, String candi,
                                            String sub, List<String> history, boolean filterExtendCG, List<String> trace) {
-        trace.add(candi);
         if(history.contains(candi)) return;
         history.add(candi);
         readAndroidCG();
@@ -469,10 +480,12 @@ public class CrashAnalysis extends Analyzer {
                 for (SootMethod realSootMethod : methods) {
                     if (realSootMethod != null) {
                         List<String> newTrace = new ArrayList<>(trace);
+                        newTrace.add(realSootMethod.getSignature());
                         addCalleesOfSourceOfEdge(initScore, crashInfo, realSootMethod, 0, filterExtendCG, newTrace);
                     }
                 }
                 List<String> newTrace = new ArrayList<>(trace);
+                newTrace.add(callee);
                 getCalleeOfAndroidMethods(initScore, crashInfo, callee, sub, history, filterExtendCG, newTrace);
             }
         }
@@ -488,7 +501,6 @@ public class CrashAnalysis extends Analyzer {
      */
     private void addCalleesOfSourceOfEdge(int initScore, CrashInfo crashInfo, SootMethod sootMethod, int depth, boolean filterExtendCG, List<String> trace ) {
         String candi = sootMethod.getDeclaringClass().getName()+ "." + sootMethod.getName();
-        trace.add(candi);
         if(isLibraryMethod(candi)) return;
         int score = initScore - getOrderInTrace(crashInfo, candi)  - depth;
 //        System.out.println(candi +" " +initScore + " - 5*" +getOrderInTrace(crashInfo, candi) + " - 1*" +depth);
@@ -499,6 +511,7 @@ public class CrashAnalysis extends Analyzer {
             if(!crashInfo.getEdges().contains(edge2) && !edge2.toString().contains("dummyMainMethod")){
                 crashInfo.add2EdgeMap(depth,edge2);
                 List<String> newTrace = new ArrayList<>(trace);
+                newTrace.add(edge2.getTgt().method().getSignature());
                 addCalleesOfSourceOfEdge(initScore, crashInfo, edge2.getTgt().method(), depth+1, filterExtendCG, newTrace);
             }
         }
@@ -515,9 +528,8 @@ public class CrashAnalysis extends Analyzer {
     private void addCallersOfSourceOfEdge(int initScore, Edge edge, RelatedMethod method,
                                           CrashInfo crashInfo, SootMethod sootMethod, int depth, boolean filterExtendedCG, List<String> trace) {
         String candi = sootMethod.getDeclaringClass().getName()+ "." + sootMethod.getName();
-        trace.add(0,candi);
+        trace.add(0,sootMethod.getSignature());
         int score = initScore - getOrderInTrace(crashInfo, candi) - method.getDepth() - depth;
-//        System.out.println(candi +" " +score +" " + " 5*" +getOrderInTrace(crashInfo, candi) + " 2*" +method.getDepth()+ " 1*" +depth);
         crashInfo.addBuggyCandidates(candi, score, filterExtendedCG,"related_method_caller", trace);
 
         //if the buggy type is not passed by parameter, do not find its caller
@@ -551,7 +563,7 @@ public class CrashAnalysis extends Analyzer {
                 crashInfo.add2EdgeMap(0, edge);
                 List<String> trace = new ArrayList<>();
                 trace.addAll(relatedMethod.getTrace());
-                trace.add(SootUtils.getMethodSimpleNameFromSignature(relatedMethod.getMethod()));
+                trace.add(relatedMethod.getMethod());
                 addCallersOfSourceOfEdge(initScore, edge, relatedMethod, crashInfo, sourceMtd, 1, filterExtendedCG, trace);
             }
         }
