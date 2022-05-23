@@ -29,9 +29,9 @@ public class TestAPP {
 //        path = "D:\\SoftwareData\\dataset\\apk\\\\Empirical500\\";
         path = "C:\\Users\\yanjw\\programs\\Empirical500";
         String name;
-        name = "com.justnote-78.apk";
+        name = "mynet.games.sound.test-165.apk";
         String client = "CrashAnalysisClient";
-        String version = "6.0";
+        String version = "10.0";
 
         MyConfig.getInstance().setAppName(name);
         MyConfig.getInstance().setAppPath(path + File.separator);

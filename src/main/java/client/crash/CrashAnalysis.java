@@ -779,7 +779,7 @@ public class CrashAnalysis extends Analyzer {
                 relatedMethod.setSource(RelatedMethodSource.valueOf(sameClsObj.getString("source")));
                 String trace = sameClsObj.getString("trace");
                 relatedMethod.addTrace("fw: "+trace.replace("[","").
-                        replace("]","").replace("\"","").replace(",",", "));
+                        replace("]","").replace("\"","").replace(">,",">, "));
                 exceptionInfo.addRelatedMethodsInSameClass(relatedMethod);
             }
             JSONArray diffClsObjs = jsonObject.getJSONArray("relatedMethodDiffClass");
