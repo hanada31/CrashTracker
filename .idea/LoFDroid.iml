@@ -16,7 +16,7 @@
     <orderEntry type="module-library">
       <library name="Maven: soot-infoflow-dummy:soot-infoflow-dummy:0.0.1-SNAPSHOT">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/soot-infoflow-dummy.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/soot-infoflow-dummy-withAndroid.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
