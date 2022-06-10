@@ -1,6 +1,5 @@
 package main.java;
 
-import main.java.MyConfig;
 import soot.options.Options;
 
 /**
@@ -45,6 +44,10 @@ public class MyConfig {
 	private static class SingletonInstance {
 		private static final MyConfig INSTANCE = new MyConfig();
 	}
+	private String CrashInfoFilePath;
+	private String ExceptionFilePath;
+	private String PermissionFilePath;
+	private String AndroidCGFilePath ;
 
 	public static MyConfig getInstance() {
 		return SingletonInstance.INSTANCE;
@@ -365,5 +368,38 @@ public class MyConfig {
 	public void setFileSuffixLength(int fileSuffixLength) {
 		this.fileSuffixLength = fileSuffixLength;
 	}
+	public String getCrashInfoFilePath() {
+		return CrashInfoFilePath;
+	}
+
+	public void setCrashInfoFilePath(String crashInfoFilePath) {
+		CrashInfoFilePath = crashInfoFilePath;
+	}
+
+	public String getExceptionFilePath() {
+		return ExceptionFilePath;
+	}
+
+	public void setExceptionFilePath(String exceptionFilePath) {
+		ExceptionFilePath = exceptionFilePath;
+	}
+
+	public String getAndroidCGFilePath() {
+		return AndroidCGFilePath;
+	}
+
+	public void setAndroidCGFilePath(String androidCGFilePath) {
+		AndroidCGFilePath = androidCGFilePath;
+	}
+
+
+	public String getPermissionFilePath() {
+		return PermissionFilePath;
+	}
+
+	public void setPermissionFilePath(String permissionFilePath) {
+		PermissionFilePath = permissionFilePath;
+	}
+
 
 }

@@ -88,6 +88,7 @@ public class CgConstructor extends Analyzer {
 		}else{
 			appModel.setCg(Scene.v().getCallGraph());
 		}
+		System.out.println("Call Graph has " + appModel.getCg().size() + " edges.");
 	}
 
 	private void constructBySoot() {

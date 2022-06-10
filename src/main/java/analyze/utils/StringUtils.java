@@ -9,6 +9,26 @@ import java.util.regex.Pattern;
 
 public class StringUtils {
 
+	public static String filterRegex(String str) {
+		str = str.replace("[\\s\\S]*","!@#any#@!");
+		str = str.replace("(","\\(").replace(")","\\)")
+				.replace("[","\\[").replace("]","\\]")
+				.replace("{","\\{").replace("}","\\}");
+		str = str.replace("!@#any#@!","[\\s\\S]*");
+		return str;
+	}
+	public static String getPkgPrefix(String pkg, int num) {
+		String ss[] = pkg.split("\\.");
+		if(ss.length < num) return  pkg;
+
+		String prefix = "";
+		for(int i=0; i<num;i++){
+			prefix += ss[i]+".";
+		}
+		return  prefix;
+	}
+
+
 	/**
 	 * refine cls name
 	 * 

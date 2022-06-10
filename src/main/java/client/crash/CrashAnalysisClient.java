@@ -1,30 +1,25 @@
-package main.java.client.exception;
+package main.java.client.crash;
 
 import main.java.Analyzer;
 import main.java.Global;
 import main.java.MyConfig;
 import main.java.analyze.utils.output.FileUtils;
 import main.java.client.BaseClient;
-import main.java.client.cg.cgJava.CallGraphofJavaClient;
+import main.java.client.cg.cgApk.CallGraphofApkClient;
 import main.java.client.soot.SootAnalyzer;
 import main.java.client.statistic.model.StatisticResult;
 import org.dom4j.DocumentException;
+import soot.PackManager;
 
 import java.io.File;
 import java.io.IOException;
 
 /**
  * @Author hanada
- * @Date 2022/3/11 15:03
+ * @Date 2022/3/22 20:04
  * @Version 1.0
  */
-public class ExceptionInfoClient extends BaseClient {
-
-    /**
-     * analyze logic for single app
-     *
-     * @return
-     */
+public class CrashAnalysisClient extends BaseClient {
     @Override
     protected void clientAnalyze() {
         result = new StatisticResult();
@@ -33,9 +28,10 @@ public class ExceptionInfoClient extends BaseClient {
             sootAnalyzer.analyze();
         }
         if (!MyConfig.getInstance().isCallGraphAnalyzeFinish()) {
-            new CallGraphofJavaClient().start();
+            new CallGraphofApkClient().start();
             MyConfig.getInstance().setCallGraphAnalyzeFinish(true);
         }
+
 //        if (!MyConfig.getInstance().isStaitiucValueAnalyzeFinish()) {
 //            if (MyConfig.getInstance().getMySwithch().isStaticFieldSwitch()) {
 //                StaticValueAnalyzer staticValueAnalyzer = new StaticValueAnalyzer();
@@ -43,19 +39,23 @@ public class ExceptionInfoClient extends BaseClient {
 //                MyConfig.getInstance().setStaitiucValueAnalyzeFinish(true);
 //            }
 //        }
-        System.out.println("Start analyze with ExceptionInfoClient.");
-        Analyzer analyzer = new ExceptionAnalyzer(result);
+
+        System.out.println("Start analyze with CrashAnalysisClient.");
+        Analyzer analyzer = new CrashAnalysis(result);
         analyzer.analyze();
-        System.out.println("Successfully analyze with ExceptionInfoClient.");
+        System.out.println("Successfully analyze with CrashAnalysisClient.");
+        //        PackManager.v().writeOutput();
+
     }
 
     @Override
     public void clientOutput() throws IOException, DocumentException {
-//        String summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
-//                + File.separator;
-//        FileUtils.createFolder(summary_app_dir);
-//
-//        ExceptionInfoClientOutput.writeToJson(summary_app_dir+Global.v().getAppModel().getAppName()+".json", Global.v().getAppModel().getExceptionInfoList());
+        String summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
+                + File.separator;
+        FileUtils.createFolder(summary_app_dir);
+
+        CrashAnalysisClientOutput outer = new CrashAnalysisClientOutput(this.result);
+        outer.writeToJson(summary_app_dir+Global.v().getAppModel().getAppName()+".json", Global.v().getAppModel().getCrashInfoList());
 
     }
 }

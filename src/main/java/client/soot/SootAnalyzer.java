@@ -1,10 +1,7 @@
 package main.java.client.soot;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import com.google.common.collect.Lists;
 import main.java.Analyzer;
@@ -12,9 +9,13 @@ import main.java.Global;
 import main.java.MyConfig;
 import main.java.analyze.utils.ConstantUtils;
 import soot.*;
+import soot.jimple.infoflow.InfoflowConfiguration;
 import soot.jimple.spark.SparkTransformer;
 import soot.jimple.toolkits.callgraph.CHATransformer;
+import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.options.Options;
+
+import static soot.jimple.infoflow.InfoflowConfiguration.CallgraphAlgorithm.*;
 
 public class SootAnalyzer extends Analyzer {
 	public SootAnalyzer() {
@@ -46,11 +47,13 @@ public class SootAnalyzer extends Analyzer {
 		soot.G.reset();
 		if(Global.v().getAppModel().getAppPath().endsWith(".apk") ){
 			Options.v().set_android_jars(MyConfig.getInstance().getAndroidJar());
+			MyConfig.getInstance().setSrc_prec(Options.src_prec_apk);
+		}else{
+			MyConfig.getInstance().setSrc_prec(Options.src_prec_only_class);
+
 		}
 		List<String> processDir = Lists.newArrayList();
-		processDir.add(Global.v().getAppModel().getAppPath());
-//		System.out.println("aaaa "+ Global.v().getAppModel().getAppPath());
-
+		processDir.add( Global.v().getAppModel().getAppPath());
 		Options.v().set_include_all(true);
 		Options.v().set_process_dir(processDir);
 		Options.v().set_no_bodies_for_excluded(true);
@@ -63,13 +66,11 @@ public class SootAnalyzer extends Analyzer {
 				+ ConstantUtils.SOOTOUTPUT;
 		Options.v().set_output_dir(out);
 		Options.v().set_src_prec(MyConfig.getInstance().getSrc_prec());
-
 		Options.v().allow_phantom_refs();
 		Options.v().set_whole_program(true);
-
-//		setExcludePackage();
-
+		setExcludePackage();
 	}
+
 
 	/**
 	 * add transforms for analyzing
@@ -95,41 +96,19 @@ public class SootAnalyzer extends Analyzer {
 		PackManager.v().runPacks();
 	}
 
-	private static void enableSparkCallGraph() {
-		//Enable Spark
-		HashMap<String,String> opt = new HashMap<String,String>();
-		//opt.put("propagator","worklist");
-		//opt.put("simple-edges-bidirectional","false");
-		opt.put("on-fly-cg","true");
-		//opt.put("set-impl","double");
-		//opt.put("double-set-old","hybrid");
-		//opt.put("double-set-new","hybrid");
-		//opt.put("pre_jimplify", "true");
-		SparkTransformer.v().transform("",opt);
-		PhaseOptions.v().setPhaseOption("cg.spark", "enabled:true");
-	}
-
-	private static void enableCHACallGraph() {
-		CHATransformer.v().transform();
-	}
 	/**
 	 * packages refuse to be analyzed
 	 */
 	public static void setExcludePackage() {
 		ArrayList<String> excludeList = new ArrayList<String>();
-		excludeList.add("android.*");
-		excludeList.add("androidx.*");
-		excludeList.add("kotlin.*");
-		excludeList.add("com.google.*");
+//		excludeList.add("android.*");
+//		excludeList.add("androidx.*");
+//		excludeList.add("kotlin.*");
 		excludeList.add("soot.*");
 		excludeList.add("junit.*");
 		excludeList.add("java.*");
 		excludeList.add("javax.*");
 		excludeList.add("sun.*");
-		excludeList.add("org.apache.*");
-		excludeList.add("org.eclipse.*");
-		excludeList.add("org.junit.*");
-		excludeList.add("com.fasterxml.*");
 		Options.v().set_exclude(excludeList);
 	}
 }

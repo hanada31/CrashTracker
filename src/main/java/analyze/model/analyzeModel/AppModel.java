@@ -15,6 +15,8 @@ import main.java.MyConfig;
 import main.java.analyze.utils.ConstantUtils;
 import main.java.analyze.utils.SootUtils;
 import main.java.analyze.utils.output.PrintUtils;
+import main.java.client.crash.CrashInfo;
+import main.java.client.exception.ExceptionInfo;
 import main.java.client.obj.model.component.ActivityModel;
 import main.java.client.obj.model.component.ComponentModel;
 import soot.SootClass;
@@ -44,7 +46,7 @@ public class AppModel implements Serializable {
 	// call graph related
 	private Set<SootMethod> allMethods;
 	private Set<SootMethod> entryMethods;
-	private CallGraph cg;
+	private CallGraph cg = new CallGraph();
 	private ReachableMethods reachableMethodsFromCg;
 	private List<SootMethod> topoMethodQueue;
 	private Set<List<SootMethod>> topoMethodQueueSet;
@@ -85,12 +87,18 @@ public class AppModel implements Serializable {
 	private Map<SootClass, SootClass> fragment2Component;
 	private Map<Unit, List<ParameterSource>> unit2ParameterSource;
 	private Map<String, Set<String>> ICCStringMap;
-	private Map<SootMethod, Map<String, Set<String>>> exceptionMap;
+	private List<ExceptionInfo> exceptionInfoList;
+	private List<CrashInfo> crashInfoList;
 
 	
 	public AppModel() {
 		String name = MyConfig.getInstance().getAppName();
 		appPath = MyConfig.getInstance().getAppPath() + name;
+		if(MyConfig.getInstance().getAppName().endsWith(".apk") || MyConfig.getInstance().getAppName().endsWith(".jar")) {
+			MyConfig.getInstance().setFileSuffixLength(4);
+		}else {
+			MyConfig.getInstance().setFileSuffixLength(0);
+		}
 		appName = name.substring(0, name.length() - MyConfig.getInstance().getFileSuffixLength());
 		manifestString = "";
 		packageName = "";
@@ -132,7 +140,8 @@ public class AppModel implements Serializable {
 		unit2ParameterSource = new HashMap<Unit, List<ParameterSource>>();
 		setExtendedPakgs(new HashSet<String>());
 		this.ICCStringMap = new HashMap<String, Set<String>>();
-		exceptionMap = new HashMap<SootMethod, Map<String, Set<String>>>();
+		exceptionInfoList = new ArrayList<>();
+		crashInfoList = new ArrayList<>();
 	}
 
 	@Override
@@ -167,7 +176,15 @@ public class AppModel implements Serializable {
 		}
 	}
 
-	
+
+	public List<CrashInfo> getCrashInfoList() {
+		return crashInfoList;
+	}
+
+	public void setCrashInfoList(List<CrashInfo> crashInfoList) {
+		this.crashInfoList = crashInfoList;
+	}
+
 	public Map<String, Attribute> getUnit2Attribute() {
 		return unit2Attribute;
 	}
@@ -541,8 +558,8 @@ public class AppModel implements Serializable {
 	}
 
 	/**
-	 * @param applicationClasses
-	 *            the applicationClasses to set
+	 * @param sc
+	 * the applicationClasses to set
 	 */
 	public void addApplicationClassNames(String sc) {
 		this.applicationClassNames.add(sc);
@@ -592,11 +609,12 @@ public class AppModel implements Serializable {
 		ICCStringMap = iCCStringMap;
 	}
 
-	public Map<SootMethod, Map<String, Set<String>>> getExceptionMap() {
-		return exceptionMap;
+
+	public List<ExceptionInfo> getExceptionInfoList() {
+		return exceptionInfoList;
 	}
 
-	public void setExceptionMap(Map<SootMethod, Map<String, Set<String>>> exceptionMap) {
-		this.exceptionMap = exceptionMap;
+	public void setExceptionInfoList(List<ExceptionInfo> exceptionInfoList) {
+		this.exceptionInfoList = exceptionInfoList;
 	}
 }

@@ -13,12 +13,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -39,7 +34,6 @@ public class FileUtils {
 	/**
 	 * judge whether a file exist or not
 	 * 
-	 * @param folder
 	 */
 	public static boolean isFileExist(String file) {
 		File f = new File(file);
@@ -150,7 +144,6 @@ public class FileUtils {
 	/**
 	 * delete file
 	 * 
-	 * @param folderPath
 	 */
 	public static void delFile(String filePath) {
 		File f = new File(filePath);
@@ -160,7 +153,6 @@ public class FileUtils {
 	/**
 	 * delete folder
 	 * 
-	 * @param folderPath
 	 */
 	public static boolean delAllFile(String path) {
 		boolean flag = false;
@@ -389,7 +381,7 @@ public class FileUtils {
 	 * @param name
 	 * @param resList
 	 */
-	public static void writeList2File(String sta_res_dir, String name, List<String> resList, boolean flag) {
+	public static void writeList2File(String sta_res_dir, String name, Collection<String> resList, boolean flag) {
 		String filename = sta_res_dir + File.separator + name;
 		File f = new File(filename);
 		BufferedWriter writer = null;

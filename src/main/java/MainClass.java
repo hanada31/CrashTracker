@@ -5,6 +5,7 @@ import java.io.File;
 import main.java.analyze.utils.TimeUtilsofProject;
 import main.java.client.BaseClient;
 import main.java.client.cg.cgApk.CallGraphofApkClient;
+import main.java.client.crash.CrashAnalysisClient;
 import main.java.client.exception.ExceptionInfoClient;
 import main.java.client.gator.GatorClient;
 import main.java.client.manifest.ManifestClient;
@@ -145,6 +146,9 @@ public class MainClass {
 			case "ExceptionInfoClient":
 				client = new ExceptionInfoClient();
 				break;
+			case "CrashAnalysisClient":
+				client = new CrashAnalysisClient();
+				break;
 			default:
 				client = new CTGClient();
 				break;
@@ -168,7 +172,12 @@ public class MainClass {
 		options.addOption("path", true, "-path: Set the path to the apk under analysis.");
 		options.addOption("androidJar", true, "-androidJar: Set the path of android.jar.");
 		options.addOption("version", true, "-version [default:23]: Version of Android SDK.");
-		
+		options.addOption("crashPath", true, "-crashPath: crash info file.");
+		options.addOption("exceptionPath", true, "-exceptionPath: exception file folder.");
+		options.addOption("androidCGPath", true, "-androidCGPath: Android CallGraph file.");
+		options.addOption("permissionPath", true, "-permissionPath: Android permissionPath file.");
+		options.addOption("SDKVersion", true, "-SDKVersion: Android SDK version");
+
 		/** analysis config **/
 		options.addOption("client", true, "-client "
 			
@@ -187,6 +196,8 @@ public class MainClass {
 				+ "TestGenerationClient: Generate test cases for components based on the static results.\n"
 				+ "MisEACheckerClient: Report the mis-exported activities.\n"
 				+ "GatorClient: Invoke the client in Gator tool.\n"
+				+ "CrashAnalysisClient: Analysis the crash information for an apk.\n"
+				+ "ExceptionInfoClient: Extract exception information from Android framework.\n"
 			);
 		/** analysis config **/
 		options.addOption("time", true, "-time [default:90]: Set the max running time (min).");
@@ -255,8 +266,16 @@ public class MainClass {
 		MyConfig.getInstance().setJimple(true);
 		MyConfig.getInstance().setAppName(mCmd.getOptionValue("name", ""));
 		MyConfig.getInstance().setAppPath(mCmd.getOptionValue("path", System.getProperty("user.dir")) + File.separator);
-		MyConfig.getInstance().setAndroidJar(mCmd.getOptionValue("androidJar", "lib/platforms") + File.separator);
+		MyConfig.getInstance().setAndroidJar(mCmd.getOptionValue("androidJar", "lib"+File.separator+"platforms") + File.separator);
 		MyConfig.getInstance().setAndroidVersion("android-" + mCmd.getOptionValue("version", "23"));
+		MyConfig.getInstance().setCrashInfoFilePath(mCmd.getOptionValue("crashPath","Files"+File.separator+"crashInfo.json"));
+
+		String androidFolder = "Files"+File.separator+"android"+mCmd.getOptionValue("SDKVersion")+File.separator;
+		MyConfig.getInstance().setPermissionFilePath(mCmd.getOptionValue("permissionPath",androidFolder+"Permission"+File.separator+"permission.txt"));
+		MyConfig.getInstance().setExceptionFilePath(mCmd.getOptionValue("exceptionPath",androidFolder+"exceptionInfo"+File.separator));
+		MyConfig.getInstance().setAndroidCGFilePath(mCmd.getOptionValue("androidCGPath",androidFolder+"CallGraphInfo"+File.separator+"cg.txt"));
+
+
 		if (mCmd.hasOption("sootOutput"))
 			MyConfig.getInstance().setWriteSootOutput(true);
 		
@@ -274,12 +293,9 @@ public class MainClass {
 		MyConfig.getInstance().setGatorClient(mCmd.getOptionValue("gatorClient", gatorClient));
 
 		MyConfig.getInstance().setResultFolder(mCmd.getOptionValue("outputDir", "outputDir") + File.separator);
-		String resFolder = mCmd.getOptionValue("outputDir", "results/outputDir");
-		if(resFolder.contains("/")){
-			resFolder = resFolder.substring(0,resFolder.lastIndexOf("/"));
-			MyConfig.getInstance().setResultWarpperFolder(resFolder+ File.separator);
-		}else if(resFolder.contains("\\")){
-			resFolder = resFolder.substring(0,resFolder.lastIndexOf("\\"));
+		String resFolder = mCmd.getOptionValue("outputDir", "results"+File.separator+"outputDir");
+		if(resFolder.contains(File.separator)){
+			resFolder = resFolder.substring(0,resFolder.lastIndexOf(File.separator));
 			MyConfig.getInstance().setResultWarpperFolder(resFolder+ File.separator);
 		}
 		
