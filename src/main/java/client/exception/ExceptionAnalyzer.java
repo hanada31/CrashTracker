@@ -60,6 +60,7 @@ public class ExceptionAnalyzer extends Analyzer {
     }
 
     private void getExceptionList() {
+        JSONArray exceptionListElement  = new JSONArray(new ArrayList<>());
         HashSet<SootClass> applicationClasses = new HashSet<>(Scene.v().getApplicationClasses());
         for (SootClass sootClass : applicationClasses) {
             if(!sootClass.getPackageName().startsWith(ConstantUtils.PKGPREFIX)) continue;
@@ -84,10 +85,10 @@ public class ExceptionAnalyzer extends Analyzer {
                     }
                 }
             }
-            ExceptionInfoClientOutput.writeJsonForCurrentClass(sootClass, exceptionInfoList, exceptionListElement);
-            ExceptionInfoClientOutput.writeJsonForFramework(exceptionListElement);
+            ExceptionInfoClientOutput.writeJsonForCurrentClass(sootClass, exceptionInfoList);
+            ExceptionInfoClientOutput.getSummaryJsonArray(exceptionInfoList, exceptionListElement);
         }
-
+        ExceptionInfoClientOutput.writeJsonForFramework(exceptionListElement);
     }
 
     private void getPermissionSet() {
@@ -209,7 +210,6 @@ public class ExceptionAnalyzer extends Analyzer {
      * creat a New ExceptionInfo object and add content
      */
     private void creatNewExceptionInfo(SootMethod sootMethod, Unit unit, String exceptionName) {
-//        System.out.println("creatNewExceptionInfo");
         ExceptionInfo exceptionInfo =  new ExceptionInfo(sootMethod, unit, exceptionName);
         getExceptionMessage(sootMethod, unit, exceptionInfo, new ArrayList<>());
         getConditionandValueFromUnit(sootMethod, unit, exceptionName, exceptionInfo, true);

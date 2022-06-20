@@ -26,10 +26,11 @@ public class TestAPP {
 
     private void setArgs() {
         String path;
-//        path = "D:\\SoftwareData\\dataset\\apk\\\\Empirical500\\";
-        path = "C:\\Users\\yanjw\\programs\\Empirical500";
+//        path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
+        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
+//        path = "C:\\Users\\yanjw\\programs\\Empirical500";
         String name;
-        name = "mynet.games.sound.test-165.apk";
+        name = "cgeo.geocaching-3570.apk";
         String client = "CrashAnalysisClient";
         String version = "10.0";
 

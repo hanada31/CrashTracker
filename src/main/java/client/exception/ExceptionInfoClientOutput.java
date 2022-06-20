@@ -4,14 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import main.java.Global;
 import main.java.MyConfig;
 import main.java.analyze.utils.output.FileUtils;
 import main.java.analyze.utils.output.PrintUtils;
-import main.java.client.crash.CrashInfo;
 import main.java.client.statistic.model.StatisticResult;
 import soot.SootClass;
-import soot.SootMethod;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -34,15 +31,58 @@ public class ExceptionInfoClientOutput {
      * write to Json File after each class is Analyzed
      * @param sootClass
      */
-    public static void writeJsonForCurrentClass(SootClass sootClass, List<ExceptionInfo> exceptionInfoList, JSONArray exceptionListElement) {
+    public static void writeJsonForCurrentClass(SootClass sootClass, List<ExceptionInfo> exceptionInfoList) {
         String path = MyConfig.getInstance().getExceptionFilePath();
         FileUtils.createFolder(path);
         if(exceptionInfoList.size()>0) {
-            System.out.println("writeToJson "+path + sootClass.getName() + ".json");
-            ExceptionInfoClientOutput.writeToJson(path + sootClass.getName() + ".json", exceptionInfoList);
+            String jsonPath = path + sootClass.getName() + ".json";
+            System.out.println("writeToJson "+jsonPath);
+            File file = new File(jsonPath);
+            JSONObject rootElement = new JSONObject(new LinkedHashMap());
+            try {
+                file.createNewFile();
+                JSONArray exceptionListElement  = new JSONArray(new ArrayList<>());
+                rootElement.put("exceptions", exceptionListElement);
+                for(ExceptionInfo info :exceptionInfoList){
+                    JSONObject jsonObject = new JSONObject(true);
+                    exceptionListElement.add(jsonObject);
+                    addBasic1(jsonObject, info);
+                    addBasic2(jsonObject, info);
+                    addConditions(jsonObject, info);
+                    addRelatedValues(jsonObject, info);
+                    addRelatedMethods(jsonObject, info);
+                }
+                PrintWriter printWriter = new PrintWriter(file);
+                String jsonString = JSON.toJSONString(rootElement, SerializerFeature.PrettyFormat,
+                        SerializerFeature.DisableCircularReferenceDetect);
+                printWriter.write(jsonString);
+                printWriter.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
+    // collect
+
+    /**
+     * getSummaryJsonArray, json array info, write to exception.json file
+     * @param exceptionInfoList
+     * @param exceptionListElement
+     */
+    public static void getSummaryJsonArray(List<ExceptionInfo> exceptionInfoList, JSONArray exceptionListElement) {
+        if(exceptionInfoList.size()>0) {
+            for(ExceptionInfo info :exceptionInfoList){
+                JSONObject jsonObject = new JSONObject(true);
+                exceptionListElement.add(jsonObject);
+                addBasic1(jsonObject, info);
+                addBasic2(jsonObject, info);
+                addConditions(jsonObject, info);
+                addRelatedValues(jsonObject, info);
+//                addRelatedMethods(jsonObject, info);
+            }
+        }
+    }
 
     public static void writeJsonForFramework(JSONArray exceptionListElement) {
         String path = MyConfig.getInstance().getExceptionFilePath()+ "summary"+ File.separator;
@@ -62,31 +102,6 @@ public class ExceptionInfoClientOutput {
         }
     }
 
-    public static void writeToJson(String path, List<ExceptionInfo> result){
-        JSONObject rootElement = new JSONObject(new LinkedHashMap());
-        File file = new File(path);
-        try {
-            file.createNewFile();
-            JSONArray exceptionListElement  = new JSONArray(new ArrayList<>());
-            rootElement.put("exceptions", exceptionListElement);
-            for(ExceptionInfo info :result){
-                JSONObject jsonObject = new JSONObject(true);
-                exceptionListElement.add(jsonObject);
-                addBasic1(jsonObject, info);
-                addBasic2(jsonObject, info);
-                addConditions(jsonObject, info);
-                addRelatedValues(jsonObject, info);
-                addRelatedMethods(jsonObject, info);
-            }
-            PrintWriter printWriter = new PrintWriter(file);
-            String jsonString = JSON.toJSONString(rootElement, SerializerFeature.PrettyFormat,
-                    SerializerFeature.DisableCircularReferenceDetect);
-            printWriter.write(jsonString);
-            printWriter.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     public static void addBasic1(JSONObject jsonObject, ExceptionInfo info) {
         jsonObject.put("method", info.getSootMethod().getSignature());

@@ -26,6 +26,7 @@ public class TestFramework {
     private void setArgs() {
         String path, name;
         path = "C:\\Users\\yanjw\\programs\\framework\\classes\\";
+        path = "D:\\SoftwareData\\dataset\\android-framework\\classes\\";
         name = "android5.0";
 
         String client = "ExceptionInfoClient";

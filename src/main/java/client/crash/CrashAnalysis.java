@@ -60,7 +60,7 @@ public class CrashAnalysis extends Analyzer {
      * key method
      * find candidates according to the type of corresponding exception
      */
-    private void getCandidateBuggyMethods2() {
+    private void getCandidateBuggyMethods_TypeAnalysis() {
         for(CrashInfo crashInfo : crashInfoList){
             ExceptionInfo exceptionInfo = crashInfo.getExceptionInfo();
 //            checkIsNoAppRelatedHandler(crashInfo);
@@ -90,7 +90,7 @@ public class CrashAnalysis extends Analyzer {
                 }
             }else {
                 relatedVarType="unknown"; // native and other no exception.
-//                withParameterHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo, true);
+                withParameterHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo, true);
             }
         }
     }
