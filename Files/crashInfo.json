@@ -20605,6 +20605,7 @@
   "identifier": "com.zeapo.pwdstore",
   "postURL": "https://github.com/zeapo/Android-Password-Store/issues/138",
   "fileName": "com.zeapo.pwdstore-138",
+  "id": "138",
   "trace": [
    "android.view.ViewRootImpl.setView",
    "android.view.WindowManagerGlobal.addView",
@@ -20633,6 +20634,7 @@
   "identifier": "cgeo.geocaching",
   "postURL": "https://github.com/cgeo/cgeo/issues/3570",
   "fileName": "cgeo.geocaching-3570",
+  "id": "3570",
   "trace": [
    "android.view.WindowManagerGlobal.findViewLocked",
    "android.view.WindowManagerGlobal.removeView",
@@ -20665,6 +20667,7 @@
   "identifier": "org.kontalk",
   "postURL": "https://github.com/kontalk/androidclient/issues/723",
   "fileName": "org.kontalk-723",
+  "id": "723",
   "trace": [
    "android.support.v4.app.Fragment.getResources",
    "android.support.v4.app.Fragment.getText",
@@ -20695,6 +20698,7 @@
   "identifier": "cgeo.geocaching",
   "postURL": "https://github.com/cgeo/cgeo/issues/3527",
   "fileName": "cgeo.geocaching-3527",
+  "id": "3527",
   "trace": [
    "android.database.sqlite.SQLiteCompiledSql.native_compile",
    "android.database.sqlite.SQLiteCompiledSql.compile",
@@ -20722,6 +20726,7 @@
   "identifier": "org.kontalk",
   "postURL": "https://github.com/kontalk/androidclient/issues/734",
   "fileName": "org.kontalk-734",
+  "id": "734",
   "trace": [
    "android.os.Parcel.readException",
    "android.os.Parcel.readException",
@@ -20756,6 +20761,7 @@
   "identifier": "org.kontalk",
   "postURL": "https://github.com/kontalk/androidclient/issues/808",
   "fileName": "org.kontalk-808",
+  "id": "808",
   "trace": [
    "android.database.AbstractCursor.checkPosition",
    "android.database.AbstractWindowedCursor.checkPosition",
@@ -20790,6 +20796,7 @@
   "identifier": "org.wordpress.android",
   "postURL": "https://github.com/wordpress-mobile/WordPress-Android/issues/1321",
   "fileName": "org.wordpress.android-1321",
+  "id": "1321",
   "trace": [
    "android.support.v4.app.ListFragment.ensureList",
    "android.support.v4.app.ListFragment.getListView",
@@ -20817,6 +20824,7 @@
   "identifier": "org.kontalk",
   "postURL": "https://github.com/kontalk/androidclient/issues/930",
   "fileName": "org.kontalk-930",
+  "id": "930",
   "trace": [
    "android.content.res.Resources.getQuantityText",
    "android.content.res.Resources.getQuantityString",
@@ -20834,6 +20842,7 @@
   "identifier": "org.wordpress.android",
   "postURL": "https://github.com/wordpress-mobile/WordPress-Android/issues/2372",
   "fileName": "org.wordpress.android-2372",
+  "id": "2372",
   "trace": [
    "android.app.FragmentManagerImpl.checkStateLoss",
    "android.app.FragmentManagerImpl.enqueueAction",
@@ -20863,6 +20872,7 @@
   "identifier": "org.kontalk",
   "postURL": "https://github.com/kontalk/androidclient/issues/860",
   "fileName": "org.kontalk-860",
+  "id": "860",
   "trace": [
    "android.app.Instrumentation.checkStartActivityResult",
    "android.app.Instrumentation.execStartActivity",
@@ -20888,6 +20898,7 @@
   "identifier": "cgeo.geocaching",
   "postURL": "https://github.com/cgeo/cgeo/issues/4274",
   "fileName": "cgeo.geocaching-4274",
+  "id": "4274",
   "trace": [
    "android.view.WindowManagerImpl.findViewLocked",
    "android.view.WindowManagerImpl.removeView",
@@ -20919,6 +20930,7 @@
   "identifier": "cgeo.geocaching",
   "postURL": "https://github.com/cgeo/cgeo/issues/3194#issuecomment-23234767",
   "fileName": "cgeo.geocaching-23234767",
+  "id": "23234767",
   "trace": [
    "android.app.Instrumentation.checkStartActivityResult",
    "android.app.Instrumentation.execStartActivity",
@@ -20951,6 +20963,7 @@
   "identifier": "org.wordpress.android",
   "postURL": "https://github.com/wordpress-mobile/WordPress-Android/issues/1320",
   "fileName": "org.wordpress.android-1320",
+  "id": "1320",
   "trace": [
    "android.support.v4.app.FragmentManagerImpl.checkStateLoss",
    "android.support.v4.app.FragmentManagerImpl.enqueueAction",
@@ -20982,6 +20995,7 @@
   "identifier": "org.wordpress.android",
   "postURL": "```https://github.com/wordpress-mobile/WordPress-Android/issues/4845",
   "fileName": "org.wordpress.android-4845",
+  "id": "4845",
   "trace": [
    "android.app.Instrumentation.checkStartActivityResult",
    "android.app.Instrumentation.execStartActivity",
@@ -21020,6 +21034,7 @@
   "identifier": "com.nextgis.mobile",
   "postURL": "https://github.com/nextgis/android_gisapp/issues/493",
   "fileName": "com.nextgis.mobile-493",
+  "id": "493",
   "trace": [
    "android.database.sqlite.SQLiteConnection.nativeExecuteForCursorWindow",
    "android.database.sqlite.SQLiteConnection.executeForCursorWindow",
@@ -21054,6 +21069,7 @@
   "identifier": "org.kontalk",
   "postURL": "https://github.com/kontalk/androidclient/issues/510",
   "fileName": "org.kontalk-510",
+  "id": "510",
   "trace": [
    "android.support.v4.app.Fragment.getResources",
    "android.support.v4.app.Fragment.getString",
@@ -21082,6 +21098,7 @@
   "identifier": "org.thoughtcrime.securesms",
   "postURL": "https://github.com/WhisperSystems/Signal-Android/issues/2966#issuecomment-92317259",
   "fileName": "org.thoughtcrime.securesms-92317259",
+  "id": "92317259",
   "trace": [
    "android.view.ViewRootImpl.checkThread",
    "android.view.ViewRootImpl.requestLayout",
@@ -21136,6 +21153,7 @@
   "identifier": "cgeo.geocaching",
   "postURL": "https://github.com/cgeo/cgeo/issues/1503",
   "fileName": "cgeo.geocaching-1503",
+  "id": "1503",
   "trace": [
    "android.view.ViewRoot.checkThread",
    "android.view.ViewRoot.invalidateChild",
@@ -21165,6 +21183,7 @@
   "identifier": "org.wordpress.android",
   "postURL": "https://github.com/wordpress-mobile/WordPress-Android/issues/4875",
   "fileName": "org.wordpress.android-4875",
+  "id": "4875",
   "trace": [
    "android.support.v4.app.Fragment.getResources",
    "android.support.v4.app.Fragment.getString",
@@ -21194,6 +21213,7 @@
   "identifier": "de.tum.in.tumcampus",
   "postURL": "https://github.com/TCA-Team/TumCampusApp/issues/392",
   "fileName": "de.tum.in.tumcampus-392",
+  "id": "392",
   "trace": [
    "android.os.Parcel.readException",
    "android.os.Parcel.readException",
@@ -21217,6 +21237,7 @@
   "identifier": "org.kontalk",
   "postURL": "https://github.com/kontalk/androidclient/issues/848#issuecomment-255597670",
   "fileName": "org.kontalk-255597670",
+  "id": "255597670",
   "trace": [
    "android.database.CursorWindow.nativeGetLong",
    "android.database.CursorWindow.getLong",
@@ -21255,6 +21276,7 @@
   "identifier": "com.nextgis.mobile",
   "postURL": "https://github.com/nextgis/android_gisapp/issues/350",
   "fileName": "com.nextgis.mobile-350",
+  "id": "350",
   "trace": [
    "android.database.sqlite.SQLiteConnection.nativeExecuteForCursorWindow",
    "android.database.sqlite.SQLiteConnection.executeForCursorWindow",
@@ -21290,6 +21312,7 @@
   "identifier": "com.matburt.mobileorg",
   "postURL": "https://github.com/matburt/mobileorg-android/pull/180/commits/ebc78997f67435953099305a610ed48b4b98a5e6",
   "fileName": "com.matburt.mobileorg-177",
+  "id": "177",
   "trace": [
    "android.database.sqlite.SQLiteProgram.native_compile",
    "android.database.sqlite.SQLiteProgram.compile",
@@ -21316,6 +21339,7 @@
   "identifier": "org.wordpress.android",
   "postURL": "https://github.com/wordpress-mobile/WordPress-Android/issues/1469",
   "fileName": "org.wordpress.android-1469",
+  "id": "1469",
   "trace": [
    "android.app.Fragment.instantiate",
    "android.app.Fragment.instantiate",
@@ -21355,6 +21379,7 @@
   "identifier": "com.nextgis.mobile",
   "postURL": "https://github.com/nextgis/android_gisapp/issues/260",
   "fileName": "com.nextgis.mobile-260",
+  "id": "260",
   "trace": [
    "android.content.res.Resources.loadDrawable",
    "android.content.res.TypedArray.getDrawable",
@@ -21384,6 +21409,7 @@
   "identifier": "com.nextgis.mobile",
   "postURL": "https://github.com/nextgis/android_gisapp/issues/315",
   "fileName": "com.nextgis.mobile-315",
+  "id": "315",
   "trace": [
    "android.app.LoadedApk.forgetReceiverDispatcher",
    "android.app.ContextImpl.unregisterReceiver",
@@ -21407,6 +21433,7 @@
   "postURL": "https://github.com/cgeo/cgeo/issues/5591",
   "reason": "It is enum that has been changed",
   "fileName": "cgeo.geocaching-5591",
+  "id": "5591",
   "year": "2016-03-27T22:08:16Z",
   "estimatedCate": "B",
   "real": "cgeo.geocaching.storage.DataStore$PreparedStatement.<init>",
@@ -21450,6 +21477,7 @@
   "identifier": "org.wordpress.android",
   "postURL": "```https://github.com/wordpress-mobile/WordPress-Android/issues/5297",
   "fileName": "org.wordpress.android-5297",
+  "id": "5297",
   "trace": [
    "android.view.WindowManagerGlobal.findViewLocked",
    "android.view.WindowManagerGlobal.removeView",
@@ -21485,6 +21513,7 @@
   "identifier": "org.wordpress.android",
   "postURL": "https://github.com/wordpress-mobile/WordPress-Android/issues/134",
   "fileName": "org.wordpress.android-134",
+  "id": "134",
   "trace": [
    "android.database.sqlite.SQLiteConnection.nativePrepareStatement",
    "android.database.sqlite.SQLiteConnection.acquirePreparedStatement",
@@ -21515,6 +21544,7 @@
   "identifier": "fr.free.nrw.commons",
   "postURL": "https://github.com/commons-app/apps-android-commons/issues/1#issuecomment-225563649",
   "fileName": "fr.free.nrw.commons-225563649",
+  "id": "225563649",
   "trace": [
    "android.view.ViewRootImpl.checkThread",
    "android.view.ViewRootImpl.invalidateChildInParent",
@@ -21539,6 +21569,7 @@
   "identifier": "cgeo.geocaching",
   "postURL": "https://github.com/cgeo/cgeo/issues/1884",
   "fileName": "cgeo.geocaching-1884",
+  "id": "1884",
   "year": "2012-07-15T09:50:30Z",
   "buggyApi": "android.database.sqlite.SQLiteDatabase.execSQL",
   "estimatedCate": "B",
@@ -21577,6 +21608,7 @@
   "identifier": "cgeo.geocaching",
   "postURL": "https://github.com/cgeo/cgeo/issues/600",
   "fileName": "cgeo.geocaching-600",
+  "id": "600",
   "trace": [
    "android.app.ContextImpl.startActivity",
    "android.content.ContextWrapper.startActivity",
@@ -21598,6 +21630,7 @@
   "identifier": "de.danoeh.antennapod",
   "postURL": "https://github.com/AntennaPod/AntennaPod/issues/1073",
   "fileName": "de.danoeh.antennapod-1073",
+  "id": "1073",
   "trace": [
    "android.support.v7.app.ActionBarActivityDelegateBase.setSupportActionBar",
    "android.support.v7.app.ActionBarActivity.setSupportActionBar",
@@ -21618,6 +21651,7 @@
   "identifier": "org.y20k.transistor",
   "postURL": "https://github.com/y20k/transistor/issues/21",
   "fileName": "org.y20k.transistor-21",
+  "id": "21",
   "trace": [
    "android.support.v4.app.Fragment.startActivityForResult",
    "org.y20k.transistor.MainActivityFragment.selectFromImagePicker",
@@ -21645,6 +21679,7 @@
   "identifier": "cgeo.geocaching",
   "postURL": "https://github.com/cgeo/cgeo/issues/4275",
   "fileName": "cgeo.geocaching-4275",
+  "id": "4275",
   "trace": [
    "android.app.FragmentManagerImpl.enqueueAction",
    "android.app.BackStackRecord.commitInternal",
@@ -21678,6 +21713,7 @@
   "identifier": "org.wordpress.android",
   "postURL": "https://github.com/wordpress-mobile/WordPress-Android/issues/1588",
   "fileName": "org.wordpress.android-1588",
+  "id": "1588",
   "trace": [
    "android.support.v4.app.FragmentManagerImpl.enqueueAction",
    "android.support.v4.app.BackStackRecord.commitInternal",
@@ -21712,6 +21748,7 @@
   "identifier": "org.wordpress.android",
   "postURL": "https://github.com/wordpress-mobile/WordPress-Android/issues/1843",
   "fileName": "org.wordpress.android-1843",
+  "id": "1843",
   "trace": [
    "android.content.res.Resources.getText",
    "android.content.Context.getText",
@@ -21750,6 +21787,7 @@
   "identifier": "com.nextgis.mobile",
   "postURL": "https://github.com/nextgis/android_gisapp/issues/532",
   "fileName": "com.nextgis.mobile-532",
+  "id": "532",
   "trace": [
    "android.os.Parcel.readParcelableCreator",
    "android.os.Parcel.readParcelable",
@@ -21791,6 +21829,7 @@
   "identifier": "cgeo.geocaching",
   "postURL": "https://github.com/cgeo/cgeo/issues/1699#issuecomment-6061547",
   "fileName": "cgeo.geocaching-6061547",
+  "id": "6061547",
   "trace": [
    "android.content.res.Resources.getText",
    "android.content.res.Resources.getString",
@@ -21817,6 +21856,7 @@
   "identifier": "org.kiwix.kiwixmobile",
   "postURL": "https://github.com/kiwix/kiwix-xulrunner/issues/19",
   "fileName": "org.kiwix.kiwixmobile-19",
+  "id": "19",
   "trace": [
    "android.widget.ListView.addHeaderView",
    "android.widget.ListView.addHeaderView",
@@ -21843,6 +21883,7 @@
   "identifier": "cgeo.geocaching",
   "postURL": "https://github.com/cgeo/cgeo/issues/4236",
   "fileName": "cgeo.geocaching-4236",
+  "id": "4236",
   "trace": [
    "android.app.Instrumentation.checkStartActivityResult",
    "android.app.Instrumentation.execStartActivity",
@@ -21879,6 +21920,7 @@
   "identifier": "cgeo.geocaching",
   "postURL": "https://github.com/cgeo/cgeo/issues/4450",
   "fileName": "cgeo.geocaching-4450",
+  "id": "4450",
   "year": "2014-10-31T11:52:20Z",
   "buggyApi": "android.database.sqlite.SQLiteStatement.close",
   "estimatedCate": "B",
@@ -21900,6 +21942,7 @@
   "identifier": "de.tum.in.tumcampus",
   "postURL": "https://github.com/TCA-Team/TumCampusApp/issues/333#issuecomment-150363580",
   "fileName": "de.tum.in.tumcampus-150363580",
+  "id": "150363580",
   "trace": [
    "android.database.AbstractCursor.checkPosition",
    "android.database.AbstractWindowedCursor.checkPosition",
@@ -21922,6 +21965,7 @@
   "identifier": "org.kontalk",
   "postURL": "```https://github.com/kontalk/androidclient/issues/883",
   "fileName": "org.kontalk-883",
+  "id": "883",
   "trace": [
    "android.database.sqlite.SQLiteConnection.nativeExecuteForChangedRowCount",
    "android.database.sqlite.SQLiteConnection.executeForChangedRowCount",
@@ -21948,6 +21992,7 @@
   "identifier": "org.wordpress.android",
   "postURL": "```https://github.com/wordpress-mobile/WordPress-Android/issues/5449",
   "fileName": "org.wordpress.android-5449",
+  "id": "5449",
   "trace": [
    "dalvik.system.BaseDexClassLoader.findClass",
    "java.lang.ClassLoader.loadClass",
@@ -21992,6 +22037,7 @@
   "identifier": "org.kontalk",
   "postURL": "```https://github.com/kontalk/androidclient/issues/958",
   "fileName": "org.kontalk-958",
+  "id": "958",
   "trace": [
    "android.os.Parcel.readException",
    "android.database.DatabaseUtils.readExceptionFromParcel",
@@ -22023,6 +22069,7 @@
   "identifier": "org.kontalk",
   "postURL": "https://github.com/kontalk/androidclient/issues/795",
   "fileName": "org.kontalk-795",
+  "id": "795",
   "trace": [
    "android.view.ViewRootImpl.checkThread",
    "android.view.ViewRootImpl.invalidateChildInParent",
@@ -22053,6 +22100,7 @@
   "identifier": "cgeo.geocaching",
   "postURL": "https://github.com/cgeo/cgeo/issues/4524",
   "fileName": "cgeo.geocaching-4524",
+  "id": "4524",
   "trace": [
    "android.view.ViewRoot.checkThread",
    "android.view.ViewRoot.invalidateChild",
@@ -22089,6 +22137,7 @@
   "identifier": "ch.logixisland.anuto",
   "postURL": "https://github.com/reloZid/android-anuto/issues/1",
   "fileName": "ch.logixisland.anuto-1",
+  "id": "1",
   "trace": [
    "android.app.FragmentManagerImpl.checkStateLoss",
    "android.app.FragmentManagerImpl.enqueueAction",
@@ -22112,6 +22161,7 @@
   "identifier": "org.kontalk",
   "postURL": "https://github.com/kontalk/androidclient/issues/709",
   "fileName": "org.kontalk-709",
+  "id": "709",
   "trace": [
    "android.app.Instrumentation.checkStartActivityResult",
    "android.app.Instrumentation.execStartActivity",
@@ -22149,6 +22199,7 @@
   "postURL": "https://github.com/wordpress-mobile/WordPress-Android/issues/2855",
   "reason": "Since the fix is adding field and adding new method, we consider the constructor is the real location of fix",
   "fileName": "org.wordpress.android-2855",
+  "id": "2855",
   "trace": [
    "android.database.CursorWindow.nativeGetString",
    "android.database.CursorWindow.getString",
@@ -22175,6 +22226,7 @@
   "identifier": "com.joulespersecond.seattlebusbot",
   "postURL": "https://github.com/OneBusAway/onebusaway-android/issues/168",
   "fileName": "com.joulespersecond.seattlebusbot-168",
+  "id": "168",
   "trace": [
    "android.os.Bundle.getInt",
    "com.joulespersecond.seattlebusbot.map.StopMapController.setState",
@@ -22210,6 +22262,7 @@
   "identifier": "cgeo.geocaching",
   "postURL": "https://github.com/cgeo/cgeo/issues/3541",
   "fileName": "cgeo.geocaching-3541",
+  "id": "3541",
   "trace": [
    "android.database.sqlite.SQLiteProgram.bindString",
    "cgeo.geocaching.DataStore.saveLogsWithoutTransaction",
@@ -22232,6 +22285,7 @@
   "identifier": "org.kontalk",
   "postURL": "https://github.com/kontalk/androidclient/issues/782",
   "fileName": "org.kontalk-782",
+  "id": "782",
   "trace": [
    "android.app.Instrumentation.checkStartActivityResult",
    "android.app.Instrumentation.execStartActivity",
@@ -22269,6 +22323,7 @@
   "identifier": "org.wordpress.android",
   "postURL": "https://github.com/wordpress-mobile/WordPress-Android/issues/1504",
   "fileName": "org.wordpress.android-1504",
+  "id": "1504",
   "trace": [
    "android.support.v4.app.FragmentManagerImpl.enqueueAction",
    "android.support.v4.app.BackStackRecord.commitInternal",
@@ -22299,6 +22354,7 @@
   "identifier": "org.kontalk",
   "postURL": "https://github.com/kontalk/androidclient/issues/46",
   "fileName": "org.kontalk-46",
+  "id": "46",
   "trace": [
    "android.database.sqlite.SQLiteConnection.nativeExecuteForChangedRowCount",
    "android.database.sqlite.SQLiteConnection.executeForChangedRowCount",
@@ -22329,6 +22385,7 @@
   "identifier": "org.wordpress.android",
   "postURL": "https://github.com/wordpress-mobile/WordPress-Android/issues/938",
   "fileName": "org.wordpress.android-938",
+  "id": "938",
   "trace": [
    "android.support.v4.app.Fragment.getResources",
    "org.wordpress.android.ui.posts.EditPostContentFragment$processAttachmentsTask.onPostExecute",
@@ -22357,6 +22414,7 @@
   "identifier": "cgeo.geocaching",
   "postURL": "https://github.com/cgeo/cgeo/issues/4541",
   "fileName": "cgeo.geocaching-4541",
+  "id": "4541",
   "trace": [
    "android.hardware.SensorManager$ListenerDelegate.setDelay",
    "android.hardware.SensorManager.registerListener",
@@ -22377,6 +22435,7 @@
   "identifier": "org.kontalk",
   "postURL": "https://github.com/kontalk/androidclient/issues/773",
   "fileName": "org.kontalk-773",
+  "id": "773",
   "trace": [
    "android.database.sqlite.SQLiteProgram.bindString",
    "android.database.sqlite.SQLiteProgram.bindAllArgsAsStrings",
@@ -22405,6 +22464,7 @@
   "identifier": "org.kontalk",
   "postURL": "```https://github.com/kontalk/androidclient/issues/994",
   "fileName": "org.kontalk-994",
+  "id": "994",
   "trace": [
    "android.support.v4.app.FragmentManagerImpl.ensureExecReady",
    "android.support.v4.app.FragmentManagerImpl.execSingleAction",
@@ -22448,6 +22508,7 @@
   "identifier": "org.kontalk",
   "postURL": "https://github.com/kontalk/androidclient/issues/454",
   "fileName": "org.kontalk-454",
+  "id": "454",
   "trace": [
    "android.database.sqlite.SQLiteConnection.nativeExecuteForChangedRowCount",
    "android.database.sqlite.SQLiteConnection.executeForChangedRowCount",
@@ -22475,6 +22536,7 @@
   "identifier": "org.wordpress.android",
   "postURL": "https://github.com/wordpress-mobile/WordPress-Android/issues/2695",
   "fileName": "org.wordpress.android-2695",
+  "id": "2695",
   "trace": [
    "android.text.SpannableStringBuilder.checkRange",
    "android.text.SpannableStringBuilder.getChars",
@@ -22501,6 +22563,7 @@
   "identifier": "org.wordpress.android",
   "postURL": "https://github.com/wordpress-mobile/WordPress-Android/issues/1590",
   "fileName": "org.wordpress.android-1590",
+  "id": "1590",
   "trace": [
    "android.app.Activity.missingDialog",
    "android.app.Activity.dismissDialog",
@@ -22530,6 +22593,7 @@
   "identifier": "org.kontalk",
   "postURL": "https://github.com/kontalk/androidclient/issues/526",
   "fileName": "org.kontalk-526",
+  "id": "526",
   "trace": [
    "android.database.sqlite.SQLiteConnection.nativeExecuteForChangedRowCount",
    "android.database.sqlite.SQLiteConnection.executeForChangedRowCount",
@@ -22557,6 +22621,7 @@
   "identifier": "com.pcinpact",
   "postURL": "https://github.com/AnaelMobilia/NextINpact-Unofficial/issues/188#issuecomment-147505046",
   "fileName": "com.pcinpact-147505046",
+  "id": "147505046",
   "trace": [
    "android.app.ContextImpl.startActivity",
    "android.app.ContextImpl.startActivity",
@@ -22612,6 +22677,7 @@
   "identifier": "org.fitchfamily.android.wifi_backend",
   "postURL": "https://github.com/n76/wifi_backend/pull/22#issuecomment-172302822",
   "fileName": "org.fitchfamily.android.wifi_backend-172302822",
+  "id": "172302822",
   "trace": [
    "android.database.sqlite.SQLiteProgram.bindString",
    "org.fitchfamily.android.wifi_backend.database.Database.insert",
@@ -22638,6 +22704,7 @@
   "identifier": "com.nextgis.mobile",
   "postURL": "https://github.com/nextgis/android_gisapp/issues/346",
   "fileName": "com.nextgis.mobile-346",
+  "id": "346",
   "trace": [
    "android.app.SharedPreferencesImpl.getString",
    "com.nextgis.mobile.fragment.MapFragment.onResume",
@@ -22665,6 +22732,7 @@
   "identifier": "com.seafile.seadroid",
   "postURL": "https://github.com/haiwen/seadroid/issues/474",
   "fileName": "com.seafile.seadroid-474",
+  "id": "474",
   "trace": [
    "com.android.internal.policy.impl.PhoneWindow.requestFeature",
    "android.app.Activity.requestWindowFeature",
@@ -22685,6 +22753,7 @@
   "identifier": "org.kontalk",
   "postURL": "https://github.com/kontalk/androidclient/issues/511",
   "fileName": "org.kontalk-511",
+  "id": "511",
   "trace": [
    "android.support.v4.app.FragmentManagerImpl.checkStateLoss",
    "android.support.v4.app.FragmentManagerImpl.enqueueAction",

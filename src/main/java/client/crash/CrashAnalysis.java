@@ -814,9 +814,10 @@ public class CrashAnalysis extends Analyzer {
             JSONObject jsonObject = (JSONObject)jsonArray.get(i);
             CrashInfo crashInfo = new CrashInfo();
             crashInfo.setIdentifier(jsonObject.getString("identifier"));
+            crashInfo.setId(jsonObject.getString("id"));
             if(Global.v().getAppModel().getPackageName().length()==0 && Global.v().getAppModel().getAppName().contains(crashInfo.getIdentifier()))
                 Global.v().getAppModel().setPackageName(crashInfo.getIdentifier());
-            if(crashInfo.getIdentifier().equals(Global.v().getAppModel().getPackageName())) {
+            if(Global.v().getAppModel().getAppName().equals(crashInfo.getIdentifier()+"-"+crashInfo.getId())){
                 crashInfoList.add(crashInfo);
                 crashInfo.setReal(jsonObject.getString("real"));
                 crashInfo.setException(jsonObject.getString("exception"));

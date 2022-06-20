@@ -30,9 +30,9 @@ public class TestAPP {
         path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 //        path = "C:\\Users\\yanjw\\programs\\Empirical500";
         String name;
-        name = "cgeo.geocaching-3570.apk";
+        name = "org.thoughtcrime.securesms-92317259-2.apk";
         String client = "CrashAnalysisClient";
-        String version = "10.0";
+        String version = "4.4";
 
         MyConfig.getInstance().setAppName(name);
         MyConfig.getInstance().setAppPath(path + File.separator);

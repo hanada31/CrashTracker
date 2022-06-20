@@ -1,3 +1,4 @@
+python scripts/runLoFDroid-multi.py  ../../apk/Empirical500/ v5-500-multi-0520 4.4
 python scripts/runLoFDroid-multi.py  ../../apk/Empirical500/ v5-500-multi-0520 5.0
 python scripts/runLoFDroid-multi.py  ../../apk/Empirical500/ v6-500-multi-0520 6.0
 python scripts/runLoFDroid-multi.py  ../../apk/Empirical500/ v7-500-multi-0520 7.0

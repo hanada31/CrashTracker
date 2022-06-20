@@ -1,3 +1,4 @@
+python scripts/runLoFDroid-framework.py 4.4
 python scripts/runLoFDroid-framework.py 5.0
 python scripts/runLoFDroid-framework.py 6.0
 python scripts/runLoFDroid-framework.py 7.0
