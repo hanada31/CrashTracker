@@ -76,7 +76,7 @@ public class CrashAnalysis extends Analyzer {
                     case ParameterOnly:
                         relatedVarType="ParameterOnly";
                         withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
-                        withAppFieldCallHandler(crashInfo, crashInfo.minScore-1, true);
+                        withCrashAPIParaHandler(crashInfo.minScore-1, crashInfo, true);
                         break;
                     case FieldOnly:
                         relatedVarType="FieldOnly";
@@ -86,14 +86,14 @@ public class CrashAnalysis extends Analyzer {
                     case ParaAndField:
                         relatedVarType="ParaAndField";
                         withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
-                        withAppFieldCallHandler(crashInfo, crashInfo.minScore-1, true);
+                        withCrashAPIParaHandler(crashInfo.minScore-1, crashInfo, true);
                         withFieldHandler(ConstantUtils.INITSCORE, crashInfo, true); //FCA
                         break;
                 }
             }else {
                 relatedVarType="unknown"; // native and other no exception.
-                withParameterHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo, true);
-                withCrashAPIParaHandler(crashInfo.minScore-1, crashInfo, false);
+                withParameterHandler(ConstantUtils.INITSCORE, crashInfo, true);
+                withCrashAPIParaHandler(ConstantUtils.INITSCORE-3, crashInfo, false); // replace with appFieldHandler
             }
         }
     }
@@ -293,10 +293,7 @@ public class CrashAnalysis extends Analyzer {
         SootUtils.getAllPredsofUnit(crashMethod, unit,allPreds);
         HashSet<SootField> fields = new HashSet<SootField>();
         extendRelatedValues(crashMethod, allPreds, unit, value, new ArrayList<>(), fields);
-        System.err.println(PrintUtils.printSet(fields));
-
-
-
+//        System.err.println(PrintUtils.printSet(fields));
 
         for (SootField field : fields) {
             for (SootMethod otherMethod : crashMethod.getDeclaringClass().getMethods()) {

@@ -29,7 +29,7 @@ public class TestIR {
         path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 //        path = "C:\\Users\\yanjw\\programs\\Empirical500";
         String name;
-        name = "cgeo.geocaching-5591.apk";
+        name = "cgeo.geocaching-1884.apk";
 
         String client = "IROutputClient";
 
