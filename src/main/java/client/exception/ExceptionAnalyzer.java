@@ -23,6 +23,8 @@ import soot.toolkits.scalar.ValueUnitPair;
 import java.io.File;
 import java.util.*;
 
+import static main.java.analyze.utils.SootUtils.getFiledValueAssigns;
+
 /**
  * @Author hanada
  * @Date 2022/3/11 15:21
@@ -42,9 +44,10 @@ public class ExceptionAnalyzer extends Analyzer {
      * @param sootMethod
      * @return
      */
+    //<android.app.ContextImpl: android.content.Intent registerReceiver(android.content.BroadcastReceiver
     private boolean filterMethod(SootMethod sootMethod) {
         List<String> mtds = new ArrayList<>();
-        mtds.add("android.view.ViewRootImpl: void setView");
+        mtds.add("android.app.LoadedApk: android.content.IIntentReceiver forgetReceiverDispatcher");
         for(String tag: mtds){
             if (sootMethod.getSignature().contains(tag)) {
                 return false;
@@ -307,7 +310,7 @@ public class ExceptionAnalyzer extends Analyzer {
                     String pkg1 = sootClass.getPackageName();
                     String pkg2 = exceptionInfo.getSootMethod().getDeclaringClass().getPackageName();
                     //filter a set of candidates!!!
-                    if (!StringUtils.getPkgPrefix(pkg1, 2).equals(StringUtils.getPkgPrefix(pkg2, 2)))
+                    if (sootClass != edgeSourceMtd.getDeclaringClass() && !StringUtils.getPkgPrefix(pkg1, 2).equals(StringUtils.getPkgPrefix(pkg2, 2)))
                         continue;
                     List<String> newTrace = new ArrayList<>(trace);
                     newTrace.add(0,signature);
@@ -451,10 +454,8 @@ public class ExceptionAnalyzer extends Analyzer {
                     identityStmt.getRightOp();
                     if (identityStmt.getRightOp() instanceof ParameterRef) {//from parameter
                         exceptionInfo.addRelatedParamValue(identityStmt.getRightOp());
-                        if(identityStmt.getRightOp() instanceof  ParameterRef) {
-                            exceptionInfo.getRelatedValueIndex().add(((ParameterRef) identityStmt.getRightOp()).getIndex());
-                            return "ParameterRef";
-                        }
+                        exceptionInfo.getRelatedValueIndex().add(((ParameterRef) identityStmt.getRightOp()).getIndex());
+                        return "ParameterRef";
                     }else if(identityStmt.getRightOp() instanceof CaughtExceptionRef){
                         exceptionInfo.addCaughtedValues(identityStmt.getRightOp());
                         return "CaughtExceptionRef";
@@ -522,24 +523,7 @@ public class ExceptionAnalyzer extends Analyzer {
         return "";
     }
 
-    private List<Value> getFiledValueAssigns(Value base, SootField f, List<Unit> allPreds) {
-        List<Value> rightValues = new ArrayList<>();
-        String name = f.getName();
-        for (Unit predUnit : allPreds) {
-            if(predUnit instanceof  AssignStmt){
-                Value left =  ((AssignStmt) predUnit).getLeftOp();
-                if(left instanceof AbstractInstanceFieldRef){
-                    if(((AbstractInstanceFieldRef) left).getField().getName().equals(name)){
-                        if(((AbstractInstanceFieldRef) left).getBase() == base) {
-                            for (ValueBox vb : ((AssignStmt) predUnit).getRightOp().getUseBoxes())
-                                rightValues.add(vb.getValue());
-                        }
-                    }
-                }
-            }
-        }
-        return rightValues;
-    }
+
 
     /**
      * get the goto destination of IfStatement

@@ -14,7 +14,8 @@ import main.java.analyze.utils.output.PrintUtils;
 import main.java.client.exception.*;
 import main.java.client.statistic.model.StatisticResult;
 import soot.*;
-import soot.jimple.InvokeExpr;
+import soot.jimple.*;
+import soot.jimple.internal.*;
 import soot.jimple.toolkits.callgraph.Edge;
 import soot.toolkits.graph.BriefUnitGraph;
 import soot.toolkits.scalar.UnitValueBoxPair;
@@ -23,6 +24,8 @@ import java.io.File;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static main.java.analyze.utils.SootUtils.getFiledValueAssigns;
 
 /**
  * @Author hanada
@@ -55,45 +58,6 @@ public class CrashAnalysis extends Analyzer {
         printCrash2Edges();
     }
 
-
-    /**
-     * key method
-     * find candidates according to the type of corresponding exception
-     */
-    private void getCandidateBuggyMethods_TypeAnalysis() {
-        for(CrashInfo crashInfo : crashInfoList){
-            ExceptionInfo exceptionInfo = crashInfo.getExceptionInfo();
-//            checkIsNoAppRelatedHandler(crashInfo);
-//            getExtendedCallTrace(crashInfo);
-            if(exceptionInfo!=null && exceptionInfo.getRelatedVarType()!=null) {
-                switch (exceptionInfo.getRelatedVarType()) {
-                    case OverrideMissing:
-                        relatedVarType="OverrideMissing";
-//                        overrideMissingHandler(ConstantUtils.INITSCORE,crashInfo, false); //OMA
-                        break;
-                    case ParameterOnly:
-                        relatedVarType="ParameterOnly";
-//                        withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
-//                        appFieldCallHandler(crashInfo, crashInfo.minScore-1, true);
-                        break;
-                    case FieldOnly:
-                        relatedVarType="FieldOnly";
-//                        withFieldHandler(ConstantUtils.INITSCORE, crashInfo, false); //FCA
-//                        addCrashTraces(crashInfo.minScore-1,crashInfo,false);
-                        break;
-                    case ParaAndField:
-                        relatedVarType="ParaAndField";
-//                        withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
-//                        appFieldCallHandler(crashInfo, crashInfo.minScore-1, true);
-//                        withFieldHandler(ConstantUtils.INITSCORE, crashInfo, true); //FCA
-                        break;
-                }
-            }else {
-                relatedVarType="unknown"; // native and other no exception.
-                withParameterHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo, true);
-            }
-        }
-    }
     /**
      * key method
      * find candidates according to the type of corresponding exception
@@ -112,7 +76,7 @@ public class CrashAnalysis extends Analyzer {
                     case ParameterOnly:
                         relatedVarType="ParameterOnly";
                         withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
-                        appFieldCallHandler(crashInfo, crashInfo.minScore-1, true);
+                        withAppFieldCallHandler(crashInfo, crashInfo.minScore-1, true);
                         break;
                     case FieldOnly:
                         relatedVarType="FieldOnly";
@@ -122,16 +86,19 @@ public class CrashAnalysis extends Analyzer {
                     case ParaAndField:
                         relatedVarType="ParaAndField";
                         withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
-                        appFieldCallHandler(crashInfo, crashInfo.minScore-1, true);
+                        withAppFieldCallHandler(crashInfo, crashInfo.minScore-1, true);
                         withFieldHandler(ConstantUtils.INITSCORE, crashInfo, true); //FCA
                         break;
                 }
             }else {
                 relatedVarType="unknown"; // native and other no exception.
                 withParameterHandler(ConstantUtils.NOEXCEPTIONSCORE, crashInfo, true);
+                withCrashAPIParaHandler(crashInfo.minScore-1, crashInfo, false);
             }
         }
     }
+
+
 
     private void addCrashTraces(int initscore, CrashInfo crashInfo, boolean filterExtendCG) {
         for(String candi: crashInfo.getCrashMethodList()){
@@ -141,21 +108,6 @@ public class CrashAnalysis extends Analyzer {
         }
     }
 
-    private boolean ifTheCrashMehthodHasParamter(CrashInfo crashInfo) {
-        for(SootMethod crashMethod: getCrashSootMethod(crashInfo)){
-            for(Unit u : crashMethod.getActiveBody().getUnits()){
-                InvokeExpr invoke = SootUtils.getInvokeExp(u);
-                if(invoke==null) continue;
-                int index = crashInfo.getCrashAPI().lastIndexOf(".");
-                String e = crashInfo.getCrashAPI().substring(index+1, crashInfo.getCrashAPI().length()-1);
-                if(invoke.toString().contains(e)){
-                    if(invoke.getMethod().getParameterCount()>0)
-                        return  true;
-                }
-            }
-        }
-        return  false;
-    }
 
     /**
      * use the same strategy as CrashLocator, extend cg, remove control flow and data flow unrelated edges
@@ -201,62 +153,6 @@ public class CrashAnalysis extends Analyzer {
             }
         }
     }
-
-//    //add callback related edges
-//    private void getExtendedCallTraceWithLibrary(CrashInfo crashInfo) {
-//        int start = getTopNonLibMethod(crashInfo);
-//        int end = getBottomNonLibMethod(crashInfo);
-//        crashInfo.setEdges(new ArrayList<>());
-//        SootClass superCls = null;
-//        String sub ="";
-//        List<String> history = new ArrayList<>();
-//        for(int k=start; k<=end; k++){
-//            String candi = crashInfo.getTrace().get(k);
-//            if(!isLibraryMethod(candi)){
-//                Set<SootMethod> methods = getSootMethodBySimpleName(candi);
-//                for(SootMethod sm: methods) {
-//                    if (sm == null) continue;
-//                    addEntryMethods2ExtendedCG(sm, crashInfo);
-//                    String last = (k==start)?crashInfo.getCrashAPI(): crashInfo.getCrashMethodList().get(k-1);
-//                    addPredCallersOfMethodsInStack(last,sm,crashInfo);
-//                    sub = sm.getDeclaringClass().getName();
-//                    superCls = Scene.v().getActiveHierarchy().getSuperclassesOf(sm.getDeclaringClass()).get(0);
-//                    for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesOutOf(sm); it.hasNext(); ) {
-//                        SootMethod callee = it.next().getTgt().method();
-//                        if (callee.getSignature().contains(superCls.getName())) {
-//                            getCalleeOfAndroidMethods(crashInfo, getMethodSimpleNameFromSignature(callee.getSignature()), sub, history, 2);
-//                        }
-//                    }
-//                }
-//            }else{
-//                if(candi.contains(superCls.getName() )){
-//                    getCalleeOfAndroidMethods(crashInfo, candi , sub, history,2);
-//                }
-//            }
-//        }
-//    }
-
-
-
-//    private void getCalleeOfAndroidMethods(CrashInfo crashInfo, String candi, String sub, List<String> history, int depth) {
-//        if(history.contains(candi)) return;
-//        history.add(candi);
-//        readAndroidCG();
-//        if(!androidCGMap.containsKey(candi)) return;
-//        String candiClassName = candi.substring(0,candi.lastIndexOf("."));
-//        for(String callee: androidCGMap.get(candi)){
-//            if(callee.contains(candiClassName)) {
-//                String realCallee = callee.replace(candiClassName, sub);
-//                Set <SootMethod > methods = getSootMethodBySimpleName(realCallee);
-//                for (SootMethod realSootMethod : methods) {
-//                    if (realSootMethod != null) {
-//                        addAllCallee2ExtendedCG(realSootMethod, crashInfo, depth);
-//                    }
-//                }
-//                getCalleeOfAndroidMethods(crashInfo, callee, sub, history, depth+1);
-//            }
-//        }
-//    }
 
     /**
      * add all preds unit of u
@@ -334,7 +230,7 @@ public class CrashAnalysis extends Analyzer {
      * @param crashInfo
      * @param filterExtendCG
      */
-    private void appFieldCallHandler(CrashInfo crashInfo, int score, boolean filterExtendCG) {
+    private void withAppFieldCallHandler(CrashInfo crashInfo, int score, boolean filterExtendCG) {
         System.out.println("getBuggyFromUserCode......");
         Set<SootMethod> crashMethods = getCrashSootMethod(crashInfo);
         for(SootMethod crashMethod:crashMethods) {
@@ -374,6 +270,123 @@ public class CrashAnalysis extends Analyzer {
                 getBuggyFromRelatedMethods(crashInfo, method, score-ConstantUtils.DIFFCLASS, filterExtendCG);
             }
         }
+    }
+    //according to the parameter send into framework API
+    private void withCrashAPIParaHandler(int score, CrashInfo crashInfo, boolean filterExtendCG) {
+        for(SootMethod crashMethod: getCrashSootMethod(crashInfo)){
+            for(Unit unit : crashMethod.getActiveBody().getUnits()){
+                InvokeExpr invoke = SootUtils.getInvokeExp(unit);
+                if(invoke==null) continue;
+                int index = crashInfo.getCrashAPI().lastIndexOf(".");
+                String e = crashInfo.getCrashAPI().substring(index+1, crashInfo.getCrashAPI().length()-1);
+                if(invoke.toString().contains(e)){
+                    for(Value param: invoke.getArgs()){
+                        findMethodsWhoModifyParam(score, crashInfo, filterExtendCG, crashMethod, unit, param);
+                    }
+                }
+            }
+        }
+    }
+
+    private void findMethodsWhoModifyParam(int score, CrashInfo crashInfo, boolean filterExtendCG, SootMethod crashMethod, Unit unit, Value value) {
+        List<Unit> allPreds = new ArrayList<>();
+        SootUtils.getAllPredsofUnit(crashMethod, unit,allPreds);
+        HashSet<SootField> fields = new HashSet<SootField>();
+        extendRelatedValues(crashMethod, allPreds, unit, value, new ArrayList<>(), fields);
+        System.err.println(PrintUtils.printSet(fields));
+
+
+
+
+        for (SootField field : fields) {
+            for (SootMethod otherMethod : crashMethod.getDeclaringClass().getMethods()) {
+                if (!otherMethod.hasActiveBody()) continue;
+                if (SootUtils.fieldIsChanged(field, otherMethod)) {
+                    String candi = otherMethod.getDeclaringClass().getName() + "." + otherMethod.getName();
+                    List<String> trace = new ArrayList<>();
+                    trace.add(otherMethod.getSignature());
+                    trace.add("key field: " + field.toString());
+                    trace.add(crashMethod.getSignature());
+                    trace.add("key field: " + field.toString());
+                    crashInfo.addBuggyCandidates(candi, score, filterExtendCG,"modify_fields_send_to_framework", trace);
+                }
+            }
+        }
+    }
+
+
+    /**
+     * tracing the values relates to the one used in if condition
+     */
+    private String extendRelatedValues(SootMethod crashMethod, List<Unit> allPreds, Unit unit, Value value,
+                                       List<Value> valueHistory, HashSet<SootField> sootFields) {
+        if(valueHistory.contains(value)) return "";// if defUnit is not a pred of unit
+        valueHistory.add(value);
+        if(value instanceof  Local) {
+            String methodSig = crashMethod.getSignature();
+            for(Unit defUnit: SootUtils.getDefOfLocal(methodSig,value, unit)) {
+                //if the define unit is under a check
+                if (defUnit instanceof JIdentityStmt) {
+                    JIdentityStmt identityStmt = (JIdentityStmt) defUnit;
+                    identityStmt.getRightOp();
+                    if(identityStmt.getRightOp() instanceof ParameterRef) {//from parameter
+                        return "ParameterRef";
+                    }else if(identityStmt.getRightOp() instanceof CaughtExceptionRef){
+                        return "CaughtExceptionRef";
+                    }else if(identityStmt.getRightOp() instanceof ThisRef){
+                        return "ThisRef";
+                    }
+                } else if (defUnit instanceof JAssignStmt) {
+                    Value rightOp = ((JAssignStmt) defUnit).getRightOp();
+                    if (rightOp instanceof Local) {
+                        extendRelatedValues(crashMethod, allPreds, defUnit, rightOp, valueHistory, sootFields);
+                    } else if (rightOp instanceof AbstractInstanceFieldRef) {
+                        Value base = ((AbstractInstanceFieldRef) rightOp).getBase();
+                        String defType = extendRelatedValues(crashMethod, allPreds, defUnit, base, valueHistory, sootFields);
+                        if(defType.equals("ThisRef")){
+                            SootField field = ((AbstractInstanceFieldRef) rightOp).getField();
+                            Value baseF = ((AbstractInstanceFieldRef) rightOp).getBase();
+                            List<Value> rightValues = getFiledValueAssigns(baseF, field, allPreds);
+                            for(Value rv: rightValues){
+                                extendRelatedValues(crashMethod, allPreds, defUnit, rv, valueHistory, sootFields);
+                            }
+                            sootFields.add(field);
+                        }
+                    } else if (rightOp instanceof Expr) {
+                        if (rightOp instanceof InvokeExpr) {
+                            InvokeExpr invokeExpr = SootUtils.getInvokeExp(defUnit);
+                            for (Value val : invokeExpr.getArgs())
+                                extendRelatedValues(crashMethod, allPreds, defUnit, val, valueHistory, sootFields);
+                            if (rightOp instanceof InstanceInvokeExpr) {
+                                extendRelatedValues(crashMethod, allPreds, defUnit, ((InstanceInvokeExpr) rightOp).getBase(), valueHistory, sootFields);
+                            }
+                        } else if (rightOp instanceof AbstractInstanceOfExpr || rightOp instanceof AbstractCastExpr
+                                || rightOp instanceof AbstractBinopExpr || rightOp instanceof AbstractUnopExpr) {
+                            for (ValueBox vb : rightOp.getUseBoxes()) {
+                                extendRelatedValues(crashMethod, allPreds, defUnit, vb.getValue(), valueHistory, sootFields);
+                            }
+                        } else if (rightOp instanceof NewExpr) {
+                            List<UnitValueBoxPair> usesOfOps = SootUtils.getUseOfLocal(crashMethod.getSignature(), defUnit);
+                            for (UnitValueBoxPair use : usesOfOps) {
+                                for (ValueBox vb : use.getUnit().getUseBoxes())
+                                    extendRelatedValues(crashMethod, allPreds, use.getUnit(), vb.getValue(), valueHistory, sootFields);
+                            }
+                        }
+                    } else if (rightOp instanceof StaticFieldRef) {
+                        sootFields.add(((StaticFieldRef) rightOp).getField());
+                    }else if (rightOp instanceof JArrayRef) {
+                        JArrayRef jArrayRef = (JArrayRef) rightOp;
+                        extendRelatedValues(crashMethod, allPreds, defUnit, jArrayRef.getBase(), valueHistory, sootFields);
+                    }else if (rightOp instanceof JInstanceFieldRef) {
+                        JInstanceFieldRef jInstanceFieldRef = (JInstanceFieldRef) rightOp;
+                        extendRelatedValues(crashMethod, allPreds, defUnit, jInstanceFieldRef.getBase(), valueHistory, sootFields);
+                    }
+                } else {
+                    System.out.println(defUnit.getClass().getName() + "::" + defUnit);
+                }
+            }
+        }
+        return "";
     }
     /**
      * parameterOnlyHandler

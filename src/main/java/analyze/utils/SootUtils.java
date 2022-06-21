@@ -1594,4 +1594,23 @@ public class SootUtils {
 		return false;
 	}
 
+
+	public static List<Value> getFiledValueAssigns(Value base, SootField f, List<Unit> allPreds) {
+		List<Value> rightValues = new ArrayList<>();
+		String name = f.getName();
+		for (Unit predUnit : allPreds) {
+			if(predUnit instanceof  AssignStmt){
+				Value left =  ((AssignStmt) predUnit).getLeftOp();
+				if(left instanceof AbstractInstanceFieldRef){
+					if(((AbstractInstanceFieldRef) left).getField().getName().equals(name)){
+						if(((AbstractInstanceFieldRef) left).getBase() == base) {
+							for (ValueBox vb : ((AssignStmt) predUnit).getRightOp().getUseBoxes())
+								rightValues.add(vb.getValue());
+						}
+					}
+				}
+			}
+		}
+		return rightValues;
+	}
 }
