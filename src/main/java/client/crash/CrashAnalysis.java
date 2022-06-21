@@ -454,7 +454,7 @@ public class CrashAnalysis extends Analyzer {
                     }
                 }
             }else{
-                if(candi.contains(superCls.getName() )){
+                if(superCls!= null && candi.contains(superCls.getName() )){
                     List<String> trace = new ArrayList<>();
                     trace.add(0, candi);
                     getCalleeOfAndroidMethods(initScore,crashInfo, candi , sub, history, filterExtendCG, trace);

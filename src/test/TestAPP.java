@@ -30,7 +30,7 @@ public class TestAPP {
         path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 //        path = "C:\\Users\\yanjw\\programs\\Empirical500";
         String name;
-        name = "org.thoughtcrime.securesms-92317259-2.apk";
+        name = "org.wordpress.android-1843.apk";
         String client = "CrashAnalysisClient";
         String version = "4.4";
 

@@ -1,5 +1,4 @@
 python scripts/runLoFDroid-multi.py  ../../apk/FanDataICSE2018-before/ v4-fan-0620 4.4
-python scripts/runLoFDroid-multi.py  ../../apk/Empirical500/ v4-500-multi-0523 4.4
 python scripts/runLoFDroid-multi.py  ../../apk/FanDataICSE2018-before/ v5-fan-0620 5.0
 python scripts/runLoFDroid-multi.py  ../../apk/FanDataICSE2018-before/ v6-fan-0620 6.0
 python scripts/runLoFDroid-multi.py  ../../apk/FanDataICSE2018-before/ v7-fan-0620 7.0
