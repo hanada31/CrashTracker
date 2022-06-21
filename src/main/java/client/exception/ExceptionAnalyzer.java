@@ -69,8 +69,8 @@ public class ExceptionAnalyzer extends Analyzer {
             if(!sootClass.getPackageName().startsWith(ConstantUtils.PKGPREFIX)) continue;
             exceptionInfoList = new ArrayList<>();
             for (SootMethod sootMethod : sootClass.getMethods()) {
-//                if(filterMethod(sootMethod)) continue;
-//                System.out.println(sootMethod.getSignature());
+                if(filterMethod(sootMethod)) continue;
+                System.out.println(sootMethod.getSignature());
                 if (sootMethod.hasActiveBody()) {
                     try {
                         Map<Unit, String> unit2Message = new HashMap<>();
@@ -310,12 +310,14 @@ public class ExceptionAnalyzer extends Analyzer {
                     String pkg1 = sootClass.getPackageName();
                     String pkg2 = exceptionInfo.getSootMethod().getDeclaringClass().getPackageName();
                     //filter a set of candidates!!!
-                    if (sootClass != edgeSourceMtd.getDeclaringClass() && !StringUtils.getPkgPrefix(pkg1, 2).equals(StringUtils.getPkgPrefix(pkg2, 2)))
+                    if (StringUtils.getPkgPrefix(pkg1, 2).equals(StringUtils.getPkgPrefix(pkg2, 2)) || edgeSourceMtd.getName().equals(sootMethod.getName())) {
+                        List<String> newTrace = new ArrayList<>(trace);
+                        newTrace.add(0, signature);
+                        RelatedMethod addMethodObj = new RelatedMethod(signature, mtdSource, depth, newTrace);
+                        addRelatedMethodInstance(edgeSourceMtd, addMethodObj, exceptionInfo);
+                    }else{
                         continue;
-                    List<String> newTrace = new ArrayList<>(trace);
-                    newTrace.add(0,signature);
-                    RelatedMethod addMethodObj = new RelatedMethod(signature, mtdSource, depth, newTrace);
-                    addRelatedMethodInstance(edgeSourceMtd, addMethodObj, exceptionInfo);
+                    }
                 }
                 if(sm!=null) {
                     Iterator<SootClass> it2 = sm.getDeclaringClass().getInterfaces().iterator();
