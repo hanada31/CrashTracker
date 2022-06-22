@@ -25,11 +25,11 @@ public class TestIR {
 
     private void setArgs() {
         String path;
-//        path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
+        path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
         path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 //        path = "C:\\Users\\yanjw\\programs\\Empirical500";
         String name;
-        name = "cgeo.geocaching-1884.apk";
+        name = "cgeo.geocaching-4524.apk";
 
         String client = "IROutputClient";
 

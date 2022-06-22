@@ -19,6 +19,7 @@ import soot.jimple.internal.*;
 import soot.jimple.toolkits.callgraph.Edge;
 import soot.toolkits.graph.BriefUnitGraph;
 import soot.toolkits.scalar.UnitValueBoxPair;
+import soot.util.Cons;
 
 import java.io.File;
 import java.util.*;
@@ -81,7 +82,7 @@ public class CrashAnalysis extends Analyzer {
                     case FieldOnly:
                         relatedVarType="FieldOnly";
                         withFieldHandler(ConstantUtils.INITSCORE, crashInfo, false); //FCA
-                        addCrashTraces(crashInfo.minScore-1,crashInfo,false);
+                        addCrashTraces(ConstantUtils.NOEXCEPTIONSCORE,crashInfo,false);
                         break;
                     case ParaAndField:
                         relatedVarType="ParaAndField";
@@ -230,7 +231,7 @@ public class CrashAnalysis extends Analyzer {
      * @param crashInfo
      * @param filterExtendCG
      */
-    private void withAppFieldCallHandler(CrashInfo crashInfo, int score, boolean filterExtendCG) {
+    private void withAppFieldCallHandler(int score, CrashInfo crashInfo, boolean filterExtendCG) {
         System.out.println("getBuggyFromUserCode......");
         Set<SootMethod> crashMethods = getCrashSootMethod(crashInfo);
         for(SootMethod crashMethod:crashMethods) {
@@ -421,7 +422,6 @@ public class CrashAnalysis extends Analyzer {
                     }else{
                         trace.add(candi);
                     }
-
                     crashInfo.addBuggyCandidates(candi,score, filterExtendCG,"best_match_crash_trace_ method", trace);
                     count++;
                     find = true;

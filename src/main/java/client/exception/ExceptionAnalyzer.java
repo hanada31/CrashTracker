@@ -48,6 +48,8 @@ public class ExceptionAnalyzer extends Analyzer {
     private boolean filterMethod(SootMethod sootMethod) {
         List<String> mtds = new ArrayList<>();
         mtds.add("android.app.LoadedApk: android.content.IIntentReceiver forgetReceiverDispatcher");
+        mtds.add("android.view.ViewRoot: void checkThread");
+        mtds.add("android.view.ViewRootImpl: void checkThread");
         for(String tag: mtds){
             if (sootMethod.getSignature().contains(tag)) {
                 return false;
@@ -304,38 +306,41 @@ public class ExceptionAnalyzer extends Analyzer {
             }
             List<SootClass> subClasses = SootUtils.getSubClasses(edgeSourceMtd);
             for (SootClass sootClass : subClasses) {
-                String signature = edgeSourceMtd.getSignature().replace(edgeSourceMtd.getDeclaringClass().getName(), sootClass.getName());
-                SootMethod sm = SootUtils.getSootMethodBySignature(signature);
-                if(sm == null|| sootClass == edgeSourceMtd.getDeclaringClass()) {
-                    String pkg1 = sootClass.getPackageName();
-                    String pkg2 = exceptionInfo.getSootMethod().getDeclaringClass().getPackageName();
-                    //filter a set of candidates!!!
-                    if (StringUtils.getPkgPrefix(pkg1, 2).equals(StringUtils.getPkgPrefix(pkg2, 2)) || edgeSourceMtd.getName().equals(sootMethod.getName())) {
+                boolean flag = false;
+                String pkg1 = sootClass.getPackageName();
+                String pkg2 = exceptionInfo.getSootMethod().getDeclaringClass().getPackageName();
+                if (StringUtils.getPkgPrefix(pkg1, 2).equals(StringUtils.getPkgPrefix(pkg2, 2))
+                        || edgeSourceMtd.getName().equals(sootMethod.getName())) {
+                    String signature = edgeSourceMtd.getSignature().replace(edgeSourceMtd.getDeclaringClass().getName(), sootClass.getName());
+                    SootMethod sm = SootUtils.getSootMethodBySignature(signature);
+                    if(sm == null|| sootClass == edgeSourceMtd.getDeclaringClass()) {
+                        //filter a set of candidates!!!
                         List<String> newTrace = new ArrayList<>(trace);
                         newTrace.add(0, signature);
                         RelatedMethod addMethodObj = new RelatedMethod(signature, mtdSource, depth, newTrace);
                         addRelatedMethodInstance(edgeSourceMtd, addMethodObj, exceptionInfo);
-                    }else{
-                        continue;
+                        flag = true;
                     }
-                }
-                if(sm!=null) {
-                    Iterator<SootClass> it2 = sm.getDeclaringClass().getInterfaces().iterator();
-                    while (it2.hasNext()) {
-                        SootClass interfaceSC = it2.next();
-                        for (SootMethod interfaceSM : interfaceSC.getMethods()) {
-                            if (interfaceSM.getSubSignature().equals(sm.getSubSignature())) {
+                    if(sm!=null) {
+                        Iterator<SootClass> it2 = sm.getDeclaringClass().getInterfaces().iterator();
+                        while (it2.hasNext()) {
+                            SootClass interfaceSC = it2.next();
+                            for (SootMethod interfaceSM : interfaceSC.getMethods()) {
                                 List<String> newTrace = new ArrayList<>(trace);
-                                newTrace.add(0,interfaceSM.getSignature());
+                                newTrace.add(0, interfaceSM.getSignature());
                                 RelatedMethod addMethodObj = new RelatedMethod(interfaceSM.getSignature(), mtdSource, depth, newTrace);
                                 addRelatedMethodInstance(edgeSourceMtd, addMethodObj, exceptionInfo);
+                                flag = true;
                             }
+
                         }
                     }
+                    if(flag) {
+                        List<String> newTrace = new ArrayList<>(trace);
+                        newTrace.add(0, edgeSourceMtd.getSignature());
+                        getExceptionCallerByParam(edgeSourceMtd, exceptionInfo, callerHistory, depth + 1, mtdSource, paramIndexCaller, newTrace);
+                    }
                 }
-                List<String> newTrace = new ArrayList<>(trace);
-                newTrace.add(0,edgeSourceMtd.getSignature());
-                getExceptionCallerByParam(edgeSourceMtd, exceptionInfo, callerHistory, depth + 1, mtdSource, paramIndexCaller, newTrace);
             }
         }
     }

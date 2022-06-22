@@ -31,10 +31,10 @@ public class TestAPP {
 //        path = "C:\\Users\\yanjw\\programs\\Empirical500";
 
         String name;
-        name = "com.nextgis.mobile-315.apk";
+        name = "org.thoughtcrime.securesms-92317259.apk";
 
         String client = "CrashAnalysisClient";
-        String version = "5.0";
+        String version = "10.0";
 
         MyConfig.getInstance().setAppName(name);
         MyConfig.getInstance().setAppPath(path + File.separator);
