@@ -168,20 +168,22 @@ public class ConstantUtils {
 
 	public static final String onCreateOptionsMenu = "boolean onCreateOptionsMenu(android.view.Menu)";
 	public static final String onOptionsItemSelected = "boolean onOptionsItemSelected(android.view.MenuItem)";
-    public static final int CONDITIONHISTORYSIZE = 50;
+
+    public static String PKGPREFIX = "android";
+
+	public static final int MANIFESTTIMEOUT =2 ;
+
+	public static final int CONDITIONHISTORYSIZE = 50;
 	public static final int CALLDEPTH = 8;
     public static final int EXTENDCGDEPTH = 5;
-    public static final int NOTINEXTENDEDCG = 10;
-    public static String PKGPREFIX = "android";
-    public static final int MANIFESTTIMEOUT =2 ;
-    public static final int INITSCORE = 100;
-	public static final int NOEXCEPTIONSCORE = 70;
-    public static final int USERFIELDMTDSCORE = 10 ;
-	public static final int METHODOUTTACE = 5;
-    public static final int OUTOFPKGSCORE = 20;
-	public static final int BOTTOMSCORE = -100;
-	public static final int DIFFCLASS = 20;
 
+    public static final int INITSCORE = 100;
+	public static final int SECONDINITSCORE = 70;
+	public static final int METHODINTACE = 5;
+    public static final int OUTOFPKGSCORE = 20;
+	public static final int BOTTOMSCORE = 0;
+	public static final int DIFFCLASS = 20;
+	public static final int SMALLGAPSCORE = 4;
 
 	private static final String[] activityMethods = { ACTIVITY_ONCREATE, ACTIVITY_ONDESTROY, ACTIVITY_ONPAUSE,
 			ACTIVITY_ONRESTART, ACTIVITY_ONRESUME, ACTIVITY_ONSTART, ACTIVITY_ONSTOP, ACTIVITY_ONSAVEINSTANCESTATE,

@@ -366,9 +366,6 @@ public class ExceptionAnalyzer extends Analyzer {
      * @param trace
      */
     private void getExceptionCallerByField(SootMethod sootMethod, ExceptionInfo exceptionInfo, HashSet<SootMethod> callerHistory, int depth, RelatedMethodSource mtdSource, List<String> trace) {
-//        if(callerHistory.contains(sootMethod) || depth >ConstantUtils.CALLDEPTH)
-//            return;
-//        callerHistory.add(sootMethod);
         for(SootField field: exceptionInfo.getRelatedFieldValues()){
             for(SootMethod otherMethod: sootMethod.getDeclaringClass().getMethods()){
                 if(!otherMethod.hasActiveBody()) continue;

@@ -77,25 +77,26 @@ public class CrashAnalysis extends Analyzer {
                     case ParameterOnly:
                         relatedVarType="ParameterOnly";
                         withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
-                        withCrashAPIParaHandler(crashInfo.minScore-1, crashInfo, true);
+                        withCrashAPIParaHandler(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo, true);
                         break;
                     case FieldOnly:
                         relatedVarType="FieldOnly";
                         withFieldHandler(ConstantUtils.INITSCORE, crashInfo, false); //FCA
-                        addCrashTraces(ConstantUtils.NOEXCEPTIONSCORE,crashInfo,false);
+                        addCrashTraces(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo,false);
                         break;
                     case ParaAndField:
                         relatedVarType="ParaAndField";
                         withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
-                        withCrashAPIParaHandler(crashInfo.minScore-1, crashInfo, true);
+                        withCrashAPIParaHandler(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo, true);
                         withFieldHandler(ConstantUtils.INITSCORE, crashInfo, true); //FCA
                         break;
                 }
             }else {
                 relatedVarType="unknown"; // native and other no exception.
                 withParameterHandler(ConstantUtils.INITSCORE, crashInfo, true);
-                withCrashAPIParaHandler(ConstantUtils.INITSCORE-3, crashInfo, false); // replace with appFieldHandler
+                withCrashAPIParaHandler(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo, false); // replace with appFieldHandler
             }
+            System.out.println("### relatedVarType is " + relatedVarType);
         }
     }
 
@@ -236,7 +237,7 @@ public class CrashAnalysis extends Analyzer {
         Set<SootMethod> crashMethods = getCrashSootMethod(crashInfo);
         for(SootMethod crashMethod:crashMethods) {
             List<SootField> keyFields = getKeySootFields(crashMethod, crashInfo);
-            for (SootField field : keyFields) {
+            for (SootField field : keyFields){
                 for (SootMethod otherMethod : crashMethod.getDeclaringClass().getMethods()) {
                     if (!otherMethod.hasActiveBody()) continue;
                     if (SootUtils.fieldIsChanged(field, otherMethod)) {
@@ -292,11 +293,13 @@ public class CrashAnalysis extends Analyzer {
     private void findMethodsWhoModifyParam(int score, CrashInfo crashInfo, boolean filterExtendCG, SootMethod crashMethod, Unit unit, Value value) {
         List<Unit> allPreds = new ArrayList<>();
         SootUtils.getAllPredsofUnit(crashMethod, unit,allPreds);
-        HashSet<SootField> fields = new HashSet<SootField>();
+        HashSet<SootField> fields = new HashSet<>();
         extendRelatedValues(crashMethod, allPreds, unit, value, new ArrayList<>(), fields);
-//        System.err.println(PrintUtils.printSet(fields));
 
+        List<SootField> keyFields = getKeySootFields(crashMethod, crashInfo);
         for (SootField field : fields) {
+            if(keyFields!=null && !keyFields.contains(field))
+                continue;
             for (SootMethod otherMethod : crashMethod.getDeclaringClass().getMethods()) {
                 if (!otherMethod.hasActiveBody()) continue;
                 if (SootUtils.fieldIsChanged(field, otherMethod)) {
@@ -540,6 +543,7 @@ public class CrashAnalysis extends Analyzer {
         String candi = sootMethod.getDeclaringClass().getName()+ "." + sootMethod.getName();
         trace.add(0,sootMethod.getSignature());
         int score = initScore - getOrderInTrace(crashInfo, candi) - method.getDepth() - depth;
+        if(crashInfo.getTrace().contains(candi)) score += ConstantUtils.METHODINTACE;
         crashInfo.addBuggyCandidates(candi, score, filterExtendedCG,"related_method_caller", trace);
 
         //if the buggy type is not passed by parameter, do not find its caller
@@ -562,7 +566,6 @@ public class CrashAnalysis extends Analyzer {
      * @param filterExtendedCG
      */
     private void getBuggyFromRelatedMethods(CrashInfo crashInfo, RelatedMethod relatedMethod, int initScore, boolean filterExtendedCG) {
-
         crashInfo.setEdges(new ArrayList<>());
         for (Iterator<Edge> it = Global.v().getAppModel().getCg().iterator(); it.hasNext(); ) {
             Edge edge = it.next();
@@ -609,10 +612,13 @@ public class CrashAnalysis extends Analyzer {
      * @return
      */
     private List<SootField> getKeySootFields(SootMethod crashMethod, CrashInfo crashInfo) {
+        if(crashMethod==null || crashInfo.getExceptionInfo()==null) return null;
+        List<String> typeList = crashInfo.getExceptionInfo().getRelatedParamValuesInStr();
+        if(typeList==null) return null;
+
         List<SootField> fields = new ArrayList<>();
-        if(crashMethod==null) return fields;
         for(SootField field: crashMethod.getDeclaringClass().getFields()) {
-            for (String bugParaType : crashInfo.getExceptionInfo().getRelatedParamValuesInStr()) {
+            for (String bugParaType : typeList) {
                 if (field.getType().toString().equals(bugParaType)) {
                     fields.add(field);
                 }

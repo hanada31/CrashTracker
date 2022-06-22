@@ -40,6 +40,7 @@ public class CrashInfo {
     Map<String, Integer> extendedCallDepth = new HashMap<String, Integer>();
     boolean findCandidateInTrace = false;
     int minScore = ConstantUtils.INITSCORE;
+    int maxScore = ConstantUtils.BOTTOMSCORE;
     List<String> noneCodeLabels = new ArrayList<String>();
 
     public Map<String, Integer> getExtendedCallDepth() {
@@ -75,23 +76,22 @@ public class CrashInfo {
             String prefixInTrace = StringUtils.getPkgPrefix(traceMtd, id);
             if(candi.contains(prefixInTrace)) {
                 findPrexInTrace = true;
+                break;
             }
         }
         if(!findPrexInTrace) return;
-
-//        if(!extendedCallDepth.containsKey(candi))
-//            score = score - ConstantUtils.NOTINEXTENDEDCG;
         String pkgPrefix = StringUtils.getPkgPrefix(Global.v().getAppModel().getPackageName(),2);
         if(!candi.contains(pkgPrefix)) {
             score = score - ConstantUtils.OUTOFPKGSCORE;
         }
-        if(this.buggyCandidates.containsKey(candi) && this.buggyCandidates.get(candi) > score)
+        if(this.buggyCandidates.containsKey(candi) && this.buggyCandidates.get(candi) >= score)
             return;
         if(score > ConstantUtils.BOTTOMSCORE) {
             this.buggyCandidates.put(candi, score);
             BuggyCandidate candiObj = new BuggyCandidate(candi,score,reason,trace);
             this.buggyCandidateObjs.put(candi, candiObj);
             if(score< minScore) minScore = score;
+            if(score> maxScore) maxScore = score;
         }
     }
 
