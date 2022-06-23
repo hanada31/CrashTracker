@@ -75,7 +75,7 @@ public class ExceptionAnalyzer extends Analyzer {
             for (SootMethod sootMethod : sootClass.getMethods()) {
 
                 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                if(filterMethod(sootMethod)) continue;
+//                if(filterMethod(sootMethod)) continue;
 
                 if (sootMethod.hasActiveBody()) {
                     try {
