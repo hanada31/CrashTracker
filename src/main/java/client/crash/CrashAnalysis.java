@@ -97,7 +97,8 @@ public class CrashAnalysis extends Analyzer {
             }else {
                 relatedVarType="unknown"; // native and other no exception.
                 withParameterHandler(ConstantUtils.INITSCORE, crashInfo, true);
-                withCrashAPIParaHandler(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo, true); // replace with appFieldHandler
+                int score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
+                withCrashAPIParaHandler(score, crashInfo, false); // replace with appFieldHandler, false! some invoked methods can not be find
             }
             System.out.println("### relatedVarType is " + relatedVarType);
         }
@@ -579,7 +580,6 @@ public class CrashAnalysis extends Analyzer {
                 crashInfo.add2EdgeMap(0, edge);
                 List<String> trace = new ArrayList<>();
                 trace.addAll(relatedMethod.getTrace());
-                trace.add(relatedMethod.getMethod());
                 addCallersOfSourceOfEdge(initScore, edge, relatedMethod, crashInfo, sourceMtd, 1, filterExtendedCG, trace);
             }
         }
@@ -797,8 +797,9 @@ public class CrashAnalysis extends Analyzer {
                 relatedMethod.setDepth(sameClsObj.getInteger("depth"));
                 relatedMethod.setSource(RelatedMethodSource.valueOf(sameClsObj.getString("source")));
                 String trace = sameClsObj.getString("trace");
-                relatedMethod.addTrace("fw: "+trace.replace("[","").
-                        replace("]","").replace("\"","").replace(">,",">, "));
+                String newTrace = "fw: " + trace.replace("[", "").
+                        replace("]", "").replace("\"", "").replace(">,", ">, ");
+                relatedMethod.addTrace(newTrace);
                 exceptionInfo.addRelatedMethodsInSameClass(relatedMethod);
             }
             JSONArray diffClsObjs = jsonObject.getJSONArray("relatedMethodDiffClass");
@@ -809,8 +810,9 @@ public class CrashAnalysis extends Analyzer {
                 relatedMethod.setDepth(diffClsObj.getInteger("depth"));
                 relatedMethod.setSource(RelatedMethodSource.valueOf(diffClsObj.getString("source")));
                 String trace = diffClsObj.getString("trace");
-                relatedMethod.addTrace("fw: "+trace.replace("[","").
-                        replace("]","").replace("\"","").replace(",",", "));
+                String newTrace = "fw: " + trace.replace("[", "").
+                        replace("]", "").replace("\"", "").replace(">,", ">, ");
+                relatedMethod.addTrace(newTrace);
                 exceptionInfo.addRelatedMethodsInDiffClass(relatedMethod);
             }
 

@@ -2,18 +2,19 @@ package main.java.client.exception;
 
 import com.alibaba.fastjson.JSONArray;
 import com.google.common.collect.Lists;
-import com.sun.xml.bind.v2.runtime.reflect.opt.Const;
 import main.java.Analyzer;
 import main.java.Global;
 import main.java.MyConfig;
+import main.java.analyze.model.sootAnalysisModel.Context;
+import main.java.analyze.model.sootAnalysisModel.Counter;
+import main.java.analyze.model.sootAnalysisModel.NestableObj;
 import main.java.analyze.utils.ConstantUtils;
 import main.java.analyze.utils.SootUtils;
 import main.java.analyze.utils.StringUtils;
+import main.java.analyze.utils.ValueObtainer;
 import main.java.analyze.utils.output.FileUtils;
 import main.java.client.statistic.model.StatisticResult;
 import soot.*;
-import soot.JastAddJ.GTExpr;
-import soot.grimp.internal.GTableSwitchStmt;
 import soot.jimple.*;
 import soot.jimple.internal.*;
 import soot.jimple.toolkits.callgraph.Edge;
@@ -50,7 +51,7 @@ public class ExceptionAnalyzer extends Analyzer {
     //<android.app.ContextImpl: android.content.Intent registerReceiver(android.content.BroadcastReceiver
     private boolean filterMethod(SootMethod sootMethod) {
         List<String> mtds = new ArrayList<>();
-        mtds.add("android.app.FragmentManagerImpl: void checkStateLoss");
+        mtds.add("android.view.ViewRootImpl: void checkThread");
         for(String tag: mtds){
             if (sootMethod.getSignature().contains(tag)) {
                 return false;
@@ -74,7 +75,7 @@ public class ExceptionAnalyzer extends Analyzer {
             for (SootMethod sootMethod : sootClass.getMethods()) {
 
                 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//                if(filterMethod(sootMethod)) continue;
+                if(filterMethod(sootMethod)) continue;
 
                 if (sootMethod.hasActiveBody()) {
                     try {
@@ -369,11 +370,12 @@ public class ExceptionAnalyzer extends Analyzer {
         for(SootField field: exceptionInfo.getRelatedFieldValues()){
             for(SootMethod otherMethod: sootMethod.getDeclaringClass().getMethods()){
                 if(!otherMethod.hasActiveBody()) continue;
-                //if only one field and one condition, judge whether the condition is satisfied
-                if(exceptionInfo.getRelatedFieldValues().size()==1 && exceptionInfo.getConditions().size()==1){
-                    boolean check = conditionCheck(otherMethod, field, exceptionInfo.getConditions().get(0));
-                    if(!check) continue;
-                }
+//                //if only one field and one condition, judge whether the condition is satisfied
+//                //satisfy and not satisfy both may relate to bug fix... so do not judge
+//                if(exceptionInfo.getRelatedFieldValues().size()==1 && exceptionInfo.getConditions().size()==1){
+//                    boolean check = conditionCheck(exceptionInfo,otherMethod, field);
+//                    if(!check) continue;
+//                }
                 if(SootUtils.fieldIsChanged(field, otherMethod)){
                     if(otherMethod.isPublic()) {
                         List<String> newTrace = new ArrayList<>(trace);
@@ -398,30 +400,38 @@ public class ExceptionAnalyzer extends Analyzer {
 
     /**
      * conditionCheck
+     *
+     * @param exceptionInfo
      * @param sootMethod
      * @param field
-     * @param condition: satisfy --> trigger crash
      * @return
      */
-    private boolean conditionCheck(SootMethod sootMethod, SootField field, Value condition) {
-        List<Value> assigns = new ArrayList<>();
+    private boolean conditionCheck(ExceptionInfo exceptionInfo, SootMethod sootMethod, SootField field) {
+        List<String> assigns = new ArrayList<>();
         for(Unit u: sootMethod.getActiveBody().getUnits()){
             if(u instanceof  JAssignStmt){
                 JAssignStmt jAssignStmt = (JAssignStmt) u;
                 if(jAssignStmt.getLeftOp() instanceof  FieldRef){
                     if (field ==  jAssignStmt.getFieldRef().getField()) {
-                        if(jAssignStmt.getRightOp() instanceof  Constant)
-                            assigns.add(jAssignStmt.getRightOp());
+                        ValueObtainer vo = new ValueObtainer(sootMethod.getSignature(), "", new Context(), new Counter());
+                        NestableObj nestableObj = vo.getValueofVar(jAssignStmt.getRightOp(), u, 0);
+                        for (String res : nestableObj.getValues()) {
+                            assigns.add(res);
+                        }
                     }
                 }
             }
         }
-        for(Value c : assigns) {
+        for(String val : assigns) {
+            ValueObtainer vo = new ValueObtainer(exceptionInfo.getSootMethod().getSignature(), "", new Context(), new Counter());
+            Value condition = exceptionInfo.getConditions().get(0);
+            Unit conditionUnit = exceptionInfo.getConditionUnits().get(0);
+            List<String> conditionRightValues = vo.getValueofVar(((BinopExpr) condition).getOp2(),conditionUnit, 0).getValues();
             if (condition instanceof JNeExpr) {
-                if(!c.toString().equals(((JNeExpr)condition).getOp2().toString()))
+                if(!conditionRightValues.contains(val))
                     return false;
             }else if (condition instanceof JEqExpr) {
-                if(c.toString().equals(((JEqExpr)condition).getOp2().toString()))
+                if(conditionRightValues.contains(val))
                     return false;
             }
 //            else if (condition instanceof JGeExpr) {

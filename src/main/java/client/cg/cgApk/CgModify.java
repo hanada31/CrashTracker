@@ -283,11 +283,13 @@ public class CgModify extends Analyzer {
 		Iterator<Edge> it = callGraph.iterator();
 		while (it.hasNext()) {
 			Edge edge = it.next();
-			String sig = edge.src().getSignature() + edge.tgt().getSignature();
-			if (edgeSet.contains(sig))
-				toBeDeletedSet.add(edge);
-			else
-				edgeSet.add(sig);
+			if(edge.src().isDeclared() && edge.tgt().isDeclared()) {
+				String sig = edge.src().getSignature() + edge.tgt().getSignature();
+				if (edgeSet.contains(sig))
+					toBeDeletedSet.add(edge);
+				else
+					edgeSet.add(sig);
+			}
 		}
 		for (Edge tbEdge : toBeDeletedSet)
 			callGraph.removeEdge(tbEdge);

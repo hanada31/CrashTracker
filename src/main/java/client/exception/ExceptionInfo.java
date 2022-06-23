@@ -29,7 +29,7 @@ public class ExceptionInfo {
     private Map<Integer, ArrayList<RelatedMethod>> relatedMethodsInSameClassMap;
     private Map<Integer, ArrayList<RelatedMethod>> relatedMethodsInDiffClassMap;
     private List<Value> conditions;
-    private Set<Unit> conditionUnits;
+    private List<Unit> conditionUnits;
     private String modifier;
     private List<Unit> tracedUnits;
     private SootMethod sootMethod;
@@ -50,7 +50,7 @@ public class ExceptionInfo {
         this.relatedMethodsInDiffClass = new ArrayList<>();
         this.relatedMethods = new ArrayList<>();
         this.conditions = new ArrayList<>();
-        this.conditionUnits = new HashSet<>();
+        this.conditionUnits = new ArrayList<>();
         this.tracedUnits = new ArrayList<>();
         this.relatedParamValuesInStr = new ArrayList<>();
         this.relatedFieldValuesInStr = new ArrayList<>();
@@ -396,11 +396,11 @@ public class ExceptionInfo {
         isHardwareRelated = hardwareRelated;
     }
 
-    public Set<Unit> getConditionUnits() {
+    public List<Unit> getConditionUnits() {
         return conditionUnits;
     }
 
-    public void setConditionUnits(Set<Unit> conditionUnits) {
+    public void setConditionUnits(List<Unit> conditionUnits) {
         this.conditionUnits = conditionUnits;
     }
 
