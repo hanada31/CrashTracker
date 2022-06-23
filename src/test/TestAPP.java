@@ -31,10 +31,11 @@ public class TestAPP {
 //        path = "C:\\Users\\yanjw\\programs\\Empirical500";
 
         String name;
-        name = "cgeo.geocaching-4524.apk";
+        name = "org.wordpress.android-2372.apk";
+        //org.thoughtcrime.securesms-92317259
 
         String client = "CrashAnalysisClient";
-        String version = "9.0";
+        String version = "10.0";
 
         MyConfig.getInstance().setAppName(name);
         MyConfig.getInstance().setAppPath(path + File.separator);

@@ -77,24 +77,27 @@ public class CrashAnalysis extends Analyzer {
                     case ParameterOnly:
                         relatedVarType="ParameterOnly";
                         withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
-                        withCrashAPIParaHandler(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo, true);
+                        int score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
+                        withCrashAPIParaHandler(score, crashInfo, true);
                         break;
                     case FieldOnly:
                         relatedVarType="FieldOnly";
                         withFieldHandler(ConstantUtils.INITSCORE, crashInfo, false); //FCA
-                        addCrashTraces(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo,false);
+                        score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
+                        addCrashTraces(score, crashInfo,true);
                         break;
                     case ParaAndField:
                         relatedVarType="ParaAndField";
                         withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
-                        withCrashAPIParaHandler(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo, true);
+                        score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
+                        withCrashAPIParaHandler(score, crashInfo, true);
                         withFieldHandler(ConstantUtils.INITSCORE, crashInfo, true); //FCA
                         break;
                 }
             }else {
                 relatedVarType="unknown"; // native and other no exception.
                 withParameterHandler(ConstantUtils.INITSCORE, crashInfo, true);
-                withCrashAPIParaHandler(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo, false); // replace with appFieldHandler
+                withCrashAPIParaHandler(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo, true); // replace with appFieldHandler
             }
             System.out.println("### relatedVarType is " + relatedVarType);
         }

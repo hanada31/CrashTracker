@@ -183,7 +183,7 @@ public class ConstantUtils {
     public static final int OUTOFPKGSCORE = 20;
 	public static final int BOTTOMSCORE = 0;
 	public static final int DIFFCLASS = 20;
-	public static final int SMALLGAPSCORE = 4;
+	public static final int SMALLGAPSCORE = 3;
 
 	private static final String[] activityMethods = { ACTIVITY_ONCREATE, ACTIVITY_ONDESTROY, ACTIVITY_ONPAUSE,
 			ACTIVITY_ONRESTART, ACTIVITY_ONRESUME, ACTIVITY_ONSTART, ACTIVITY_ONSTOP, ACTIVITY_ONSAVEINSTANCESTATE,

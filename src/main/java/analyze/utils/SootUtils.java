@@ -1573,15 +1573,16 @@ public class SootUtils {
 						return true;
 					}
 				}else if(jAssignStmt.getRightOp() instanceof  FieldRef){
+					if(field.getType() instanceof  PrimType) continue;
 					if (field ==  jAssignStmt.getFieldRef().getField()) {
 						List<UnitValueBoxPair> uses = SootUtils.getUseOfLocal(sootMethod.getSignature(), jAssignStmt);
 						for(UnitValueBoxPair pair:uses){
-							if(pair.getUnit() instanceof JAssignStmt){
+							if( pair.getUnit() instanceof JAssignStmt){
 								JAssignStmt jAssignStmt2 = (JAssignStmt) pair.getUnit();
 								if(jAssignStmt2.getRightOp() != pair.getValueBox().getValue()){
 									return true;
 								}
-							}else if(pair.getUnit() instanceof JInvokeStmt){
+							}else if( pair.getUnit() instanceof JInvokeStmt){
 								SootMethod met = ((JInvokeStmt) pair.getUnit()).getInvokeExpr().getMethod();
 								if(!met.getName().startsWith("get"))
 									return true;
