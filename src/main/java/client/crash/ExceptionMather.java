@@ -38,7 +38,7 @@ public class ExceptionMather {
         FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"exceptionMatch.txt", "", false);
         System.out.println("write to "+ MyConfig.getInstance().getResultFolder() +"exceptionMatch.txt");
         for(CrashInfo crashInfo: crashInfoList) {
-            String str= crashInfo.getIdentifier()+"-"+crashInfo.getId()+"\t";
+            String str= crashInfo.getId()+"\t"+crashInfo.getSignaler()+"\t";
             System.out.println("Analysis crash "+ str);
             for (String version : versions) {
                 String relatedVarType = getExceptionWithGivenVersion(crashInfo, version);
@@ -65,7 +65,6 @@ public class ExceptionMather {
             JSONObject jsonObject = (JSONObject)methods.get(i);
             ExceptionInfo exceptionInfo = new ExceptionInfo();
             exceptionInfo.setSootMethodName(jsonObject.getString("method"));
-             System.out.println(exceptionInfo.getSootMethodName());
             if(crashInfo.getSignaler().equals(exceptionInfo.getSootMethodName())){
                 exceptionInfo.setExceptionMsg(jsonObject.getString("message"));
                 if (exceptionInfo.getExceptionMsg() == null) continue;
@@ -74,31 +73,13 @@ public class ExceptionMather {
                 if (exceptionInfo.getExceptionMsg().equals(crashInfo.getMsg()) || m.matches()) {
                     crashInfo.setExceptionInfo(exceptionInfo);
                     String relatedVarType = null;
-                    if(exceptionInfo!=null && exceptionInfo.getRelatedVarType()!=null) {
-                        switch (exceptionInfo.getRelatedVarType()) {
-                            //first choice filterExtendedCG false, second choice true
-                            case OverrideMissing:
-                                relatedVarType="OverrideMissing";
-                                break;
-                            case ParameterOnly:
-                                relatedVarType="ParameterOnly";
-                                break;
-                            case FieldOnly:
-                                relatedVarType="FieldOnly";
-
-                                break;
-                            case ParaAndField:
-                                relatedVarType="ParaAndField";
-                                break;
-                        }
-                    }else {
-                        relatedVarType = "unknown"; // native and other no exception.
+                    if(exceptionInfo!=null && jsonObject.getString("relatedVarType")!=null) {
+                        return jsonObject.getString("relatedVarType");
                     }
-                    return relatedVarType;
                 }
             }
         }
-        return "notMatch";
+        return "unknown";
     }
 
 
