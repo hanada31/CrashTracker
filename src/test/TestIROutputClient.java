@@ -3,7 +3,6 @@ package test;
 import main.java.MainClass;
 import main.java.MyConfig;
 import main.java.SummaryLevel;
-import main.java.analyze.utils.ConstantUtils;
 import soot.options.Options;
 
 import java.io.File;
@@ -13,7 +12,7 @@ import java.io.File;
  * @Date 2022/3/11 15:27
  * @Version 1.0
  */
-public class TestFramework2 {
+public class TestIROutputClient {
 
     @org.junit.Test
     public void testConfig() {
@@ -25,23 +24,27 @@ public class TestFramework2 {
     }
 
     private void setArgs() {
-        String path, name;
-        path = "D:\\ProjectData\\IdeaProjects\\framework";
-        name = "framework-11.0.0_r17.jar";
-
+        String path;
+        path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
+        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
+//        path = "C:\\Users\\yanjw\\programs\\Empirical500";
+        String name;
+        name = "cgeo.geocaching-4524.apk";
 
         String client = "IROutputClient";
-//        client = "ExceptionInfoClient";
 
         MyConfig.getInstance().setAppName(name);
         MyConfig.getInstance().setAppPath(path + File.separator);
-        MyConfig.getInstance().setSrc_prec(Options.src_prec_only_class);
         MyConfig.getInstance().setClient(client);
-        MyConfig.getInstance().setTimeLimit(100);
+        MyConfig.getInstance().setMaxPathNumber(30);
+        MyConfig.getInstance().setMaxFunctionExpandNumber(5); //10?
+        MyConfig.getInstance().setMaxObjectSummarySize(100);
         MyConfig.getInstance().setResultWarpperFolder("results/" + File.separator);
-        MyConfig.getInstance().setResultFolder("Files" + File.separator);
+        MyConfig.getInstance().setResultFolder(MyConfig.getInstance().getResultWarpperFolder()+ "output" + File.separator);
+        MyConfig.getInstance().setTimeLimit(10);
+        MyConfig.getInstance().setAndroidJar("lib/platforms");
+        MyConfig.getInstance().setSrc_prec(Options.src_prec_apk);
         MyConfig.getInstance().setFileSuffixLength(4);
-        ConstantUtils.PKGPREFIX = "";
     }
 
     /**

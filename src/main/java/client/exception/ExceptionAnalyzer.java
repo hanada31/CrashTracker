@@ -623,7 +623,8 @@ public class ExceptionAnalyzer extends Analyzer {
                             List<String> message = Lists.newArrayList();
                             message.add("");
                             getMsgContentByTracingValue(sootMethod, (Local) arg, unit, message);
-                            exceptionInfo.setExceptionMsg(message.get(0));
+                            String exceptionMsg = addQeSymbolToMessage(message.get(0));
+                            exceptionInfo.setExceptionMsg(exceptionMsg);
                         } else if (arg instanceof Constant) {
                             StringConstant arg1 = (StringConstant) arg;
                             exceptionInfo.setExceptionMsg(arg1.value);
@@ -636,6 +637,23 @@ public class ExceptionAnalyzer extends Analyzer {
                 getExceptionMessage(sootMethod, predUnit, exceptionInfo,times);
             }
         }
+    }
+
+    private String addQeSymbolToMessage(String input) {
+        String[] ss =input.split("\\Q[\\s\\S]*\\E");
+        String exceptionMsg = "";
+        for(int i= 0; i<ss.length-1;i++){
+            exceptionMsg+="\\Q"+ss[i]+"\\E"+"[\\s\\S]*";
+        }
+        exceptionMsg+="\\Q"+ss[ss.length-1]+"\\E";
+        String temp = "";
+        while(!exceptionMsg.equals(temp)) {
+            temp= exceptionMsg;
+            exceptionMsg = exceptionMsg.replace("\\Q\\E", "");
+            exceptionMsg = exceptionMsg.replace("\\E\\Q", "");
+            exceptionMsg = exceptionMsg.replace("[\\s\\S]*[\\s\\S]*", "[\\s\\S]*");
+        }
+        return exceptionMsg;
     }
 
 
@@ -674,7 +692,7 @@ public class ExceptionAnalyzer extends Analyzer {
                         }
 
                     } else {
-                        s = "[\\s\\S]*" + "\\Q"+message.get(0) +"\\E";
+                        s = "[\\s\\S]*" + message.get(0) ;
                     }
                     message.set(0, s);
 
@@ -719,7 +737,7 @@ public class ExceptionAnalyzer extends Analyzer {
                             s = message.get(0) + argConstant;
                         }
                     } else{
-                        s = "\\Q"+message.get(0) +"\\E"+ "[\\s\\S]*";
+                        s = message.get(0) + "[\\s\\S]*";
                     }
                     message.set(0, s);
                 }
