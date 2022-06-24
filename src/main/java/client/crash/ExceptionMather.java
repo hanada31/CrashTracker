@@ -65,6 +65,7 @@ public class ExceptionMather {
             JSONObject jsonObject = (JSONObject)methods.get(i);
             ExceptionInfo exceptionInfo = new ExceptionInfo();
             exceptionInfo.setSootMethodName(jsonObject.getString("method"));
+             System.out.println(exceptionInfo.getSootMethodName());
             if(crashInfo.getSignaler().equals(exceptionInfo.getSootMethodName())){
                 exceptionInfo.setExceptionMsg(jsonObject.getString("message"));
                 if (exceptionInfo.getExceptionMsg() == null) continue;

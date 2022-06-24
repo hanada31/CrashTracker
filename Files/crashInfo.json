@@ -21565,7 +21565,7 @@
   "year": "2012-07-15T09:50:30Z",
   "buggyApi": "android.database.sqlite.SQLiteDatabase.execSQL",
   "trace": [
-	"android.database.sqlite.SQLiteCompiledSql.native_compile(Native Method)"
+	"android.database.sqlite.SQLiteCompiledSql.native_compile"
 	"android.database.sqlite.SQLiteCompiledSql.<init>"
 	"android.database.sqlite.SQLiteProgram.compileSql"
 	"android.database.sqlite.SQLiteProgram.compileAndbindAllArgs"

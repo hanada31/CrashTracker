@@ -51,7 +51,7 @@ public class ExceptionAnalyzer extends Analyzer {
     //<android.app.ContextImpl: android.content.Intent registerReceiver(android.content.BroadcastReceiver
     private boolean filterMethod(SootMethod sootMethod) {
         List<String> mtds = new ArrayList<>();
-        mtds.add("android.view.ViewRootImpl: void checkThread");
+        mtds.add("android.app.Instrumentation: void checkStartActivityResult");
         for(String tag: mtds){
             if (sootMethod.getSignature().contains(tag)) {
                 return false;
@@ -627,7 +627,8 @@ public class ExceptionAnalyzer extends Analyzer {
                             exceptionInfo.setExceptionMsg(exceptionMsg);
                         } else if (arg instanceof Constant) {
                             StringConstant arg1 = (StringConstant) arg;
-                            exceptionInfo.setExceptionMsg(arg1.value);
+                            String exceptionMsg = addQeSymbolToMessage(arg1.value);
+                            exceptionInfo.setExceptionMsg(exceptionMsg);
                         }
                     }
                 } else {
@@ -640,12 +641,15 @@ public class ExceptionAnalyzer extends Analyzer {
     }
 
     private String addQeSymbolToMessage(String input) {
-        String[] ss =input.split("\\Q[\\s\\S]*\\E");
         String exceptionMsg = "";
+        String[] ss =input.split("\\Q[\\s\\S]*\\E");
         for(int i= 0; i<ss.length-1;i++){
             exceptionMsg+="\\Q"+ss[i]+"\\E"+"[\\s\\S]*";
         }
         exceptionMsg+="\\Q"+ss[ss.length-1]+"\\E";
+        if(input.endsWith("[\\s\\S]*"))
+            exceptionMsg+="[\\s\\S]*";
+
         String temp = "";
         while(!exceptionMsg.equals(temp)) {
             temp= exceptionMsg;
