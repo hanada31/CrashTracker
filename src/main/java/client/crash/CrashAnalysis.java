@@ -70,6 +70,7 @@ public class CrashAnalysis extends Analyzer {
             getExtendedCallTrace(crashInfo);
             if(exceptionInfo!=null && exceptionInfo.getRelatedVarType()!=null) {
                 switch (exceptionInfo.getRelatedVarType()) {
+                    //first choice filterExtendedCG false, second choice true
                     case OverrideMissing:
                         relatedVarType="OverrideMissing";
                         overrideMissingHandler(ConstantUtils.INITSCORE,crashInfo, false); //OMA
@@ -84,21 +85,21 @@ public class CrashAnalysis extends Analyzer {
                         relatedVarType="FieldOnly";
                         withFieldHandler(ConstantUtils.INITSCORE, crashInfo, false); //FCA
                         score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
-                        addCrashTraces(score, crashInfo,true);
+//                        addCrashTraces(score, crashInfo,true);
                         break;
                     case ParaAndField:
                         relatedVarType="ParaAndField";
                         withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
                         score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
                         withCrashAPIParaHandler(score, crashInfo, true);
-                        withFieldHandler(ConstantUtils.INITSCORE, crashInfo, true); //FCA
+                        withFieldHandler(ConstantUtils.INITSCORE, crashInfo, false); //FCA
                         break;
                 }
             }else {
                 relatedVarType="unknown"; // native and other no exception.
-                withParameterHandler(ConstantUtils.INITSCORE, crashInfo, true);
+                withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false);
                 int score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
-                withCrashAPIParaHandler(score, crashInfo, false); // replace with appFieldHandler, false! some invoked methods can not be find
+                withCrashAPIParaHandler(score, crashInfo, true); // replace with appFieldHandler, false! some invoked methods can not be find
             }
             System.out.println("### relatedVarType is " + relatedVarType);
         }
@@ -706,32 +707,34 @@ public class CrashAnalysis extends Analyzer {
                     updateExceptionInCls2CrashInfo(crashInfo, exceptionInfo);
                 }
             }
-            if(crashInfo.getExceptionInfo() == null) {
-                for (Map.Entry<String, Set<String>> entry : message2Methods.entrySet()) {
-                    String message = entry.getKey();
-                    Pattern p = Pattern.compile(StringUtils.filterRegex(message));
-                    Matcher m = p.matcher(crashInfo.getMsg());
-                    if (message.equals(crashInfo.getMsg()) || m.matches()) {
-                        for (String method : entry.getValue()) {
-                            String className =  method.split(" ")[0].replace("<","").replace(":","");
-                            if(StringUtils.getPkgPrefix(crashInfo.getClassName(),2).equals(StringUtils.getPkgPrefix(className,2))) {
-                                readExceptionSummary(className);
-                            }
-                        }
-                    }
-                }
-                for (String key : exceptionInfoMap.keySet()) {
-                    for (ExceptionInfo exceptionInfo : exceptionInfoMap.get(key)) {
-                        updateExceptionInCls2CrashInfo(crashInfo, exceptionInfo);
-                    }
-                }
-            }
+            // may improve accuracy, may not..
+            //TODO add or not
+//            if(crashInfo.getExceptionInfo() == null) {
+//                for (Map.Entry<String, Set<String>> entry : message2Methods.entrySet()) {
+//                    String message = entry.getKey();
+//                    Pattern p = Pattern.compile(message);
+//                    Matcher m = p.matcher(crashInfo.getMsg());
+//                    if (message.equals(crashInfo.getMsg()) || m.matches()) {
+//                        for (String method : entry.getValue()) {
+//                            String className =  method.split(" ")[0].replace("<","").replace(":","");
+//                            if(StringUtils.getPkgPrefix(crashInfo.getClassName(),2).equals(StringUtils.getPkgPrefix(className,2))) {
+//                                readExceptionSummary(className);
+//                            }
+//                        }
+//                    }
+//                }
+//                for (String key : exceptionInfoMap.keySet()) {
+//                    for (ExceptionInfo exceptionInfo : exceptionInfoMap.get(key)) {
+//                        updateExceptionInCls2CrashInfo(crashInfo, exceptionInfo);
+//                    }
+//                }
+//            }
         }
     }
 
     private void updateExceptionInCls2CrashInfo(CrashInfo crashInfo, ExceptionInfo exceptionInfo) {
 ;        if (exceptionInfo.getExceptionMsg() == null) return;
-        Pattern p = Pattern.compile(StringUtils.filterRegex(exceptionInfo.getExceptionMsg()));
+        Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg());
         Matcher m = p.matcher(crashInfo.getMsg());
         if (exceptionInfo.getExceptionMsg().equals(crashInfo.getMsg()) || m.matches()) {
             crashInfo.setExceptionInfo(exceptionInfo);

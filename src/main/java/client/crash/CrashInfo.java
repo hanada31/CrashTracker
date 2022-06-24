@@ -68,7 +68,7 @@ public class CrashInfo {
 
     public void addBuggyCandidates(String candi, int score, boolean filterByExtendedCG, String reason, List<String> trace) {
         if(filterByExtendedCG && !extendedCallDepth.containsKey(candi))
-            return;
+            score = score - ConstantUtils.OUTOFTRACESCORE;
 
         boolean findPrexInTrace = false;
         for(String traceMtd: getCrashMethodList()){

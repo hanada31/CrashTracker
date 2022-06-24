@@ -674,7 +674,7 @@ public class ExceptionAnalyzer extends Analyzer {
                         }
 
                     } else {
-                        s = "[\\s\\S]*" + message.get(0);
+                        s = "[\\s\\S]*" + "\\Q"+message.get(0) +"\\E";
                     }
                     message.set(0, s);
 
@@ -719,7 +719,7 @@ public class ExceptionAnalyzer extends Analyzer {
                             s = message.get(0) + argConstant;
                         }
                     } else{
-                        s = message.get(0) + "[\\s\\S]*";
+                        s = "\\Q"+message.get(0) +"\\E"+ "[\\s\\S]*";
                     }
                     message.set(0, s);
                 }
