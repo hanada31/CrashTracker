@@ -1,6 +1,7 @@
 package main.java.client.exception;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import main.java.Analyzer;
 import main.java.Global;
@@ -13,6 +14,7 @@ import main.java.analyze.utils.SootUtils;
 import main.java.analyze.utils.StringUtils;
 import main.java.analyze.utils.ValueObtainer;
 import main.java.analyze.utils.output.FileUtils;
+import main.java.client.crash.CrashInfo;
 import main.java.client.statistic.model.StatisticResult;
 import soot.*;
 import soot.jimple.*;
@@ -26,6 +28,8 @@ import soot.toolkits.scalar.ValueUnitPair;
 
 import java.io.File;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static main.java.analyze.utils.SootUtils.getFiledValueAssigns;
 
@@ -38,6 +42,9 @@ public class ExceptionAnalyzer extends Analyzer {
     List<ExceptionInfo> exceptionInfoList;
     JSONArray exceptionListElement  = new JSONArray(new ArrayList<>());
     Set<String> permissionSet = new HashSet<>();
+    String[] versions = {"4.4", "5.0", "6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0"};
+
+
     public ExceptionAnalyzer(StatisticResult ignoredResult) {
         super();
     }
@@ -51,7 +58,7 @@ public class ExceptionAnalyzer extends Analyzer {
     //<android.app.ContextImpl: android.content.Intent registerReceiver(android.content.BroadcastReceiver
     private boolean filterMethod(SootMethod sootMethod) {
         List<String> mtds = new ArrayList<>();
-        mtds.add("android.app.ContextImpl: boolean bindServiceCommon");
+        mtds.add("android.view.ViewRootImpl: void setView");
         for(String tag: mtds){
             if (sootMethod.getSignature().contains(tag)) {
                 return false;
@@ -75,7 +82,7 @@ public class ExceptionAnalyzer extends Analyzer {
             for (SootMethod sootMethod : sootClass.getMethods()) {
 
                 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//                if(filterMethod(sootMethod)) continue;
+                if(filterMethod(sootMethod)) continue;
 
                 if (sootMethod.hasActiveBody()) {
                     try {

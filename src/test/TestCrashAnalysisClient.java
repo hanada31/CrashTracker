@@ -18,9 +18,7 @@ public class TestCrashAnalysisClient {
 
     @org.junit.Test
     public void testConfig() {
-        Pattern p = Pattern.compile("\\QUnable to find explicit activity class \\E[\\s\\S]*; have you declared this activity in your AndroidManifest.xml?");
-        Matcher m = p.matcher("Unable to find explicit activity class {com.android.settings/com.android.settings.ApnSettings}; have you declared this activity in your AndroidManifest.xml?");
-        System.out.println(m.matches());
+
         setArgs();
         setMySwitch();
         MainClass.startAnalyze();
@@ -36,7 +34,7 @@ public class TestCrashAnalysisClient {
 //        path = "C:\\Users\\yanjw\\programs\\Empirical500";
 
         String name;
-        name = "cn.damai-270.apk";
+        name = "com.poterion.logbook-400.apk";
 
         String client = "CrashAnalysisClient";
         String version = "10.0";
