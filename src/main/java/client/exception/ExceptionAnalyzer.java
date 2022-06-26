@@ -51,7 +51,7 @@ public class ExceptionAnalyzer extends Analyzer {
     //<android.app.ContextImpl: android.content.Intent registerReceiver(android.content.BroadcastReceiver
     private boolean filterMethod(SootMethod sootMethod) {
         List<String> mtds = new ArrayList<>();
-        mtds.add("android.app.Instrumentation: void checkStartActivityResult");
+        mtds.add("android.app.ContextImpl: boolean bindServiceCommon");
         for(String tag: mtds){
             if (sootMethod.getSignature().contains(tag)) {
                 return false;
@@ -216,6 +216,27 @@ public class ExceptionAnalyzer extends Analyzer {
     }
 
     /**
+     * get the latest condition info for an ExceptionInfo
+     * only analyze one level if condition, forward
+     */
+    private boolean conditionOfRetIsCaughtException(SootMethod sootMethod, Unit unit) {
+        Body body = sootMethod.getActiveBody();
+        ExceptionalUnitGraph unitGraph = new ExceptionalUnitGraph(body);
+        List<Unit> predsOf = unitGraph.getPredsOf(unit);
+        for (Unit predUnit : predsOf) {
+           if (predUnit instanceof JIdentityStmt ) {
+                JIdentityStmt stmt = (JIdentityStmt) predUnit;
+                if(stmt.getRightOp() instanceof CaughtExceptionRef){
+                    return true;
+                }
+            }
+            boolean flag = conditionOfRetIsCaughtException(sootMethod, predUnit);
+            if(flag)
+                return true;
+        }
+        return false;
+    }
+    /**
      * creat a New ExceptionInfo object and add content
      */
     private void creatNewExceptionInfo(SootMethod sootMethod, Unit unit, String exceptionName) {
@@ -226,7 +247,8 @@ public class ExceptionAnalyzer extends Analyzer {
         Set<Unit> retUnits = new HashSet<>();
         for (Unit u: sootMethod.getActiveBody().getUnits()) {
             if (u instanceof ReturnStmt) {
-                retUnits.add(u);
+                if(!conditionOfRetIsCaughtException(sootMethod, u))
+                    retUnits.add(u);
             }
         }
         for(Unit condUnit: exceptionInfo.getConditionUnits()) {
