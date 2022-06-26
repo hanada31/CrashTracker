@@ -706,7 +706,7 @@ public class CrashAnalysis extends Analyzer {
             MyConfig.getInstance().setExceptionFilePath("Files"+File.separator+"android"+targetVer+File.separator+"exceptionInfo"+File.separator);
             MyConfig.getInstance().setPermissionFilePath("Files"+File.separator+"android"+targetVer+File.separator+"Permission"+File.separator+"permission.txt");
             MyConfig.getInstance().setAndroidCGFilePath("Files"+File.separator+"android"+targetVer+File.separator+"CallGraphInfo"+File.separator+"cg.txt");
-            System.err.println("target is "+ targetVer);
+            System.out.println("target is "+ targetVer);
 
             readExceptionSummary(crashInfo);
 
@@ -785,7 +785,7 @@ public class CrashAnalysis extends Analyzer {
         String jsonString = FileUtils.readJsonFile(fn);
         JSONObject wrapperObject = (JSONObject) JSONObject.parse(jsonString);
         if(wrapperObject==null) {
-            System.err.println( crashInfo.getClassName()+" is not modeled.");
+            System.out.println( crashInfo.getClassName()+" is not modeled.");
             return;
         }
         JSONArray methods = wrapperObject.getJSONArray("exceptions");//构建JSONArray数组
