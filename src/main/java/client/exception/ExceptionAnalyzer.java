@@ -219,7 +219,9 @@ public class ExceptionAnalyzer extends Analyzer {
      * get the latest condition info for an ExceptionInfo
      * only analyze one level if condition, forward
      */
-    private boolean conditionOfRetIsCaughtException(SootMethod sootMethod, Unit unit) {
+    private boolean conditionOfRetIsCaughtException(SootMethod sootMethod, Unit unit, HashSet<Unit> units) {
+        if(units.contains(unit) || units.size()> ConstantUtils.CONDITIONHISTORYSIZE) return false;
+        units.add(unit);
         Body body = sootMethod.getActiveBody();
         ExceptionalUnitGraph unitGraph = new ExceptionalUnitGraph(body);
         List<Unit> predsOf = unitGraph.getPredsOf(unit);
@@ -230,7 +232,7 @@ public class ExceptionAnalyzer extends Analyzer {
                     return true;
                 }
             }
-            boolean flag = conditionOfRetIsCaughtException(sootMethod, predUnit);
+            boolean flag = conditionOfRetIsCaughtException(sootMethod, predUnit, units);
             if(flag)
                 return true;
         }
@@ -247,7 +249,7 @@ public class ExceptionAnalyzer extends Analyzer {
         Set<Unit> retUnits = new HashSet<>();
         for (Unit u: sootMethod.getActiveBody().getUnits()) {
             if (u instanceof ReturnStmt) {
-                if(!conditionOfRetIsCaughtException(sootMethod, u))
+                if(!conditionOfRetIsCaughtException(sootMethod, u, new HashSet<Unit>()))
                     retUnits.add(u);
             }
         }
