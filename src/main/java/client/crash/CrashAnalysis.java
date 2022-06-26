@@ -8,7 +8,6 @@ import main.java.MyConfig;
 import main.java.analyze.utils.CollectionUtils;
 import main.java.analyze.utils.ConstantUtils;
 import main.java.analyze.utils.SootUtils;
-import main.java.analyze.utils.StringUtils;
 import main.java.analyze.utils.output.FileUtils;
 import main.java.analyze.utils.output.PrintUtils;
 import main.java.client.exception.*;
@@ -19,10 +18,8 @@ import soot.jimple.internal.*;
 import soot.jimple.toolkits.callgraph.Edge;
 import soot.toolkits.graph.BriefUnitGraph;
 import soot.toolkits.scalar.UnitValueBoxPair;
-import soot.util.Cons;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,7 +33,6 @@ import static main.java.analyze.utils.SootUtils.getFiledValueAssigns;
  */
 public class CrashAnalysis extends Analyzer {
     List<CrashInfo> crashInfoList;
-    Map<String, Set<ExceptionInfo>> exceptionInfoMap;
     Set<String> loadedExceptionSummary;
     Map<String, Set<String>> androidCGMap;
     String relatedVarType="";
@@ -44,7 +40,6 @@ public class CrashAnalysis extends Analyzer {
 
     public CrashAnalysis(StatisticResult result) {
         crashInfoList = Global.v().getAppModel().getCrashInfoList();
-        exceptionInfoMap = new HashMap<>();
         loadedExceptionSummary = new HashSet<>();
         androidCGMap = new HashMap<>();
     }
@@ -693,25 +688,6 @@ public class CrashAnalysis extends Analyzer {
 
         return order+2;
     }
-//
-//
-//    /**
-//     * getExceptionOfCrashInfo from exception.json
-//     */
-//    private void getExceptionOfCrashInfo() {
-//        getMessage2ExceptionClass();
-//        for(CrashInfo crashInfo : crashInfoList){//
-//            if(crashInfo.getTrace().size()==0 ) continue;
-//            readExceptionSummary(crashInfo.getClassName());
-//            if(exceptionInfoMap.containsKey(crashInfo.getMethodName())) {
-//                for (ExceptionInfo exceptionInfo : exceptionInfoMap.get(crashInfo.getMethodName())) {
-//                    updateExceptionInCls2CrashInfo(crashInfo, exceptionInfo);
-//                }
-//            }
-//        }
-//    }
-
-
 
     private void getExceptionOfCrashInfo() {
         for(CrashInfo crashInfo: crashInfoList) {
@@ -731,12 +707,9 @@ public class CrashAnalysis extends Analyzer {
             MyConfig.getInstance().setPermissionFilePath("Files"+File.separator+"android"+targetVer+File.separator+"Permission"+File.separator+"permission.txt");
             MyConfig.getInstance().setAndroidCGFilePath("Files"+File.separator+"android"+targetVer+File.separator+"CallGraphInfo"+File.separator+"cg.txt");
             System.err.println("target is "+ targetVer);
-            readExceptionSummary(crashInfo.getClassName());
-            if(exceptionInfoMap.containsKey(crashInfo.getMethodName())) {
-                for (ExceptionInfo exceptionInfo : exceptionInfoMap.get(crashInfo.getMethodName())) {
-                    updateExceptionInCls2CrashInfo(crashInfo, exceptionInfo);
-                }
-            }
+
+            readExceptionSummary(crashInfo);
+
         }
 
     }
@@ -788,9 +761,7 @@ public class CrashAnalysis extends Analyzer {
                 if (exceptionInfo.getExceptionMsg() == null) continue;
                 Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg());
                 Matcher m = p.matcher(crashInfo.getMsg());
-                if (exceptionInfo.getExceptionMsg().equals(crashInfo.getMsg()) || m.matches()) {
-                    crashInfo.setExceptionInfo(exceptionInfo);
-                    String relatedVarType = null;
+                if (m.matches()) {
                     if(exceptionInfo!=null && jsonObject.getString("relatedVarType")!=null) {
                         return jsonObject.getString("relatedVarType");
                     }
@@ -800,37 +771,42 @@ public class CrashAnalysis extends Analyzer {
         return "unknown";
     }
 
-    private void updateExceptionInCls2CrashInfo(CrashInfo crashInfo, ExceptionInfo exceptionInfo) {
-        if (exceptionInfo.getExceptionMsg() == null) return;
-        Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg());
-        Matcher m = p.matcher(crashInfo.getMsg());
-        if (exceptionInfo.getExceptionMsg().equals(crashInfo.getMsg()) || m.matches()) {
-            crashInfo.setExceptionInfo(exceptionInfo);
-            return;
-        }
-    }
+
 
     /**
      * readExceptionSummary from ExceptionFile
-     * @param sootclass
+     * @param crashInfo
      */
-    private void readExceptionSummary(String sootclass) {
-        String fn = MyConfig.getInstance().getExceptionFilePath()+sootclass+".json";
+    private void readExceptionSummary(CrashInfo crashInfo) {
+        String fn = MyConfig.getInstance().getExceptionFilePath()+crashInfo.getClassName()+".json";
         if(loadedExceptionSummary.contains(fn)) return;
         loadedExceptionSummary.add(fn);
         System.out.println("readExceptionSummary::"+fn);
         String jsonString = FileUtils.readJsonFile(fn);
         JSONObject wrapperObject = (JSONObject) JSONObject.parse(jsonString);
         if(wrapperObject==null) {
-            System.err.println(sootclass+" is not modeled.");
+            System.err.println( crashInfo.getClassName()+" is not modeled.");
             return;
         }
         JSONArray methods = wrapperObject.getJSONArray("exceptions");//构建JSONArray数组
         for (int i = 0 ; i < methods.size();i++){
             JSONObject jsonObject = (JSONObject)methods.get(i);
             ExceptionInfo exceptionInfo = new ExceptionInfo();
-            exceptionInfo.setExceptionType(jsonObject.getString("type"));
+            exceptionInfo.setSootMethodName(jsonObject.getString("method"));
             exceptionInfo.setExceptionMsg(jsonObject.getString("message"));
+
+            if(exceptionInfo.getSootMethodName().equals(crashInfo.getMethodName())) {
+                if (exceptionInfo.getExceptionMsg() == null) continue;
+                Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg());
+                Matcher m = p.matcher(crashInfo.getMsg());
+                if (m.matches()) {
+                    crashInfo.setExceptionInfo(exceptionInfo);
+                }else{
+                    continue;
+                }
+            }
+
+            exceptionInfo.setExceptionType(jsonObject.getString("type"));
             exceptionInfo.setModifier(jsonObject.getString("modifier"));
             exceptionInfo.setOsVersionRelated(jsonObject.getBoolean("osVersionRelated"));
             exceptionInfo.setResourceRelated(jsonObject.getBoolean("resourceRelated"));
@@ -838,7 +814,6 @@ public class CrashAnalysis extends Analyzer {
             exceptionInfo.setHardwareRelated(jsonObject.getBoolean("hardwareRelated"));
             exceptionInfo.setManifestRelated(jsonObject.getBoolean("manifestRelated"));
             exceptionInfo.setConditions(jsonObject.getString("conditions"));
-            exceptionInfo.setSootMethodName(jsonObject.getString("method"));
             exceptionInfo.setRelatedFieldValuesInStr(jsonObject.getString("fieldValues"));
             exceptionInfo.setRelatedParamValuesInStr(jsonObject.getString("paramValues"));
             if(jsonObject.getString("relatedVarType")!=null)
@@ -869,11 +844,6 @@ public class CrashAnalysis extends Analyzer {
                 relatedMethod.addTrace(newTrace);
                 exceptionInfo.addRelatedMethodsInDiffClass(relatedMethod);
             }
-
-            if(!exceptionInfoMap.containsKey(exceptionInfo.getSootMethodName()))
-                exceptionInfoMap.put(exceptionInfo.getSootMethodName(), new HashSet<>());
-            exceptionInfoMap.get(exceptionInfo.getSootMethodName()).add(exceptionInfo);
-
         }
     }
 

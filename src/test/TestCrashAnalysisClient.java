@@ -34,7 +34,7 @@ public class TestCrashAnalysisClient {
 //        path = "C:\\Users\\yanjw\\programs\\Empirical500";
 
         String name;
-        name = "com.poterion.logbook-400.apk";
+        name = "br.com.couldsys.percursion-167.apk";
 
         String client = "CrashAnalysisClient";
         String version = "10.0";
