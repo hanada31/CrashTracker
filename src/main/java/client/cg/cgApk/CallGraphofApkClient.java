@@ -39,9 +39,9 @@ public class CallGraphofApkClient extends BaseClient {
 
 		/** call graph **/
 		CgClientOutput.writeCG(summary_app_dir + ConstantUtils.CGFOLDETR,
-				ConstantUtils.CG, Global.v().getAppModel().getCg());
-		CgClientOutput.writeCGToString(summary_app_dir + ConstantUtils.CGFOLDETR, 
 				Global.v().getAppModel().getAppName()+"_cg.txt", Global.v().getAppModel().getCg());
+//		CgClientOutput.writeCGToString(summary_app_dir + ConstantUtils.CGFOLDETR,
+//				Global.v().getAppModel().getAppName()+"_cg.txt", Global.v().getAppModel().getCg());
 		CgClientOutput.writeTopoMethodFile(summary_app_dir + ConstantUtils.CGFOLDETR, ConstantUtils.TOPO, Global.v()
 				.getAppModel().getTopoMethodQueue());
 	}

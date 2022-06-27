@@ -83,10 +83,12 @@ public class ExceptionInfo {
     }
 
     public RelatedVarType getRelatedVarType() {
-        if(isOverrideMissing()) return  RelatedVarType.OverrideMissing;
-        if(isParameterOnly()) return  RelatedVarType.ParameterOnly;
-        if(isFieldOnly()) return  RelatedVarType.FieldOnly;
-        if(isParaAndField()) return  RelatedVarType.ParaAndField;
+        if(relatedVarType == null) {
+            if (isOverrideMissing()) return RelatedVarType.OverrideMissing;
+            if (isParameterOnly()) return RelatedVarType.ParameterOnly;
+            if (isFieldOnly()) return RelatedVarType.FieldOnly;
+            if (isParaAndField()) return RelatedVarType.ParaAndField;
+        }
         return relatedVarType;
     }
 

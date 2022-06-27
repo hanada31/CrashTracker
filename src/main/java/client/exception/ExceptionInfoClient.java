@@ -36,13 +36,7 @@ public class ExceptionInfoClient extends BaseClient {
             new CallGraphofJavaClient().start();
             MyConfig.getInstance().setCallGraphAnalyzeFinish(true);
         }
-//        if (!MyConfig.getInstance().isStaitiucValueAnalyzeFinish()) {
-//            if (MyConfig.getInstance().getMySwithch().isStaticFieldSwitch()) {
-//                StaticValueAnalyzer staticValueAnalyzer = new StaticValueAnalyzer();
-//                staticValueAnalyzer.analyze();
-//                MyConfig.getInstance().setStaitiucValueAnalyzeFinish(true);
-//            }
-//        }
+
         System.out.println("Start analyze with ExceptionInfoClient.");
         Analyzer analyzer = new ExceptionAnalyzer(result);
         analyzer.analyze();

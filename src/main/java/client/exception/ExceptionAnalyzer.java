@@ -1,7 +1,6 @@
 package main.java.client.exception;
 
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import main.java.Analyzer;
 import main.java.Global;
@@ -14,7 +13,6 @@ import main.java.analyze.utils.SootUtils;
 import main.java.analyze.utils.StringUtils;
 import main.java.analyze.utils.ValueObtainer;
 import main.java.analyze.utils.output.FileUtils;
-import main.java.client.crash.CrashInfo;
 import main.java.client.statistic.model.StatisticResult;
 import soot.*;
 import soot.jimple.*;
@@ -28,8 +26,6 @@ import soot.toolkits.scalar.ValueUnitPair;
 
 import java.io.File;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static main.java.analyze.utils.SootUtils.getFiledValueAssigns;
 
@@ -82,7 +78,7 @@ public class ExceptionAnalyzer extends Analyzer {
             for (SootMethod sootMethod : sootClass.getMethods()) {
 
                 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                if(filterMethod(sootMethod)) continue;
+//                if(filterMethod(sootMethod)) continue;
 
                 if (sootMethod.hasActiveBody()) {
                     try {
@@ -92,7 +88,7 @@ public class ExceptionAnalyzer extends Analyzer {
                             getThrowUnitWithMessage(unit2Message, sootMethod, entry.getKey(),entry.getValue());
                         }
                         for(Map.Entry<Unit,String> entry: unit2Message.entrySet()) {
-                            creatNewExceptionInfo(sootMethod, entry.getKey(), entry.getValue());
+                            createNewExceptionInfo(sootMethod, entry.getKey(), entry.getValue());
                         }
 
                     } catch (Exception |  Error e) {
@@ -248,7 +244,7 @@ public class ExceptionAnalyzer extends Analyzer {
     /**
      * creat a New ExceptionInfo object and add content
      */
-    private void creatNewExceptionInfo(SootMethod sootMethod, Unit unit, String exceptionName) {
+    private void createNewExceptionInfo(SootMethod sootMethod, Unit unit, String exceptionName) {
         ExceptionInfo exceptionInfo =  new ExceptionInfo(sootMethod, unit, exceptionName);
         getExceptionMessage(sootMethod, unit, exceptionInfo, new ArrayList<>());
         getConditionandValueFromUnit(sootMethod, unit, exceptionName, exceptionInfo, true);
@@ -273,6 +269,13 @@ public class ExceptionAnalyzer extends Analyzer {
         if(name.contains("hardware") || name.contains("opengl")
                 || name.contains("nfc") || name.contains("bluetooth") ){
             exceptionInfo.setHardwareRelated(true);
+        }
+        for(String method: exceptionInfo.getRelatedMethods()) {
+            if (exceptionInfo.getSootMethod().getSignature().equals(method)){
+                if(exceptionInfo.getRelatedVarType().equals(RelatedVarType.FieldOnly)){
+                    exceptionInfo.setRelatedVarType(RelatedVarType.ParaAndField);
+                }
+            }
         }
         exceptionInfoList.add(exceptionInfo);
     }
@@ -533,9 +536,6 @@ public class ExceptionAnalyzer extends Analyzer {
                 }else if(defUnit.toString().contains("android.content.res.AssetManager")){
                   exceptionInfo.setAssessRelated(true);
                 }
-//                else if(defUnit.toString().contains("android.content.pm.ApplicationInfo")){
-//                    exceptionInfo.setManifestRelated(true);
-//                }
                 if (defUnit instanceof JIdentityStmt) {
                     JIdentityStmt identityStmt = (JIdentityStmt) defUnit;
                     identityStmt.getRightOp();
@@ -653,7 +653,7 @@ public class ExceptionAnalyzer extends Analyzer {
                         if (arg instanceof Local) {
                             List<String> message = Lists.newArrayList();
                             message.add("");
-                            getMsgContentByTracingValue(sootMethod, (Local) arg, unit, message);
+                            getMsgContentByTracingValue(exceptionInfo, sootMethod, (Local) arg, unit, message);
                             String exceptionMsg = addQeSymbolToMessage(message.get(0));
                             exceptionInfo.setExceptionMsg(exceptionMsg);
                         } else if (arg instanceof Constant) {
@@ -695,7 +695,7 @@ public class ExceptionAnalyzer extends Analyzer {
     /**
      * getMsgContentByTracingValue
      */
-    private void getMsgContentByTracingValue(SootMethod sootMethod, Local localTemp, Unit unit, List<String> message){
+    private void getMsgContentByTracingValue(ExceptionInfo exceptionInfo, SootMethod sootMethod, Local localTemp, Unit unit, List<String> message){
         List<Unit> defsOfOps = SootUtils.getDefOfLocal(sootMethod.getSignature(),localTemp, unit);
         if(defsOfOps==null || defsOfOps.size()==0) return;
         Unit defOfLocal = defsOfOps.get(0);
@@ -713,7 +713,7 @@ public class ExceptionAnalyzer extends Analyzer {
                 if (invokeSig.equals("<java.lang.StringBuilder: java.lang.String toString()>")) {
                     Value value = invokeExpr.getUseBoxes().get(0).getValue();
                     if (value instanceof Local) {
-                        getMsgContentByTracingValue(sootMethod, (Local) value, unit, message);
+                        getMsgContentByTracingValue(exceptionInfo, sootMethod, (Local) value, unit, message);
                     }
                 } else if (invokeSig.startsWith("<java.lang.StringBuilder: java.lang.StringBuilder append")) {
                     Value argConstant = invokeExpr.getArgs().get(0);
@@ -728,21 +728,26 @@ public class ExceptionAnalyzer extends Analyzer {
 
                     } else {
                         s = "[\\s\\S]*" + message.get(0) ;
+                        //add this as related value
+                        List<Unit> allPreds = new ArrayList<>();
+                        SootUtils.getAllPredsofUnit(sootMethod, defOfLocal,allPreds);
+                        allPreds.add(defOfLocal);
+                        extendRelatedValues(allPreds, exceptionInfo, defOfLocal, argConstant, new ArrayList<>(), new HashSet<>(), true);
                     }
                     message.set(0, s);
 
                     Value value = ((JVirtualInvokeExpr) invokeExpr).getBaseBox().getValue();
                     if (value instanceof Local) {
-                        getMsgContentByTracingValue(sootMethod, (Local) value, unit, message);
+                        getMsgContentByTracingValue(exceptionInfo, sootMethod, (Local) value, unit, message);
                     }
                 }
             } else if (rightOp instanceof NewExpr) {
                 NewExpr rightOp1 = (NewExpr) rightOp;
                 if (rightOp1.getBaseType().toString().equals("java.lang.StringBuilder")) {
-                    traceStringBuilderBack(sootMethod, defOfLocal, message, 0);
+                    traceStringBuilderBack(exceptionInfo, sootMethod, defOfLocal, message, 0);
                 }
             } else if (rightOp instanceof Local) {
-                getMsgContentByTracingValue(sootMethod, (Local) rightOp, unit, message ) ;
+                getMsgContentByTracingValue(exceptionInfo, sootMethod, (Local) rightOp, unit, message ) ;
             }
         }
     }
@@ -750,7 +755,7 @@ public class ExceptionAnalyzer extends Analyzer {
     /**
      * traceStringBuilderBack
      */
-    private void traceStringBuilderBack(SootMethod sootMethod, Unit unit, List<String> message, int index){
+    private void traceStringBuilderBack(ExceptionInfo exceptionInfo, SootMethod sootMethod, Unit unit, List<String> message, int index){
         if (index > 10) {
             return;
         }
@@ -773,13 +778,18 @@ public class ExceptionAnalyzer extends Analyzer {
                         }
                     } else{
                         s = message.get(0) + "[\\s\\S]*";
+                        //add this as related value
+                        List<Unit> allPreds = new ArrayList<>();
+                        SootUtils.getAllPredsofUnit(sootMethod, succs,allPreds);
+                        allPreds.add(succs);
+                        extendRelatedValues(allPreds, exceptionInfo, succs, argConstant, new ArrayList<>(), new HashSet<>(), true);
                     }
                     message.set(0, s);
                 }
             } else if (succs instanceof ThrowStmt) {
                 return;
             }
-            traceStringBuilderBack(sootMethod, succs, message, index + 1);
+            traceStringBuilderBack(exceptionInfo, sootMethod, succs, message, index + 1);
         }
     }
 
