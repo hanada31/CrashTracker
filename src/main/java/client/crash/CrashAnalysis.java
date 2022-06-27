@@ -76,7 +76,7 @@ public class CrashAnalysis extends Analyzer {
                         relatedVarType="ParameterOnly";
                         withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
                         int score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
-                        withCrashAPIParaHandler(score, crashInfo, true);
+                        withCrashAPIParaHandler(score, crashInfo, false);
                         break;
                     case FieldOnly:
                         relatedVarType="FieldOnly";
@@ -88,7 +88,7 @@ public class CrashAnalysis extends Analyzer {
                         relatedVarType="ParaAndField";
                         withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
                         score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
-                        withCrashAPIParaHandler(score, crashInfo, true);
+                        withCrashAPIParaHandler(score, crashInfo, false);
                         withFieldHandler(ConstantUtils.INITSCORE, crashInfo, false); //FCA
                         break;
                 }
@@ -96,7 +96,7 @@ public class CrashAnalysis extends Analyzer {
                 relatedVarType="unknown"; // native and other no exception.
                 withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false);
                 int score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
-                withCrashAPIParaHandler(score, crashInfo, true); // replace with appFieldHandler, false! some invoked methods can not be find
+                withCrashAPIParaHandler(score, crashInfo, false); // replace with appFieldHandler, false! some invoked methods can not be find
             }
             System.out.println("### relatedVarType is " + relatedVarType);
         }
