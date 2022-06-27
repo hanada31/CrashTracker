@@ -36,17 +36,13 @@ public class CallGraphofJavaClient extends BaseClient {
 
 	@Override
 	public void clientOutput() {
-		String summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
-				+ File.separator;
-		FileUtils.createFolder(summary_app_dir + ConstantUtils.CGFOLDETR);
+		/** call graph, if needed, open output**/
+//		String summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
+//				+ File.separator;
+//		FileUtils.createFolder(summary_app_dir + ConstantUtils.CGFOLDETR);
 
-		/** call graph **/
-		CgClientOutput.writeCG(summary_app_dir + ConstantUtils.CGFOLDETR,
-				Global.v().getAppModel().getAppName()+"_cg.txt", Global.v().getAppModel().getCg());
-//		CgClientOutput.writeCGToString(summary_app_dir + ConstantUtils.CGFOLDETR,
+//		CgClientOutput.writeCG(summary_app_dir + ConstantUtils.CGFOLDETR,
 //				Global.v().getAppModel().getAppName()+"_cg.txt", Global.v().getAppModel().getCg());
-		CgClientOutput.writeTopoMethodFile(summary_app_dir + ConstantUtils.CGFOLDETR, ConstantUtils.TOPO, Global.v()
-				.getAppModel().getTopoMethodQueue());
 	}
 
 }

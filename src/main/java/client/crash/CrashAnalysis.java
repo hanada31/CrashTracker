@@ -781,6 +781,12 @@ public class CrashAnalysis extends Analyzer {
                 Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg());
                 Matcher m = p.matcher(crashInfo.getMsg());
                 if (m.matches()) {
+                    String str =exceptionInfo.getExceptionMsg();
+                    str = str.replace("[\\s\\S]*","");
+                    str = str.replace("\\Q","");
+                    str = str.replace("\\E","");
+                    if(str.length()<3)
+                        continue;
                     if(exceptionInfo!=null && jsonObject.getString("relatedVarType")!=null) {
                         return new Pair<>(jsonObject.getString("relatedVarType"), exceptionInfo.getSootMethodName());
                     }
