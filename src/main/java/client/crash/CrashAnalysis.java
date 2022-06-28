@@ -75,28 +75,32 @@ public class CrashAnalysis extends Analyzer {
                     case ParameterOnly:
                         relatedVarType="ParameterOnly";
                         withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
-                        int score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
-                        withCrashAPIParaHandler(score, crashInfo, false);
                         break;
                     case FieldOnly:
                         relatedVarType="FieldOnly";
                         withFieldHandler(ConstantUtils.INITSCORE, crashInfo, false); //FCA
-                        score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
-//                        addCrashTraces(score, crashInfo,true);
+                        int score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
+                        addCrashTraces(score, crashInfo,true);
+
+//                        for(String method: exceptionInfo.getRelatedMethods()) {
+//                            if (exceptionInfo.getSootMethod().getSignature().equals(method)){
+//                                if(exceptionInfo.getRelatedVarType().equals(RelatedVarType.FieldOnly)){
+//                                    int score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
+//                                    addCrashTraces(score, crashInfo,true);
+//                                    break;
+//                                }
+//                            }
+//                        }
                         break;
                     case ParaAndField:
                         relatedVarType="ParaAndField";
-                        withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
-                        score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
-                        withCrashAPIParaHandler(score, crashInfo, false);
                         withFieldHandler(ConstantUtils.INITSCORE, crashInfo, false); //FCA
+                        withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
                         break;
                 }
             }else {
                 relatedVarType="unknown"; // native and other no exception.
                 withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false);
-                int score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
-                withCrashAPIParaHandler(score, crashInfo, false); // replace with appFieldHandler, false! some invoked methods can not be find
             }
             System.out.println("### relatedVarType is " + relatedVarType);
         }
@@ -403,6 +407,8 @@ public class CrashAnalysis extends Analyzer {
             n = getParameterTerminateMethod(score, crashInfo, filterExtendCG);
         }
         noParameterPassingMethodScore(score-n,crashInfo, filterExtendCG);
+        int score2 = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
+        withCrashAPIParaHandler(score2, crashInfo, false);
     }
 
     private int getParameterTerminateMethod(int score, CrashInfo crashInfo, boolean filterExtendCG) {

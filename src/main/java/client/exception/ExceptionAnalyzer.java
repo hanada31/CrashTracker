@@ -270,13 +270,6 @@ public class ExceptionAnalyzer extends Analyzer {
                 || name.contains("nfc") || name.contains("bluetooth") ){
             exceptionInfo.setHardwareRelated(true);
         }
-        for(String method: exceptionInfo.getRelatedMethods()) {
-            if (exceptionInfo.getSootMethod().getSignature().equals(method)){
-                if(exceptionInfo.getRelatedVarType().equals(RelatedVarType.FieldOnly)){
-                    exceptionInfo.setRelatedVarType(RelatedVarType.ParaAndField);
-                }
-            }
-        }
         exceptionInfoList.add(exceptionInfo);
     }
 
