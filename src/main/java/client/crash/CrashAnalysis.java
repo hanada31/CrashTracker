@@ -71,6 +71,8 @@ public class CrashAnalysis extends Analyzer {
                     case OverrideMissing:
                         relatedVarType="OverrideMissing";
                         overrideMissingHandler(ConstantUtils.INITSCORE,crashInfo, false); //OMA
+                        int score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
+                        addCrashTraces(score, crashInfo,true);
                         break;
                     case ParameterOnly:
                         relatedVarType="ParameterOnly";
