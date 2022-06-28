@@ -71,8 +71,6 @@ public class CrashAnalysis extends Analyzer {
                     case OverrideMissing:
                         relatedVarType="OverrideMissing";
                         overrideMissingHandler(ConstantUtils.INITSCORE,crashInfo, false); //OMA
-                        int score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
-                        addCrashTraces(score, crashInfo,true);
                         break;
                     case ParameterOnly:
                         relatedVarType="ParameterOnly";
@@ -81,18 +79,6 @@ public class CrashAnalysis extends Analyzer {
                     case FieldOnly:
                         relatedVarType="FieldOnly";
                         withFieldHandler(ConstantUtils.INITSCORE, crashInfo, false); //FCA
-                        score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
-                        addCrashTraces(score, crashInfo,true);
-
-//                        for(String method: exceptionInfo.getRelatedMethods()) {
-//                            if (exceptionInfo.getSootMethod().getSignature().equals(method)){
-//                                if(exceptionInfo.getRelatedVarType().equals(RelatedVarType.FieldOnly)){
-//                                    int score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
-//                                    addCrashTraces(score, crashInfo,true);
-//                                    break;
-//                                }
-//                            }
-//                        }
                         break;
                     case ParaAndField:
                         relatedVarType="ParaAndField";
@@ -274,6 +260,8 @@ public class CrashAnalysis extends Analyzer {
         for(RelatedMethod method: exceptionInfo.getRelatedMethodsInSameClass(false)){
             getBuggyFromRelatedMethods(crashInfo, method, score, filterExtendCG);
         }
+        score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
+        addCrashTraces(score, crashInfo,true);
         if(!crashInfo.findCandidateInTrace) {
             //add diff class results, when the same class results returns nothing
             for (RelatedMethod method : exceptionInfo.getRelatedMethodsInDiffClass(false)) {
@@ -674,6 +662,8 @@ public class CrashAnalysis extends Analyzer {
                 }
             }
         }
+        int score2 = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
+        addCrashTraces(score2, crashInfo,true);
     }
 
     /**

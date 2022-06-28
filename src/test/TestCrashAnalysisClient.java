@@ -34,7 +34,7 @@ public class TestCrashAnalysisClient {
 //        path = "C:\\Users\\yanjw\\programs\\Empirical500";
 
         String name;
-        name = "cgeo.geocaching-4524.apk";
+        name = "org.wordpress.android-2372.apk";
 //
 //
 
