@@ -81,7 +81,7 @@ public class CrashAnalysis extends Analyzer {
                     case FieldOnly:
                         relatedVarType="FieldOnly";
                         withFieldHandler(ConstantUtils.INITSCORE, crashInfo, false); //FCA
-                        int score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
+                        score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
                         addCrashTraces(score, crashInfo,true);
 
 //                        for(String method: exceptionInfo.getRelatedMethods()) {
