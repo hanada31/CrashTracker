@@ -729,10 +729,10 @@ public class ExceptionAnalyzer extends Analyzer {
                     } else {
                         s = "[\\s\\S]*" + message.get(0) ;
                         //add this as related value
-                        List<Unit> allPreds = new ArrayList<>();
-                        SootUtils.getAllPredsofUnit(sootMethod, defOfLocal,allPreds);
-                        allPreds.add(defOfLocal);
-                        extendRelatedValues(allPreds, exceptionInfo, defOfLocal, argConstant, new ArrayList<>(), new HashSet<>(), true);
+//                        List<Unit> allPreds = new ArrayList<>();
+//                        SootUtils.getAllPredsofUnit(sootMethod, defOfLocal,allPreds);
+//                        allPreds.add(defOfLocal);
+//                        extendRelatedValues(allPreds, exceptionInfo, defOfLocal, argConstant, new ArrayList<>(), new HashSet<>(), true);
                     }
                     message.set(0, s);
 
@@ -779,10 +779,10 @@ public class ExceptionAnalyzer extends Analyzer {
                     } else{
                         s = message.get(0) + "[\\s\\S]*";
                         //add this as related value
-                        List<Unit> allPreds = new ArrayList<>();
-                        SootUtils.getAllPredsofUnit(sootMethod, succs,allPreds);
-                        allPreds.add(succs);
-                        extendRelatedValues(allPreds, exceptionInfo, succs, argConstant, new ArrayList<>(), new HashSet<>(), true);
+//                        List<Unit> allPreds = new ArrayList<>();
+//                        SootUtils.getAllPredsofUnit(sootMethod, succs,allPreds);
+//                        allPreds.add(succs);
+//                        extendRelatedValues(allPreds, exceptionInfo, succs, argConstant, new ArrayList<>(), new HashSet<>(), true);
                     }
                     message.set(0, s);
                 }

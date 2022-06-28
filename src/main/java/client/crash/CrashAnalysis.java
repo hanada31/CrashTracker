@@ -724,7 +724,8 @@ public class CrashAnalysis extends Analyzer {
             String targetMethodName = targetMethodNames[targetVerId];
             MyConfig.getInstance().setExceptionFilePath("Files"+File.separator+"android"+targetVer+File.separator+"exceptionInfo"+File.separator);
             MyConfig.getInstance().setPermissionFilePath("Files"+File.separator+"android"+targetVer+File.separator+"Permission"+File.separator+"permission.txt");
-            MyConfig.getInstance().setAndroidCGFilePath("Files"+File.separator+"android"+targetVer+File.separator+"CallGraphInfo"+File.separator+"cg.txt");
+            MyConfig.getInstance().setAndroidCGFilePath("Files"+File.separator+"android"+targetVer+File.separator+
+                    "CallGraphInfo" + File.separator + "android"+targetVer + "_cg.txt");
             System.out.println("target is "+ targetVer);
 
             readExceptionSummary(crashInfo, targetMethodName);

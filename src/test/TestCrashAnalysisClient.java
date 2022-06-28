@@ -30,11 +30,13 @@ public class TestCrashAnalysisClient {
     private void setArgs() {
         String path;
         path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
-        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
+//        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 //        path = "C:\\Users\\yanjw\\programs\\Empirical500";
 
         String name;
-        name = "cgeo.geocaching-5591.apk";
+        name = "com.azeus.anywherepad-110.apk";
+//
+//
 
         String client = "CrashAnalysisClient";
         String version = "10.0";
