@@ -8,5 +8,5 @@ python scripts/runLoFDroid-framework.py 10.0
 python scripts/runLoFDroid-framework.py 11.0
 python scripts/runLoFDroid-framework.py 12.0
 
-python scripts/runLoFDroid-multi.py  ../../apk/FanDataICSE2018-before/ v10-fan-0627
-python scripts/runLoFDroid-multi.py  ../../apk/Empirical500/ v10-500-0627
+python scripts/runLoFDroid-multi.py  ../../apk/FanDataICSE2018-before/ fan-0628
+python scripts/runLoFDroid-multi.py  ../../apk/Empirical500/ 500-0628
