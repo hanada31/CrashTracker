@@ -26,7 +26,7 @@ public class TestExceptionInfoClient {
         String path, name;
         path = "C:\\Users\\yanjw\\programs\\framework\\classes\\";
         path = "D:\\SoftwareData\\dataset\\android-framework\\classes\\";
-        name = "android10.0";
+        name = "android2.3";
 
         String client = "ExceptionInfoClient";
 //        client = "IROutputClient";

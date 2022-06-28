@@ -38,7 +38,7 @@ public class ExceptionAnalyzer extends Analyzer {
     List<ExceptionInfo> exceptionInfoList;
     JSONArray exceptionListElement  = new JSONArray(new ArrayList<>());
     Set<String> permissionSet = new HashSet<>();
-    String[] versions = {"4.4", "5.0", "6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0"};
+    String[] versions = {"2.3", "4.4", "5.0", "6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0"};
 
 
     public ExceptionAnalyzer(StatisticResult ignoredResult) {

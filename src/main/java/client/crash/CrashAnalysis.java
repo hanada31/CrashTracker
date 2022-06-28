@@ -37,7 +37,7 @@ public class CrashAnalysis extends Analyzer {
     Set<String> loadedExceptionSummary;
     Map<String, Set<String>> androidCGMap;
     String relatedVarType="";
-    String[] versions = {"4.4", "5.0", "6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0"};
+    String[] versions = {"2.3", "4.4", "5.0", "6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0"};
 
     public CrashAnalysis(StatisticResult result) {
         crashInfoList = Global.v().getAppModel().getCrashInfoList();

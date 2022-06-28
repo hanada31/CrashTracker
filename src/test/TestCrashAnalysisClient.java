@@ -34,7 +34,7 @@ public class TestCrashAnalysisClient {
 //        path = "C:\\Users\\yanjw\\programs\\Empirical500";
 
         String name;
-        name = "ch.logixisland.anuto-1.apk";
+        name = "cgeo.geocaching-4524.apk";
 //
 //
 
