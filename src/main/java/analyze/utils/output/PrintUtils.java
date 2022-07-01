@@ -93,13 +93,29 @@ public class PrintUtils {
 			return "";
 		String res = "";
 		for (Entry<?, ?> en : map.entrySet()) {
-			res += "(Key:" + en.getKey() + "\nValues:" + en.getValue() + ")" + split;
+			res += "(Key:" + en.getKey() + ", Values:" + en.getValue() + ")" + split;
 		}
 		if (res.length() > 0)
 			res = res.substring(0, res.length() - split.length());
 		return res;
 	}
-
+	/**
+	 * print map to string
+	 *
+	 * @param map
+	 * @return
+	 */
+	public static String printMap(Map<?, ?> map, String split) {
+		if (map == null)
+			return "";
+		String res = "";
+		for (Entry<?, ?> en : map.entrySet()) {
+			res += "(Key:" + en.getKey() + ", Values:" + en.getValue() + ")" + split;
+		}
+		if (res.length() > 0)
+			res = res.substring(0, res.length() - split.length());
+		return res;
+	}
 	/**
 	 * print array to string
 	 * 
