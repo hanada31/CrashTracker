@@ -272,7 +272,6 @@ public class MainClass {
 
 		if(mCmd.getOptionValue("AndroidOSVersion")!=null) {
 			MyConfig.getInstance().setAndroidOSVersion(mCmd.getOptionValue("AndroidOSVersion"));
-		}else {
 			String androidFolder = "Files" + File.separator + "android" + mCmd.getOptionValue("AndroidOSVersion") + File.separator;
 			MyConfig.getInstance().setPermissionFilePath(mCmd.getOptionValue("permissionPath", androidFolder + "Permission" + File.separator + "permission.txt"));
 			MyConfig.getInstance().setExceptionFilePath(mCmd.getOptionValue("exceptionPath", androidFolder + "exceptionInfo" + File.separator));
