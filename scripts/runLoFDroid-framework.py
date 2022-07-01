@@ -24,6 +24,6 @@ if __name__ == '__main__' :
     path = "/home/yanjw/myTools/LoFDroid-develop/framework/classes/";
     name = "android"+sys.argv[1];
     
-    command = "java -jar "+jarFile+"  -path "+ path +" -name "+name+" -androidJar "+ sdk +"/platforms -client ExceptionInfoClient " +" -outputDir Files/"  +" -AndroidOSVersion " + sys.argv[1]
+    command = "java -jar "+jarFile+"  -path "+ path +" -name "+name+" -androidJar "+ sdk +"/platforms -client ExceptionInfoClient " +" -outputDir Files/ "  +" -AndroidOSVersion " + sys.argv[1]
     executeCmd(command)
                     
