@@ -1,4 +1,4 @@
-package main.java.client.crash;
+package main.java.client.dataAnalysis;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -8,6 +8,7 @@ import main.java.MyConfig;
 import main.java.analyze.utils.ConstantUtils;
 import main.java.analyze.utils.SootUtils;
 import main.java.analyze.utils.output.FileUtils;
+import main.java.client.crash.CrashInfo;
 import main.java.client.exception.ExceptionInfo;
 import main.java.client.exception.RelatedVarType;
 
