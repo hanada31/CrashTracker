@@ -93,6 +93,7 @@ public class CrashAnalysisClientOutput {
         if(exceptionInfo!=null) {
             jsonObject.put("reg message", crashInfo.getExceptionInfo().getExceptionMsg());
             jsonObject.put("relatedVarType", crashInfo.getExceptionInfo().getRelatedVarType());
+            jsonObject.put("relatedCondType", crashInfo.getExceptionInfo().getRelatedCondType());
             jsonObject.put("conditions", crashInfo.getExceptionInfo().getConditions());
             if(crashInfo.getExceptionInfo().getConditions().size()>0)
                 jsonObject.put("conditions", PrintUtils.printList(crashInfo.getExceptionInfo().getConditions()));

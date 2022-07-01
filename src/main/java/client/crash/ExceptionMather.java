@@ -12,8 +12,7 @@ import main.java.client.exception.ExceptionInfo;
 import main.java.client.exception.RelatedVarType;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,7 +23,8 @@ import java.util.regex.Pattern;
  */
 public class ExceptionMather {
     List<CrashInfo> crashInfoList = new ArrayList<>();
-    String[] versions = {"4.4", "5.0", "6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0"};
+    String[] versions = {"2.3", "4.4", "5.0", "6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0"};
+    Map<String, JSONObject> version2JsonStr = new HashMap<String,JSONObject>();
 
     public void analyze() {
         readAllCrashInfo();
@@ -46,19 +46,25 @@ public class ExceptionMather {
             }
 //            System.out.println(str);
             FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"exceptionMatch.txt", str+"\n", true);
-
         }
-
     }
 
     /**
      * getExceptionOfCrashInfo from exception.json
      */
     private String getExceptionWithGivenVersion(CrashInfo crashInfo, String version) {
-        MyConfig.getInstance().setExceptionFilePath("Files\\android"+version+"\\exceptionInfo\\");
-        String fn = MyConfig.getInstance().getExceptionFilePath()+"summary"+ File.separator+ "exception.json";
-        String jsonString = FileUtils.readJsonFile(fn);
-        JSONObject wrapperObject = (JSONObject) JSONObject.parse(jsonString);
+        String jsonString = "";
+        JSONObject wrapperObject = null;
+        if(version2JsonStr.containsKey(version)){
+            wrapperObject = version2JsonStr.get(version);
+        }else {
+            MyConfig.getInstance().setExceptionFilePath("Files\\android" + version + "\\exceptionInfo\\");
+            String fn = MyConfig.getInstance().getExceptionFilePath() + "summary" + File.separator + "exception.json";
+            jsonString = FileUtils.readJsonFile(fn);
+            wrapperObject = (JSONObject) JSONObject.parse(jsonString);
+            version2JsonStr.put(version,wrapperObject);
+        }
+
         if(wrapperObject==null) return "noFile";
         JSONArray methods = wrapperObject.getJSONArray("exceptions");//构建JSONArray数组
         for (int i = 0 ; i < methods.size();i++){

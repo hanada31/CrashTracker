@@ -36,6 +36,7 @@ public class ExceptionInfo {
     private String sootMethodName;
     private Unit unit;
     private RelatedVarType relatedVarType;
+    private RelatedCondType relatedCondType;
     private boolean isOsVersionRelated;
     private boolean isAssessRelated;
     private boolean isManifestRelated;
@@ -57,6 +58,7 @@ public class ExceptionInfo {
         this.relatedValueIndex = new HashSet<>();
         this.relatedMethodsInSameClassMap = new TreeMap<Integer, ArrayList<RelatedMethod>>();
         this.relatedMethodsInDiffClassMap = new TreeMap<Integer, ArrayList<RelatedMethod>>();
+        this.relatedCondType = RelatedCondType.Unknown;
     }
     public ExceptionInfo(SootMethod sootMethod, Unit unit, String exceptionType) {
         this();
@@ -76,6 +78,14 @@ public class ExceptionInfo {
             setModifier("protected");
         else
             setModifier("default");
+    }
+
+    public RelatedCondType getRelatedCondType() {
+        return relatedCondType;
+    }
+
+    public void setRelatedCondType(RelatedCondType relatedCondType) {
+        this.relatedCondType = relatedCondType;
     }
 
     public void setRelatedVarType(RelatedVarType relatedVarType) {

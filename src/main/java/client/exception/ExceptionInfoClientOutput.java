@@ -33,7 +33,6 @@ public class ExceptionInfoClientOutput {
      */
     public static void writeJsonForCurrentClass(SootClass sootClass, List<ExceptionInfo> exceptionInfoList) {
         String path = MyConfig.getInstance().getExceptionFilePath();
-        FileUtils.createFolder(path);
         if(exceptionInfoList.size()>0) {
             String jsonPath = path + sootClass.getName() + ".json";
             System.out.println("writeToJson "+jsonPath);
@@ -110,6 +109,7 @@ public class ExceptionInfoClientOutput {
 
     public static void addBasic2(JSONObject jsonObject, ExceptionInfo info) {
         jsonObject.put("relatedVarType", info.getRelatedVarType());
+        jsonObject.put("relatedCondType", info.getRelatedCondType());
         jsonObject.put("modifier", info.getModifier());
         jsonObject.put("type", info.getExceptionType());
         jsonObject.put("osVersionRelated", info.isOsVersionRelated());

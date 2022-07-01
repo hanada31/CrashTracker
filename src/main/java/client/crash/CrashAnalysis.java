@@ -94,8 +94,6 @@ public class CrashAnalysis extends Analyzer {
         }
     }
 
-
-
     private void addCrashTraces(int initscore, CrashInfo crashInfo, boolean filterExtendCG) {
         for(String candi: crashInfo.getCrashMethodList()){
             List<String> trace = new ArrayList<>();
@@ -103,7 +101,6 @@ public class CrashAnalysis extends Analyzer {
             crashInfo.addBuggyCandidates(candi,initscore--,filterExtendCG, "crash_trace_method", trace);
         }
     }
-
 
     /**
      * use the same strategy as CrashLocator, extend cg, remove control flow and data flow unrelated edges
@@ -218,9 +215,6 @@ public class CrashAnalysis extends Analyzer {
         }
     }
 
-
-
-
     /**
      * getBuggyFromUserCode
      * @param crashInfo
@@ -310,7 +304,6 @@ public class CrashAnalysis extends Analyzer {
             }
         }
     }
-
 
     /**
      * tracing the values relates to the one used in if condition
@@ -432,7 +425,6 @@ public class CrashAnalysis extends Analyzer {
         }
         return count;
     }
-
 
     private void noParameterPassingMethodScore(int initScore, CrashInfo crashInfo, boolean filterExtendCG) {
         System.out.println("noParameterPassingMethodScore...");
@@ -691,35 +683,42 @@ public class CrashAnalysis extends Analyzer {
     private void getExceptionOfCrashInfo() {
         for(CrashInfo crashInfo: crashInfoList) {
             if(crashInfo.getTrace().size()==0 ) continue;
-            String str= crashInfo.getId()+"\t"+crashInfo.getSignaler()+"\t";
-            System.out.println("Analysis crash "+ str);
-            String[] versionTypes = new String[versions.length];
-            String[] versionTypeCandis = new String[versions.length];
-            String[] targetMethodNames = new String[versions.length];
-            int i =0;
-            for (String version : versions) {
-                Pair pair = getExceptionWithGivenVersion(crashInfo, version, true);
-                versionTypes[i]  = (String) pair.getO1();
-                targetMethodNames[i]  = (String) pair.getO2();
-                if(versionTypes[i].equals("unknown")){
-                    Pair pair2 = getExceptionWithGivenVersion(crashInfo, version, false);
-                    versionTypeCandis[i]  = (String) pair2.getO1();
-                    targetMethodNames[i]  = (String) pair2.getO2();
+            String targetVer = "";
+            String targetMethodName = "";
+            if(MyConfig.getInstance().getAndroidOSVersion()==null) {
+                String str = crashInfo.getId() + "\t" + crashInfo.getSignaler() + "\t";
+                System.out.println("Analysis crash " + str);
+                String[] versionTypes = new String[versions.length];
+                String[] versionTypeCandis = new String[versions.length];
+                String[] targetMethodNames = new String[versions.length];
+                int i = 0;
+                for (String version : versions) {
+                    Pair pair = getExceptionWithGivenVersion(crashInfo, version, true);
+                    versionTypes[i] = (String) pair.getO1();
+                    targetMethodNames[i] = (String) pair.getO2();
+                    if (versionTypes[i].equals("unknown")) {
+                        Pair pair2 = getExceptionWithGivenVersion(crashInfo, version, false);
+                        versionTypeCandis[i] = (String) pair2.getO1();
+                        targetMethodNames[i] = (String) pair2.getO2();
+                    }
+                    i++;
                 }
-                i++;
-            }
 
-            int targetVerId = getTargetVersion(versionTypes);
-            if(targetVerId==-1) {
-                targetVerId = getTargetVersion(versionTypeCandis);
-                System.out.println(PrintUtils.printArray(versionTypeCandis));
+                int targetVerId = getTargetVersion(versionTypes);
+                if (targetVerId == -1) {
+                    targetVerId = getTargetVersion(versionTypeCandis);
+                    System.out.println(PrintUtils.printArray(versionTypeCandis));
+                } else {
+                    System.out.println(PrintUtils.printArray(versionTypes));
+                }
+                if (targetVerId == -1)
+                    targetVerId = 6;
+                targetVer = versions[targetVerId];
+                targetMethodName = targetMethodNames[targetVerId];
             }else{
-                System.out.println(PrintUtils.printArray(versionTypes));
+                targetVer = MyConfig.getInstance().getAndroidOSVersion();
+                targetMethodName = crashInfo.getSignaler();
             }
-            if(targetVerId==-1)
-                targetVerId = 6;
-            String targetVer = versions[targetVerId];
-            String targetMethodName = targetMethodNames[targetVerId];
             MyConfig.getInstance().setExceptionFilePath("Files"+File.separator+"android"+targetVer+File.separator+"exceptionInfo"+File.separator);
             MyConfig.getInstance().setPermissionFilePath("Files"+File.separator+"android"+targetVer+File.separator+"Permission"+File.separator+"permission.txt");
             MyConfig.getInstance().setAndroidCGFilePath("Files"+File.separator+"android"+targetVer+File.separator+
@@ -994,3 +993,4 @@ public class CrashAnalysis extends Analyzer {
     }
 
 }
+

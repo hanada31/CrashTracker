@@ -30,16 +30,14 @@ public class TestCrashAnalysisClient {
     private void setArgs() {
         String path;
         path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
-        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
+//        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 //        path = "C:\\Users\\yanjw\\programs\\Empirical500";
 
         String name;
-        name = "org.wordpress.android-2372.apk";
+        name = "org.sensortracker.sensor_zh-487.apk";
 //
 //
-
         String client = "CrashAnalysisClient";
-        String version = "10.0";
 
         MyConfig.getInstance().setAppName(name);
         MyConfig.getInstance().setAppPath(path + File.separator);
@@ -53,9 +51,7 @@ public class TestCrashAnalysisClient {
         MyConfig.getInstance().setAndroidJar("lib/platforms");
         MyConfig.getInstance().setSrc_prec(Options.src_prec_apk);
         MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfo.json");
-        MyConfig.getInstance().setExceptionFilePath("Files\\android"+version+"\\exceptionInfo\\");
-        MyConfig.getInstance().setAndroidCGFilePath("Files\\android"+version+"\\CallGraphInfo\\cg.txt");
-        MyConfig.getInstance().setPermissionFilePath("Files\\android"+version+"\\Permission\\permission.txt");
+//        MyConfig.getInstance().setAndroidOSVersion("2.3");
 
     }
 

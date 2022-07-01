@@ -48,7 +48,7 @@ public class MyConfig {
 	private String ExceptionFilePath;
 	private String PermissionFilePath;
 	private String AndroidCGFilePath ;
-
+	private String AndroidOSVersion = null;
 	public static MyConfig getInstance() {
 		return SingletonInstance.INSTANCE;
 	}
@@ -155,6 +155,13 @@ public class MyConfig {
 		return src_prec;
 	}
 
+	public String getAndroidOSVersion() {
+		return AndroidOSVersion;
+	}
+
+	public void setAndroidOSVersion(String androidOSVersion) {
+		this.AndroidOSVersion = androidOSVersion;
+	}
 
 	/**
 	 * @return the androidJar

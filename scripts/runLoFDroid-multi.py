@@ -9,7 +9,7 @@ reRun = True
 filterList = list()
 
 
-def analyzeApk(apkPath, resPath, sdk):
+def analyzeApk(apkPath, resPath, sdk, AndroidOSVersion):
     logDir = resPath+"/logs"
     outputDir = resPath+"/output"
     if(not os.path.exists(logDir)): 
@@ -29,9 +29,12 @@ def analyzeApk(apkPath, resPath, sdk):
             if apk[-4:] ==".apk":
                 resFile = logDir+"/"+apk[:-4]+".txt"
                 if(reRun or not os.path.exists(resFile)): 
-                    command = "java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms  "+ extraArgs +"-client CrashAnalysisClient  -outputDir "+outputDir+" >> "+logDir+"/"+apk[:-4]+".txt"
-                    #executeCmd(cmd)
-                    future1 = pool.submit(executeCmd, command)
+                    if AndroidOSVersion > 0: 
+                        command = "java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms  "+ extraArgs +"-client CrashAnalysisClient  -AndroidOSVersion " + AndroidOSVersion +" -outputDir "+outputDir+" >> "+logDir+"/"+apk[:-4]+".txt"
+                        future1 = pool.submit(executeCmd, command)
+                    else:
+                        command = "java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms  "+ extraArgs +"-client CrashAnalysisClient -outputDir "+outputDir+" >> "+logDir+"/"+apk[:-4]+".txt"
+                        future1 = pool.submit(executeCmd, command)
 
         pool.shutdown()
 
@@ -52,7 +55,7 @@ if __name__ == '__main__' :
     
     apkPath = sys.argv[1]
     resPath = sys.argv[2]
-    
+    AndroidOSVersion = sys.argv[3]
     os.system("mvn -f pom.xml package -q")
     if os.path.exists("target/LoFDroid.jar"):
         print("Successfully build! generate jar-with-dependencies in folder target/")
@@ -64,5 +67,5 @@ if __name__ == '__main__' :
     if len(sys.argv)>4:
         filterFile = sys.argv[4]    
         readFilterFile(filterFile)
-    analyzeApk(apkPath, resPath, sdk)
+    analyzeApk(apkPath, resPath, sdk, AndroidOSVersion)
     

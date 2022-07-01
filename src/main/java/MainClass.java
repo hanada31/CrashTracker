@@ -171,12 +171,12 @@ public class MainClass {
 		options.addOption("name", true, "-name: Set the name of the apk under analysis.");
 		options.addOption("path", true, "-path: Set the path to the apk under analysis.");
 		options.addOption("androidJar", true, "-androidJar: Set the path of android.jar.");
-		options.addOption("version", true, "-version [default:23]: Version of Android SDK.");
+		options.addOption("AndroidSDKVersion", true, "-AndroidSDKVersion [default:23]: Version of Android SDK.");
 		options.addOption("crashPath", true, "-crashPath: crash info file.");
 		options.addOption("exceptionPath", true, "-exceptionPath: exception file folder.");
 		options.addOption("androidCGPath", true, "-androidCGPath: Android CallGraph file.");
 		options.addOption("permissionPath", true, "-permissionPath: Android permissionPath file.");
-		options.addOption("SDKVersion", true, "-SDKVersion: Android SDK version");
+		options.addOption("AndroidOSVersion", true, "-AndroidOSVersion: Android OS version");
 
 		/** analysis config **/
 		options.addOption("client", true, "-client "
@@ -267,13 +267,17 @@ public class MainClass {
 		MyConfig.getInstance().setAppName(mCmd.getOptionValue("name", ""));
 		MyConfig.getInstance().setAppPath(mCmd.getOptionValue("path", System.getProperty("user.dir")) + File.separator);
 		MyConfig.getInstance().setAndroidJar(mCmd.getOptionValue("androidJar", "lib"+File.separator+"platforms") + File.separator);
-		MyConfig.getInstance().setAndroidVersion("android-" + mCmd.getOptionValue("version", "23"));
+		MyConfig.getInstance().setAndroidVersion("android-" + mCmd.getOptionValue("AndroidSDKVersion", "23"));
 		MyConfig.getInstance().setCrashInfoFilePath(mCmd.getOptionValue("crashPath","Files"+File.separator+"crashInfo.json"));
 
-		String androidFolder = "Files"+File.separator+"android"+mCmd.getOptionValue("SDKVersion")+File.separator;
-		MyConfig.getInstance().setPermissionFilePath(mCmd.getOptionValue("permissionPath",androidFolder+"Permission"+File.separator+"permission.txt"));
-		MyConfig.getInstance().setExceptionFilePath(mCmd.getOptionValue("exceptionPath",androidFolder+"exceptionInfo"+File.separator));
-		MyConfig.getInstance().setAndroidCGFilePath(mCmd.getOptionValue("androidCGPath",androidFolder+"CallGraphInfo"+File.separator+"cg.txt"));
+		if(mCmd.getOptionValue("AndroidOSVersion")!=null) {
+			MyConfig.getInstance().setAndroidOSVersion(mCmd.getOptionValue("AndroidOSVersion"));
+		}else {
+			String androidFolder = "Files" + File.separator + "android" + mCmd.getOptionValue("AndroidOSVersion") + File.separator;
+			MyConfig.getInstance().setPermissionFilePath(mCmd.getOptionValue("permissionPath", androidFolder + "Permission" + File.separator + "permission.txt"));
+			MyConfig.getInstance().setExceptionFilePath(mCmd.getOptionValue("exceptionPath", androidFolder + "exceptionInfo" + File.separator));
+			MyConfig.getInstance().setAndroidCGFilePath(mCmd.getOptionValue("androidCGPath", androidFolder + "CallGraphInfo" + File.separator + "cg.txt"));
+		}
 
 
 		if (mCmd.hasOption("sootOutput"))
