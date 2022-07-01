@@ -29,7 +29,7 @@ def analyzeApk(apkPath, resPath, sdk, AndroidOSVersion):
             if apk[-4:] ==".apk":
                 resFile = logDir+"/"+apk[:-4]+".txt"
                 if(reRun or not os.path.exists(resFile)): 
-                    if AndroidOSVersion > 0: 
+                    if AndroidOSVersion != "no": 
                         command = "java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms  "+ extraArgs +"-client CrashAnalysisClient  -AndroidOSVersion " + AndroidOSVersion +" -outputDir "+outputDir+" >> "+logDir+"/"+apk[:-4]+".txt"
                         future1 = pool.submit(executeCmd, command)
                     else:
