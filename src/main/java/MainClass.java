@@ -177,6 +177,7 @@ public class MainClass {
 		options.addOption("androidCGPath", true, "-androidCGPath: Android CallGraph file.");
 		options.addOption("permissionPath", true, "-permissionPath: Android permissionPath file.");
 		options.addOption("AndroidOSVersion", true, "-AndroidOSVersion: Android OS version");
+		options.addOption("strategy", true, "-strategy: effectiveness of strategy m");
 
 		/** analysis config **/
 		options.addOption("client", true, "-client "
@@ -225,21 +226,7 @@ public class MainClass {
 		options.addOption("noImplicit", false, "-noImplicit: exclude implict matching");
 		options.addOption("noDynamicBC", false, "-noDynamicBC: exclude dynamic broadcast receiver matching");
 		options.addOption("sootOutput", false, "-sootOutput: Output the sootOutput");
-		
-//		 /** Strategy **/
-//		 options.addOption("summaryStrategy", true,
-//		 "-summaryStrategy: choose the type of summary model from object/path/none");
-//		 options.addOption("noVfgStrategy", false,
-//		 "-vfgStrategy: do not use vfg model");
-//		 options.addOption("cgAnalyzeGroup", false,
-//		 "-cgAnalyzeGroup: group cg edges into several groups");
-//		 options.addOption("getAttributeStrategy", false,
-//		 "-getAttributeStrategy: include the analyze of intent data receiveing.");
-//		 options.addOption("setAttributeStrategy", false,
-//				 "-setAttributeStrategy: include the analyze of intent data sending.");
-//				
-//		 options.addOption("scenarioStack", false,
-//		 "-scenarioStack: for stack related bug analysis.");
+
 
 		return options;
 	}
@@ -278,6 +265,7 @@ public class MainClass {
 			MyConfig.getInstance().setAndroidCGFilePath(mCmd.getOptionValue("androidCGPath", androidFolder + "CallGraphInfo" + File.separator + "cg.txt"));
 		}
 
+		MyConfig.getInstance().setStrategy(mCmd.getOptionValue("strategy", ""));
 
 		if (mCmd.hasOption("sootOutput"))
 			MyConfig.getInstance().setWriteSootOutput(true);

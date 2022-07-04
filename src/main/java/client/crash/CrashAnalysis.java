@@ -65,6 +65,9 @@ public class CrashAnalysis extends Analyzer {
             ExceptionInfo exceptionInfo = crashInfo.getExceptionInfo();
             checkIsNoAppRelatedHandler(crashInfo);
             getExtendedCallTrace(crashInfo);
+            if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoRVType)){
+                exceptionInfo.setRelatedVarType(null);
+            }
             if(exceptionInfo!=null && exceptionInfo.getRelatedVarType()!=null) {
                 switch (exceptionInfo.getRelatedVarType()) {
                     //first choice filterExtendedCG false, second choice true
@@ -110,7 +113,9 @@ public class CrashAnalysis extends Analyzer {
         for(int index = crashInfo.getCrashMethodList().size()-1; index>=0; index--) {
             String candi = crashInfo.getCrashMethodList().get(index);
             crashInfo.addExtendedCallDepth(candi, 1);
-
+            if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoExtendCG)){
+                continue;
+            }
             //all function in the last method
             //methods that preds of the next one in call stack
             Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
@@ -457,6 +462,9 @@ public class CrashAnalysis extends Analyzer {
                     }
                 }
             }else{
+                if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoHierarchyAnalysis)){
+                    superCls = null;
+                }
                 if(superCls!= null && candi.contains(superCls.getName() )){
                     List<String> trace = new ArrayList<>();
                     trace.add(0, candi);
@@ -536,22 +544,25 @@ public class CrashAnalysis extends Analyzer {
         if(crashInfo.getTrace().contains(candi)) score += ConstantUtils.METHODINTACE;
         crashInfo.addBuggyCandidates(candi, score, filterExtendedCG,"related_method_caller", trace);
 
-        //if the buggy type is not passed by parameter, do not find its caller
-        Set<Integer> paramIndexCaller = SootUtils.getIndexesFromMethod(edge, crashInfo.exceptionInfo.getRelatedValueIndex());
-        if(paramIndexCaller.size() == 0) return;
-
-        int size = CollectionUtils.getSizeOfIterator(Global.v().getAppModel().getCg().edgesInto(sootMethod));
-        if(size>ConstantUtils.LARGECALLERSET ) return;
-//        if(size>ConstantUtils.LARGECALLERSET || !extendCG) return;
-
-        for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesInto(sootMethod); it.hasNext(); ) {
-            Edge edge2 = it.next();
-            if(edge2.toString().contains("dummyMainMethod")) continue;
-            if( crashInfo.getEdges().contains(edge2) ) continue;
-            crashInfo.add2EdgeMap(depth,edge2);
-            List<String> newTrace = new ArrayList<>(trace);
-            addCallersOfSourceOfEdge(initScore, edge2, method, crashInfo, edge2.getSrc().method(), depth+1, filterExtendedCG, newTrace, true);
-        }
+//        //if the buggy type is not passed by parameter, do not find its caller
+//        Set<Integer> paramIndexCaller = SootUtils.getIndexesFromMethod(edge, crashInfo.exceptionInfo.getRelatedValueIndex());
+//        if(paramIndexCaller.size() == 0) return;
+//
+//        int size = CollectionUtils.getSizeOfIterator(Global.v().getAppModel().getCg().edgesInto(sootMethod));
+//        if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoRelatedMethodFilter)){
+//            size = 0;
+//        }
+//        if(size>ConstantUtils.LARGECALLERSET) return;
+////        if(size>ConstantUtils.LARGECALLERSET || !extendCG) return;
+//
+//        for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesInto(sootMethod); it.hasNext(); ) {
+//            Edge edge2 = it.next();
+//            if(edge2.toString().contains("dummyMainMethod")) continue;
+//            if( crashInfo.getEdges().contains(edge2) ) continue;
+//            crashInfo.add2EdgeMap(depth,edge2);
+//            List<String> newTrace = new ArrayList<>(trace);
+//            addCallersOfSourceOfEdge(initScore, edge2, method, crashInfo, edge2.getSrc().method(), depth+1, filterExtendedCG, newTrace, true);
+//        }
     }
 
     /**
@@ -567,6 +578,9 @@ public class CrashAnalysis extends Analyzer {
             if (edge.getTgt().method().getSignature().equals(relatedMethod.getMethod())) {
                 size++;
             }
+        }
+        if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoRelatedMethodFilter)){
+            size = 0;
         }
         //filter the related methods with too many caller
         for (Iterator<Edge> it = Global.v().getAppModel().getCg().iterator(); it.hasNext(); ) {

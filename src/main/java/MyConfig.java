@@ -49,6 +49,11 @@ public class MyConfig {
 	private String PermissionFilePath;
 	private String AndroidCGFilePath ;
 	private String AndroidOSVersion = null;
+
+
+	private String Strategy;
+
+
 	public static MyConfig getInstance() {
 		return SingletonInstance.INSTANCE;
 	}
@@ -60,14 +65,13 @@ public class MyConfig {
 		return mySwithch;
 	}
 
-	/**
-	 * @param mySwithch
-	 *            the mySwithch to set
-	 */
-	public void setMySwithch(Switch mySwithch) {
-		this.mySwithch = mySwithch;
+	public String getStrategy() {
+		return Strategy;
 	}
 
+	public void setStrategy(String strategy) {
+		Strategy = strategy;
+	}
 	public boolean isJimple() {
 		return isJimple;
 	}

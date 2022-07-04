@@ -340,4 +340,9 @@ public class ConstantUtils {
 	public static String[] componentClasses = { "android.app.Activity", "android.app.Service",
 			"android.content.BroadcastReceiver", "android.content.ContentProvider" };
 
+	//strategies
+	public static String NoRelatedMethodFilter = "NoRelatedMethodFilter";
+	public static String NoRVType = "NoRVType";
+	public static String NoExtendCG = "NoExtendCG";
+	public static String NoHierarchyAnalysis = "NoHierarchyAnalysis";
 }
