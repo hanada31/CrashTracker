@@ -5,12 +5,11 @@ import com.alibaba.fastjson.JSONObject;
 import main.java.MyConfig;
 import main.java.analyze.utils.output.FileUtils;
 import main.java.analyze.utils.output.PrintUtils;
+import main.java.client.exception.RelatedCondType;
+import main.java.client.exception.RelatedVarType;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @Author hanada
@@ -31,7 +30,19 @@ public class ExceptionInfoCount {
         System.out.println("write to "+ MyConfig.getInstance().getResultFolder() +"exceptionInfoCount.txt");
 
         StringBuilder sb = new StringBuilder();
-        sb.append("version\t" + "exceptionNum\t" + "exceptionTypeNum" + "uniqueMethodNum\t" + "relatedVarTypeMap\t\t" + "relatedCondTypeMap\n");
+        sb.append("version\t" + "exceptionNum\t" + "exceptionTypeNum\t" + "uniqueMethodNum\t");
+        sb.append("null"  + "\t");
+        sb.append("OverrideMissing"  + "\t");
+        sb.append("ParameterOnly"  + "\t");
+        sb.append("FieldOnly"  + "\t");
+        sb.append("ParaAndField"  + "\t");
+
+        sb.append("Direct"  + "\t");
+        sb.append("Multiple"  + "\t");
+        sb.append("NotReturn"  + "\t");
+        sb.append("Caught"  + "\t");
+        sb.append("Unknown"  + "\n");
+
         for (String version : versions) {
             String str = getExceptionWithGivenVersion(version);
             sb.append(str);
@@ -75,8 +86,19 @@ public class ExceptionInfoCount {
             }
             relatedCondTypeMap.put(relatedCondType, relatedCondTypeMap.get(relatedCondType)+1);
         }
+        StringBuilder sb = new StringBuilder(version + "\t" + exceptionNum +"\t" + exceptionType.size()+"\t" + uniqueMethod.size()+"\t");
+        sb.append(relatedVarTypeMap.get(null)+ "\t");
+        sb.append(relatedVarTypeMap.get("OverrideMissing") + "\t");
+        sb.append(relatedVarTypeMap.get("ParameterOnly") + "\t");
+        sb.append(relatedVarTypeMap.get("FieldOnly") + "\t");
+        sb.append(relatedVarTypeMap.get("ParaAndField") + "\t");
 
-        return version + "\t" + exceptionNum +"\t" + exceptionType.size()+"\t" + uniqueMethod.size()+"\t" + PrintUtils.printMap(relatedVarTypeMap, " ")+"\t\t"
-                + PrintUtils.printMap(relatedCondTypeMap," ")+"\n";
+
+        sb.append(relatedCondTypeMap.get("Direct") + "\t");
+        sb.append(relatedCondTypeMap.get("Multiple") + "\t");
+        sb.append(relatedCondTypeMap.get("NotReturn") + "\t");
+        sb.append(relatedCondTypeMap.get("Caught") + "\t");
+        sb.append(relatedCondTypeMap.get("Unknown") + "\t");
+        return  sb+"\n";
     }
 }

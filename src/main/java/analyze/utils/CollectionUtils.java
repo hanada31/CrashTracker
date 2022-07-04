@@ -12,13 +12,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import main.java.Global;
 import main.java.analyze.model.analyzeModel.Attribute;
 import main.java.analyze.utils.CollectionUtils;
 import main.java.analyze.utils.MapValueComparator;
 import main.java.client.obj.model.ctg.ICCMsg;
+import soot.jimple.toolkits.callgraph.Edge;
 
 public class CollectionUtils {
 
+	public static  int getSizeOfIterator(Iterator it){
+		int size = 0;
+		while (it.hasNext()) {
+			size++;
+			it.next();
+		}
+		return size;
+	}
 	public static List<Map.Entry<String, Integer>> getTreeMapEntriesSortedByValue(Map<String, Integer> map) {
 		List<Map.Entry<String, Integer>> treeMapList =
 				new ArrayList<Map.Entry<String, Integer>>(map.entrySet());

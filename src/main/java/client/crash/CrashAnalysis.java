@@ -252,14 +252,14 @@ public class CrashAnalysis extends Analyzer {
         System.out.println("withFieldHandler...");
         ExceptionInfo exceptionInfo = crashInfo.getExceptionInfo();
         for(RelatedMethod method: exceptionInfo.getRelatedMethodsInSameClass(false)){
-            getBuggyFromRelatedMethods(crashInfo, method, score, filterExtendCG);
+            getBuggyFromRelatedMethods(crashInfo, method, score, filterExtendCG,true);
         }
         score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
         addCrashTraces(score, crashInfo,true);
         if(!crashInfo.findCandidateInTrace) {
             //add diff class results, when the same class results returns nothing
             for (RelatedMethod method : exceptionInfo.getRelatedMethodsInDiffClass(false)) {
-                getBuggyFromRelatedMethods(crashInfo, method, score-ConstantUtils.DIFFCLASS, filterExtendCG);
+                getBuggyFromRelatedMethods(crashInfo, method, score-ConstantUtils.DIFFCLASS, filterExtendCG, false);
             }
         }
     }
@@ -529,7 +529,7 @@ public class CrashAnalysis extends Analyzer {
      * @param filterExtendedCG
      */
     private void addCallersOfSourceOfEdge(int initScore, Edge edge, RelatedMethod method,
-                                          CrashInfo crashInfo, SootMethod sootMethod, int depth, boolean filterExtendedCG, List<String> trace) {
+                                          CrashInfo crashInfo, SootMethod sootMethod, int depth, boolean filterExtendedCG, List<String> trace, boolean extendCG) {
         String candi = sootMethod.getDeclaringClass().getName()+ "." + sootMethod.getName();
         trace.add(0,sootMethod.getSignature());
         int score = initScore - getOrderInTrace(crashInfo, candi) - method.getDepth() - depth;
@@ -540,13 +540,17 @@ public class CrashAnalysis extends Analyzer {
         Set<Integer> paramIndexCaller = SootUtils.getIndexesFromMethod(edge, crashInfo.exceptionInfo.getRelatedValueIndex());
         if(paramIndexCaller.size() == 0) return;
 
+        int size = CollectionUtils.getSizeOfIterator(Global.v().getAppModel().getCg().edgesInto(sootMethod));
+        if(size>ConstantUtils.LARGECALLERSET ) return;
+//        if(size>ConstantUtils.LARGECALLERSET || !extendCG) return;
+
         for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesInto(sootMethod); it.hasNext(); ) {
             Edge edge2 = it.next();
             if(edge2.toString().contains("dummyMainMethod")) continue;
             if( crashInfo.getEdges().contains(edge2) ) continue;
             crashInfo.add2EdgeMap(depth,edge2);
             List<String> newTrace = new ArrayList<>(trace);
-            addCallersOfSourceOfEdge(initScore, edge2, method, crashInfo, edge2.getSrc().method(), depth+1, filterExtendedCG, newTrace);
+            addCallersOfSourceOfEdge(initScore, edge2, method, crashInfo, edge2.getSrc().method(), depth+1, filterExtendedCG, newTrace, true);
         }
     }
 
@@ -555,18 +559,36 @@ public class CrashAnalysis extends Analyzer {
      * @param crashInfo
      * @param filterExtendedCG
      */
-    private void getBuggyFromRelatedMethods(CrashInfo crashInfo, RelatedMethod relatedMethod, int initScore, boolean filterExtendedCG) {
+    private void getBuggyFromRelatedMethods(CrashInfo crashInfo, RelatedMethod relatedMethod, int initScore, boolean filterExtendedCG, boolean extendCG) {
         crashInfo.setEdges(new ArrayList<>());
+        int size = 0;
+        for (Iterator<Edge> it = Global.v().getAppModel().getCg().iterator(); it.hasNext(); ) {
+            Edge edge = it.next();
+            if (edge.getTgt().method().getSignature().equals(relatedMethod.getMethod())) {
+                size++;
+            }
+        }
+        //filter the related methods with too many caller
         for (Iterator<Edge> it = Global.v().getAppModel().getCg().iterator(); it.hasNext(); ) {
             Edge edge = it.next();
             if(edge.getTgt().method().getSignature().equals(relatedMethod.getMethod())){
                 SootMethod sourceMtd = edge.getSrc().method();
                 if(isLibraryMethod(sourceMtd.getDeclaringClass().getName()))
                     continue;
+                boolean findInTrace = false;
+                if(size>ConstantUtils.LARGECALLERSET){
+                    for(String className: crashInfo.getClassesInTrace()){
+                        if(sourceMtd.getSignature().contains(className)){
+                            findInTrace = true;
+                            break;
+                        }
+                    }
+                    if(!findInTrace) continue;
+                }
                 crashInfo.add2EdgeMap(0, edge);
                 List<String> trace = new ArrayList<>();
                 trace.addAll(relatedMethod.getTrace());
-                addCallersOfSourceOfEdge(initScore, edge, relatedMethod, crashInfo, sourceMtd, 1, filterExtendedCG, trace);
+                addCallersOfSourceOfEdge(initScore, edge, relatedMethod, crashInfo, sourceMtd, 1, filterExtendedCG, trace, extendCG);
             }
         }
     }

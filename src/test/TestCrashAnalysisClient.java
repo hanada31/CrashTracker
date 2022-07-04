@@ -34,7 +34,7 @@ public class TestCrashAnalysisClient {
 //        path = "C:\\Users\\yanjw\\programs\\Empirical500";
 
         String name;
-        name = "org.sensortracker.sensor_zh-487.apk";
+        name = "com.jawfin.sol3d-307.apk";
 //
 //
         String client = "CrashAnalysisClient";
