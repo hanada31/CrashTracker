@@ -21,7 +21,7 @@ def analyzeApk(apkPath, resPath, sdk, AndroidOSVersion):
         apks = os.listdir(apkPath)
         extraArgs = "" #"-noLibCode "# 
         
-        pool = ThreadPoolExecutor(max_workers=4)
+        pool = ThreadPoolExecutor(max_workers=8)
 
         for apk in apks:
             if len(filterList)>0  and apk not in filterList:
