@@ -34,7 +34,7 @@ public class TestCrashAnalysisClient {
 //        path = "C:\\Users\\yanjw\\programs\\Empirical500";
 
         String name;
-        name = "com.jawfin.sol3d-307.apk";
+        name = "com.ggeye.jiakao.api-57.apk";
 //
 //
         String client = "CrashAnalysisClient";
@@ -51,6 +51,7 @@ public class TestCrashAnalysisClient {
         MyConfig.getInstance().setAndroidJar("lib/platforms");
         MyConfig.getInstance().setSrc_prec(Options.src_prec_apk);
         MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfo.json");
+        MyConfig.getInstance().setStrategy("NoRVType");
 //        MyConfig.getInstance().setAndroidOSVersion("2.3");
 
     }

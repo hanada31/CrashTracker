@@ -65,8 +65,8 @@ public class CrashAnalysis extends Analyzer {
             ExceptionInfo exceptionInfo = crashInfo.getExceptionInfo();
             checkIsNoAppRelatedHandler(crashInfo);
             getExtendedCallTrace(crashInfo);
-            if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoRVType)){
-                exceptionInfo.setRelatedVarType(null);
+            if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoRVType) ){
+                exceptionInfo = null;
             }
             if(exceptionInfo!=null && exceptionInfo.getRelatedVarType()!=null) {
                 switch (exceptionInfo.getRelatedVarType()) {
