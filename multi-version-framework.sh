@@ -9,5 +9,5 @@
 # python scripts/runLoFDroid-framework.py 11.0
 # python scripts/runLoFDroid-framework.py 12.0
 
-python scripts/runLoFDroid-multi.py  ../../apk/FanDataICSE2018-before/ Data-fan-0704 "no"
-python scripts/runLoFDroid-multi.py  ../../apk/Empirical500/ Data-500-0704 "no"
+python scripts/runLoFDroid-multi.py  ../../apk/FanDataICSE2018-before/ Data-fan-0704 "no" "NoRVType"
+python scripts/runLoFDroid-multi.py  ../../apk/Empirical500/ Data-500-0704 "no" "NoRVType"

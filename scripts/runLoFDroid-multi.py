@@ -9,7 +9,7 @@ reRun = True
 filterList = list()
 
 
-def analyzeApk(apkPath, resPath, sdk, AndroidOSVersion):
+def analyzeApk(apkPath, resPath, sdk, AndroidOSVersion, strategy):
     logDir = resPath+"/logs"
     outputDir = resPath+"/output"
     if(not os.path.exists(logDir)): 
@@ -19,7 +19,11 @@ def analyzeApk(apkPath, resPath, sdk, AndroidOSVersion):
         
     if(os.path.exists(apkPath)): 
         apks = os.listdir(apkPath)
-        extraArgs = "" #"-noLibCode "# 
+        
+        extraArgs = "" 
+        if AndroidOSVersion != "no": 
+            extraArgs = extraArgs +  " -AndroidOSVersion " + AndroidOSVersion +" "
+        extraArgs = extraArgs + +" -strategy " +strategy +" "
         
         pool = ThreadPoolExecutor(max_workers=8)
 
@@ -29,13 +33,9 @@ def analyzeApk(apkPath, resPath, sdk, AndroidOSVersion):
             if apk[-4:] ==".apk":
                 resFile = logDir+"/"+apk[:-4]+".txt"
                 if(reRun or not os.path.exists(resFile)): 
-                    if AndroidOSVersion != "no": 
-                        command = "java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms  "+ extraArgs +"-client CrashAnalysisClient  -AndroidOSVersion " + AndroidOSVersion +" -outputDir "+outputDir+" >> "+logDir+"/"+apk[:-4]+".txt"
-                        future1 = pool.submit(executeCmd, command)
-                    else:
-                        command = "java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms  "+ extraArgs +"-client CrashAnalysisClient -outputDir "+outputDir+" >> "+logDir+"/"+apk[:-4]+".txt"
-                        future1 = pool.submit(executeCmd, command)
-
+                    command = "java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms  "+ extraArgs +" -client CrashAnalysisClient" 
+                    +" -outputDir "+outputDir+" >> "+logDir+"/"+apk[:-4]+".txt"
+                    future1 = pool.submit(executeCmd, command)
         pool.shutdown()
 
 def executeCmd(cmd):
@@ -56,6 +56,7 @@ if __name__ == '__main__' :
     apkPath = sys.argv[1]
     resPath = sys.argv[2]
     AndroidOSVersion = sys.argv[3]
+    strategy = sys.argv[4] 
     os.system("mvn -f pom.xml package -q")
     if os.path.exists("target/LoFDroid.jar"):
         print("Successfully build! generate jar-with-dependencies in folder target/")
@@ -64,8 +65,8 @@ if __name__ == '__main__' :
     else:
         print("Fail to build! Please run \"mvn -f pom.xml package\" to see the detail info.")
     
-    if len(sys.argv)>4:
-        filterFile = sys.argv[4]    
+    if len(sys.argv)>5:
+        filterFile = sys.argv[5]    
         readFilterFile(filterFile)
-    analyzeApk(apkPath, resPath, sdk, AndroidOSVersion)
+    analyzeApk(apkPath, resPath, sdk, AndroidOSVersion, strategy)
     
