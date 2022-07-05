@@ -28,7 +28,7 @@ def analyzeApk(apkPath, resPath, sdk, AndroidOSVersion, strategy):
         pool = ThreadPoolExecutor(max_workers=8)
 
         for apk in apks:
-            if len(filterList)>0  and apk not in filterList:
+            if len(filterList)>0  and apk  in filterList:
                 continue
             if apk[-4:] ==".apk":
                 resFile = logDir+"/"+apk[:-4]+".txt"
