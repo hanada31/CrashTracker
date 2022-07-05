@@ -23,7 +23,7 @@ def analyzeApk(apkPath, resPath, sdk, AndroidOSVersion, strategy):
         extraArgs = "" 
         if AndroidOSVersion != "no": 
             extraArgs = extraArgs +  " -AndroidOSVersion " + AndroidOSVersion +" "
-        extraArgs = extraArgs + +" -strategy " +strategy +" "
+        extraArgs = extraArgs +" -strategy " +strategy +" "
         
         pool = ThreadPoolExecutor(max_workers=8)
 
