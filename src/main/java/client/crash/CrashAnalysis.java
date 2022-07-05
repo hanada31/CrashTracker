@@ -419,7 +419,7 @@ public class CrashAnalysis extends Analyzer {
                     }else{
                         trace.add(candi);
                     }
-                    crashInfo.addBuggyCandidates(candi,score, filterExtendCG,"best_match_crash_trace_ method", trace);
+                    crashInfo.addBuggyCandidates(candi,score, filterExtendCG,"best_match_crash_trace_method", trace);
                     count++;
                     find = true;
                 }
@@ -477,6 +477,9 @@ public class CrashAnalysis extends Analyzer {
 
     private void getCalleeOfAndroidMethods(int initScore, CrashInfo crashInfo, String candi,
                                            String sub, List<String> history, boolean filterExtendCG, List<String> trace) {
+        if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoExtendCG)){
+            return;
+        }
         if(history.contains(candi)) return;
         history.add(candi);
         readAndroidCG();

@@ -34,7 +34,7 @@ public class TestCrashAnalysisClient {
 //        path = "C:\\Users\\yanjw\\programs\\Empirical500";
 
         String name;
-        name = "com.ggeye.jiakao.api-57.apk";
+        name = "com.spice.hangman-421.apk";
 //
 //
         String client = "CrashAnalysisClient";
