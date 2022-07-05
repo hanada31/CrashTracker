@@ -178,7 +178,7 @@ public class CrashAnalysis extends Analyzer {
             }
         }
         //data flow filter
-        Set<Unit> dataSlice = new HashSet<Unit>();
+        Set<Unit> dataSlice = new HashSet<>();
         getDataSliceOfUnit(dataSlice, sm, u, predUnits);
         for(Unit pred: predUnits){
             if(!dataSlice.contains(pred)) continue;
@@ -219,33 +219,33 @@ public class CrashAnalysis extends Analyzer {
             }
         }
     }
-
-    /**
-     * getBuggyFromUserCode
-     * @param crashInfo
-     * @param filterExtendCG
-     */
-    private void withAppFieldCallHandler(int score, CrashInfo crashInfo, boolean filterExtendCG) {
-        System.out.println("getBuggyFromUserCode......");
-        Set<SootMethod> crashMethods = getCrashSootMethod(crashInfo);
-        for(SootMethod crashMethod:crashMethods) {
-            List<SootField> keyFields = getKeySootFields(crashMethod, crashInfo);
-            for (SootField field : keyFields){
-                for (SootMethod otherMethod : crashMethod.getDeclaringClass().getMethods()) {
-                    if (!otherMethod.hasActiveBody()) continue;
-                    if (SootUtils.fieldIsChanged(field, otherMethod)) {
-                        String candi = otherMethod.getDeclaringClass().getName() + "." + otherMethod.getName();
-                        List<String> trace = new ArrayList<>();
-                        trace.add(otherMethod.getSignature());
-                        trace.add("key field: " + field.toString());
-                        trace.add(crashMethod.getSignature());
-                        trace.add("key field: " + field.toString());
-                        crashInfo.addBuggyCandidates(candi, score, filterExtendCG,"modify_fields_in_app_crash_method", trace);
-                    }
-                }
-            }
-        }
-    }
+//
+//    /**
+//     * getBuggyFromUserCode
+//     * @param crashInfo
+//     * @param filterExtendCG
+//     */
+//    private void withAppFieldCallHandler(int score, CrashInfo crashInfo, boolean filterExtendCG) {
+//        System.out.println("getBuggyFromUserCode......");
+//        Set<SootMethod> crashMethods = getCrashSootMethod(crashInfo);
+//        for(SootMethod crashMethod:crashMethods) {
+//            List<SootField> keyFields = getKeySootFields(crashMethod, crashInfo);
+//            for (SootField field : keyFields){
+//                for (SootMethod otherMethod : crashMethod.getDeclaringClass().getMethods()) {
+//                    if (!otherMethod.hasActiveBody()) continue;
+//                    if (SootUtils.fieldIsChanged(field, otherMethod)) {
+//                        String candi = otherMethod.getDeclaringClass().getName() + "." + otherMethod.getName();
+//                        List<String> trace = new ArrayList<>();
+//                        trace.add(otherMethod.getSignature());
+//                        trace.add("key field: " + field);
+//                        trace.add(crashMethod.getSignature());
+//                        trace.add("key field: " + field);
+//                        crashInfo.addBuggyCandidates(candi, score, filterExtendCG,"modify_fields_in_app_crash_method", trace);
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     /**
      * ParameterOnly type
@@ -257,14 +257,14 @@ public class CrashAnalysis extends Analyzer {
         System.out.println("withFieldHandler...");
         ExceptionInfo exceptionInfo = crashInfo.getExceptionInfo();
         for(RelatedMethod method: exceptionInfo.getRelatedMethodsInSameClass(false)){
-            getBuggyFromRelatedMethods(crashInfo, method, score, filterExtendCG,true);
+            getBuggyFromRelatedMethods(crashInfo, method, score, filterExtendCG);
         }
         score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
         addCrashTraces(score, crashInfo,true);
         if(!crashInfo.findCandidateInTrace) {
             //add diff class results, when the same class results returns nothing
             for (RelatedMethod method : exceptionInfo.getRelatedMethodsInDiffClass(false)) {
-                getBuggyFromRelatedMethods(crashInfo, method, score-ConstantUtils.DIFFCLASS, filterExtendCG, false);
+                getBuggyFromRelatedMethods(crashInfo, method, score-ConstantUtils.DIFFCLASS, filterExtendCG);
             }
         }
     }
@@ -301,9 +301,9 @@ public class CrashAnalysis extends Analyzer {
                     String candi = otherMethod.getDeclaringClass().getName() + "." + otherMethod.getName();
                     List<String> trace = new ArrayList<>();
                     trace.add(otherMethod.getSignature());
-                    trace.add("key field: " + field.toString());
+                    trace.add("key field: " + field);
                     trace.add(crashMethod.getSignature());
-                    trace.add("key field: " + field.toString());
+                    trace.add("key field: " + field);
                     crashInfo.addBuggyCandidates(candi, score, filterExtendCG,"modify_fields_send_to_framework", trace);
                 }
             }
@@ -320,7 +320,7 @@ public class CrashAnalysis extends Analyzer {
         if(value instanceof  Local) {
             String methodSig = crashMethod.getSignature();
             for(Unit defUnit: SootUtils.getDefOfLocal(methodSig,value, unit)) {
-                //if the define unit is under a check
+                //if the defined unit is under a check
                 if (defUnit instanceof JIdentityStmt) {
                     JIdentityStmt identityStmt = (JIdentityStmt) defUnit;
                     identityStmt.getRightOp();
@@ -372,9 +372,6 @@ public class CrashAnalysis extends Analyzer {
                     }else if (rightOp instanceof JArrayRef) {
                         JArrayRef jArrayRef = (JArrayRef) rightOp;
                         extendRelatedValues(crashMethod, allPreds, defUnit, jArrayRef.getBase(), valueHistory, sootFields);
-                    }else if (rightOp instanceof JInstanceFieldRef) {
-                        JInstanceFieldRef jInstanceFieldRef = (JInstanceFieldRef) rightOp;
-                        extendRelatedValues(crashMethod, allPreds, defUnit, jInstanceFieldRef.getBase(), valueHistory, sootFields);
                     }
                 } else {
                     System.out.println(defUnit.getClass().getName() + "::" + defUnit);
@@ -404,7 +401,7 @@ public class CrashAnalysis extends Analyzer {
         boolean find = false;
         for(String candi : crashInfo.getCrashMethodList()){
             Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
-            String signature = null;
+            String signature;
             for(SootMethod sm: methods) {
                 boolean isParaPassed = false;
                 if (sm == null) break;
@@ -412,6 +409,7 @@ public class CrashAnalysis extends Analyzer {
                 for (String paraTye : crashInfo.getExceptionInfo().getRelatedParamValuesInStr()) {
                     if (signature.contains(paraTye)) {
                         isParaPassed = true;
+                        break;
                     }
                 }
                 if (!isParaPassed) {
@@ -457,7 +455,7 @@ public class CrashAnalysis extends Analyzer {
                             List<String> trace2 = new ArrayList<>();
                             trace2.add(0, sm.getSignature());
                             trace2.add(0, callee.getSignature());
-                            getCalleeOfAndroidMethods(initScore, crashInfo, SootUtils.getMethodSimpleNameFromSignature(callee.getSignature()), sub, history, filterExtendCG, trace);
+                            getCalleeOfAndroidMethods(initScore, crashInfo, SootUtils.getMethodSimpleNameFromSignature(callee.getSignature()), sub, history, filterExtendCG, trace2);
                         }
                     }
                 }
@@ -537,32 +535,31 @@ public class CrashAnalysis extends Analyzer {
      * @param filterExtendedCG
      */
     private void addCallersOfSourceOfEdge(int initScore, Edge edge, RelatedMethod method,
-                                          CrashInfo crashInfo, SootMethod sootMethod, int depth, boolean filterExtendedCG, List<String> trace, boolean extendCG) {
+                                          CrashInfo crashInfo, SootMethod sootMethod, int depth, boolean filterExtendedCG, List<String> trace) {
         String candi = sootMethod.getDeclaringClass().getName()+ "." + sootMethod.getName();
         trace.add(0,sootMethod.getSignature());
         int score = initScore - getOrderInTrace(crashInfo, candi) - method.getDepth() - depth;
         if(crashInfo.getTrace().contains(candi)) score += ConstantUtils.METHODINTACE;
         crashInfo.addBuggyCandidates(candi, score, filterExtendedCG,"related_method_caller", trace);
 
-//        //if the buggy type is not passed by parameter, do not find its caller
-//        Set<Integer> paramIndexCaller = SootUtils.getIndexesFromMethod(edge, crashInfo.exceptionInfo.getRelatedValueIndex());
-//        if(paramIndexCaller.size() == 0) return;
-//
-//        int size = CollectionUtils.getSizeOfIterator(Global.v().getAppModel().getCg().edgesInto(sootMethod));
-//        if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoRelatedMethodFilter)){
-//            size = 0;
-//        }
-//        if(size>ConstantUtils.LARGECALLERSET) return;
-////        if(size>ConstantUtils.LARGECALLERSET || !extendCG) return;
-//
-//        for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesInto(sootMethod); it.hasNext(); ) {
-//            Edge edge2 = it.next();
-//            if(edge2.toString().contains("dummyMainMethod")) continue;
-//            if( crashInfo.getEdges().contains(edge2) ) continue;
-//            crashInfo.add2EdgeMap(depth,edge2);
-//            List<String> newTrace = new ArrayList<>(trace);
-//            addCallersOfSourceOfEdge(initScore, edge2, method, crashInfo, edge2.getSrc().method(), depth+1, filterExtendedCG, newTrace, true);
-//        }
+        //if the buggy type is not passed by parameter, do not find its caller
+        Set<Integer> paramIndexCaller = SootUtils.getIndexesFromMethod(edge, crashInfo.exceptionInfo.getRelatedValueIndex());
+        if(paramIndexCaller.size() == 0) return;
+
+        int size = CollectionUtils.getSizeOfIterator(Global.v().getAppModel().getCg().edgesInto(sootMethod));
+        if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoRelatedMethodFilter)){
+            size = 0;
+        }
+        if(size>ConstantUtils.LARGECALLERSET) return;
+
+        for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesInto(sootMethod); it.hasNext(); ) {
+            Edge edge2 = it.next();
+            if(edge2.toString().contains("dummyMainMethod")) continue;
+            if( crashInfo.getEdges().contains(edge2) ) continue;
+            crashInfo.add2EdgeMap(depth,edge2);
+            List<String> newTrace = new ArrayList<>(trace);
+            addCallersOfSourceOfEdge(initScore, edge2, method, crashInfo, edge2.getSrc().method(), depth+1, filterExtendedCG, newTrace);
+        }
     }
 
     /**
@@ -570,11 +567,10 @@ public class CrashAnalysis extends Analyzer {
      * @param crashInfo
      * @param filterExtendedCG
      */
-    private void getBuggyFromRelatedMethods(CrashInfo crashInfo, RelatedMethod relatedMethod, int initScore, boolean filterExtendedCG, boolean extendCG) {
+    private void getBuggyFromRelatedMethods(CrashInfo crashInfo, RelatedMethod relatedMethod, int initScore, boolean filterExtendedCG) {
         crashInfo.setEdges(new ArrayList<>());
         int size = 0;
-        for (Iterator<Edge> it = Global.v().getAppModel().getCg().iterator(); it.hasNext(); ) {
-            Edge edge = it.next();
+        for (Edge edge : Global.v().getAppModel().getCg()) {
             if (edge.getTgt().method().getSignature().equals(relatedMethod.getMethod())) {
                 size++;
             }
@@ -583,26 +579,24 @@ public class CrashAnalysis extends Analyzer {
             size = 0;
         }
         //filter the related methods with too many caller
-        for (Iterator<Edge> it = Global.v().getAppModel().getCg().iterator(); it.hasNext(); ) {
-            Edge edge = it.next();
-            if(edge.getTgt().method().getSignature().equals(relatedMethod.getMethod())){
+        for (Edge edge : Global.v().getAppModel().getCg()) {
+            if (edge.getTgt().method().getSignature().equals(relatedMethod.getMethod())) {
                 SootMethod sourceMtd = edge.getSrc().method();
-                if(isLibraryMethod(sourceMtd.getDeclaringClass().getName()))
+                if (isLibraryMethod(sourceMtd.getDeclaringClass().getName()))
                     continue;
                 boolean findInTrace = false;
-                if(size>ConstantUtils.LARGECALLERSET){
-                    for(String className: crashInfo.getClassesInTrace()){
-                        if(sourceMtd.getSignature().contains(className)){
+                if (size > ConstantUtils.LARGECALLERSET) {
+                    for (String className : crashInfo.getClassesInTrace()) {
+                        if (sourceMtd.getSignature().contains(className)) {
                             findInTrace = true;
                             break;
                         }
                     }
-                    if(!findInTrace) continue;
+                    if (!findInTrace) continue;
                 }
                 crashInfo.add2EdgeMap(0, edge);
-                List<String> trace = new ArrayList<>();
-                trace.addAll(relatedMethod.getTrace());
-                addCallersOfSourceOfEdge(initScore, edge, relatedMethod, crashInfo, sourceMtd, 1, filterExtendedCG, trace, extendCG);
+                List<String> trace = new ArrayList<>(relatedMethod.getTrace());
+                addCallersOfSourceOfEdge(initScore, edge, relatedMethod, crashInfo, sourceMtd, 1, filterExtendedCG, trace);
             }
         }
     }
@@ -696,9 +690,6 @@ public class CrashAnalysis extends Analyzer {
 
     /**
      * getOrderInTrace
-     * @param crashInfo
-     * @param candi
-     * @return
      */
     private int getOrderInTrace(CrashInfo crashInfo, String candi) {
         int order = 0;
@@ -712,15 +703,14 @@ public class CrashAnalysis extends Analyzer {
                 return order;
             }
         }
-
         return order+2;
     }
 
     private void getExceptionOfCrashInfo() {
         for(CrashInfo crashInfo: crashInfoList) {
             if(crashInfo.getTrace().size()==0 ) continue;
-            String targetVer = "";
-            String targetMethodName = "";
+            String targetVer;
+            String targetMethodName;
             if(MyConfig.getInstance().getAndroidOSVersion()==null) {
                 String str = crashInfo.getId() + "\t" + crashInfo.getSignaler() + "\t";
                 System.out.println("Analysis crash " + str);
@@ -729,13 +719,13 @@ public class CrashAnalysis extends Analyzer {
                 String[] targetMethodNames = new String[versions.length];
                 int i = 0;
                 for (String version : versions) {
-                    Pair pair = getExceptionWithGivenVersion(crashInfo, version, true);
-                    versionTypes[i] = (String) pair.getO1();
-                    targetMethodNames[i] = (String) pair.getO2();
+                    Pair<String, String> pair = getExceptionWithGivenVersion(crashInfo, version, true);
+                    versionTypes[i] = pair.getO1();
+                    targetMethodNames[i] = pair.getO2();
                     if (versionTypes[i].equals("unknown")) {
-                        Pair pair2 = getExceptionWithGivenVersion(crashInfo, version, false);
-                        versionTypeCandis[i] = (String) pair2.getO1();
-                        targetMethodNames[i] = (String) pair2.getO2();
+                        Pair<String, String> pair2 = getExceptionWithGivenVersion(crashInfo, version, false);
+                        versionTypeCandis[i] = pair2.getO1();
+                        targetMethodNames[i] = pair2.getO2();
                     }
                     i++;
                 }
@@ -805,23 +795,23 @@ public class CrashAnalysis extends Analyzer {
         JSONObject wrapperObject = (JSONObject) JSONObject.parse(jsonString);
         if(wrapperObject==null) return new Pair<>("noFile",crashInfo.getSignaler());
         JSONArray methods = wrapperObject.getJSONArray("exceptions");//构建JSONArray数组
-        for (int i = 0 ; i < methods.size();i++){
-            JSONObject jsonObject = (JSONObject)methods.get(i);
+        for (Object method : methods) {
+            JSONObject jsonObject = (JSONObject) method;
             ExceptionInfo exceptionInfo = new ExceptionInfo();
             exceptionInfo.setSootMethodName(jsonObject.getString("method"));
-            if(classFilter== false || crashInfo.getSignaler().equals(exceptionInfo.getSootMethodName())){
+            if (!classFilter || crashInfo.getSignaler().equals(exceptionInfo.getSootMethodName())) {
                 exceptionInfo.setExceptionMsg(jsonObject.getString("message"));
                 if (exceptionInfo.getExceptionMsg() == null) continue;
                 Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg());
                 Matcher m = p.matcher(crashInfo.getMsg());
                 if (m.matches()) {
-                    String str =exceptionInfo.getExceptionMsg();
-                    str = str.replace("[\\s\\S]*","");
-                    str = str.replace("\\Q","");
-                    str = str.replace("\\E","");
-                    if(str.length()<3)
+                    String str = exceptionInfo.getExceptionMsg();
+                    str = str.replace("[\\s\\S]*", "");
+                    str = str.replace("\\Q", "");
+                    str = str.replace("\\E", "");
+                    if (str.length() < 3)
                         continue;
-                    if(exceptionInfo!=null && jsonObject.getString("relatedVarType")!=null) {
+                    if (jsonObject.getString("relatedVarType") != null) {
                         return new Pair<>(jsonObject.getString("relatedVarType"), exceptionInfo.getSootMethodName());
                     }
                 }
@@ -852,19 +842,19 @@ public class CrashAnalysis extends Analyzer {
             return;
         }
         JSONArray methods = wrapperObject.getJSONArray("exceptions");//构建JSONArray数组
-        for (int i = 0 ; i < methods.size();i++){
-            JSONObject jsonObject = (JSONObject)methods.get(i);
+        for (Object method : methods) {
+            JSONObject jsonObject = (JSONObject) method;
             ExceptionInfo exceptionInfo = new ExceptionInfo();
             exceptionInfo.setSootMethodName(jsonObject.getString("method"));
             exceptionInfo.setExceptionMsg(jsonObject.getString("message"));
 
-            if(exceptionInfo.getSootMethodName().equals(crashInfo.getMethodName())) {
+            if (exceptionInfo.getSootMethodName().equals(crashInfo.getMethodName())) {
                 if (exceptionInfo.getExceptionMsg() == null) continue;
                 Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg());
                 Matcher m = p.matcher(crashInfo.getMsg());
                 if (m.matches()) {
                     crashInfo.setExceptionInfo(exceptionInfo);
-                }else{
+                } else {
                     continue;
                 }
             }
@@ -878,11 +868,11 @@ public class CrashAnalysis extends Analyzer {
             exceptionInfo.setConditions(jsonObject.getString("conditions"));
             exceptionInfo.setRelatedFieldValuesInStr(jsonObject.getString("fieldValues"));
             exceptionInfo.setRelatedParamValuesInStr(jsonObject.getString("paramValues"));
-            if(jsonObject.getString("relatedVarType")!=null)
+            if (jsonObject.getString("relatedVarType") != null)
                 exceptionInfo.setRelatedVarType(RelatedVarType.valueOf(jsonObject.getString("relatedVarType")));
             JSONArray sameClsObjs = jsonObject.getJSONArray("relatedMethodSameClass");
-            for (Iterator<Object> it = sameClsObjs.iterator(); it.hasNext(); ) {
-                JSONObject sameClsObj = (JSONObject) it.next();
+            for (Object obj : sameClsObjs) {
+                JSONObject sameClsObj = (JSONObject) obj;
                 RelatedMethod relatedMethod = new RelatedMethod();
                 relatedMethod.setMethod(sameClsObj.getString("method"));
 
@@ -895,8 +885,8 @@ public class CrashAnalysis extends Analyzer {
                 exceptionInfo.addRelatedMethodsInSameClass(relatedMethod);
             }
             JSONArray diffClsObjs = jsonObject.getJSONArray("relatedMethodDiffClass");
-            for (Iterator<Object> it = diffClsObjs.iterator(); it.hasNext(); ) {
-                JSONObject diffClsObj = (JSONObject) it.next();
+            for (Object clsObj : diffClsObjs) {
+                JSONObject diffClsObj = (JSONObject) clsObj;
                 RelatedMethod relatedMethod = new RelatedMethod();
                 relatedMethod.setMethod(diffClsObj.getString("method"));
                 relatedMethod.setDepth(diffClsObj.getInteger("depth"));
@@ -918,14 +908,14 @@ public class CrashAnalysis extends Analyzer {
         System.out.println("readCrashInfo::"+fn);
         String jsonString = FileUtils.readJsonFile(fn);
         JSONArray jsonArray = JSONArray.parseArray(jsonString);
-        for (int i = 0 ; i < jsonArray.size();i++){
-            JSONObject jsonObject = (JSONObject)jsonArray.get(i);
+        for (Object o : jsonArray) {
+            JSONObject jsonObject = (JSONObject) o;
             CrashInfo crashInfo = new CrashInfo();
             crashInfo.setIdentifier(jsonObject.getString("identifier"));
             crashInfo.setId(jsonObject.getString("id"));
-            if(Global.v().getAppModel().getPackageName().length()==0 && Global.v().getAppModel().getAppName().contains(crashInfo.getIdentifier()))
+            if (Global.v().getAppModel().getPackageName().length() == 0 && Global.v().getAppModel().getAppName().contains(crashInfo.getIdentifier()))
                 Global.v().getAppModel().setPackageName(crashInfo.getIdentifier());
-            if(Global.v().getAppModel().getAppName().equals(crashInfo.getIdentifier()+"-"+crashInfo.getId())){
+            if (Global.v().getAppModel().getAppName().equals(crashInfo.getIdentifier() + "-" + crashInfo.getId())) {
                 crashInfoList.add(crashInfo);
                 crashInfo.setReal(jsonObject.getString("real"));
                 crashInfo.setException(jsonObject.getString("exception"));
@@ -934,10 +924,10 @@ public class CrashAnalysis extends Analyzer {
                 crashInfo.setMsg(jsonObject.getString("msg").trim());
                 crashInfo.setRealCate(jsonObject.getString("realCate"));
                 crashInfo.setCategory(jsonObject.getString("category"));
-                if(jsonObject.getString("fileName")!=null)
+                if (jsonObject.getString("fileName") != null)
                     crashInfo.setId(jsonObject.getString("fileName"));
                 else
-                    crashInfo.setId(crashInfo.getIdentifier()+"-"+ jsonObject.getString("id"));
+                    crashInfo.setId(crashInfo.getIdentifier() + "-" + jsonObject.getString("id"));
                 crashInfo.setReason(jsonObject.getString("reason"));
                 crashInfo.setMethodName(crashInfo.getTrace().get(0));
             }
@@ -948,6 +938,7 @@ public class CrashAnalysis extends Analyzer {
         String fn = MyConfig.getInstance().getAndroidCGFilePath();
         System.out.println("readAndroidCG::"+fn);
         List<String> edges = FileUtils.getListFromFile(fn);
+        if(edges==null) return;
         for(String edge: edges){
             if(!edge.contains(" -> ")) continue;
             String src = SootUtils.getMethodSimpleNameFromSignature(edge.split(" -> ")[0]);
@@ -963,7 +954,7 @@ public class CrashAnalysis extends Analyzer {
 
     /**
      * none code related labels
-     * @param crashInfo
+     * @param crashInfo crash instance
      */
     private void checkIsNoAppRelatedHandler(CrashInfo crashInfo) {
         ExceptionInfo info = crashInfo.getExceptionInfo();
@@ -993,6 +984,7 @@ public class CrashAnalysis extends Analyzer {
         String fn = MyConfig.getInstance().getPermissionFilePath();
         System.out.println(fn);
         List<String> list = FileUtils.getListFromFile(fn);
+        if(list==null) return  false;
         for(String str: list){
             str = str.trim().replace("android.permission.","");
             if(msg.contains(str) && str.length()>0){
