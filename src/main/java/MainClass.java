@@ -2,6 +2,7 @@ package main.java;
 
 import java.io.File;
 
+import main.java.analyze.utils.ConstantUtils;
 import main.java.analyze.utils.TimeUtilsofProject;
 import main.java.client.BaseClient;
 import main.java.client.cg.cgApk.CallGraphofApkClient;
@@ -267,9 +268,10 @@ public class MainClass {
 
 		MyConfig.getInstance().setStrategy(mCmd.getOptionValue("strategy", ""));
 		System.out.println("###The strategy is #" + MyConfig.getInstance().getStrategy()+"#");
+		System.out.println("###The strategy is #" + MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoRelatedMethodFilter)+"#");
 		if (mCmd.hasOption("sootOutput"))
 			MyConfig.getInstance().setWriteSootOutput(true);
-		
+
 		int timeLimit = Integer.valueOf(mCmd.getOptionValue("time", "90"));
 		MyConfig.getInstance().setTimeLimit(timeLimit);
 		MyConfig.getInstance().setMaxPathNumber(Integer.valueOf(mCmd.getOptionValue("maxPathNumber", "100")));

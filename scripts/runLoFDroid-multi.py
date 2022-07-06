@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 import threading
 import time
 
-reRun = True
+reRun = False
 filterList = list()
 
 

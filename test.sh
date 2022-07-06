@@ -12,8 +12,8 @@
 
 
 
-python scripts/runLoFDroid-multi.py  ../../apk/FanDataICSE2018-before/ Data-0705-Candi  "no" "NoRelatedMethodFilter" 
-python scripts/runLoFDroid-multi.py  ../../apk/Empirical500/ Data-0705-Candi   "no" "NoRelatedMethodFilter" 
+python scripts/runLoFDroid-multi.py  ../../apk/FanDataICSE2018-before/ Data-0705-rmFilter  "no" "NoRelatedMethodFilter" 
+python scripts/runLoFDroid-multi.py  ../../apk/Empirical500/ Data-0705-rmFilter   "no" "NoRelatedMethodFilter" 
 python scripts/runLoFDroid-multi.py  ../../apk/FanDataICSE2018-before/ Data-0705-v4 "4.4" "no"
 python scripts/runLoFDroid-multi.py  ../../apk/Empirical500/ Data-0705-v4 "4.4" "no" 
 python scripts/runLoFDroid-multi.py  ../../apk/FanDataICSE2018-before/ Data-0705-v5 "5.0" "no"

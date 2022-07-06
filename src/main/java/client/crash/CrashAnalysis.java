@@ -551,6 +551,7 @@ public class CrashAnalysis extends Analyzer {
 
         int size = CollectionUtils.getSizeOfIterator(Global.v().getAppModel().getCg().edgesInto(sootMethod));
         if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoRelatedMethodFilter)){
+            System.out.println("###The strategy is #" + MyConfig.getInstance().getStrategy()+"#");
             size = 0;
         }
         if(size>ConstantUtils.LARGECALLERSET) return;
