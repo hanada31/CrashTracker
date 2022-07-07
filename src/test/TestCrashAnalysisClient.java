@@ -30,11 +30,11 @@ public class TestCrashAnalysisClient {
     private void setArgs() {
         String path;
         path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
-//        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
+        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 //        path = "C:\\Users\\yanjw\\programs\\Empirical500";
 
         String name;
-        name = "com.nvidia.tegrazone-295.apk";
+        name = "org.wordpress.android-2372.apk";
 //
 //
         String client = "CrashAnalysisClient";

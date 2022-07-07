@@ -68,7 +68,6 @@ public class CTGClientOutput {
 	 * 
 	 * @param dir
 	 * @param file
-	 * @param AppModel
 	 *            .getInstance()
 	 * @throws IOException
 	 * @throws DocumentException
@@ -111,13 +110,6 @@ public class CTGClientOutput {
 
 	/**
 	 * writeMethodSummaryModel
-	 * 
-	 * @param entry
-	 * 
-	 * @param string
-	 * @param topo
-	 * @param AppModel
-	 *            .getInstance()
 	 * @throws IOException
 	 */
 	public void writeMethodSummaryModel(String dir, String file, boolean entryMethod) {
@@ -151,8 +143,6 @@ public class CTGClientOutput {
 	 * 
 	 * @param dir
 	 * @param file
-	 * @param AppModel
-	 *            .getInstance()
 	 * @param entryMethod
 	 */
 	public void writePathSummaryModel(String dir, String file, boolean entryMethod){
@@ -220,10 +210,6 @@ public class CTGClientOutput {
 
 	/**
 	 * writeATGModel
-	 * 
-	 * @param string
-	 * @param atg
-	 * @param atgEdges
 	 * @throws DocumentException
 	 * @throws IOException
 	 */
@@ -431,8 +417,6 @@ public class CTGClientOutput {
 	 * 
 	 * @param dir
 	 * @param file
-	 * @param AppModel
-	 *            .getInstance()
 	 */
 	public static void writeInstr(String dir, String file) {
 		FileUtils.createFolder(dir);
@@ -461,10 +445,6 @@ public class CTGClientOutput {
 	 * 
 	 * @param dir
 	 * @param file
-	 * @param map
-	 * @param b
-	 * @param AppModel
-	 *            .getInstance()
 	 */
 	public void writeDotFile(String dir, String file, ATGModel atgModel, boolean drawFragNode) {
 		Set<String> histroy = new HashSet<String>();
@@ -619,7 +599,6 @@ public class CTGClientOutput {
 	
 	/**
 	 * generate json file for an component
-	 * @param component
 	 */
 	public void writeComponentModelJson(String dir, String file) {
 		JSONObject rootElement = new JSONObject(new LinkedHashMap());
@@ -634,7 +613,6 @@ public class CTGClientOutput {
 	        componentList.add(componenetMap);
 	        componenetMap.put("className", className);
 	        putAttributeValue2componenetMap(componenetMap, component );
-	        putAttributeSeed2componenetMap(componenetMap, component);
 		}
 		
 		rootElement.put("components", componentList);
@@ -665,7 +643,6 @@ public class CTGClientOutput {
 	 * putAttributeValue2componenetMap
 	 * @param componenetMap
 	 * @param component
-	 * @param attri
 	 */
 	private void putAttributeValue2componenetMap(Map<String, Object> componenetMap, ComponentModel component) {
 		Map<String, Object> attriMap = new LinkedHashMap<String, Object>();
@@ -676,43 +653,7 @@ public class CTGClientOutput {
         putAttributeMap2componenetMap(attriMap, component, "extras");
 		putToMapIfNotAbsent("fullValueSet", attriMap, componenetMap);
 	}
-	
-	/**
-	 * putAttributeSeed2componenetMap
-	 * @param componenetMap
-	 * @param component
-	 * @param attri
-	 */
-	private void putAttributeSeed2componenetMap(Map<String, Object> componenetMap, ComponentModel component) {
-		Map<String, Object> attriMap = new LinkedHashMap<String, Object>();
-		
-		Object manifestJson = JSON.toJSON(component.getIntentFilters());
-		putToMapIfNotAbsent("manifest", manifestJson, attriMap);
-		Object sendJson = JSON.toJSON(component.getReceiveModel().getIntentObjsbyICCMsg());
-		putToMapIfNotAbsent("sendIntent", sendJson, attriMap);
-		Object reciveJson = JSON.toJSON(component.getReceiveModel().getIntentObjsbySpec());
-		putToMapIfNotAbsent("recvIntent", reciveJson, attriMap);
-		
-		Set<Serializable> mixModels = new HashSet<Serializable>();
-		Set<Serializable> history = new HashSet<Serializable>();
-		for(IntentFilterModel filter: component.getIntentFilters()){
-			mixModels.add(filter);
-			history.add(JSON.toJSONString(filter)); 
-		}
-		for(IntentSummaryModel sendIntentSummaryModel:component.getReceiveModel().getIntentObjsbyICCMsg()){
-			if(!history.contains(JSON.toJSONString(sendIntentSummaryModel)))
-				history.add(sendIntentSummaryModel);
-			mixModels.add(sendIntentSummaryModel);
-		}
-		for(IntentSummaryModel recvIntentSummaryModel:component.getReceiveModel().getIntentObjsbySpec()){
-			if(!history.contains(JSON.toJSONString(recvIntentSummaryModel)))
-				history.add(recvIntentSummaryModel);
-			mixModels.add(recvIntentSummaryModel);
-		}
-		Object mixJson = JSON.toJSON(mixModels);
-//		putToMapIfNotAbsent("mixIntent", mixJson, attriMap);
-//		putToMapIfNotAbsent("initSeeds", attriMap, componenetMap);
-	}
+
 
 
 	@SuppressWarnings("unchecked")
@@ -976,7 +917,6 @@ public class CTGClientOutput {
 	}
 	/**
 	 * put value into set if value is not null
-	 * @param port
 	 * @param res
 	 */
 	private boolean addToSetIfNotNull(Object value, Set res) {

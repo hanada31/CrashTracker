@@ -103,7 +103,7 @@ public class ExceptionInfo {
     }
 
     public boolean isOverrideMissing() {
-        if(getRelatedMethods().size() ==0 && getConditions().size() ==0 )
+        if(getRelatedMethods().size() ==0 && getConditions().size() ==0 && !getRelatedCondType().equals(RelatedCondType.Caught))
             return true;
         else
             return false;

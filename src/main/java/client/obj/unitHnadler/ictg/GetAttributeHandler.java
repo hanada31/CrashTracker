@@ -48,9 +48,7 @@ public class GetAttributeHandler extends UnitHandler {
 
 	/**
 	 * get attributes of acdt
-	 * 
-	 * @param unit
-	 */
+	 **/
 	void getAttriAPIAnalyze() {
 		Set<String> resSet = new HashSet<String>();
 		if (unit.toString().contains("getAction(")) {

@@ -99,9 +99,6 @@ public class CTGClient extends BaseClient {
 	@Override
 	public void clientOutput() throws IOException, DocumentException {
 		outputCTGInfo();
-		if (!MyConfig.getInstance().isOracleConstructionClientFinish()) {
-//			new ToolEvaluateClient().start();
-		}
 	}
 
 	private void outputCTGInfo() {

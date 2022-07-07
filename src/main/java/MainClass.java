@@ -268,7 +268,6 @@ public class MainClass {
 
 		MyConfig.getInstance().setStrategy(mCmd.getOptionValue("strategy", ""));
 		System.out.println("###The strategy is #" + MyConfig.getInstance().getStrategy()+"#");
-		System.out.println("###The strategy is #" + MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoRelatedMethodFilter)+"#");
 		if (mCmd.hasOption("sootOutput"))
 			MyConfig.getInstance().setWriteSootOutput(true);
 

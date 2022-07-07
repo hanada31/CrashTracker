@@ -31,6 +31,7 @@ public class ExceptionInfoCount {
 
         StringBuilder sb = new StringBuilder();
         sb.append("version\t" + "exceptionNum\t" + "exceptionTypeNum\t" + "uniqueMethodNum\t");
+        sb.append("msgWithsS\t" + "msgWithoutsS\t" + "notNullMsg\t");
         sb.append("null"  + "\t");
         sb.append("OverrideMissing"  + "\t");
         sb.append("ParameterOnly"  + "\t");
@@ -67,13 +68,22 @@ public class ExceptionInfoCount {
         Set<String> uniqueMethod = new HashSet<String>();
         Map<String, Integer> relatedVarTypeMap = new HashMap<String, Integer>();
         Map<String, Integer> relatedCondTypeMap = new HashMap<String, Integer>();
-
+        int extractedMsgWithsS = 0;
+        int extractedMsgWithoutsS = 0;
         JSONArray methods = wrapperObject.getJSONArray("exceptions");//构建JSONArray数组
         exceptionNum = methods.size();
         for (int i = 0 ; i < methods.size();i++){
             JSONObject jsonObject = (JSONObject)methods.get(i);
             uniqueMethod.add(jsonObject.getString("method"));
             exceptionType.add(jsonObject.getString("type"));
+            String message = jsonObject.getString("message");
+            if(!message.equals("[\\s\\S]*")){
+                if(message.contains("[\\s\\S]*"))
+                    extractedMsgWithsS+=1;
+                else
+                    extractedMsgWithoutsS+=1;
+            }
+
             String relatedVarType = jsonObject.getString("relatedVarType");
             if(!relatedVarTypeMap.containsKey(relatedVarType)){
                 relatedVarTypeMap.put(relatedVarType, 1);
@@ -87,6 +97,10 @@ public class ExceptionInfoCount {
             relatedCondTypeMap.put(relatedCondType, relatedCondTypeMap.get(relatedCondType)+1);
         }
         StringBuilder sb = new StringBuilder(version + "\t" + exceptionNum +"\t" + exceptionType.size()+"\t" + uniqueMethod.size()+"\t");
+
+        sb.append(extractedMsgWithsS+ "\t");
+        sb.append(extractedMsgWithoutsS+ "\t");
+        sb.append(extractedMsgWithsS+extractedMsgWithoutsS+ "\t");
         sb.append(relatedVarTypeMap.get(null)+ "\t");
         sb.append(relatedVarTypeMap.get("OverrideMissing") + "\t");
         sb.append(relatedVarTypeMap.get("ParameterOnly") + "\t");

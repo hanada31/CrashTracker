@@ -20,11 +20,7 @@ public abstract class DataHandler {
 
 	/**
 	 * get the correct handler of target unit
-	 * 
-	 * @param m
-	 * @param appModel
-	 * @param intentSummary
-	 * @param u
+	 *
 	 * @return
 	 */
 	public static DataHandler getDataHandler(String dataType) {

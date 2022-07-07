@@ -185,10 +185,7 @@ public class CTGAnalyzerHelper implements AnalyzerHelper {
 
 	/**
 	 * get the correct handler of target unit
-	 * 
-	 * @param methodUnderAnalysis
-	 * @param appModel
-	 * @param intentSummary
+	 *
 	 * @param unit
 	 * @return
 	 */
