@@ -344,5 +344,4 @@ public class ConstantUtils {
 	public static String NoRelatedMethodFilter = "NoRelatedMethodFilter";
 	public static String NoRVType = "NoRVType";
 	public static String NoExtendCG = "NoExtendCG";
-	public static String NoHierarchyAnalysis = "NoHierarchyAnalysis";
 }

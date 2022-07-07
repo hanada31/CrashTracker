@@ -270,6 +270,9 @@ public class CrashAnalysis extends Analyzer {
     }
     //according to the parameter send into framework API
     private void withCrashAPIParaHandler(int score, CrashInfo crashInfo, boolean filterExtendCG) {
+        if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoExtendCG)){
+            return;
+        }
         for(SootMethod crashMethod: getCrashSootMethod(crashInfo)){
             for(Unit unit : crashMethod.getActiveBody().getUnits()){
                 InvokeExpr invoke = SootUtils.getInvokeExp(unit);
@@ -460,7 +463,7 @@ public class CrashAnalysis extends Analyzer {
                     }
                 }
             }else{
-                if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoHierarchyAnalysis)){
+                if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoExtendCG)){
                     superCls = null;
                 }
                 if(superCls!= null && candi.contains(superCls.getName() )){
