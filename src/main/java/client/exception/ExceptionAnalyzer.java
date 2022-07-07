@@ -691,7 +691,8 @@ public class ExceptionAnalyzer extends Analyzer {
         for(int i= 0; i<ss.length-1;i++){
             exceptionMsg+="\\Q"+ss[i]+"\\E"+"[\\s\\S]*";
         }
-        exceptionMsg+="\\Q"+ss[ss.length-1]+"\\E";
+        if(ss.length>=1)
+            exceptionMsg+="\\Q"+ss[ss.length-1]+"\\E";
         if(input.endsWith("[\\s\\S]*"))
             exceptionMsg+="[\\s\\S]*";
 
