@@ -1,10 +1,6 @@
 package test;
 
-import main.java.MyConfig;
 import main.java.client.dataAnalysis.BuggyStatistic;
-import main.java.client.dataAnalysis.ExceptionMather;
-
-import java.io.File;
 
 /**
  * @Author hanada

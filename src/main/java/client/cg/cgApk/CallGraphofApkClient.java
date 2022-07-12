@@ -1,15 +1,8 @@
 package main.java.client.cg.cgApk;
 
-import java.io.File;
-
-import main.java.Global;
-import main.java.MyConfig;
-import main.java.analyze.utils.ConstantUtils;
-import main.java.analyze.utils.output.FileUtils;
+import main.java.base.MyConfig;
 import main.java.client.BaseClient;
-import main.java.client.cg.CgClientOutput;
 import main.java.client.manifest.ManifestClient;
-import soot.Scene;
 
 /**
  * Analyzer Class

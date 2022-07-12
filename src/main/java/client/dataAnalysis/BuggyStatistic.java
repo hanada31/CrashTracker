@@ -1,7 +1,6 @@
 package main.java.client.dataAnalysis;
 
-import main.java.MyConfig;
-import main.java.analyze.utils.output.FileUtils;
+import main.java.utils.FileUtils;
 
 import java.io.File;
 import java.util.HashMap;
@@ -29,7 +28,7 @@ public class BuggyStatistic {
             List<String> lines = FileUtils.getListFromFile("Files" + File.separator + "buggyRanking" + File.separator + fn);
             StringBuilder sb = new StringBuilder(fn+ "\tR@1\tR@5\tR@10\tR@1\tR@5\tR@10\n");
             analyzeSingleFile(lines, sb);
-            FileUtils.writeText2File( "Files" + File.separator+"BuggyStatistic.txt", sb.toString()+"\n\n\n", true);
+            FileUtils.writeText2File( "Files" + File.separator+"BuggyStatistic.txt", sb +"\n\n\n", true);
         }
 
 
@@ -42,17 +41,17 @@ public class BuggyStatistic {
         Map<String, Integer> cateAllMap = initMap();
 
         for(String line: lines){
-            String ss[] = line.split("\t");
+            String[] ss = line.split("\t");
             if(ss.length>5){
                 String type = ss[0];
                 int rank = Integer.parseInt(ss[4]);
                 if(type.equals("A"))
-                    addRanking2Type(cateAMap, type, rank);
+                    addRanking2Type(cateAMap, rank);
                 if(type.equals("B"))
-                    addRanking2Type(cateBMap, type, rank);
+                    addRanking2Type(cateBMap, rank);
                 if(type.equals("C"))
-                    addRanking2Type(cateCMap, type, rank);
-                addRanking2Type(cateAllMap, type, rank);
+                    addRanking2Type(cateCMap, rank);
+                addRanking2Type(cateAllMap, rank);
 
             }
         }
@@ -75,7 +74,7 @@ public class BuggyStatistic {
 
     }
 
-    private void addRanking2Type(Map<String, Integer> map, String type, int rank) {
+    private void addRanking2Type(Map<String, Integer> map, int rank) {
         if(rank == 1){
             map.put("Recall@1", map.get("Recall@1")+1);
             map.put("Recall@5", map.get("Recall@5")+1);

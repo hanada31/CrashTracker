@@ -1,0 +1,109 @@
+[
+  {
+    "msg": "my.app.id: Targeting S+ (version 31 and above) requires that one of FLAG_IMMUTABLE or FLAG_MUTABLE be specified when creating a PendingIntent.\nStrongly consider using FLAG_IMMUTABLE, only use FLAG_MUTABLE if some functionality depends on the PendingIntent being mutable, e.g. if it needs to be used with inline replies or bubbles.",
+    "exception": "java.lang.IllegalArgumentException",
+    "identifier": "facebook-android-sdk",
+    "real": "com.facebook.AccessTokenManager.setTokenExpirationBroadcastAlarm",
+    "id": "11.2.0",
+    "package": "com.facebook",
+    "realCate": "A",
+    "postURL": "https://github.com/facebook/facebook-android-sdk/issues/997",
+    "trace": [
+      "at android.app.PendingIntent.checkFlags",
+      "at android.app.PendingIntent.getBroadcastAsUser",
+      "at android.app.PendingIntent.getBroadcast",
+      "at com.facebook.AccessTokenManager.setTokenExpirationBroadcastAlarm",
+      "at com.facebook.AccessTokenManager.setCurrentAccessToken",
+      "at com.facebook.AccessTokenManager.setCurrentAccessToken",
+      "at com.facebook.AccessToken$Companion.setCurrentAccessToken",
+      "at com.facebook.AccessToken.setCurrentAccessToken",
+      "at com.facebook.login.LoginManager.finishLogin",
+      "at com.facebook.login.LoginManager.onActivityResult",
+      "at com.facebook.login.LoginManager$1.onActivityResult"
+    ]
+  },
+  {
+    "msg": "com.google.android.webview",
+    "exception": "android.util.AndroidRuntimeException",
+    "identifier": "facebook-android-sdk",
+    "real": "com.facebook.internal.Utility.clearFacebookCookies",
+    "id": "12.3.0",
+    "package": "com.facebook",
+    "realCate": "A",
+    "postURL": "https://github.com/facebook/facebook-android-sdk/issues/1045",
+    "trace": [
+      "at android.webkit.WebViewFactory.getProviderClass",
+      "at android.webkit.WebViewFactory.getProvider",
+      "at android.webkit.CookieManager.getInstance",
+      "at android.webkit.CookieSyncManager.sync",
+      "at com.facebook.internal.Utility.clearCookiesForDomain",
+      "at com.facebook.internal.Utility.clearFacebookCookies",
+      "at com.facebook.AccessTokenManager.setCurrentAccessToken",
+      "at com.facebook.AccessTokenManager.setCurrentAccessToken",
+      "at com.facebook.AccessToken.setCurrentAccessToken",
+      "at com.facebook.login.LoginManager.logOut",
+      "at com.fb.sdk.login.FBController.fbLogOut",
+      "at com.fb.sdk.login.FBController.fbLogin",
+      "at com.trade.rubik.activity.user.LoginRegisterActivity.onClick",
+      "at android.view.View.performClick",
+      "at android.view.View$PerformClick.run",
+      "at android.os.Handler.handleCallback",
+      "at android.os.Handler.dispatchMessage",
+      "at android.os.Looper.loop",
+      "at android.app.ActivityThread.main",
+      "at java.lang.reflect.Method.invoke",
+      "at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run",
+      "at com.android.internal.os.ZygoteInit.main"
+    ]
+  },
+
+  {
+    "msg": "Not allowed to bind to service Intent { act=com.google.android.gms.ads.identifier.service.START pkg=com.google.android.gms }",
+    "exception": "java.lang.SecurityException",
+    "identifier": "facebook-android-sdk",
+    "real": "unknown",
+    "id": "11.2.0-2",
+    "package": "com.facebook",
+    "realCate": "A",
+    "postURL": "https://github.com/facebook/facebook-android-sdk/issues/894",
+    "trace": [
+      "at android.app.ContextImpl.bindServiceCommon",
+      "at android.app.ContextImpl.bindService",
+      "at android.content.ContextWrapper.bindService",
+      "at com.facebook.internal.AttributionIdentifiers.getAndroidIdViaService",
+      "at com.facebook.internal.AttributionIdentifiers.getAndroidId",
+      "at com.facebook.internal.AttributionIdentifiers.getAttributionIdentifiers",
+      "at com.facebook.internal.AttributionIdentifiers.isTrackingLimited",
+      "at com.facebook.appevents.aam.MetadataIndexer$1.run"
+    ]
+  },
+  {
+    "msg": "Tried to access visual service WindowManager from a non-visual Context:grit.storytel.app.StorytelApplication@ac82cdbat",
+    "exception": "java.lang.IllegalAccessException",
+    "identifier": "facebook-android-sdk",
+    "real": "com.facebook.internal.Utility.setAppEventExtendedDeviceInfoParameters",
+    "id": "9.0.0",
+    "package": "com.facebook",
+    "realCate": "A",
+    "postURL": "https://github.com/facebook/facebook-android-sdk/issues/905",
+    "trace": [
+      "at android.app.ContextImpl.getSystemService",
+      "at android.content.ContextWrapper.getSystemService",
+      "at com.facebook.internal.Utility.setAppEventExtendedDeviceInfoParameters",
+      "at com.facebook.appevents.internal.AppEventsLoggerUtility.getJSONObjectForGraphAPICall",
+      "at com.facebook.appevents.SessionEventsState.populateRequest",
+      "at com.facebook.appevents.SessionEventsState.populateRequest",
+      "at com.facebook.appevents.AppEventQueue.buildRequestForSession",
+      "at com.facebook.appevents.AppEventQueue.sendEventsToServer",
+      "at com.facebook.appevents.AppEventQueue.flushAndWait",
+      "at com.facebook.appevents.AppEventQueue$1.run",
+      "at java.util.concurrent.Executors$RunnableAdapter.call",
+      "at java.util.concurrent.FutureTask.run",
+      "at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run",
+      "at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)",
+      "at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)",
+      "at java.lang.Thread.run"
+    ]
+  }
+
+]

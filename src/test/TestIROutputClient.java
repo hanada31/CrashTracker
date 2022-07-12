@@ -1,8 +1,7 @@
 package test;
 
 import main.java.MainClass;
-import main.java.MyConfig;
-import main.java.SummaryLevel;
+import main.java.base.MyConfig;
 import soot.options.Options;
 
 import java.io.File;
@@ -17,7 +16,6 @@ public class TestIROutputClient {
     @org.junit.Test
     public void testConfig() {
         setArgs();
-        setMySwitch();
         MainClass.startAnalyze();
         System.out.println("Finish...\n");
         System.exit(0);
@@ -47,30 +45,4 @@ public class TestIROutputClient {
         MyConfig.getInstance().setFileSuffixLength(4);
     }
 
-    /**
-     * analyze parameters for evaluation
-     */
-    private void setMySwitch() {
-        MyConfig.getInstance().getMySwithch().setDummyMainSwitch(false);
-        MyConfig.getInstance().getMySwithch().setCallBackSwitch(true);
-        MyConfig.getInstance().getMySwithch().setFunctionExpandSwitch(true);
-
-        MyConfig.getInstance().getMySwithch().setAsyncMethodSwitch(true);
-        MyConfig.getInstance().getMySwithch().setPolymSwitch(true);
-
-        MyConfig.getInstance().getMySwithch().setAdapterSwitch(true);
-        MyConfig.getInstance().getMySwithch().setStringOpSwitch(true);
-        MyConfig.getInstance().getMySwithch().setStaticFieldSwitch(true);
-
-        MyConfig.getInstance().getMySwithch().setFragmentSwitch(true);
-        MyConfig.getInstance().getMySwithch().setLibCodeSwitch(true);
-        MyConfig.getInstance().getMySwithch().setWrapperAPISwitch(true);
-
-        MyConfig.getInstance().getMySwithch().setImplicitLaunchSwitch(true);
-        MyConfig.getInstance().getMySwithch().setDynamicBCSwitch(true);
-
-        MyConfig.getInstance().getMySwithch().setSummaryStrategy(SummaryLevel.object);
-        MyConfig.getInstance().getMySwithch().setVfgStrategy(true);
-        MyConfig.getInstance().getMySwithch().setCgAnalyzeGroupedStrategy(false);
-    }
 }

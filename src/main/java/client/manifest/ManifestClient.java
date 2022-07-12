@@ -1,16 +1,11 @@
 package main.java.client.manifest;
 
-import java.io.File;
-import java.io.IOException;
-
-import main.java.Global;
-import main.java.MyConfig;
-import main.java.analyze.utils.ConstantUtils;
-import main.java.analyze.utils.output.FileUtils;
+import main.java.base.MyConfig;
 import main.java.client.BaseClient;
-import main.java.client.manifest.ManifestClient;
 import main.java.client.soot.SootAnalyzer;
 import org.dom4j.DocumentException;
+
+import java.io.IOException;
 
 /**
  * Analyzer Class

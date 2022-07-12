@@ -1,7 +1,5 @@
 package main.java.client.exception;
 
-import soot.SootMethod;
-
 import java.util.ArrayList;
 import java.util.List;
 

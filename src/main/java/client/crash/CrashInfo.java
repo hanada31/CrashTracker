@@ -1,8 +1,9 @@
 package main.java.client.crash;
-import main.java.Global;
-import main.java.analyze.utils.ConstantUtils;
-import main.java.analyze.utils.StringUtils;
+
+import main.java.base.Global;
 import main.java.client.exception.ExceptionInfo;
+import main.java.utils.ConstantUtils;
+import main.java.utils.StringUtils;
 import soot.jimple.toolkits.callgraph.Edge;
 
 import java.util.*;
@@ -157,7 +158,7 @@ public class CrashInfo {
         trace= trace.replace("\"","");
         trace= trace.replace("[","").replace("]","");
         trace= trace.replace("at ","");
-        String ss[] = trace.split(",");
+        String[] ss = trace.split(",");
         boolean firstUserAPI= true;
         for(int i=0; i< ss.length;i++){
             String method = ss[i];
@@ -311,9 +312,6 @@ public class CrashInfo {
         return edgeMap;
     }
 
-    public void setEdgeMap(Map<Integer, ArrayList<Edge>> edgeMap) {
-        this.edgeMap = edgeMap;
-    }
     public void add2EdgeMap(Integer depth, Edge e) {
         if(!edgeMap.containsKey(depth)){
             edgeMap.put(depth,new ArrayList<Edge>());

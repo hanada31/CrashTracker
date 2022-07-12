@@ -1,15 +1,13 @@
 package main.java.client.crash;
 
-import soot.SootMethod;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class BuggyCandidate {
-    private  String candi;
-    private  String reason;
+    private final String candi;
+    private final String reason;
     private  List trace = new ArrayList<String>();
-    private  int score;
+    private final int score;
 
     public BuggyCandidate(String candi, int score, String reason, List trace){
         this.candi = candi;

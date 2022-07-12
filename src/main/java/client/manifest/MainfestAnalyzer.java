@@ -1,31 +1,20 @@
 package main.java.client.manifest;
 
-import java.io.IOException;
+import main.java.base.Analyzer;
+import main.java.base.Global;
+import main.java.model.analyzeModel.AppModel;
+import main.java.model.component.*;
+import main.java.utils.ConstantUtils;
+import main.java.utils.SootUtils;
+import soot.jimple.infoflow.android.axml.AXmlNode;
+import soot.jimple.infoflow.android.manifest.IComponentContainer;
+import soot.jimple.infoflow.android.manifest.ProcessManifest;
+import soot.jimple.infoflow.android.manifest.binary.AbstractBinaryAndroidComponent;
+import soot.jimple.infoflow.android.manifest.binary.BinaryManifestService;
+
 import java.util.HashMap;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.*;
-
-
-//import jymbolic.android.resources.controls.ProcessManifest;
-//import jymbolic.android.resources.xml.AXmlNode;
-import main.java.Analyzer;
-import main.java.Global;
-import main.java.MyConfig;
-import main.java.analyze.model.analyzeModel.AppModel;
-import main.java.analyze.utils.ConstantUtils;
-import main.java.analyze.utils.SootUtils;
-import main.java.client.obj.model.component.ActivityModel;
-import main.java.client.obj.model.component.BroadcastReceiverModel;
-import main.java.client.obj.model.component.ComponentModel;
-import main.java.client.obj.model.component.ContentProviderModel;
-import main.java.client.obj.model.component.Data;
-import main.java.client.obj.model.component.IntentFilterModel;
-import main.java.client.obj.model.component.ServiceModel;
-import org.dom4j.DocumentException;
-import soot.jimple.infoflow.android.axml.AXmlNode;
-import soot.jimple.infoflow.android.manifest.ProcessManifest;
 
 /**
  * This class is used to parse a manifest XML file Extract all the exported
@@ -57,7 +46,7 @@ public class MainfestAnalyzer extends Analyzer {
 		appModel.setPackageName(pkg);
 		appModel.getExtendedPakgs().add(pkg);
 		appModel.setVersionCode(manifestManager.getVersionCode());
-		AXmlNode appNode = manifestManager.getApplication();
+		AXmlNode appNode = (AXmlNode) manifestManager.getApplication();
 		// get permissions
 		if (appNode.getAttribute("permission") != null) {
 			appModel.setPermission(appNode.getAttribute("permission").getValue().toString());// which
@@ -67,8 +56,8 @@ public class MainfestAnalyzer extends Analyzer {
 
 		parseComponent(manifestManager.getActivities(), "Activity");
 		parseComponent(manifestManager.getServices(), "Service");
-		parseComponent(manifestManager.getProviders(), "Provider");
-		parseComponent(manifestManager.getReceivers(), "Receiver");
+		parseComponent(manifestManager.getContentProviders(), "Provider");
+		parseComponent(manifestManager.getBroadcastReceivers(), "Receiver");
 
 		mergeAllComponents();
 
@@ -122,11 +111,12 @@ public class MainfestAnalyzer extends Analyzer {
 	 * parse activity + service + contentProvider + broadcastReceiver node in
 	 * manifest
 	 */
-	private void parseComponent(List<AXmlNode> components, String type) {
+	private void parseComponent(IComponentContainer components, String type) {
 		// get components
 		HashMap<String, ComponentModel> componentMap = getComponentMap(type);
-		for (AXmlNode componentNode : components) {
+		for (Object component : components.asList()) {
 			// new ActivityData instance
+			AXmlNode componentNode = ((AbstractBinaryAndroidComponent) component).getAXmlNode();
 			String componentName = componentNode.getAttribute("name").getValue().toString();
 			if (!Global.v().getAppModel().getApplicationClassNames().contains(componentName)) {
 				if (!componentName.contains(appModel.getPackageName())) {
@@ -145,7 +135,7 @@ public class MainfestAnalyzer extends Analyzer {
 
 			// add external libs according to component decalartion
 			if (!componentName.contains(appModel.getPackageName())) {
-				String ss[] = componentName.split("\\.");
+				String[] ss = componentName.split("\\.");
 				if (ss.length >= 2)
 					appModel.getExtendedPakgs().add(ss[0] + "." + ss[1]);
 			}

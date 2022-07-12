@@ -2,16 +2,14 @@ package main.java.client.crash;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import main.java.Analyzer;
-import main.java.Global;
-import main.java.MyConfig;
-import main.java.analyze.utils.CollectionUtils;
-import main.java.analyze.utils.ConstantUtils;
-import main.java.analyze.utils.SootUtils;
-import main.java.analyze.utils.output.FileUtils;
-import main.java.analyze.utils.output.PrintUtils;
-import main.java.client.exception.*;
-import main.java.client.statistic.model.StatisticResult;
+import main.java.base.Analyzer;
+import main.java.base.Global;
+import main.java.base.MyConfig;
+import main.java.client.exception.ExceptionInfo;
+import main.java.client.exception.RelatedMethod;
+import main.java.client.exception.RelatedMethodSource;
+import main.java.client.exception.RelatedVarType;
+import main.java.utils.*;
 import soot.*;
 import soot.jimple.*;
 import soot.jimple.internal.*;
@@ -25,7 +23,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static main.java.analyze.utils.SootUtils.getFiledValueAssigns;
+import static main.java.utils.SootUtils.getFiledValueAssigns;
 
 /**
  * @Author hanada
@@ -39,7 +37,7 @@ public class CrashAnalysis extends Analyzer {
     String relatedVarType="";
     String[] versions = {"2.3", "4.4", "5.0", "6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0"};
 
-    public CrashAnalysis(StatisticResult result) {
+    public CrashAnalysis() {
         crashInfoList = Global.v().getAppModel().getCrashInfoList();
         loadedExceptionSummary = new HashSet<>();
         androidCGMap = new HashMap<>();
@@ -729,12 +727,15 @@ public class CrashAnalysis extends Analyzer {
                     Pair<String, String> pair = getExceptionWithGivenVersion(crashInfo, version, true);
                     versionTypes[i] = pair.getO1();
                     targetMethodNames[i] = pair.getO2();
-                    if (versionTypes[i].equals("unknown")) {
+                    if (versionTypes[i].equals("notFound")) {
                         Pair<String, String> pair2 = getExceptionWithGivenVersion(crashInfo, version, false);
                         versionTypeCandis[i] = pair2.getO1();
                         targetMethodNames[i] = pair2.getO2();
+                    }else{
+                        System.out.println("version "+ versions[i] +" is matched.");
                     }
                     i++;
+
                 }
 
                 int targetVerId = getTargetVersion(versionTypes);
@@ -766,15 +767,16 @@ public class CrashAnalysis extends Analyzer {
 
     private int getTargetVersion(String[] versionType) {
         int paraAndField =0 , fieldOnly =0 ,parameterOnly =0 , overrideMissing = 0;
+        System.out.println(PrintUtils.printArray(versionType));
         for(String relatedVarType: versionType) {
             if (relatedVarType.equals("ParaAndField")) paraAndField++;
             if (relatedVarType.equals("FieldOnly")) fieldOnly++;
             if (relatedVarType.equals("ParameterOnly")) parameterOnly++;
             if (relatedVarType.equals("OverrideMissing")) overrideMissing++;
         }
-        String choice = "";
+        String choice = "unknown";
         if(paraAndField + parameterOnly + fieldOnly + overrideMissing ==0)
-            return -1;
+            choice = "unknown";
         else if(paraAndField >= parameterOnly && paraAndField >= fieldOnly && paraAndField >= overrideMissing)
             choice =  "ParaAndField";
         else if(parameterOnly >= fieldOnly && parameterOnly >= paraAndField && parameterOnly >= overrideMissing)
@@ -812,19 +814,23 @@ public class CrashAnalysis extends Analyzer {
                 Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg());
                 Matcher m = p.matcher(crashInfo.getMsg());
                 if (m.matches()) {
-                    String str = exceptionInfo.getExceptionMsg();
-                    str = str.replace("[\\s\\S]*", "");
-                    str = str.replace("\\Q", "");
-                    str = str.replace("\\E", "");
-                    if (str.length() < 3)
-                        continue;
+                    if(!classFilter) {
+                        String str = exceptionInfo.getExceptionMsg();
+                        str = str.replace("[\\s\\S]*", "");
+                        str = str.replace("\\Q", "");
+                        str = str.replace("\\E", "");
+                        if (str.length() < 3)
+                            continue;
+                    }
                     if (jsonObject.getString("relatedVarType") != null) {
                         return new Pair<>(jsonObject.getString("relatedVarType"), exceptionInfo.getSootMethodName());
+                    }else{
+                        return new Pair<>("unknown", exceptionInfo.getSootMethodName());
                     }
                 }
             }
         }
-        return new Pair<>("unknown",crashInfo.getSignaler());
+        return new Pair<>("notFound",crashInfo.getSignaler());
     }
 
 
@@ -919,6 +925,9 @@ public class CrashAnalysis extends Analyzer {
             JSONObject jsonObject = (JSONObject) o;
             CrashInfo crashInfo = new CrashInfo();
             crashInfo.setIdentifier(jsonObject.getString("identifier"));
+            if(jsonObject.getString("package")!=null){
+                Global.v().getAppModel().setPackageName(jsonObject.getString("package"));
+            }
             crashInfo.setId(jsonObject.getString("id"));
             if (Global.v().getAppModel().getPackageName().length() == 0 && Global.v().getAppModel().getAppName().contains(crashInfo.getIdentifier()))
                 Global.v().getAppModel().setPackageName(crashInfo.getIdentifier());

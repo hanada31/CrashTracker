@@ -1,20 +1,24 @@
 package main.java.client.cg.cgJava;
 
-import main.java.MyConfig;
-import main.java.analyze.utils.ConstantUtils;
-import main.java.analyze.utils.SootUtils;
-import soot.*;
+import main.java.utils.ConstantUtils;
+import main.java.utils.SootUtils;
+import soot.Scene;
+import soot.SootClass;
+import soot.SootMethod;
+import soot.Unit;
 import soot.jimple.InvokeExpr;
 import soot.jimple.Stmt;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
-import soot.util.Chain;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 public class CallGraphBuilder {
 
-	private static CallGraph cg = Scene.v().getCallGraph();
+	private static final CallGraph cg = Scene.v().getCallGraph();
 
 	static {
 //		filterEdges(cg);
@@ -45,10 +49,6 @@ public class CallGraphBuilder {
 	private static void addEdgesByOurAnalyze(CallGraph callGraph) {
 		for (SootClass sc : Scene.v().getApplicationClasses()) {
 			if(!sc.getPackageName().startsWith(ConstantUtils.PKGPREFIX)) continue;
-			if (!MyConfig.getInstance().getMySwithch().allowLibCodeSwitch()) {
-				if (!SootUtils.isNonLibClass(sc.getName()))
-					continue;
-			}
 			ArrayList<SootMethod> methodList = new ArrayList<SootMethod>(sc.getMethods());
 			for (SootMethod sm : methodList) {
 				if (SootUtils.hasSootActiveBody(sm) == false)

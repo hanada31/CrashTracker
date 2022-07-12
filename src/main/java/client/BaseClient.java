@@ -1,10 +1,8 @@
 package main.java.client;
 
-import java.io.IOException;
-
-import main.java.client.statistic.model.StatisticResult;
-
 import org.dom4j.DocumentException;
+
+import java.io.IOException;
 
 /**
  * BaseClient
@@ -13,7 +11,6 @@ import org.dom4j.DocumentException;
  * @version 2.0
  */
 public abstract class BaseClient {
-	protected StatisticResult result;
 
 	public void start() {
 		
@@ -34,8 +31,4 @@ public abstract class BaseClient {
 	protected abstract void clientAnalyze();
 
 	public abstract void clientOutput() throws IOException, DocumentException;
-
-	public StatisticResult getResult() {
-		return result;
-	}
 }

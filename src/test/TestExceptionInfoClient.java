@@ -1,8 +1,7 @@
 package test;
 
 import main.java.MainClass;
-import main.java.MyConfig;
-import main.java.SummaryLevel;
+import main.java.base.MyConfig;
 import soot.options.Options;
 
 import java.io.File;
@@ -16,7 +15,6 @@ public class TestExceptionInfoClient {
     @org.junit.Test
     public void testConfig() {
         setArgs();
-        setMySwitch();
         MainClass.startAnalyze();
         System.out.println("Finish...\n");
         System.exit(0);
@@ -26,11 +24,12 @@ public class TestExceptionInfoClient {
         String path, name;
         path = "C:\\Users\\yanjw\\programs\\framework\\classes\\";
         path = "D:\\SoftwareData\\dataset\\android-framework\\classes\\";
-        name = "android2.3";
+        MyConfig.getInstance().setAndroidOSVersion("10.0");
 
         String client = "ExceptionInfoClient";
 //        client = "IROutputClient";
 
+        name = "android"+MyConfig.getInstance().getAndroidOSVersion();;
         MyConfig.getInstance().setAppName(name);
         MyConfig.getInstance().setAppPath(path + File.separator);
         MyConfig.getInstance().setClient(client);
@@ -49,33 +48,6 @@ public class TestExceptionInfoClient {
         MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
         MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"cg.txt");
 
-//        MyConfig.getInstance().setJimple(false);
     }
 
-    /**
-     * analyze parameters for evaluation
-     */
-    private void setMySwitch() {
-        MyConfig.getInstance().getMySwithch().setDummyMainSwitch(false);
-        MyConfig.getInstance().getMySwithch().setCallBackSwitch(true);
-        MyConfig.getInstance().getMySwithch().setFunctionExpandSwitch(true);
-
-        MyConfig.getInstance().getMySwithch().setAsyncMethodSwitch(true);
-        MyConfig.getInstance().getMySwithch().setPolymSwitch(true);
-
-        MyConfig.getInstance().getMySwithch().setAdapterSwitch(true);
-        MyConfig.getInstance().getMySwithch().setStringOpSwitch(true);
-        MyConfig.getInstance().getMySwithch().setStaticFieldSwitch(true);
-
-        MyConfig.getInstance().getMySwithch().setFragmentSwitch(true);
-        MyConfig.getInstance().getMySwithch().setLibCodeSwitch(true);
-        MyConfig.getInstance().getMySwithch().setWrapperAPISwitch(true);
-
-        MyConfig.getInstance().getMySwithch().setImplicitLaunchSwitch(true);
-        MyConfig.getInstance().getMySwithch().setDynamicBCSwitch(true);
-
-        MyConfig.getInstance().getMySwithch().setSummaryStrategy(SummaryLevel.object);
-        MyConfig.getInstance().getMySwithch().setVfgStrategy(true);
-        MyConfig.getInstance().getMySwithch().setCgAnalyzeGroupedStrategy(false);
-    }
 }

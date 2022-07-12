@@ -1,8 +1,7 @@
 package test;
 
-import main.java.MyConfig;
+import main.java.base.MyConfig;
 import main.java.client.dataAnalysis.ExceptionInfoCount;
-import main.java.client.dataAnalysis.ExceptionMather;
 
 import java.io.File;
 
@@ -15,7 +14,7 @@ public class TestExceptionInfoCounter {
 
     @org.junit.Test
     public void testExceptionMatch() {
-        MyConfig.getInstance().setResultFolder("results/"  + File.separator);
+        MyConfig.getInstance().setResultFolder("Files"  + File.separator);
         ExceptionInfoCount analyzer = new ExceptionInfoCount();
         analyzer.analyze();
     }

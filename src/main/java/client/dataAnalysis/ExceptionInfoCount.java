@@ -2,14 +2,14 @@ package main.java.client.dataAnalysis;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import main.java.MyConfig;
-import main.java.analyze.utils.output.FileUtils;
-import main.java.analyze.utils.output.PrintUtils;
-import main.java.client.exception.RelatedCondType;
-import main.java.client.exception.RelatedVarType;
+import main.java.base.MyConfig;
+import main.java.utils.FileUtils;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @Author hanada

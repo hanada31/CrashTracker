@@ -11,22 +11,20 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
+	<repositories>
+		<repository>
+			<id>mvn</id>
+			<url>https://repo1.maven.org/maven2/</url>
+		</repository>
+	</repositories>
 
   	<dependencies>
-<!--		<dependency>-->
-<!--			<groupId>org.slf4j</groupId>-->
-<!--			<artifactId>slf4j-simple</artifactId>-->
-<!--			<version>1.7.9</version>-->
-<!--			<scope>compile</scope>-->
-<!--		</dependency>-->
-
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
 			<scope>compile</scope>
 		</dependency>
-
   		<dependency>
     		<groupId>commons-cli</groupId>
     		<artifactId>commons-cli</artifactId>
@@ -37,7 +35,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 			<artifactId>soot-infoflow-dummy</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/soot-infoflow-dummy-withAndroid.jar</systemPath>
+			<systemPath>${project.basedir}/lib/soot-infoflow-android-2.9.0.jar</systemPath>
 		</dependency>
 		
 		<dependency>
@@ -45,7 +43,27 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 			<artifactId>soot-infoflow</artifactId>
 			<version>2.8</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.microsoft.z3/java-jar -->
+<!--		<dependency>-->
+<!--			<groupId>de.fraunhofer.sit.sse.flowdroid</groupId>-->
+<!--			<artifactId>soot-infoflow</artifactId>-->
+<!--			<version>2.10.0</version>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>de.fraunhofer.sit.sse.flowdroid</groupId>-->
+<!--			<artifactId>soot-infoflow-summaries</artifactId>-->
+<!--			<version>2.10.0</version>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>de.fraunhofer.sit.sse.flowdroid</groupId>-->
+<!--			<artifactId>soot-infoflow-android</artifactId>-->
+<!--			<version>2.10.0</version>-->
+<!--		</dependency>-->
+		<dependency>
+			<groupId>org.soot-oss</groupId>
+			<artifactId>soot</artifactId>
+			<version>4.3.0-SNAPSHOT</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.microsoft.z3/java-jar
 		<dependency>
 			<groupId>z3</groupId>
 			<artifactId>z3</artifactId>
@@ -60,7 +78,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 			<scope>system</scope>
 			<systemPath>${project.basedir}/lib/apktool_2.6.0.jar</systemPath>
 		</dependency>
-		<!-- <dependency>
+		<dependency>
 			<groupId>gator</groupId>
 			<artifactId>gator</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
