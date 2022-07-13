@@ -27,7 +27,7 @@ public class TestJarCrashAnalysisClient {
         String path;
         path = "apk\\";
         String name;
-        name = "facebook-android-sdk-12.2.0-2.jar";
+        name = "facebook-android-sdk-11.2.0.jar";
 
         String client = "JarCrashAnalysisClient";
 
@@ -40,7 +40,7 @@ public class TestJarCrashAnalysisClient {
         MyConfig.getInstance().setResultWarpperFolder("results/" + File.separator);
         MyConfig.getInstance().setResultFolder(MyConfig.getInstance().getResultWarpperFolder()+ "output" + File.separator);
         MyConfig.getInstance().setTimeLimit(10);
-        MyConfig.getInstance().setAndroidJar("lib/platforms");
+        MyConfig.getInstance().setAndroidJar("E:\\AndroidSDK\\android-sdk-windows-new\\platforms");
         MyConfig.getInstance().setSrc_prec(Options.src_prec_apk);
         MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfoJar.json");
         MyConfig.getInstance().setStrategy("");

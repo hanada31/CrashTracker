@@ -979,6 +979,8 @@ public class CrashAnalysis extends Analyzer {
         ExceptionInfo info = crashInfo.getExceptionInfo();
         if(info!=null && info.isOsVersionRelated()){
             crashInfo.addNoneCodeLabel("OS Update");
+        }else if(crashInfo.getMsg().contains("version")){
+            crashInfo.addNoneCodeLabel("OS Update");
         }
         if(info!=null && info.isAssessRelated()){
             crashInfo.addNoneCodeLabel("Asset");

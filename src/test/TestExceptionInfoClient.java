@@ -39,7 +39,7 @@ public class TestExceptionInfoClient {
         MyConfig.getInstance().setResultWarpperFolder("results/" + File.separator);
         MyConfig.getInstance().setResultFolder("Files" + File.separator);
         MyConfig.getInstance().setTimeLimit(100);
-        MyConfig.getInstance().setAndroidJar("lib/platforms");
+        MyConfig.getInstance().setAndroidJar("E:\\AndroidSDK\\android-sdk-windows-new\\platforms");
         MyConfig.getInstance().setSrc_prec(Options.src_prec_only_class);
         MyConfig.getInstance().setFileSuffixLength(0);
         MyConfig.getInstance().setFileSuffixLength(0);

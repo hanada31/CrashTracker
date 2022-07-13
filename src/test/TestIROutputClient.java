@@ -40,7 +40,7 @@ public class TestIROutputClient {
         MyConfig.getInstance().setResultWarpperFolder("results/" + File.separator);
         MyConfig.getInstance().setResultFolder(MyConfig.getInstance().getResultWarpperFolder()+ "output" + File.separator);
         MyConfig.getInstance().setTimeLimit(10);
-        MyConfig.getInstance().setAndroidJar("lib/platforms");
+        MyConfig.getInstance().setAndroidJar("E:\\AndroidSDK\\android-sdk-windows-new\\platforms");
         MyConfig.getInstance().setSrc_prec(Options.src_prec_apk);
         MyConfig.getInstance().setFileSuffixLength(4);
     }

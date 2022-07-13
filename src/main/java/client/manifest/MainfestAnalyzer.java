@@ -10,7 +10,7 @@ import soot.jimple.infoflow.android.axml.AXmlNode;
 import soot.jimple.infoflow.android.manifest.IComponentContainer;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.android.manifest.binary.AbstractBinaryAndroidComponent;
-import soot.jimple.infoflow.android.manifest.binary.BinaryManifestService;
+import soot.jimple.infoflow.android.manifest.binary.BinaryAndroidApplication;
 
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +46,8 @@ public class MainfestAnalyzer extends Analyzer {
 		appModel.setPackageName(pkg);
 		appModel.getExtendedPakgs().add(pkg);
 		appModel.setVersionCode(manifestManager.getVersionCode());
-		AXmlNode appNode = (AXmlNode) manifestManager.getApplication();
+		BinaryAndroidApplication binaryAndroidApplication = (BinaryAndroidApplication) manifestManager.getApplication();
+		AXmlNode appNode = binaryAndroidApplication.getAXmlNode();
 		// get permissions
 		if (appNode.getAttribute("permission") != null) {
 			appModel.setPermission(appNode.getAttribute("permission").getValue().toString());// which
