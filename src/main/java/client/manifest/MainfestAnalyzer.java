@@ -7,10 +7,12 @@ import main.java.model.component.*;
 import main.java.utils.ConstantUtils;
 import main.java.utils.SootUtils;
 import soot.jimple.infoflow.android.axml.AXmlNode;
+import soot.jimple.infoflow.android.manifest.IAndroidApplication;
 import soot.jimple.infoflow.android.manifest.IComponentContainer;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.android.manifest.binary.AbstractBinaryAndroidComponent;
 import soot.jimple.infoflow.android.manifest.binary.BinaryAndroidApplication;
+import soot.jimple.infoflow.android.manifest.binary.BinaryManifestService;
 
 import java.util.HashMap;
 import java.util.List;
