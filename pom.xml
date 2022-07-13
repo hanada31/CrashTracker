@@ -16,10 +16,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 			<id>mvn</id>
 			<url>https://repo1.maven.org/maven2/</url>
 		</repository>
-		<repository>
-			<id>mvn</id>
-			<url> https://mvnrepository.com/artifact/</url>
-		</repository>
 	</repositories>
 
   	<dependencies>
