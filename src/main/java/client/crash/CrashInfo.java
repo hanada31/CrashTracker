@@ -49,7 +49,7 @@ public class CrashInfo {
     }
 
     public boolean addExtendedCallDepth(String key, int value) {
-        if(key.startsWith("java.") || key.startsWith("android.") || key.startsWith("com.android.")) return false;
+        if(key.startsWith("java.")|| key.startsWith("androidx.")  || key.startsWith("android.") || key.startsWith("com.android.")) return false;
         if(!extendedCallDepth.containsKey(key) || extendedCallDepth.get(key)>value ) {
             extendedCallDepth.put(key, value);
             return true;
@@ -172,10 +172,10 @@ public class CrashInfo {
                 setCrashAPI(ss[i-1]);
                 setCrashMethod(method);
             }else if(getCrashAPI()!=null && getCrashCallBack()==null
-                    && (method.startsWith("android.")|| method.startsWith("com.android.")|| method.startsWith("java")) ) {
+                    && (method.startsWith("androidx.") || method.startsWith("android.")|| method.startsWith("com.android.")|| method.startsWith("java")) ) {
                 setCrashCallBack(method);
             }
-            if(!method.startsWith("android.") &&!method.startsWith("com.android.") && !method.startsWith("java")) {
+            if(!method.startsWith("androidx.") &&!method.startsWith("android.") &&!method.startsWith("com.android.") && !method.startsWith("java")) {
 //                if(firstUserAPI)
                     crashMethodList.add(method);
             }else{

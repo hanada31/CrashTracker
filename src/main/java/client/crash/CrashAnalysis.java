@@ -626,7 +626,7 @@ public class CrashAnalysis extends Analyzer {
         return 0;
     }
     private boolean isLibraryMethod(String candi) {
-        return candi.startsWith("android.")  || candi.startsWith("com.android.") || candi.startsWith("java.");
+        return candi.startsWith("android.")  || candi.startsWith("androidx.")|| candi.startsWith("com.android.") || candi.startsWith("java.");
     }
 
     /**
@@ -731,6 +731,8 @@ public class CrashAnalysis extends Analyzer {
                         Pair<String, String> pair2 = getExceptionWithGivenVersion(crashInfo, version, false);
                         versionTypeCandis[i] = pair2.getO1();
                         targetMethodNames[i] = pair2.getO2();
+                    }else if (versionTypes[i].equals("noFile")){
+                        System.out.println("version "+ versions[i] +" is not exist.");
                     }else{
                         System.out.println("version "+ versions[i] +" is matched.");
                     }
@@ -769,6 +771,7 @@ public class CrashAnalysis extends Analyzer {
         int paraAndField =0 , fieldOnly =0 ,parameterOnly =0 , overrideMissing = 0;
         System.out.println(PrintUtils.printArray(versionType));
         for(String relatedVarType: versionType) {
+            if(relatedVarType ==null) continue;
             if (relatedVarType.equals("ParaAndField")) paraAndField++;
             if (relatedVarType.equals("FieldOnly")) fieldOnly++;
             if (relatedVarType.equals("ParameterOnly")) parameterOnly++;
@@ -787,7 +790,7 @@ public class CrashAnalysis extends Analyzer {
             choice = "OverrideMissing";
 
         for(int i = versionType.length-1; i>=0; i--) {
-            if(versionType[i].equals(choice)){
+            if(versionType[i]!=null && versionType[i].equals(choice)){
                 return i;
             }
         }
@@ -984,6 +987,8 @@ public class CrashAnalysis extends Analyzer {
             crashInfo.addNoneCodeLabel("Manifest XML");
         } else if(containPermissionString(crashInfo.getMsg())){
             crashInfo.addNoneCodeLabel("Manifest XML");
+        }else if(containmActivityInfo(crashInfo)){
+            crashInfo.addNoneCodeLabel("Manifest XML");
         }
         if(info!=null && info.isHardwareRelated()) {
             crashInfo.addNoneCodeLabel("Hardware");
@@ -994,6 +999,15 @@ public class CrashAnalysis extends Analyzer {
         if(info!=null && info.isResourceRelated()){
             crashInfo.addNoneCodeLabel("Resource XML");
         }
+    }
+
+    private boolean containmActivityInfo(CrashInfo crashInfo) {
+        for(String field: crashInfo.getExceptionInfo().getRelatedFieldValuesInStr()){
+            if(field.contains("android.app.Activity: android.content.pm.ActivityInfo mActivityInfo")){
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean containPermissionString(String msg) {

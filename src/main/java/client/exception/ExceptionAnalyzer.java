@@ -347,7 +347,6 @@ public class ExceptionAnalyzer extends Analyzer {
         for (Unit retUnit : retUnits) {
             getConditionandValueFromUnit(sootMethod, retUnit, exceptionInfo, false);
         }
-
         int e = exceptionInfo.getConditions().size();
         getConditionType(exceptionInfo, e-b);
 
@@ -358,6 +357,11 @@ public class ExceptionAnalyzer extends Analyzer {
         if(name.contains("hardware") || name.contains("opengl")
                 || name.contains("nfc") || name.contains("bluetooth") ){
             exceptionInfo.setHardwareRelated(true);
+        }
+        for(String field: exceptionInfo.getRelatedFieldValuesInStr()){
+            if(field.contains("android.app.Activity: android.content.pm.ActivityInfo mActivityInfo")){
+                exceptionInfo.setManifestRelated(true);
+            }
         }
         exceptionInfoList.add(exceptionInfo);
     }

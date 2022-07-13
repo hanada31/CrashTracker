@@ -1,7 +1,11 @@
+python scripts/runLoFDroid-multi.py  ../../apk/FanDataICSE2018-before/ Data-07013-baseline "no" "no"
+python scripts/runLoFDroid-multi.py  ../../apk/Empirical500/ Data-07013-baseline "no" "no" 
+
+
 #python scripts/runLoFDroid-multi.py  ../../apk/FanDataICSE2018-before/ Data-fan-0705-NoRV "no" "NoRVType" #Files/FilterAPK.txt
 #python scripts/runLoFDroid-multi.py  ../../apk/Empirical500/ Data-500-0705-NoRV  "NoRVType"  #Files/FilterAPK.txt
-python scripts/runLoFDroid-multi.py  ../../apk/FanDataICSE2018-before/ Data-0705-CG "no" "NoExtendCG" 
-python scripts/runLoFDroid-multi.py  ../../apk/Empirical500/ Data-0705-CG "no" "NoExtendCG" 
+# python scripts/runLoFDroid-multi.py  ../../apk/FanDataICSE2018-before/ Data-0705-CG "no" "NoExtendCG" 
+# python scripts/runLoFDroid-multi.py  ../../apk/Empirical500/ Data-0705-CG "no" "NoExtendCG" 
 # python scripts/runLoFDroid-multi.py  ../../apk/FanDataICSE2018-before/ Data-0705-rmFilter  "no" "NoRelatedMethodFilter" 
 # python scripts/runLoFDroid-multi.py  ../../apk/Empirical500/ Data-0705-rmFilter   "no" "NoRelatedMethodFilter" 
 
