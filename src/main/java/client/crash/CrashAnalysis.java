@@ -1004,6 +1004,8 @@ public class CrashAnalysis extends Analyzer {
     }
 
     private boolean containmActivityInfo(CrashInfo crashInfo) {
+        if(crashInfo.getExceptionInfo() ==null)
+            return false;
         for(String field: crashInfo.getExceptionInfo().getRelatedFieldValuesInStr()){
             if(field.contains("android.app.Activity: android.content.pm.ActivityInfo mActivityInfo")){
                 return true;

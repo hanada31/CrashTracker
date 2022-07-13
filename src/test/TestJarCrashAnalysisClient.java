@@ -27,7 +27,7 @@ public class TestJarCrashAnalysisClient {
         String path;
         path = "apk\\";
         String name;
-        name = "facebook-android-sdk-894.jar";
+        name = "facebook-android-sdk-1045.jar";
 
         String client = "JarCrashAnalysisClient";
 

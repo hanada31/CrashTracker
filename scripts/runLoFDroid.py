@@ -27,8 +27,8 @@ def analyzeApk(apkPath, resPath, sdk):
                 print ("\n\n\nThis is the "+str(id)+"th app " +apk)
                 resFile = logDir+"/"+apk[:-4]+".txt"
                 if(reRun or not os.path.exists(resFile)): 
-                    print("java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms  "+ extraArgs +"-client CrashAnalysisClient  -AndroidOSVersion " + AndroidOSVersion +" -outputDir "+outputDir+" >> "+logDir+"/"+apk[:-4]+".txt")
-                    os.system("java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms "+ extraArgs +" -client CrashAnalysisClient  -AndroidOSVersion " + AndroidOSVersion +" -outputDir "+outputDir+" >> "+logDir+"/"+apk[:-4]+".txt")
+                    print("java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms  "+ extraArgs +"-client ApkCrashAnalysisClient  -AndroidOSVersion " + AndroidOSVersion +" -outputDir "+outputDir+" >> "+logDir+"/"+apk[:-4]+".txt")
+                    os.system("java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms "+ extraArgs +" -client ApkCrashAnalysisClient  -AndroidOSVersion " + AndroidOSVersion +" -outputDir "+outputDir+" >> "+logDir+"/"+apk[:-4]+".txt")
 
 
 def readFilterFile(filterFile):

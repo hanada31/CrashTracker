@@ -33,7 +33,7 @@ def analyzeApk(apkPath, resPath, sdk, AndroidOSVersion, strategy):
             if apk[-4:] ==".apk":
                 resFile = logDir+"/"+apk[:-4]+".txt"
                 if(reRun or not os.path.exists(resFile)): 
-                    command = "java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms  "+ extraArgs +" -client CrashAnalysisClient" +" -outputDir "+outputDir+" >> "+logDir+"/"+apk[:-4]+".txt"
+                    command = "java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms  "+ extraArgs +" -client ApkCrashAnalysisClient" +" -outputDir "+outputDir+" >> "+logDir+"/"+apk[:-4]+".txt"
                     future1 = pool.submit(executeCmd, command)
         pool.shutdown()
 
@@ -50,6 +50,7 @@ def readFilterFile(filterFile):
     
 if __name__ == '__main__' :
     sdk = "lib/"   
+    sdk = "/home/yanjw/other/android-sdk-linux/"
     jarFile = "LoFDroid.jar"
     
     apkPath = sys.argv[1]
