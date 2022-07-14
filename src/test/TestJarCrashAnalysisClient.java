@@ -27,7 +27,7 @@ public class TestJarCrashAnalysisClient {
         String path;
         path = "apk\\";
         String name;
-        name = "facebook-android-sdk-615.jar";
+        name = "com.google.maps-768.jar";
 
         String client = "JarCrashAnalysisClient";
 
