@@ -7,10 +7,7 @@ import main.java.model.component.*;
 import main.java.utils.ConstantUtils;
 import main.java.utils.SootUtils;
 import soot.jimple.infoflow.android.axml.AXmlNode;
-import soot.jimple.infoflow.android.manifest.IComponentContainer;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
-import soot.jimple.infoflow.android.manifest.binary.AbstractBinaryAndroidComponent;
-import soot.jimple.infoflow.android.manifest.binary.BinaryAndroidApplication;
 
 import java.util.HashMap;
 import java.util.List;
@@ -46,19 +43,18 @@ public class MainfestAnalyzer extends Analyzer {
 		appModel.setPackageName(pkg);
 		appModel.getExtendedPakgs().add(pkg);
 		appModel.setVersionCode(manifestManager.getVersionCode());
-		BinaryAndroidApplication binaryAndroidApplication = (BinaryAndroidApplication) manifestManager.getApplication();
-		AXmlNode appNode = binaryAndroidApplication.getAXmlNode();
+		AXmlNode appNode = (AXmlNode) manifestManager.getApplication();
 		// get permissions
 		if (appNode.getAttribute("permission") != null) {
 			appModel.setPermission(appNode.getAttribute("permission").getValue().toString());// which
-																								// permission?
+			// permission?
 		}
 		appModel.setUsesPermissionSet(manifestManager.getPermissions());
 
 		parseComponent(manifestManager.getActivities(), "Activity");
 		parseComponent(manifestManager.getServices(), "Service");
-//		parseComponent(manifestManager.getContentProviders(), "Provider");
-		parseComponent(manifestManager.getBroadcastReceivers(), "Receiver");
+		parseComponent(manifestManager.getProviders(), "Provider");
+		parseComponent(manifestManager.getReceivers(), "Receiver");
 
 		mergeAllComponents();
 
@@ -108,16 +104,11 @@ public class MainfestAnalyzer extends Analyzer {
 		}
 		exec.shutdown();
 	}
-	/**
-	 * parse activity + service + contentProvider + broadcastReceiver node in
-	 * manifest
-	 */
-	private void parseComponent(IComponentContainer components, String type) {
+	private void parseComponent(List<AXmlNode> components, String type) {
 		// get components
 		HashMap<String, ComponentModel> componentMap = getComponentMap(type);
-		for (Object component : components.asList()) {
+		for (AXmlNode componentNode : components) {
 			// new ActivityData instance
-			AXmlNode componentNode = ((AbstractBinaryAndroidComponent) component).getAXmlNode();
 			String componentName = componentNode.getAttribute("name").getValue().toString();
 			if (!Global.v().getAppModel().getApplicationClassNames().contains(componentName)) {
 				if (!componentName.contains(appModel.getPackageName())) {
@@ -136,7 +127,7 @@ public class MainfestAnalyzer extends Analyzer {
 
 			// add external libs according to component decalartion
 			if (!componentName.contains(appModel.getPackageName())) {
-				String[] ss = componentName.split("\\.");
+				String ss[] = componentName.split("\\.");
 				if (ss.length >= 2)
 					appModel.getExtendedPakgs().add(ss[0] + "." + ss[1]);
 			}
@@ -192,14 +183,14 @@ public class MainfestAnalyzer extends Analyzer {
 	 */
 	private HashMap<String, ComponentModel> getComponentMap(String type) {
 		switch (type) {
-		case "Activity":
-			return appModel.getActivityMap();
-		case "Service":
-			return appModel.getServiceMap();
-		case "Provider":
-			return appModel.getProviderMap();
-		case "Receiver":
-			return appModel.getRecieverMap();
+			case "Activity":
+				return appModel.getActivityMap();
+			case "Service":
+				return appModel.getServiceMap();
+			case "Provider":
+				return appModel.getProviderMap();
+			case "Receiver":
+				return appModel.getRecieverMap();
 		}
 		return null;
 	}
@@ -215,22 +206,22 @@ public class MainfestAnalyzer extends Analyzer {
 		if (SootUtils.getSootClassByName(componentName) == null)
 			return null;
 		switch (type) {
-		case "Activity":
-			if (appModel.getActivityMap().containsKey(componentName))
-				return appModel.getActivityMap().get(componentName);
-			return new ActivityModel(appModel);
-		case "Service":
-			if (appModel.getServiceMap().containsKey(componentName))
-				return appModel.getServiceMap().get(componentName);
-			return new ServiceModel(appModel);
-		case "Receiver":
-			if (appModel.getRecieverMap().containsKey(componentName))
-				return appModel.getRecieverMap().get(componentName);
-			return new BroadcastReceiverModel(appModel);
-		case "Provider":
-			if (appModel.getProviderMap().containsKey(componentName))
-				return appModel.getProviderMap().get(componentName);
-			return new ContentProviderModel(appModel);
+			case "Activity":
+				if (appModel.getActivityMap().containsKey(componentName))
+					return appModel.getActivityMap().get(componentName);
+				return new ActivityModel(appModel);
+			case "Service":
+				if (appModel.getServiceMap().containsKey(componentName))
+					return appModel.getServiceMap().get(componentName);
+				return new ServiceModel(appModel);
+			case "Receiver":
+				if (appModel.getRecieverMap().containsKey(componentName))
+					return appModel.getRecieverMap().get(componentName);
+				return new BroadcastReceiverModel(appModel);
+			case "Provider":
+				if (appModel.getProviderMap().containsKey(componentName))
+					return appModel.getProviderMap().get(componentName);
+				return new ContentProviderModel(appModel);
 		}
 		return null;
 	}
