@@ -5,10 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import main.java.base.Analyzer;
 import main.java.base.Global;
 import main.java.base.MyConfig;
-import main.java.client.exception.ExceptionInfo;
-import main.java.client.exception.RelatedMethod;
-import main.java.client.exception.RelatedMethodSource;
-import main.java.client.exception.RelatedVarType;
+import main.java.client.exception.*;
 import main.java.utils.*;
 import soot.*;
 import soot.jimple.*;
@@ -66,7 +63,10 @@ public class CrashAnalysis extends Analyzer {
             if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoRVType) ){
                 exceptionInfo = null;
             }
-            if(exceptionInfo!=null && exceptionInfo.getRelatedVarType()!=null) {
+            if(exceptionInfo!=null && exceptionInfo.getRelatedCondType()==RelatedCondType.Caught) {
+                withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false);
+            }
+            else if(exceptionInfo!=null && exceptionInfo.getRelatedVarType()!=null) {
                 switch (exceptionInfo.getRelatedVarType()) {
                     //first choice filterExtendedCG false, second choice true
                     case OverrideMissing:
@@ -898,6 +898,8 @@ public class CrashAnalysis extends Analyzer {
             exceptionInfo.setRelatedParamValuesInStr(jsonObject.getString("paramValues"));
             if (jsonObject.getString("relatedVarType") != null)
                 exceptionInfo.setRelatedVarType(RelatedVarType.valueOf(jsonObject.getString("relatedVarType")));
+            if (jsonObject.getString("relatedCondType") != null)
+                exceptionInfo.setRelatedCondType(RelatedCondType.valueOf(jsonObject.getString("relatedCondType")));
             JSONArray sameClsObjs = jsonObject.getJSONArray("relatedMethodSameClass");
             for (Object obj : sameClsObjs) {
                 JSONObject sameClsObj = (JSONObject) obj;
@@ -1062,8 +1064,13 @@ public class CrashAnalysis extends Analyzer {
     private String getRankingString(CrashInfo crashInfo, int location) {
         int sizeAll = crashInfo.getBuggyCandidates().size();
         String size = "/\t"+ sizeAll;
-        return  crashInfo.getRealCate()+"\t" + crashInfo.getId()+"\t" + crashInfo.getMethodName()+"\t"
-                + relatedVarType +"\t" + location+"\t" +size+"\t" + PrintUtils.printList(crashInfo.getNoneCodeLabel())+"\n";
+        if(crashInfo.getExceptionInfo().getRelatedCondType() == RelatedCondType.Caught){
+            return crashInfo.getRealCate() + "\t" + crashInfo.getId() + "\t" + crashInfo.getMethodName() + "\t"
+                    + "CaughtException" + "\t" + location + "\t" + size + "\t" + PrintUtils.printList(crashInfo.getNoneCodeLabel()) + "\n";
+        }else {
+            return crashInfo.getRealCate() + "\t" + crashInfo.getId() + "\t" + crashInfo.getMethodName() + "\t"
+                    + relatedVarType + "\t" + location + "\t" + size + "\t" + PrintUtils.printList(crashInfo.getNoneCodeLabel()) + "\n";
+        }
     }
 
 }
