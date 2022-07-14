@@ -588,7 +588,7 @@ public class CrashAnalysis extends Analyzer {
         crashInfo.setEdges(new ArrayList<>());
         int size = 0;
         for (Edge edge : Global.v().getAppModel().getCg()) {
-            if (edge.getTgt().method().getSignature().equals(relatedMethod.getMethod())) {
+            if (edge.getTgt().method().getSignature().contains(relatedMethod.getMethod().split(":")[1])) {
                 size++;
             }
         }
@@ -597,7 +597,7 @@ public class CrashAnalysis extends Analyzer {
         }
         //filter the related methods with too many caller
         for (Edge edge : Global.v().getAppModel().getCg()) {
-            if (edge.getTgt().method().getSignature().equals(relatedMethod.getMethod())) {
+            if (edge.getTgt().method().getSignature().contains(relatedMethod.getMethod().split(":")[1])) {
                 SootMethod sourceMtd = edge.getSrc().method();
                 if (isLibraryMethod(sourceMtd.getDeclaringClass().getName()))
                     continue;

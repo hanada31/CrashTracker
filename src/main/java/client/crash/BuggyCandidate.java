@@ -1,32 +1,43 @@
 package main.java.client.crash;
 
+import main.java.utils.PrintUtils;
+
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class BuggyCandidate {
-    private final String candi;
-    private final String reason;
-    private  List trace = new ArrayList<String>();
+    private String candi;
+    private List<String> reasons = new ArrayList<>();
+    private List<List<String>> traces = new ArrayList<List<String>>();
     private final int score;
+    private Set<String> reasonTrace = new HashSet<String>();
 
-    public BuggyCandidate(String candi, int score, String reason, List trace){
+    public BuggyCandidate(String candi, int score){
         this.candi = candi;
         this.score = score;
-        this.reason = reason;
-        this.trace = trace;
     }
 
     public String getCandi() {
         return candi;
     }
 
-    public String getReason() {
-        return reason;
+    public List<String> getReason() {
+        return reasons;
     }
 
-    public List getTrace() {
-        return trace;
+    public void addReasonTrace(String reason, List<String> trace) {
+        if(reasonTrace.contains(reason+PrintUtils.printList(trace)))
+            return;
+        reasonTrace.add(reason+PrintUtils.printList(trace));
+        reasons.add(reason);
+        traces.add(trace);
     }
+    public List<List<String>> getTrace() {
+        return traces;
+    }
+
 
     public int getScore() {
         return score;

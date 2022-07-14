@@ -29,7 +29,7 @@ public class TestApkCrashAnalysisClient {
 //        path = "C:\\Users\\yanjw\\programs\\Empirical500";
 
         String name;
-        name = "com.tpvapps.simpledrumkit-139.apk";
+        name = "com.source.coach-282.apk";
 //
 //
         String client = "ApkCrashAnalysisClient";

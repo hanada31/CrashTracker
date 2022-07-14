@@ -33,7 +33,6 @@ public class ApkCrashAnalysisClient extends BaseClient {
         analyzer.analyze();
         System.out.println("Successfully analyze with CrashAnalysisClient.");
         //        PackManager.v().writeOutput();
-
     }
 
     @Override

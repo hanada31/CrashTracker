@@ -30,7 +30,11 @@ public class CgConstructor extends Analyzer {
 
 	public CgConstructor() {
 		super();
-		setupApplication = new SetupApplication(MyConfig.getInstance().getAndroidJar(), appModel.getAppPath());
+		try {
+			setupApplication = new SetupApplication(MyConfig.getInstance().getAndroidJar(), appModel.getAppPath());
+		}catch (Exception e){
+			e.printStackTrace();
+		}
 	}
 
 	@Override

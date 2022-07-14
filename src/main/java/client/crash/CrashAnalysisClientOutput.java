@@ -124,7 +124,10 @@ public class CrashAnalysisClientOutput {
         for (int i = 0; i < treeMapList.size(); i++) {
             String buggy = treeMapList.get(i).toString();
             BuggyCandidate bc = crashInfo.getBuggyCandidateObjs().get(treeMapList.get(i).getKey());
-            buggyArray.add(buggy +"    Reason: "+ bc.getReason() +"  @  " +bc.getTrace());
+            buggyArray.add(buggy);
+            for(int j=0 ; j<bc.getReason().size(); j++){
+                buggyArray.add("    Reason: "+ bc.getReason().get(j) +"  @  " +bc.getTrace().get(j));
+            }
         }
         jsonObject.put("locatedBuggyMethod" , buggyArray);
 

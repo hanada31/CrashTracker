@@ -86,11 +86,16 @@ public class CrashInfo {
             score = score - ConstantUtils.OUTOFPKGSCORE;
         }
         if(this.buggyCandidates.containsKey(candi) && this.buggyCandidates.get(candi) >= score)
-            return;
+            score = this.buggyCandidates.get(candi);
         if(score > ConstantUtils.BOTTOMSCORE) {
+            if(this.buggyCandidates.containsKey(candi)){
+                this.buggyCandidateObjs.get(candi).addReasonTrace(reason,trace);
+            }else {
+                BuggyCandidate candiObj = new BuggyCandidate(candi, score);
+                candiObj.addReasonTrace(reason,trace);
+                this.buggyCandidateObjs.put(candi, candiObj);
+            }
             this.buggyCandidates.put(candi, score);
-            BuggyCandidate candiObj = new BuggyCandidate(candi,score,reason,trace);
-            this.buggyCandidateObjs.put(candi, candiObj);
             if(score< minScore) minScore = score;
             if(score> maxScore) maxScore = score;
         }

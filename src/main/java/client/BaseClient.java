@@ -21,11 +21,12 @@ public abstract class BaseClient {
 			e.printStackTrace();
 		} catch (DocumentException e) {
 			e.printStackTrace();
-		}catch (RuntimeException e) {
-			e.printStackTrace();
-			System.err.println("The analysis is stopped, caused by "+ e.getMessage());
-			System.exit(0);
 		}
+//		catch (RuntimeException e) {
+//			e.printStackTrace();
+//			System.err.println("The analysis is stopped, caused by "+ e.getMessage());
+//			System.exit(0);
+//		}
 	}
 
 	protected abstract void clientAnalyze();

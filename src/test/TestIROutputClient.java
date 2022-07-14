@@ -25,9 +25,9 @@ public class TestIROutputClient {
         String path;
         path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
         path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
-//        path = "C:\\Users\\yanjw\\programs\\Empirical500";
+        path = "apk\\";
         String name;
-        name = "cgeo.geocaching-4524.apk";
+        name = "facebook-android-sdk-615.jar";
 
         String client = "IROutputClient";
 
