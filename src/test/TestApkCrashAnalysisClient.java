@@ -25,11 +25,11 @@ public class TestApkCrashAnalysisClient {
     private void setArgs() {
         String path;
         path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
-        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
+//        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 //        path = "C:\\Users\\yanjw\\programs\\Empirical500";
 
         String name;
-        name = "org.wordpress.android-2372.apk";
+        name = "com.tpvapps.simpledrumkit-139.apk";
 //
 //
         String client = "ApkCrashAnalysisClient";

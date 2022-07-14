@@ -389,15 +389,27 @@ public class CrashAnalysis extends Analyzer {
      */
     private void withParameterHandler(int score, CrashInfo crashInfo, boolean filterExtendCG) {
         int n = 0;
+        List<String> vars = new ArrayList<>();
         if(crashInfo.getExceptionInfo()!=null && crashInfo.getExceptionInfo().getRelatedVarType()!=null) {
-            n = getParameterTerminateMethod(score, crashInfo, filterExtendCG);
+            vars =crashInfo.getExceptionInfo().getRelatedParamValuesInStr();
+            n = getParameterTerminateMethod(score, crashInfo, filterExtendCG,vars);
+        }else{
+//            Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(crashInfo.getSignaler());
+//            for(SootMethod sm: methods) {
+//                if( sm.getParameterTypes().size()==1){
+//                    vars.add("@parameter0: "+sm.getParameterTypes().get(0));
+//                    n = getParameterTerminateMethod(score, crashInfo, filterExtendCG,vars);
+//                    break;
+//                }
+//            }
         }
+
         noParameterPassingMethodScore(score-n,crashInfo, filterExtendCG);
         int score2 = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
         withCrashAPIParaHandler(score2, crashInfo, false);
     }
 
-    private int getParameterTerminateMethod(int score, CrashInfo crashInfo, boolean filterExtendCG) {
+    private int getParameterTerminateMethod(int score, CrashInfo crashInfo, boolean filterExtendCG, List<String> vars) {
         int count =0;
         boolean find = false;
         for(String candi : crashInfo.getCrashMethodList()){
@@ -407,7 +419,7 @@ public class CrashAnalysis extends Analyzer {
                 boolean isParaPassed = false;
                 if (sm == null) break;
                 signature = sm.getSignature();
-                for (String paraTye : crashInfo.getExceptionInfo().getRelatedParamValuesInStr()) {
+                for (String paraTye :vars) {
                     if (signature.contains(paraTye)) {
                         isParaPassed = true;
                         break;

@@ -7,12 +7,10 @@ import main.java.model.component.*;
 import main.java.utils.ConstantUtils;
 import main.java.utils.SootUtils;
 import soot.jimple.infoflow.android.axml.AXmlNode;
-import soot.jimple.infoflow.android.manifest.IAndroidApplication;
 import soot.jimple.infoflow.android.manifest.IComponentContainer;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.android.manifest.binary.AbstractBinaryAndroidComponent;
 import soot.jimple.infoflow.android.manifest.binary.BinaryAndroidApplication;
-import soot.jimple.infoflow.android.manifest.binary.BinaryManifestService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +19,7 @@ import java.util.concurrent.*;
 /**
  * This class is used to parse a manifest XML file Extract all the exported
  * components (Activity, Service, and Receiver)
- * 
+ *
  * @author hanada
  *
  */
@@ -59,7 +57,7 @@ public class MainfestAnalyzer extends Analyzer {
 
 		parseComponent(manifestManager.getActivities(), "Activity");
 		parseComponent(manifestManager.getServices(), "Service");
-		parseComponent(manifestManager.getContentProviders(), "Provider");
+//		parseComponent(manifestManager.getContentProviders(), "Provider");
 		parseComponent(manifestManager.getBroadcastReceivers(), "Receiver");
 
 		mergeAllComponents();
@@ -188,7 +186,7 @@ public class MainfestAnalyzer extends Analyzer {
 
 	/**
 	 * getComponentMap for type
-	 * 
+	 *
 	 * @param type
 	 * @return
 	 */
@@ -208,7 +206,7 @@ public class MainfestAnalyzer extends Analyzer {
 
 	/**
 	 * getComponentModel for type
-	 * 
+	 *
 	 * @param type
 	 * @param componentName
 	 * @return
@@ -247,7 +245,7 @@ public class MainfestAnalyzer extends Analyzer {
 
 	/**
 	 * analcomponent each intent-filter
-	 * 
+	 *
 	 * @param componentModel
 	 * @param componentNode
 	 */
