@@ -1064,7 +1064,7 @@ public class CrashAnalysis extends Analyzer {
     private String getRankingString(CrashInfo crashInfo, int location) {
         int sizeAll = crashInfo.getBuggyCandidates().size();
         String size = "/\t"+ sizeAll;
-        if(crashInfo.getExceptionInfo().getRelatedCondType() == RelatedCondType.Caught){
+        if(crashInfo.getExceptionInfo()!=null && crashInfo.getExceptionInfo().getRelatedCondType() == RelatedCondType.Caught){
             return crashInfo.getRealCate() + "\t" + crashInfo.getId() + "\t" + crashInfo.getMethodName() + "\t"
                     + "CaughtException" + "\t" + location + "\t" + size + "\t" + PrintUtils.printList(crashInfo.getNoneCodeLabel()) + "\n";
         }else {
