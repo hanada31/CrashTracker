@@ -1,5 +1,6 @@
 package main.java.base;
 
+import main.java.utils.FileUtils;
 import soot.options.Options;
 
 /**
@@ -305,6 +306,7 @@ public class MyConfig {
 
 	public void setExceptionFilePath(String exceptionFilePath) {
 		ExceptionFilePath = exceptionFilePath;
+		FileUtils.createFile(ExceptionFilePath);
 	}
 
 	public String getAndroidCGFilePath() {
