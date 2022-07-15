@@ -5,6 +5,7 @@ import main.java.base.MyConfig;
 import main.java.client.BaseClient;
 import main.java.client.cg.cgJava.CallGraphofJavaClient;
 import main.java.client.soot.SootAnalyzer;
+import main.java.utils.ConstantUtils;
 import org.dom4j.DocumentException;
 
 import java.io.IOException;
@@ -28,6 +29,7 @@ public class ExceptionInfoClient extends BaseClient {
             sootAnalyzer.analyze();
         }
         if (!MyConfig.getInstance().isCallGraphAnalyzeFinish()) {
+            ConstantUtils.CGANALYSISPREFIX = ConstantUtils.FRAMEWORKPREFIX;
             new CallGraphofJavaClient().start();
             MyConfig.getInstance().setCallGraphAnalyzeFinish(true);
         }

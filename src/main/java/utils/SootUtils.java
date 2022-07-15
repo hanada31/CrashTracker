@@ -1428,18 +1428,25 @@ public class SootUtils {
 
 	public static List<SootClass> getSubClasses(SootMethod sm) {
 		List<SootClass> subClasses = new ArrayList<>();
-//		if (sm.getDeclaringClass().isInterface()) {
-//			subClasses = Scene.v().getActiveHierarchy().getImplementersOf(sm.getDeclaringClass());
-//			System.out.println(sm.getDeclaringClass());
-//		} else if (sm.isAbstract()) {
-//			subClasses = Scene.v().getActiveHierarchy().getSubclassesOf(sm.getDeclaringClass());
-//		}
+		if (!sm.isAbstract() && !sm.getDeclaringClass().isInterface()) {
+			subClasses = Scene.v().getActiveHierarchy().getSubclassesOf(sm.getDeclaringClass());
+		}
+		return subClasses;
+	}
+	public static List<SootClass> getSubclassesOfIncluding(SootMethod sm) {
+		List<SootClass> subClasses = new ArrayList<>();
 		if (!sm.isAbstract() && !sm.getDeclaringClass().isInterface()) {
 			subClasses = Scene.v().getActiveHierarchy().getSubclassesOfIncluding(sm.getDeclaringClass());
 		}
 		return subClasses;
 	}
-
+	public static List<SootClass> getSuperClasses(SootMethod sm) {
+		List<SootClass> superClasses = new ArrayList<>();
+		if (!sm.isAbstract() && !sm.getDeclaringClass().isInterface()) {
+			superClasses = Scene.v().getActiveHierarchy().getSuperclassesOf(sm.getDeclaringClass());
+		}
+		return superClasses;
+	}
 
 	public static Set<Integer> getIndexesFromMethod(Edge edge, Set<Integer> paramIndexCallee) {
 		SootMethod caller = edge.getSrc().method();

@@ -72,7 +72,8 @@ public class ConstantUtils {
     public static final int LARGECALLERSET = 10 ;
 
 
-    public static String PKGPREFIX = "android";
+    public static String CGANALYSISPREFIX = "android";
+    public static String FRAMEWORKPREFIX = "android";
 
 	public static final int MANIFESTTIMEOUT =2 ;
 

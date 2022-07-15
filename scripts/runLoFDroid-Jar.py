@@ -9,7 +9,7 @@ reRun = False
 filterList = list()
 
 
-def analyzeApk(apkPath, resPath, sdk, AndroidOSVersion, strategy):
+def analyzeJar(jarPath, resPath, sdk, AndroidOSVersion, strategy):
     logDir = resPath+"/logs"
     outputDir = resPath+"/output"
     if(not os.path.exists(logDir)): 
@@ -17,8 +17,8 @@ def analyzeApk(apkPath, resPath, sdk, AndroidOSVersion, strategy):
     if(not os.path.exists(outputDir)): 
         os.makedirs(outputDir) 
         
-    if(os.path.exists(apkPath)): 
-        apks = os.listdir(apkPath)
+    if(os.path.exists(jarPath)): 
+        jars = os.listdir(jarPath)
         
         extraArgs = "" 
         if AndroidOSVersion != "no": 
@@ -27,13 +27,13 @@ def analyzeApk(apkPath, resPath, sdk, AndroidOSVersion, strategy):
         
         pool = ThreadPoolExecutor(max_workers=8)
 
-        for apk in apks:
-            if len(filterList)>0  and apk  in filterList:
+        for jar in jars:
+            if len(filterList)>0  and jar  in filterList:
                 continue
-            if apk[-4:] ==".apk":
-                resFile = logDir+"/"+apk[:-4]+".txt"
+            if jar[-4:] ==".jar":
+                resFile = logDir+"/"+jar[:-4]+".txt"
                 if(reRun or not os.path.exists(resFile)): 
-                    command = "java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms  "+ extraArgs +" -client JarCrashAnalysisClient" +" -outputDir "+outputDir+" >> "+logDir+"/"+apk[:-4]+".txt"
+                    command = "java -jar "+jarFile+"  -path "+ jarPath +" -name "+jar+" -androidJar "+ sdk +"/platforms  "+ extraArgs +" -client JarCrashAnalysisClient" +" -outputDir "+outputDir+" >> "+logDir+"/"+jar[:-4]+".txt"
                     future1 = pool.submit(executeCmd, command)
         pool.shutdown()
 
@@ -46,14 +46,14 @@ def readFilterFile(filterFile):
     lines = f.readlines()
     f.close()
     for line in lines:
-        filterList.append(line.strip()+".apk")
+        filterList.append(line.strip()+".jar")
     
 if __name__ == '__main__' :
     sdk = "lib/"   
     sdk = "/home/yanjw/other/android-sdk-linux/"
     jarFile = "LoFDroid.jar"
     
-    apkPath = sys.argv[1]
+    jarPath = sys.argv[1]
     resPath = sys.argv[2]
     AndroidOSVersion = sys.argv[3]
     strategy = sys.argv[4] 
@@ -68,5 +68,5 @@ if __name__ == '__main__' :
     if len(sys.argv)>5:
         filterFile = sys.argv[5]    
         readFilterFile(filterFile)
-    analyzeApk(apkPath, resPath, sdk, AndroidOSVersion, strategy)
+    analyzeJar(jarPath, resPath, sdk, AndroidOSVersion, strategy)
     

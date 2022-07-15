@@ -160,15 +160,25 @@ public class ExceptionInfo {
     public void addRelatedMethodsInSameClassMap(RelatedMethod m) {
         if(!relatedMethodsInSameClassMap.containsKey(m.getDepth()))
             relatedMethodsInSameClassMap.put(m.getDepth(), new ArrayList<>());
-        if(!relatedMethods.contains(m.getMethod()))
+        if(!relatedMethods.contains(m.getMethod())) {
+            for(RelatedMethod temp : relatedMethodsInSameClassMap.get(m.getDepth())){
+                if(temp.toString().equals(m.toString()))
+                    return;
+            }
             relatedMethodsInSameClassMap.get(m.getDepth()).add(m);
+        }
     }
 
     public void addRelatedMethodsInDiffClassMap(RelatedMethod m) {
         if(!relatedMethodsInDiffClassMap.containsKey(m.getDepth()))
             relatedMethodsInDiffClassMap.put(m.getDepth(), new ArrayList<>());
-        if(!relatedMethods.contains(m.getMethod()))
+        if(!relatedMethods.contains(m.getMethod())){
+            for(RelatedMethod temp : relatedMethodsInDiffClassMap.get(m.getDepth())){
+                if(temp.toString().equals(m.toString()))
+                    return;
+            }
             relatedMethodsInDiffClassMap.get(m.getDepth()).add(m);
+        }
     }
 
     public List<RelatedMethod> getRelatedMethodsInSameClass(boolean compute) {

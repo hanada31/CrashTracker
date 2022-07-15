@@ -1,5 +1,7 @@
 package main.java.client.exception;
 
+import main.java.utils.PrintUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,6 +59,7 @@ public class RelatedMethod {
                 "method='" + method + '\'' +
                 ", source=" + source +
                 ", depth=" + depth +
+                ",trace=" + PrintUtils.printList(trace) +
                 '}';
     }
 

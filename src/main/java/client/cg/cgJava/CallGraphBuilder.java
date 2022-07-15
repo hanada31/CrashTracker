@@ -32,8 +32,8 @@ public class CallGraphBuilder {
 		Iterator<Edge> it = cg.iterator();
 		while(it.hasNext()){
 			Edge e = it.next();
-			if(!e.getSrc().method().getDeclaringClass().getPackageName().startsWith(ConstantUtils.PKGPREFIX) ||
-					!e.getTgt().method().getDeclaringClass().getPackageName().startsWith(ConstantUtils.PKGPREFIX)){
+			if(!e.getSrc().method().getDeclaringClass().getPackageName().startsWith(ConstantUtils.CGANALYSISPREFIX) ||
+					!e.getTgt().method().getDeclaringClass().getPackageName().startsWith(ConstantUtils.CGANALYSISPREFIX)){
 				res.add(e);
 			}
 		}
@@ -48,7 +48,7 @@ public class CallGraphBuilder {
 
 	private static void addEdgesByOurAnalyze(CallGraph callGraph) {
 		for (SootClass sc : Scene.v().getApplicationClasses()) {
-			if(!sc.getPackageName().startsWith(ConstantUtils.PKGPREFIX)) continue;
+			if(!sc.getPackageName().startsWith(ConstantUtils.CGANALYSISPREFIX)) continue;
 			ArrayList<SootMethod> methodList = new ArrayList<SootMethod>(sc.getMethods());
 			for (SootMethod sm : methodList) {
 				if (SootUtils.hasSootActiveBody(sm) == false)
@@ -62,7 +62,7 @@ public class CallGraphBuilder {
 					if (invoke != null) { // u is invoke stmt
 						Set<SootMethod> targetSet = SootUtils.getInvokedMethodSet(sm, u);
 						for (SootMethod target : targetSet) {
-							if(!target.getDeclaringClass().getPackageName().startsWith(ConstantUtils.PKGPREFIX)) continue;
+							if(!target.getDeclaringClass().getPackageName().startsWith(ConstantUtils.CGANALYSISPREFIX)) continue;
 							Edge e = new Edge(sm, (Stmt) u, target);
 							callGraph.addEdge(e);
 						}

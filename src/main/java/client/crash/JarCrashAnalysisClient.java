@@ -21,12 +21,12 @@ import java.io.IOException;
 public class JarCrashAnalysisClient extends BaseClient {
     @Override
     protected void clientAnalyze() {
-        ConstantUtils.PKGPREFIX = "";
         if (!MyConfig.getInstance().isSootAnalyzeFinish()) {
             SootAnalyzer sootAnalyzer = new SootAnalyzer();
             sootAnalyzer.analyze();
         }
         if (!MyConfig.getInstance().isCallGraphAnalyzeFinish()) {
+            ConstantUtils.CGANALYSISPREFIX = Global.v().getAppModel().getPackageName();
             new CallGraphofJavaClient().start();
             MyConfig.getInstance().setCallGraphAnalyzeFinish(true);
         }
