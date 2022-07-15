@@ -1,6 +1,6 @@
-python scripts/runLoFDroid-Apk.py  ../../apk/FanDataICSE2018-before/ Data-07014-baseline "no" "no"
-python scripts/runLoFDroid-Jar.py  ../../apk/android-sdk-project/ Data-07014-baseline "no" "no" 
-python scripts/runLoFDroid-Apk.py  ../../apk/Empirical500/ Data-07014-baseline "no" "no" 
+python scripts/runLoFDroid-Apk.py  ../../apk/FanDataICSE2018-before/ Data-07015-baseline "no" "no"
+python scripts/runLoFDroid-Apk.py  ../../apk/Empirical500/ Data-07015-baseline "no" "no" 
+python scripts/runLoFDroid-Jar.py  ../../apk/android-sdk-project/ Data-07015-baseline "no" "no" 
 
 
 #python scripts/runLoFDroid-Apk.py  ../../apk/FanDataICSE2018-before/ Data-fan-0705-NoRV "no" "NoRVType" #Files/FilterAPK.txt

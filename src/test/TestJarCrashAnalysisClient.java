@@ -27,7 +27,7 @@ public class TestJarCrashAnalysisClient {
         String path;
         path = "apk\\";
         String name;
-        name = "com.google.maps-768.jar";
+        name = "facebook-android-sdk-894.jar";
 
         String client = "JarCrashAnalysisClient";
 
@@ -41,12 +41,10 @@ public class TestJarCrashAnalysisClient {
         MyConfig.getInstance().setResultFolder(MyConfig.getInstance().getResultWarpperFolder()+ "output" + File.separator);
         MyConfig.getInstance().setTimeLimit(10);
         MyConfig.getInstance().setAndroidJar("E:\\AndroidSDK\\android-sdk-windows-new\\platforms");
-        MyConfig.getInstance().setSrc_prec(Options.src_prec_apk);
-        MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfoJar.json");
+        MyConfig.getInstance().setSrc_prec(Options.src_prec_only_class);
+        MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfo.json");
         MyConfig.getInstance().setStrategy("");
-//        MyConfig.getInstance().setAndroidOSVersion("2.3");
-
-        ConstantUtils.PKGPREFIX = "";
+        MyConfig.getInstance().setAndroidOSVersion("2.3");
     }
 
 }

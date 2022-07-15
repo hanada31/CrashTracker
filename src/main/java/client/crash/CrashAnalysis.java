@@ -588,8 +588,12 @@ public class CrashAnalysis extends Analyzer {
         crashInfo.setEdges(new ArrayList<>());
         int size = 0;
         for (Edge edge : Global.v().getAppModel().getCg()) {
-            if (edge.getTgt().method().getSignature().contains(relatedMethod.getMethod().split(":")[1])) {
-                size++;
+            String sig = edge.getTgt().method().getSignature();
+            if (sig.equals(relatedMethod.getMethod())) {
+                    if(!sig.equals(relatedMethod.getMethod())){
+                        System.err.println(sig);
+                    size++;
+                }
             }
         }
         if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoRelatedMethodFilter)){
@@ -597,7 +601,9 @@ public class CrashAnalysis extends Analyzer {
         }
         //filter the related methods with too many caller
         for (Edge edge : Global.v().getAppModel().getCg()) {
-            if (edge.getTgt().method().getSignature().contains(relatedMethod.getMethod().split(":")[1])) {
+            //to do!!!
+            String sig = edge.getTgt().method().getSignature();
+            if (sig.equals(relatedMethod.getMethod())){
                 SootMethod sourceMtd = edge.getSrc().method();
                 if (isLibraryMethod(sourceMtd.getDeclaringClass().getName()))
                     continue;
@@ -942,14 +948,15 @@ public class CrashAnalysis extends Analyzer {
             JSONObject jsonObject = (JSONObject) o;
             CrashInfo crashInfo = new CrashInfo();
             crashInfo.setIdentifier(jsonObject.getString("identifier"));
-            if(jsonObject.getString("package")!=null){
-                Global.v().getAppModel().setPackageName(jsonObject.getString("package"));
-            }
             crashInfo.setId(jsonObject.getString("id"));
-            if (Global.v().getAppModel().getPackageName().length() == 0 && Global.v().getAppModel().getAppName().contains(crashInfo.getIdentifier()))
-                Global.v().getAppModel().setPackageName(crashInfo.getIdentifier());
             if (Global.v().getAppModel().getAppName().equals(crashInfo.getIdentifier() + "-" + crashInfo.getId())) {
                 crashInfoList.add(crashInfo);
+                if(jsonObject.getString("package")!=null){
+                    Global.v().getAppModel().setPackageName(jsonObject.getString("package"));
+                }
+                if (Global.v().getAppModel().getPackageName().length() == 0 && Global.v().getAppModel().getAppName().contains(crashInfo.getIdentifier())) {
+                    Global.v().getAppModel().setPackageName(crashInfo.getIdentifier());
+                }
                 crashInfo.setReal(jsonObject.getString("real"));
                 crashInfo.setException(jsonObject.getString("exception"));
                 crashInfo.setTrace(jsonObject.getString("trace"));
