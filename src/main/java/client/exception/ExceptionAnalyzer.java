@@ -428,8 +428,15 @@ public class ExceptionAnalyzer extends Analyzer {
                                            RelatedMethodSource mtdSource, Set<Integer> paramIndexCallee, List<String> trace) {
         if (callerHistory.contains(sootMethod) || depth > ConstantUtils.CALLDEPTH) return;
         callerHistory.add(sootMethod);
+        int size = 0;
+        for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesInto(sootMethod); it.hasNext(); ) {
+            it.next();
+            size++;
+        }
+//        System.out.println(size +"   "+sootMethod.getSignature());
         for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesInto(sootMethod); it.hasNext(); ) {
             Edge edge = it.next();
+            boolean flag = false;
             SootMethod edgeSourceMtd = edge.getSrc().method();
             Set<Integer> paramIndexCaller = new HashSet<>();
             if (mtdSource == RelatedMethodSource.CALLER) {
@@ -441,7 +448,6 @@ public class ExceptionAnalyzer extends Analyzer {
             targetClasses.addAll(SootUtils.getSuperClasses(edgeSourceMtd));//android.app.ContextImpl && android.app.Context
             targetClasses.add(edgeSourceMtd.getDeclaringClass());
             for (SootClass sootClass : targetClasses) {
-                boolean flag = false;
                 String pkg1 = sootClass.getPackageName();
                 String pkg2 = exceptionInfo.getSootMethod().getDeclaringClass().getPackageName();
                 if (StringUtils.getPkgPrefix(pkg1, 2).equals(StringUtils.getPkgPrefix(pkg2, 2))
@@ -455,14 +461,13 @@ public class ExceptionAnalyzer extends Analyzer {
                             SootClass interfaceSC = it2.next();
                             for (SootMethod interfaceSM : interfaceSC.getMethods()) {
                                 addRelatedMethodWithInfo(trace, interfaceSM.getSignature(), mtdSource, depth, edgeSourceMtd, exceptionInfo);
-                                flag = true;
                             }
                         }
-
+                        flag = true;
                     } else if (SootUtils.getSuperClasses(edgeSourceMtd).contains(sootClass)) {
                         String signature = edgeSourceMtd.getSignature().replace(edgeSourceMtd.getDeclaringClass().getName(), sootClass.getName());
                         SootMethod sm = SootUtils.getSootMethodBySignature(signature);
-                        if (sm != null) {
+                        if (sm != null && sm.isAbstract()) {
                             addRelatedMethodWithInfo(trace, signature, mtdSource, depth, edgeSourceMtd, exceptionInfo);
                             flag = true;
                         }
@@ -474,12 +479,12 @@ public class ExceptionAnalyzer extends Analyzer {
                             flag = true;
                         }
                     }
-                    if(flag) {
-                        List<String> newTrace = new ArrayList<>(trace);
-                        newTrace.add(0, edgeSourceMtd.getSignature());
-                        getExceptionCallerByParam(edgeSourceMtd, exceptionInfo, callerHistory, depth + 1, mtdSource, paramIndexCaller, newTrace);
-                    }
                 }
+            }
+            if(flag && size <= ConstantUtils.LARGECALLERSET) {
+                List<String> newTrace = new ArrayList<>(trace);
+                newTrace.add(0, edgeSourceMtd.getSignature());
+                getExceptionCallerByParam(edgeSourceMtd, exceptionInfo, callerHistory, depth+1, mtdSource, paramIndexCaller, newTrace);
             }
         }
     }
