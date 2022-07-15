@@ -306,7 +306,7 @@ public class MyConfig {
 
 	public void setExceptionFilePath(String exceptionFilePath) {
 		ExceptionFilePath = exceptionFilePath;
-		FileUtils.createFile(ExceptionFilePath);
+		FileUtils.createFolder(ExceptionFilePath);
 	}
 
 	public String getAndroidCGFilePath() {

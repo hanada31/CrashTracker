@@ -57,7 +57,7 @@ public class ExceptionInfoCount {
      * @return
      */
     private String getExceptionWithGivenVersion(String version) {
-        MyConfig.getInstance().setExceptionFilePath("Files\\android" + version + "\\exceptionInfo\\");
+        MyConfig.getInstance().setExceptionFilePath("Files"+File.separator+"android" + version +File.separator+ "exceptionInfo" +File.separator);
         String fn = MyConfig.getInstance().getExceptionFilePath() + "summary" + File.separator + "exception.json";
         String jsonString = FileUtils.readJsonFile(fn);
         JSONObject wrapperObject = (JSONObject) JSONObject.parse(jsonString);

@@ -57,7 +57,7 @@ public class ExceptionMather {
         if(version2JsonStr.containsKey(version)){
             wrapperObject = version2JsonStr.get(version);
         }else {
-            MyConfig.getInstance().setExceptionFilePath("Files\\android" + version + "\\exceptionInfo\\");
+            MyConfig.getInstance().setExceptionFilePath("Files"+File.separator +"android" + version  +File.separator+ "exceptionInfo" +File.separator);
             String fn = MyConfig.getInstance().getExceptionFilePath() + "summary" + File.separator + "exception.json";
             jsonString = FileUtils.readJsonFile(fn);
             wrapperObject = (JSONObject) JSONObject.parse(jsonString);
