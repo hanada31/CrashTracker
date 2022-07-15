@@ -6,6 +6,7 @@ import main.java.base.MyConfig;
 import main.java.client.BaseClient;
 import main.java.client.cg.cgJava.CallGraphofJavaClient;
 import main.java.client.soot.SootAnalyzer;
+import main.java.utils.ConstantUtils;
 import main.java.utils.FileUtils;
 import org.dom4j.DocumentException;
 
@@ -20,6 +21,7 @@ import java.io.IOException;
 public class JarCrashAnalysisClient extends BaseClient {
     @Override
     protected void clientAnalyze() {
+        ConstantUtils.PKGPREFIX = "";
         if (!MyConfig.getInstance().isSootAnalyzeFinish()) {
             SootAnalyzer sootAnalyzer = new SootAnalyzer();
             sootAnalyzer.analyze();
