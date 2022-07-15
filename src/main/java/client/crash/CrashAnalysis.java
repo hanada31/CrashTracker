@@ -527,6 +527,9 @@ public class CrashAnalysis extends Analyzer {
      * @param filterExtendCG
      */
     private void addCalleesOfSourceOfEdge(int initScore, CrashInfo crashInfo, SootMethod sootMethod, int depth, boolean filterExtendCG, List<String> trace ) {
+//        System.out.println(sootMethod.getSignature() +"  "+ sootMethod.getReturnType());
+//        if(sootMethod.getReturnType() instanceof VoidType && sootMethod.getParameterCount()==0)
+//            return;
         String candi = sootMethod.getDeclaringClass().getName()+ "." + sootMethod.getName();
         if(isLibraryMethod(candi)) return;
         int score = initScore - getOrderInTrace(crashInfo, candi)  - depth;
@@ -539,8 +542,7 @@ public class CrashAnalysis extends Analyzer {
                 crashInfo.add2EdgeMap(depth,edge2);
                 List<String> newTrace = new ArrayList<>(trace);
                 newTrace.add(edge2.getTgt().method().getSignature());
-                if(!edge2.getTgt().method().getReturnType().equals("void"))
-                    addCalleesOfSourceOfEdge(initScore, crashInfo, edge2.getTgt().method(), depth+1, filterExtendCG, newTrace);
+                addCalleesOfSourceOfEdge(initScore, crashInfo, edge2.getTgt().method(), depth+1, filterExtendCG, newTrace);
             }
         }
     }

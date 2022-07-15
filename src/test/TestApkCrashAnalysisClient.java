@@ -33,8 +33,9 @@ public class TestApkCrashAnalysisClient {
         name = "com.jxl.note-497.apk";
         name = "com.dong.profile-7.apk";
 //        name = "org.kontalk-795.apk";
-//
-//
+        name = "com.azeus.anywherepad-110.apk";
+
+
         String client = "ApkCrashAnalysisClient";
 
         MyConfig.getInstance().setAppName(name);
@@ -50,7 +51,7 @@ public class TestApkCrashAnalysisClient {
         MyConfig.getInstance().setSrc_prec(Options.src_prec_apk);
         MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfo.json");
         MyConfig.getInstance().setStrategy("NoRelatedMethodFilter");
-        MyConfig.getInstance().setAndroidOSVersion("12.0");
+        MyConfig.getInstance().setAndroidOSVersion("9.0");
 
     }
 
