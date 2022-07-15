@@ -29,10 +29,10 @@ public class TestApkCrashAnalysisClient {
 //        path = "C:\\Users\\yanjw\\programs\\Empirical500";
 
         String name;
-        name = "cgeo.geocaching-4450.apk";
-        name = "com.avpig.exam-245.apk";
-        name = "com.masslight.nrmp-235.apk";
-        name = "com.justnote-78.apk";
+        name = "org.y20k.transistor-21.apk";
+        name = "com.jxl.note-497.apk";
+        name = "com.dong.profile-7.apk";
+//        name = "org.kontalk-795.apk";
 //
 //
         String client = "ApkCrashAnalysisClient";
@@ -50,7 +50,7 @@ public class TestApkCrashAnalysisClient {
         MyConfig.getInstance().setSrc_prec(Options.src_prec_apk);
         MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfo.json");
         MyConfig.getInstance().setStrategy("NoRelatedMethodFilter");
-        MyConfig.getInstance().setAndroidOSVersion("2.3");
+        MyConfig.getInstance().setAndroidOSVersion("12.0");
 
     }
 

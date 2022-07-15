@@ -96,7 +96,9 @@ public class CrashAnalysis extends Analyzer {
     }
 
     private void addCrashTraces(int initscore, CrashInfo crashInfo, boolean filterExtendCG) {
+        int l = 0;
         for(String candi: crashInfo.getCrashMethodList()){
+            if(l++>5) return;
             List<String> trace = new ArrayList<>();
             trace.add(candi);
             crashInfo.addBuggyCandidates(candi,initscore--,filterExtendCG, "crash_trace_method", trace);
@@ -501,7 +503,7 @@ public class CrashAnalysis extends Analyzer {
         for(String callee: androidCGMap.get(candi)){
             if(callee.contains(candiClassName)) {
                 String realCallee = callee.replace(candiClassName, sub);
-                Set <SootMethod > methods = SootUtils.getSootMethodBySimpleName(realCallee);
+                Set <SootMethod> methods = SootUtils.getSootMethodBySimpleName(realCallee);
                 for (SootMethod realSootMethod : methods) {
                     if (realSootMethod != null) {
                         List<String> newTrace = new ArrayList<>(trace);
@@ -537,7 +539,8 @@ public class CrashAnalysis extends Analyzer {
                 crashInfo.add2EdgeMap(depth,edge2);
                 List<String> newTrace = new ArrayList<>(trace);
                 newTrace.add(edge2.getTgt().method().getSignature());
-                addCalleesOfSourceOfEdge(initScore, crashInfo, edge2.getTgt().method(), depth+1, filterExtendCG, newTrace);
+                if(!edge2.getTgt().method().getReturnType().equals("void"))
+                    addCalleesOfSourceOfEdge(initScore, crashInfo, edge2.getTgt().method(), depth+1, filterExtendCG, newTrace);
             }
         }
     }

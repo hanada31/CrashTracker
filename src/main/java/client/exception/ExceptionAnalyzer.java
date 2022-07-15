@@ -168,12 +168,14 @@ public class ExceptionAnalyzer extends Analyzer {
                 Value throwValue = arg;
                 if (throwValue instanceof Local) {
                     List<Unit> defsOfOps = SootUtils.getDefOfLocal(sootMethod.getSignature(),throwValue, unit);
-                    Unit defOfLocal = defsOfOps.get(0);
-                    if(((AbstractDefinitionStmt)defOfLocal).getRightOp() instanceof  JNewExpr){
-                        addThrowPoint(method2unit2Value, sootMethod, unit, throwValue);
-    //                    method2unit2Value.putAll(getThrowUnitWithValue(invoke.getMethod(), history));
-                        nonThrowUnits.add("parameter (rethrow or log)\t" + invoke.getMethod().getSignature());
-                        find = true;
+                    if(defsOfOps.size()>0) {
+                        Unit defOfLocal = defsOfOps.get(0);
+                        if (((AbstractDefinitionStmt) defOfLocal).getRightOp() instanceof JNewExpr) {
+                            addThrowPoint(method2unit2Value, sootMethod, unit, throwValue);
+                            //                    method2unit2Value.putAll(getThrowUnitWithValue(invoke.getMethod(), history));
+                            nonThrowUnits.add("parameter (rethrow or log)\t" + invoke.getMethod().getSignature());
+                            find = true;
+                        }
                     }
                 }
             }
@@ -481,7 +483,7 @@ public class ExceptionAnalyzer extends Analyzer {
                     }
                 }
             }
-            if(flag && size <= ConstantUtils.LARGECALLERSET) {
+            if(flag && size <= ConstantUtils.LARGECALLERSET)  {
                 List<String> newTrace = new ArrayList<>(trace);
                 newTrace.add(0, edgeSourceMtd.getSignature());
                 getExceptionCallerByParam(edgeSourceMtd, exceptionInfo, callerHistory, depth+1, mtdSource, paramIndexCaller, newTrace);
