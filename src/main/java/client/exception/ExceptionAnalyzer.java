@@ -488,9 +488,14 @@ public class ExceptionAnalyzer extends Analyzer {
                                            RelatedMethodSource mtdSource, Set<Integer> paramIndexCallee, List<String> trace) {
         if(callerHistory.contains(sootMethod) || depth >ConstantUtils.CALLDEPTH)  return;
         callerHistory.add(sootMethod);
+        Set<String> history = new HashSet<>();
         for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesInto(sootMethod); it.hasNext(); ) {
             Edge edge = it.next();
             SootMethod edgeSourceMtd = edge.getSrc().method();
+            if(history.contains(edgeSourceMtd.getSignature())){
+                continue;
+            }
+            history.add(edgeSourceMtd.getSignature());
             Set<Integer> paramIndexCaller = new HashSet<>();
             if(mtdSource == RelatedMethodSource.CALLER){
                 paramIndexCaller = SootUtils.getIndexesFromMethod(edge, paramIndexCallee);
@@ -499,9 +504,9 @@ public class ExceptionAnalyzer extends Analyzer {
             boolean flag = false;
             Set<SootClass> targetClasses = new HashSet<>();
             targetClasses.add(edgeSourceMtd.getDeclaringClass());
-            List<SootClass> subs = SootUtils.getSubclassesWithoutMethod(edgeSourceMtd.getDeclaringClass(),edgeSourceMtd);
+//          List<SootClass> subs = SootUtils.getSubclassesWithoutMethod(edgeSourceMtd.getDeclaringClass(),edgeSourceMtd);
+//          targetClasses.addAll(subs);//android.app.ContextImpl && android.app.Context
             List<SootClass> supers = SootUtils.getSuperClassesWithAbstract(edgeSourceMtd);
-            targetClasses.addAll(subs);//android.app.ContextImpl && android.app.Context
             targetClasses.addAll(supers);//android.app.ContextImpl && android.app.Context
             for (SootClass sootClass : targetClasses) {
                 String signature = edgeSourceMtd.getSignature().replace(edgeSourceMtd.getDeclaringClass().getName(), sootClass.getName());
@@ -518,11 +523,10 @@ public class ExceptionAnalyzer extends Analyzer {
                         addRelatedMethodWithInfo(trace, signature, mtdSource, depth, edgeSourceMtd, exceptionInfo);
                         flag = true;
                     }
-                    else if (subs.contains(sootClass)) {
-                        addRelatedMethodWithInfo(trace, signature, mtdSource, depth, edgeSourceMtd, exceptionInfo);
-                        flag = true;
-
-                    }
+//                    else if (subs.contains(sootClass)) {
+//                        addRelatedMethodWithInfo(trace, signature, mtdSource, depth, edgeSourceMtd, exceptionInfo);
+//                        flag = true;
+//                    }
                     if(sm!=null) {
                         Iterator<SootClass> it2 = sm.getDeclaringClass().getInterfaces().iterator();
                         while (it2.hasNext()) {

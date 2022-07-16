@@ -44,7 +44,7 @@ public class TestJarCrashAnalysisClient {
         MyConfig.getInstance().setSrc_prec(Options.src_prec_only_class);
         MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfo.json");
         MyConfig.getInstance().setStrategy("");
-        MyConfig.getInstance().setAndroidOSVersion("2.3");
+        MyConfig.getInstance().setAndroidOSVersion("6.0");
     }
 
 }
