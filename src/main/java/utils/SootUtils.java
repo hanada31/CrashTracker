@@ -1433,17 +1433,31 @@ public class SootUtils {
 		}
 		return subClasses;
 	}
-	public static List<SootClass> getSubclassesOfIncluding(SootMethod sm) {
+
+	public static List<SootClass> getSubclassesWithoutMethod(SootClass sc, SootMethod sm) {
 		List<SootClass> subClasses = new ArrayList<>();
-		if (!sm.isAbstract() && !sm.getDeclaringClass().isInterface()) {
-			subClasses = Scene.v().getActiveHierarchy().getSubclassesOfIncluding(sm.getDeclaringClass());
+		if (sm.isAbstract() || sm.getDeclaringClass().isInterface()) return subClasses;
+		for (SootClass sub : Scene.v().getActiveHierarchy().getDirectSubclassesOf(sc)) {
+			String signature = sm.getSignature().replace(sm.getDeclaringClass().getName(), sub.getName());
+			SootMethod subMethod = SootUtils.getSootMethodBySignature(signature);
+			if (subMethod == null) {
+				subClasses.add(sub);
+				subClasses.addAll(getSubclassesWithoutMethod(sub, sm));
+			}
 		}
 		return subClasses;
 	}
-	public static List<SootClass> getSuperClasses(SootMethod sm) {
+
+		public static List<SootClass> getSuperClassesWithAbstract(SootMethod sm) {
 		List<SootClass> superClasses = new ArrayList<>();
 		if (!sm.isAbstract() && !sm.getDeclaringClass().isInterface()) {
-			superClasses = Scene.v().getActiveHierarchy().getSuperclassesOf(sm.getDeclaringClass());
+			for (SootClass superCls : Scene.v().getActiveHierarchy().getSuperclassesOf(sm.getDeclaringClass())) {
+				String signature = sm.getSignature().replace(sm.getDeclaringClass().getName(), superCls.getName());
+				SootMethod superMethod = SootUtils.getSootMethodBySignature(signature);
+				if (superMethod != null && superMethod.isAbstract()) {
+					superClasses.add(superCls);
+				}
+			}
 		}
 		return superClasses;
 	}

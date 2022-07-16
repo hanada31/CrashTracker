@@ -24,7 +24,7 @@ public class TestExceptionInfoClient {
         String path, name;
         path = "C:\\Users\\yanjw\\programs\\framework\\classes\\";
         path = "D:\\SoftwareData\\dataset\\android-framework\\classes\\";
-        MyConfig.getInstance().setAndroidOSVersion("2.3");
+        MyConfig.getInstance().setAndroidOSVersion("6.0");
 
         String client = "ExceptionInfoClient";
 //        client = "IROutputClient";
