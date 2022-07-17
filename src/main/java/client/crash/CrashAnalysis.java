@@ -561,8 +561,9 @@ public class CrashAnalysis extends Analyzer {
         trace.add(0,sootMethod.getSignature());
         int score = initScore - getOrderInTrace(crashInfo, candi) - method.getDepth() - depth;
         if(crashInfo.getTrace().contains(candi)) score += ConstantUtils.METHODINTACE;
-        crashInfo.addBuggyCandidates(candi, score, filterExtendedCG,"related_method_caller", trace);
-
+//        if(currentClassContainCandi(sootMethod, crashInfo))
+        if(currentMethodContainCandi(sootMethod, crashInfo))
+            crashInfo.addBuggyCandidates(candi, score, filterExtendedCG,"related_method_caller", trace);
         //if the buggy type is not passed by parameter, do not find its caller
         Set<Integer> paramIndexCaller = SootUtils.getIndexesFromMethod(edge, crashInfo.exceptionInfo.getRelatedValueIndex());
         if(paramIndexCaller.size() == 0) return;
@@ -584,6 +585,35 @@ public class CrashAnalysis extends Analyzer {
         }
     }
 
+    private boolean currentClassContainCandi(SootMethod sootMethod, CrashInfo crashInfo) {
+        if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoRelatedMethodFilter)){
+            return true;
+        }
+        for(SootMethod crashMethod: getCrashSootMethod(crashInfo)){
+            if(crashMethod.getDeclaringClass().getFields().toString().contains(sootMethod.getDeclaringClass().getName())){
+                return true;
+            }
+            for(SootMethod other : crashMethod.getDeclaringClass().getMethods()){
+                if(other.getActiveBody().toString().contains(sootMethod.getDeclaringClass().getName().split("\\$")[0])){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    private boolean currentMethodContainCandi(SootMethod sootMethod, CrashInfo crashInfo) {
+        if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoRelatedMethodFilter)){
+            return true;
+        }
+        for(String method: crashInfo.getCrashMethodList()) {
+            for (SootMethod crashMethod : SootUtils.getSootMethodBySimpleName(method)) {
+                if (crashMethod.getActiveBody().toString().contains(sootMethod.getDeclaringClass().getName().split("\\$")[0])) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     /**
      * getBuggyFromRelatedMethods
      * @param crashInfo
