@@ -31,6 +31,10 @@ public class CrashInfoCounter {
         for(CrashInfo crashInfo: crashInfoList) {
             String str= crashInfo.getId()+"\t"+ crashInfo.getTrace().size()+"\t" +crashInfo.getCrashMethodList().size();
             FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"crashLength.txt", str+"\n", true);
+//            if(crashInfo.getNoneCodeLabel().get(0)!=null) {
+                str = crashInfo.getRealCate() + "\t" + crashInfo.getId() + "\t" + crashInfo.getNoneCodeLabel().get(0);
+                FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() + "C-tag.txt", str + "\n", true);
+//            }
         }
     }
 
@@ -53,6 +57,7 @@ public class CrashInfoCounter {
             crashInfo.setBuggyApi(jsonObject.getString("buggyApi"));
             crashInfo.setMsg(jsonObject.getString("msg").trim());
             crashInfo.setRealCate(jsonObject.getString("realCate"));
+            crashInfo.addNoneCodeLabel(jsonObject.getString("tag"));
             crashInfo.setCategory(jsonObject.getString("category"));
             if(jsonObject.getString("fileName")!=null)
                 crashInfo.setId(jsonObject.getString("fileName"));
