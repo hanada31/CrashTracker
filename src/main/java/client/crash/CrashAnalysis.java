@@ -60,6 +60,7 @@ public class CrashAnalysis extends Analyzer {
             ExceptionInfo exceptionInfo = crashInfo.getExceptionInfo();
             checkIsNoAppRelatedHandler(crashInfo);
             getExtendedCallTrace(crashInfo);
+//            System.out.println(PrintUtils.printMap(crashInfo.getExtendedCallDepth()));
             if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoRVType) ){
                 exceptionInfo = null;
             }
@@ -125,6 +126,36 @@ public class CrashAnalysis extends Analyzer {
                 addPredCallersOfMethodsInStack(last,sm,crashInfo);
             }
         }
+        String firstAppMethod = crashInfo.getCrashMethodList().get(crashInfo.getCrashMethodList().size()-1);
+        Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(firstAppMethod);
+        for(SootMethod sm: methods) {
+            addCallersOfCrashMethod(sm, crashInfo, 2);
+        }
+    }
+
+    private void addEntryMethods2ExtendedCG(SootMethod sm, CrashInfo crashInfo) {
+        if(!sm.hasActiveBody())return;
+        for(SootMethod entry: sm.getDeclaringClass().getMethods()) {
+            if(appModel.getEntryMethods().contains(entry) || entry.getName().startsWith("on")){
+                String callee = entry.getDeclaringClass().getName()+ "." + entry.getName();
+                if(crashInfo.addExtendedCallDepth(callee, 2)) {
+                    addAllCallee2ExtendedCG(entry, crashInfo, 3);
+                }
+            }
+        }
+    }
+
+    private void addCallersOfCrashMethod(SootMethod sm, CrashInfo crashInfo, int depth) {
+        if(depth> ConstantUtils.EXTENDCGDEPTH) return;
+        for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesInto(sm); it.hasNext(); ) {
+            Edge edge = it.next();
+            String caller = edge.getTgt().method().getDeclaringClass().getName() + "." + edge.getSrc().method().getName();
+            if (crashInfo.addExtendedCallDepth(caller, depth)) {
+                addAllCallee2ExtendedCG(edge.getSrc().method(), crashInfo, depth + 1);
+                addCallersOfCrashMethod(sm, crashInfo, depth+1);
+            }
+        }
+
     }
 
     private void addPredCallersOfMethodsInStack(String last, SootMethod sm, CrashInfo crashInfo) {
@@ -140,17 +171,6 @@ public class CrashAnalysis extends Analyzer {
         }
     }
 
-    private void addEntryMethods2ExtendedCG(SootMethod sm, CrashInfo crashInfo) {
-        if(!sm.hasActiveBody())return;
-        for(SootMethod entry: sm.getDeclaringClass().getMethods()) {
-            if(appModel.getEntryMethods().contains(entry) || entry.getName().startsWith("on")){
-                String callee = entry.getDeclaringClass().getName()+ "." + entry.getName();
-                if(crashInfo.addExtendedCallDepth(callee, 2)) {
-                    addAllCallee2ExtendedCG(entry, crashInfo, 3);
-                }
-            }
-        }
-    }
 
     /**
      * add all preds unit of u

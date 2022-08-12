@@ -21913,10 +21913,10 @@
   "id": "4450",
   "year": "2014-10-31T11:52:20Z",
   "buggyApi": "android.database.sqlite.SQLiteStatement.close",
-  "real": "cgeo.geocaching.DataStore$PreparedStatements.clearPreparedStatements",
+  "real": "cgeo.geocaching.DataStore$PreparedStatement.clearPreparedStatements",
   "trace": [
    "android.database.sqlite.SQLiteClosable.acquireReference",
-   "android.database.sqlite.SQLiteStatements.simpleQueryForLong",
+   "android.database.sqlite.SQLiteStatement.simpleQueryForLong",
    "cgeo.geocaching.DataStore$PreparedStatement.simpleQueryForLong",
    "cgeo.geocaching.DataStore.getAllCachesCount",
    "cgeo.geocaching.MainActivity$CountBubbleUpdateThread.run"
