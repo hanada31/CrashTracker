@@ -132,6 +132,13 @@ public class ConstantUtils {
 	public static String[] componentClasses = { "android.app.Activity", "android.app.Service",
 			"android.content.BroadcastReceiver", "android.content.ContentProvider" };
 
+	public static String[] hardwares = {"hardware", "opengl", "AccountManager", "AndroidHttpClient", "AudioManager", "AudioRecord", "BluetoothAdapter",
+			"BluetoothHeadset", "Camera", "Chronometer", "ContentResolver", "DrmManagerClient", "EffectContext", "IsoDep",
+			"KeyguardManager.KeyguardLock", "LruCache", "LocationManager", "MediaCodec", "MediaPlayer", "MediaRecorder", "MtpDevice",
+			"MifareClassic", "MifareUltralight", "Ndef", "NdefFormatable", "NfcA", "NfcB", "NfcBarcode", "NfcF", "NfcV", "NfcAdapter",
+			"NsdManager", "ParcelFileDescriptor", "PowerManager$WakeLock", "PresetReverb", "RemoteCallbackList", "SQLiteClosable",
+			"SensorManager", "SlidingDrawer", "StorageManager", "Surface", "SurfaceHolder", "TagTechnology",
+			"TokenWatcher", "UsbManager", "VelocityTracker", "WebIconDatabase", "WifiManager$MulticastLock", "WifiManager$WifiLock", "WifiManager"};
 	//strategies
 	public static String NoRelatedMethodFilter = "NoRelatedMethodFilter";
 	public static String NoRVType = "NoRVType";

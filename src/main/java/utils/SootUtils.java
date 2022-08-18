@@ -1,5 +1,6 @@
 package main.java.utils;
 
+import com.sun.xml.bind.v2.runtime.reflect.opt.Const;
 import heros.solver.Pair;
 import main.java.base.Global;
 import main.java.base.MyConfig;
@@ -1581,5 +1582,14 @@ public class SootUtils {
 			}
 		}
 		return rightValues;
+	}
+
+	public static boolean isHardwardRelated(String name) {
+		for (int i = 0; i < ConstantUtils.hardwares.length; i++) {
+			if (name.contains(ConstantUtils.hardwares[i])) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

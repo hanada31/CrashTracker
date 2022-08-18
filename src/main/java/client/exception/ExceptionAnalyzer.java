@@ -339,8 +339,7 @@ public class ExceptionAnalyzer extends Analyzer {
             exceptionInfo.setManifestRelated(true);
         }
         String name = sootMethod.getSignature();
-        if(name.contains("hardware") || name.contains("opengl")
-                || name.contains("nfc") || name.contains("bluetooth") ){
+        if(SootUtils.isHardwardRelated(name)){
             exceptionInfo.setHardwareRelated(true);
         }
         for(String field: exceptionInfo.getRelatedFieldValuesInStr()){
