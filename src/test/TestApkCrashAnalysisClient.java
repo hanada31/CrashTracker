@@ -26,7 +26,7 @@ public class TestApkCrashAnalysisClient {
         String path;
         path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
         path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
-        path = "apk\\";
+//        path = "apk\\";
 
         String name;
         name = "com.hxb.poetry-199.apk";
@@ -34,7 +34,7 @@ public class TestApkCrashAnalysisClient {
 //        name = "com.nextgis.mobile-315.apk";
         name = "zfapps.toyobd1-341.apk";
         name = "org.wordpress.android-2372.apk";
-        name = "cgeo.geocaching-4450.apk";
+        name = "com.nextgis.mobile-260.apk";
 
 
         String client = "ApkCrashAnalysisClient";

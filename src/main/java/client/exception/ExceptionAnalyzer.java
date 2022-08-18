@@ -181,6 +181,8 @@ public class ExceptionAnalyzer extends Analyzer {
             }
         }
         //base is throwable, inline the callee, exception.rethrow
+        //all of them are caught exception, but no new exception
+        //can be removed
         if(!find & invoke instanceof AbstractInstanceInvokeExpr) {
             Value base = ((AbstractInstanceInvokeExpr) invoke).getBase();
             if(base.getType().toString().endsWith("Throwable") || base.getType().toString().endsWith("Exception")){
@@ -199,24 +201,6 @@ public class ExceptionAnalyzer extends Analyzer {
                 }
             }
         }
-        Type retVal = invoke.getMethod().getReturnType();
-        if (!find && (retVal.toString().endsWith("Throwable") || retVal.toString().contains("Exception"))) {
-//            List<Unit> retList = getRetList(invoke.getMethod());
-//            for(Value arg : invoke.getArgs()) {
-//                if (arg.getType().toString().endsWith("Throwable") || arg.getType().toString().endsWith("Exception")) {
-//                    continue;
-//                }
-//            }
-            //return value is throwable, record exception info
-//            for (Unit retU : retList) {
-//                Value val = ((JReturnStmt) retU).getOp();
-//                if (val instanceof Local) {
-//                    addThrowPoint(method2unit2Value, invoke.getMethod(), retU, val);
-//                    nonThrowUnits.add("retValue (createException)\t" + invoke.getMethod().getSignature());
-//                }
-//            }
-        }
-
     }
 
     private void addThrowPoint(Map<SootMethod, Map<Unit, Local>> method2unit2Value, SootMethod sootMethod, Unit unit, Value throwValue) {
@@ -714,7 +698,10 @@ public class ExceptionAnalyzer extends Analyzer {
                     exceptionInfo.setOsVersionRelated(true);
                 }else if(defUnit.toString().contains("android.content.res.AssetManager")){
                   exceptionInfo.setAssessRelated(true);
+                }else if(defUnit.toString().contains("android.content.res.Resources")){
+                    exceptionInfo.setResourceRelated(true);
                 }
+
                 if (defUnit instanceof JIdentityStmt) {
                     JIdentityStmt identityStmt = (JIdentityStmt) defUnit;
                     identityStmt.getRightOp();

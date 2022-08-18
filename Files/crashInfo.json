@@ -20863,9 +20863,8 @@
   "year": "2015-02-26T08:52:10Z",
   "crashLog": "```\njava.lang.IllegalStateException: Can not perform this action after onSaveInstanceState\n       at android.app.FragmentManagerImpl.checkStateLoss(FragmentManager.java:1323)\n       at android.app.FragmentManagerImpl.enqueueAction(FragmentManager.java:1341)\n       at android.app.FragmentManagerImpl.popBackStack(FragmentManager.java:484)\n       at org.wordpress.android.ui.WPDrawerActivity$4.onClick(WPDrawerActivity.java:294)\n       at android.view.View.performClick(View.java:4456)\n       at android.view.View$PerformClick.run(View.java:18465)\n       at android.os.Handler.handleCallback(Handler.java:733)\n       at android.os.Handler.dispatchMessage(Handler.java:95)\n       at android.os.Looper.loop(Looper.java:136)\n       at android.app.ActivityThread.main(ActivityThread.java:5086)\n       at java.lang.reflect.Method.invokeNative(Method.java)\n       at java.lang.reflect.Method.invoke(Method.java:515)\n       at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:785)\n       at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:601)\n       at dalvik.system.NativeStart.main(NativeStart.java)\n```\nhttps://github.com/wordpress-mobile/WordPress-Android/issues/2372",
   "real": "org.wordpress.android.ui.WPDrawerActivity$4.onClick",
-  "tag": "Resource XML",
-  "category": "res",
-  "realCate": "C"
+  "category": "st",
+  "realCate": "A"
  },
  {
   "exception": "android.content.ActivityNotFoundException",
@@ -21978,7 +21977,7 @@
   "exception": "java.lang.ClassNotFoundException",
   "msg": "notFound",
   "identifier": "org.wordpress.android",
-  "postURL": "```https://github.com/wordpress-mobile/WordPress-Android/issues/5449",
+  "postURL": "https://github.com/wordpress-mobile/WordPress-Android/issues/5449",
   "fileName": "org.wordpress.android-5449",
   "id": "5449",
   "trace": [
@@ -22024,7 +22023,8 @@
   "exception": "java.lang.SecurityException",
   "msg": "notFound",
   "identifier": "org.kontalk",
-  "postURL": "```https://github.com/kontalk/androidclient/issues/958",
+  "postURL": "https://github.com/kontalk/androidclient/issues/958",
+  "postURL": "https://github.com/kontalk/androidclient/issues/958",
   "fileName": "org.kontalk-958",
   "id": "958",
   "trace": [
