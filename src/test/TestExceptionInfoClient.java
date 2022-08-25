@@ -2,6 +2,7 @@ package test;
 
 import main.java.MainClass;
 import main.java.base.MyConfig;
+import main.java.utils.ConstantUtils;
 import soot.options.Options;
 
 import java.io.File;
@@ -24,11 +25,12 @@ public class TestExceptionInfoClient {
         String path, name;
         path = "C:\\Users\\yanjw\\programs\\framework\\classes\\";
         path = "D:\\SoftwareData\\dataset\\android-framework\\classes\\";
+        path = "C:\\Users\\79940\\Desktop\\condition";
         MyConfig.getInstance().setAndroidOSVersion("4.4");
+        MyConfig.getInstance().setAndroidOSVersion("");
 
         String client = "ExceptionInfoClient";
 //        client = "IROutputClient";
-
         name = "android"+MyConfig.getInstance().getAndroidOSVersion();;
         MyConfig.getInstance().setAppName(name);
         MyConfig.getInstance().setAppPath(path + File.separator);

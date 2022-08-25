@@ -62,6 +62,8 @@ public class ExceptionAnalyzer extends Analyzer {
     }
 
     private void getExceptionList() {
+//        ConstantUtils.CGANALYSISPREFIX ="";
+
         FileUtils.writeText2File("Files"+File.separator+"android"+MyConfig.getInstance().getAndroidOSVersion()+File.separator
                 +"throwUnits.txt", "", false);
         JSONArray exceptionListElement  = new JSONArray(new ArrayList<>());
@@ -379,7 +381,7 @@ public class ExceptionAnalyzer extends Analyzer {
         List<String> trace = new ArrayList<>();
         trace.add(sootMethod.getSignature());
 
-        getExceptionCondition(sootMethod, unit, exceptionInfo, new HashSet<>(), fromThrow);
+        getExceptionCondition(sootMethod, unit, exceptionInfo, new HashSet<>(), fromThrow, null);
         if(exceptionInfo.getRelatedParamValues().size()>0 && exceptionInfo.getRelatedFieldValues().size() ==0) {
             List<String> newTrace = new ArrayList<>(trace);
             RelatedMethod addMethod = new RelatedMethod(sootMethod.getSignature(), RelatedMethodSource.CALLER, 0, newTrace);
@@ -408,64 +410,6 @@ public class ExceptionAnalyzer extends Analyzer {
      * @param exceptionInfo
      * @param trace
      */
-    private void getExceptionCallerByParam2(SootMethod sootMethod, ExceptionInfo exceptionInfo,
-                                           Set<SootMethod> callerHistory, int depth,
-                                           RelatedMethodSource mtdSource, Set<Integer> paramIndexCallee, List<String> trace) {
-        if(callerHistory.contains(sootMethod) || depth >ConstantUtils.CALLDEPTH)  return;
-        callerHistory.add(sootMethod);
-        for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesInto(sootMethod); it.hasNext(); ) {
-            Edge edge = it.next();
-            SootMethod edgeSourceMtd = edge.getSrc().method();
-            Set<Integer> paramIndexCaller = new HashSet<>();
-            if(mtdSource == RelatedMethodSource.CALLER){
-                paramIndexCaller = SootUtils.getIndexesFromMethod(edge, paramIndexCallee);
-                if(paramIndexCaller.size() ==0 ) continue;
-            }
-            boolean flag = false;
-            List<SootClass> subClasses = SootUtils.getSubclassesWithoutMethod(edgeSourceMtd.getDeclaringClass(),edgeSourceMtd);
-            for (SootClass sootClass : subClasses) {
-                String pkg1 = sootClass.getPackageName();
-                String pkg2 = exceptionInfo.getSootMethod().getDeclaringClass().getPackageName();
-                if (StringUtils.getPkgPrefix(pkg1, 2).equals(StringUtils.getPkgPrefix(pkg2, 2))
-                        || edgeSourceMtd.getName().equals(sootMethod.getName())) {
-                    String signature = edgeSourceMtd.getSignature().replace(edgeSourceMtd.getDeclaringClass().getName(), sootClass.getName());
-                    SootMethod sm = SootUtils.getSootMethodBySignature(signature);
-                    if(sm == null|| sootClass == edgeSourceMtd.getDeclaringClass()) {
-                        //filter a set of candidates!!!
-                        List<String> newTrace = new ArrayList<>(trace);
-                        newTrace.add(0, signature);
-                        RelatedMethod addMethodObj = new RelatedMethod(signature, mtdSource, depth, newTrace);
-                        addRelatedMethodInstance(edgeSourceMtd, addMethodObj, exceptionInfo);
-                        flag = true;
-                    }
-                    if(sm!=null) {
-                        Iterator<SootClass> it2 = sm.getDeclaringClass().getInterfaces().iterator();
-                        while (it2.hasNext()) {
-                            SootClass interfaceSC = it2.next();
-                            for (SootMethod interfaceSM : interfaceSC.getMethods()) {
-                                List<String> newTrace = new ArrayList<>(trace);
-                                newTrace.add(0, interfaceSM.getSignature());
-                                RelatedMethod addMethodObj = new RelatedMethod(interfaceSM.getSignature(), mtdSource, depth, newTrace);
-                                addRelatedMethodInstance(edgeSourceMtd, addMethodObj, exceptionInfo);
-                                flag = true;
-                            }
-                        }
-                    }
-                }
-            }
-            if(flag) {
-                List<String> newTrace = new ArrayList<>(trace);
-                newTrace.add(0, edgeSourceMtd.getSignature());
-                getExceptionCallerByParam(edgeSourceMtd, exceptionInfo, callerHistory, depth + 1, mtdSource, paramIndexCaller, newTrace);
-            }
-        }
-    }
-    /**
-     * getExceptionCaller
-     * @param sootMethod
-     * @param exceptionInfo
-     * @param trace
-     */
     private void getExceptionCallerByParam(SootMethod sootMethod, ExceptionInfo exceptionInfo,
                                            Set<SootMethod> callerHistory, int depth,
                                            RelatedMethodSource mtdSource, Set<Integer> paramIndexCallee, List<String> trace) {
@@ -487,8 +431,6 @@ public class ExceptionAnalyzer extends Analyzer {
             boolean flag = false;
             Set<SootClass> targetClasses = new HashSet<>();
             targetClasses.add(edgeSourceMtd.getDeclaringClass());
-//          List<SootClass> subs = SootUtils.getSubclassesWithoutMethod(edgeSourceMtd.getDeclaringClass(),edgeSourceMtd);
-//          targetClasses.addAll(subs);//android.app.ContextImpl && android.app.Context
             List<SootClass> supers = SootUtils.getSuperClassesWithAbstract(edgeSourceMtd);
             targetClasses.addAll(supers);//android.app.ContextImpl && android.app.Context
             for (SootClass sootClass : targetClasses) {
@@ -506,10 +448,6 @@ public class ExceptionAnalyzer extends Analyzer {
                         addRelatedMethodWithInfo(trace, signature, mtdSource, depth, edgeSourceMtd, exceptionInfo);
                         flag = true;
                     }
-//                    else if (subs.contains(sootClass)) {
-//                        addRelatedMethodWithInfo(trace, signature, mtdSource, depth, edgeSourceMtd, exceptionInfo);
-//                        flag = true;
-//                    }
                     if(sm!=null) {
                         Iterator<SootClass> it2 = sm.getDeclaringClass().getInterfaces().iterator();
                         while (it2.hasNext()) {
@@ -642,7 +580,8 @@ public class ExceptionAnalyzer extends Analyzer {
      * get the latest condition info for an ExceptionInfo
      * only analyze one level if condition, forward
      */
-    private void getExceptionCondition(SootMethod sootMethod, Unit unit, ExceptionInfo exceptionInfo, Set<Unit> getCondHistory, boolean fromThrow) {
+    private void getExceptionCondition(SootMethod sootMethod, Unit unit, ExceptionInfo exceptionInfo,
+                                       Set<Unit> getCondHistory, boolean fromThrow, Unit lastGoto) {
         if(getCondHistory.contains(unit) || getCondHistory.size()> ConstantUtils.CONDITIONHISTORYSIZE) return;// if defUnit is not a pred of unit
         getCondHistory.add(unit);
         Body body = sootMethod.getActiveBody();
@@ -653,8 +592,12 @@ public class ExceptionAnalyzer extends Analyzer {
         List<Unit> predsOf = unitGraph.getPredsOf(unit);
         for (Unit predUnit : predsOf) {
             if (predUnit instanceof IfStmt) {
+                //direct condition or multiple condition
+                if(exceptionInfo.getConditionUnits().size()>0 && lastGoto!=null && ((IfStmt) predUnit).getTarget() != lastGoto)
+                    continue;
                 exceptionInfo.getTracedUnits().add(predUnit);
                 IfStmt ifStmt = (IfStmt) predUnit;
+                lastGoto = ifStmt.getTarget();
                 Value cond = ifStmt.getCondition();
                 exceptionInfo.addRelatedCondition(cond);
                 exceptionInfo.getConditionUnits().add(ifStmt);
@@ -678,7 +621,7 @@ public class ExceptionAnalyzer extends Analyzer {
             }
             if(fromThrow  && exceptionInfo.getConditions().size()>0 && gotoTargets.contains(predUnit))
                 continue;
-            getExceptionCondition(sootMethod, predUnit, exceptionInfo,getCondHistory, fromThrow);
+            getExceptionCondition(sootMethod, predUnit, exceptionInfo,getCondHistory, fromThrow, lastGoto);
         }
     }
 
@@ -753,7 +696,7 @@ public class ExceptionAnalyzer extends Analyzer {
                                     extendRelatedValues(allPreds, exceptionInfo, use.getUnit(), vb.getValue(), valueHistory, getCondHistory, fromThrow);
                             }
                         } else {
-                            getExceptionCondition(exceptionInfo.getSootMethod(), defUnit, exceptionInfo, getCondHistory, fromThrow);
+                            getExceptionCondition(exceptionInfo.getSootMethod(), defUnit, exceptionInfo, getCondHistory, fromThrow, null);
                         }
                     } else if (rightOp instanceof StaticFieldRef) {
                         //from static field value
@@ -765,7 +708,7 @@ public class ExceptionAnalyzer extends Analyzer {
                         JInstanceFieldRef jInstanceFieldRef = (JInstanceFieldRef) rightOp;
                         extendRelatedValues(allPreds, exceptionInfo, defUnit, jInstanceFieldRef.getBase(), valueHistory, getCondHistory, fromThrow);
                     }else {
-                        getExceptionCondition(exceptionInfo.getSootMethod(), defUnit, exceptionInfo, getCondHistory, fromThrow);
+                        getExceptionCondition(exceptionInfo.getSootMethod(), defUnit, exceptionInfo, getCondHistory, fromThrow, null);
                     }
                 } else {
                     System.out.println(defUnit.getClass().getName() + "::" + defUnit);
@@ -790,6 +733,31 @@ public class ExceptionAnalyzer extends Analyzer {
             else if(u instanceof GotoStmt){
                 GotoStmt gotoStmt = (GotoStmt)u;
                 res.add(gotoStmt.getTargetBox().getUnit());
+            }
+        }
+        return res;
+    }    /**
+     * get the goto destination of IfStatement
+     */
+    private List<Unit> getGotoTargetsTwice(Body body) {
+        List<Unit> temp = new ArrayList<>();
+        List<Unit> res = new ArrayList<>();
+        for(Unit u : body.getUnits()){
+            if(u instanceof JIfStmt){
+                JIfStmt ifStmt = (JIfStmt)u;
+                if(temp.contains(ifStmt.getTargetBox().getUnit())){
+                    res.add(ifStmt.getTargetBox().getUnit());
+                }else {
+                    temp.add(ifStmt.getTargetBox().getUnit());
+                }
+            }
+            else if(u instanceof GotoStmt){
+                GotoStmt gotoStmt = (GotoStmt)u;
+                if(temp.contains(gotoStmt.getTargetBox().getUnit())){
+                    res.add(gotoStmt.getTargetBox().getUnit());
+                }else {
+                    temp.add(gotoStmt.getTargetBox().getUnit());
+                }
             }
         }
         return res;
