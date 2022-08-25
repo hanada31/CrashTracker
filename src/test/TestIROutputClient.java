@@ -27,7 +27,7 @@ public class TestIROutputClient {
         path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
         path = "apk\\";
         String name;
-        name = "cgeo-release_20141104.apk";
+        name = "condition.jar";
 
         String client = "IROutputClient";
 
