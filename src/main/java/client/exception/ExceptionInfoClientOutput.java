@@ -51,6 +51,7 @@ public class ExceptionInfoClientOutput {
                     addConditions(jsonObject, info);
                     addRelatedValues(jsonObject, info);
                     addRelatedMethods(jsonObject, info);
+                    addCallerOfParam(jsonObject, info);
                 }
                 PrintWriter printWriter = new PrintWriter(file);
                 String jsonString = JSON.toJSONString(rootElement, SerializerFeature.PrettyFormat,
@@ -62,6 +63,7 @@ public class ExceptionInfoClientOutput {
             }
         }
     }
+
 
     // collect
 
@@ -170,6 +172,17 @@ public class ExceptionInfoClientOutput {
             }
         }
         jsonObject.put("relatedMethodDiffClass" , relatedMethodsDiffArray);
+    }
+
+    private static void addCallerOfParam(JSONObject jsonObject, ExceptionInfo exceptionInfo) {
+        JSONObject callerOfSingnlar2SourceVar = new JSONObject();
+        if (exceptionInfo.getCallerOfSingnlar2SourceVar().size() > 0) {
+            for (String mtd : exceptionInfo.getCallerOfSingnlar2SourceVar().keySet()) {
+                String vals = PrintUtils.printList(exceptionInfo.getCallerOfSingnlar2SourceVar().get(mtd));
+                callerOfSingnlar2SourceVar.put(mtd, vals);
+            }
+        }
+        jsonObject.put("callerOfSingnlar2SourceVar" , callerOfSingnlar2SourceVar);
     }
 
 }

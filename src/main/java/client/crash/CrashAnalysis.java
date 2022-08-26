@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static main.java.utils.SootUtils.getFiledValueAssigns;
+import static main.java.utils.SootUtils.*;
 
 /**
  * @Author hanada
@@ -70,16 +70,16 @@ public class CrashAnalysis extends Analyzer {
             else if(exceptionInfo!=null && exceptionInfo.getRelatedVarType()!=null) {
                 switch (exceptionInfo.getRelatedVarType()) {
                     //first choice filterExtendedCG false, second choice true
-                    case OverrideMissing:
-                        relatedVarType="OverrideMissing";
+                    case EMPTY:
+                        relatedVarType="EMPTY";
                         overrideMissingHandler(ConstantUtils.INITSCORE,crashInfo, false); //OMA
                         break;
-                    case ParameterOnly:
-                        relatedVarType="ParameterOnly";
+                    case Parameter:
+                        relatedVarType="Parameter";
                         withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
                         break;
-                    case FieldOnly:
-                        relatedVarType="FieldOnly";
+                    case Field:
+                        relatedVarType="Field";
                         withFieldHandler(ConstantUtils.INITSCORE, crashInfo, false); //FCA
                         break;
                     case ParaAndField:
@@ -87,10 +87,11 @@ public class CrashAnalysis extends Analyzer {
                         withFieldHandler(ConstantUtils.INITSCORE, crashInfo, false); //FCA
                         withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false); //TMA
                         break;
+                    case Unknown:
+                        relatedVarType="Unknown";
+                        withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false);
+                        break;
                 }
-            }else {
-                relatedVarType="unknown"; // native and other no exception.
-                withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false);
             }
             System.out.println("### relatedVarType is " + relatedVarType);
         }
@@ -411,49 +412,71 @@ public class CrashAnalysis extends Analyzer {
      */
     private void withParameterHandler(int score, CrashInfo crashInfo, boolean filterExtendCG) {
         int n = 0;
-        List<String> vars = new ArrayList<>();
         if(crashInfo.getExceptionInfo()!=null && crashInfo.getExceptionInfo().getRelatedVarType()!=null) {
-            vars =crashInfo.getExceptionInfo().getRelatedParamValuesInStr();
-            n = getParameterTerminateMethod(score, crashInfo, filterExtendCG,vars);
-        }else{
-//            Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(crashInfo.getSignaler());
-//            for(SootMethod sm: methods) {
-//                if( sm.getParameterTypes().size()==1){
-//                    vars.add("@parameter0: "+sm.getParameterTypes().get(0));
-//                    n = getParameterTerminateMethod(score, crashInfo, filterExtendCG,vars);
-//                    break;
-//                }
-//            }
+            if(crashInfo.getExceptionInfo().getCallerOfSingnlar2SourceVar()!=null){
+                Map map = crashInfo.getExceptionInfo().getCallerOfSingnlar2SourceVar();
+                if(map.containsKey(crashInfo.getCrashAPI())){
+                    crashInfo.faultInducingParas = (List<Integer>)map.get(crashInfo.getCrashAPI());
+                    SootMethod finalCaller = traceCallerOfParamValue(crashInfo, crashInfo.getCrashAPI());
+                    System.err.println(finalCaller);
+                    n = getParameterTerminateMethod(score, crashInfo, filterExtendCG,finalCaller);
+                }
+            }
+
         }
 
-        noParameterPassingMethodScore(score-n,crashInfo, filterExtendCG);
+        noParameterPassingMethodScore(score-n, crashInfo, filterExtendCG);
         int score2 = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
         withCrashAPIParaHandler(score2, crashInfo, false);
     }
 
-    private int getParameterTerminateMethod(int score, CrashInfo crashInfo, boolean filterExtendCG, List<String> vars) {
+    private SootMethod traceCallerOfParamValue(CrashInfo crashInfo, String calleeMethod) {
+        List<Integer> ids = crashInfo.faultInducingParas;
+        SootMethod res = null;
+        for(String candi : crashInfo.getCrashMethodList()) {
+            Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
+            List<Integer> ids_temp = new ArrayList<>();
+            for (SootMethod caller : methods) {
+                res = caller;
+                for (Unit u : SootUtils.getUnitListFromMethod(caller)) {
+                    InvokeExpr invoke = SootUtils.getInvokeExp(u);
+                    if (invoke == null) continue;
+                    String sig = invoke.getMethod().getSignature();
+                    if (sig.equals(calleeMethod) || SootUtils.getMethodSimpleNameFromSignature(sig).equals(calleeMethod)) {
+                        for(int id :ids){
+                            if (invoke.getArgs().size() > id) {
+                                //get the idth param
+                                List<Unit> defs = getDefOfLocal(caller.getSignature(), invoke.getArgs().get(id), u);
+                                for (Unit def : defs) {
+                                    if (def instanceof IdentityStmt) {
+                                        if (((IdentityStmt) def).getRightOp() instanceof ParameterRef) {
+                                            ids_temp.add(((ParameterRef)((IdentityStmt) def).getRightOp()).getIndex());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if(ids_temp.size()==0){
+                return res;
+            }
+            ids = new ArrayList<>(ids_temp);
+            calleeMethod = res.getSignature();
+        }
+        return res;
+    }
+
+    private int getParameterTerminateMethod(int score, CrashInfo crashInfo, boolean filterExtendCG, SootMethod finalCaller) {
         int count =0;
         boolean find = false;
         for(String candi : crashInfo.getCrashMethodList()){
             Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
-            String signature;
             for(SootMethod sm: methods) {
-                boolean isParaPassed = false;
-                if (sm == null) break;
-                signature = sm.getSignature();
-                for (String paraTye :vars) {
-                    if (signature.contains(paraTye)) {
-                        isParaPassed = true;
-                        break;
-                    }
-                }
-                if (!isParaPassed) {
+                if (sm == finalCaller) {
                     List<String> trace = new ArrayList<>();
-                    if(signature != null){
-                        trace.add(signature);
-                    }else{
-                        trace.add(candi);
-                    }
+                    trace.add(finalCaller.getSignature());
                     crashInfo.addBuggyCandidates(candi,score, filterExtendCG,"best_match_crash_trace_method", trace);
                     count++;
                     find = true;
@@ -987,6 +1010,14 @@ public class CrashAnalysis extends Analyzer {
                         replace("]", "").replace("\"", "").replace(">,", ">, ");
                 relatedMethod.addTrace(newTrace);
                 exceptionInfo.addRelatedMethodsInDiffClass(relatedMethod);
+            }
+            JSONObject callerOfSingnlar2SourceVar = jsonObject.getJSONObject("callerOfSingnlar2SourceVar");
+            if(callerOfSingnlar2SourceVar!=null) {
+                for (String key : callerOfSingnlar2SourceVar.keySet()) {
+                    String[] ids = ((String) callerOfSingnlar2SourceVar.get(key)).split(", ");
+                    for(String id :ids)
+                        exceptionInfo.addCallerOfSingnlar2SourceVar(SootUtils.getMethodSimpleNameFromSignature(key), Integer.valueOf(id) );
+                }
             }
         }
     }

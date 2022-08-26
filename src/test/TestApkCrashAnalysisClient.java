@@ -25,16 +25,11 @@ public class TestApkCrashAnalysisClient {
     private void setArgs() {
         String path;
         path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
-        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
+//        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 //        path = "apk\\";
 
         String name;
-        name = "com.hxb.poetry-199.apk";
-//        name = "ch.logixisland.anuto-1.apk";
-//        name = "com.nextgis.mobile-315.apk";
-        name = "zfapps.toyobd1-341.apk";
-        name = "org.wordpress.android-2372.apk";
-        name = "com.nextgis.mobile-260.apk";
+        name = "com.manle.phone.android.tangniaobing-259.apk";
 
 
         String client = "ApkCrashAnalysisClient";
@@ -53,7 +48,7 @@ public class TestApkCrashAnalysisClient {
         MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfo.json");
 //        MyConfig.getInstance().setStrategy("NoRelatedMethodFilter");
         MyConfig.getInstance().setStrategy("");
-//        MyConfig.getInstance().setAndroidOSVersion("6.0");
+        MyConfig.getInstance().setAndroidOSVersion("4.4");
 
     }
 

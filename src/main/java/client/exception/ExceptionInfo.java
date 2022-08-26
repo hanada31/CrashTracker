@@ -42,6 +42,7 @@ public class ExceptionInfo {
     private boolean isManifestRelated;
     private boolean isResourceRelated;
     private boolean isHardwareRelated;
+    private Map<String, List<Integer>> callerOfSingnlar2SourceVar;
 
     public ExceptionInfo() {
         this.relatedParamValues = new ArrayList<>();
@@ -59,7 +60,9 @@ public class ExceptionInfo {
         this.relatedMethodsInSameClassMap = new TreeMap<Integer, ArrayList<RelatedMethod>>();
         this.relatedMethodsInDiffClassMap = new TreeMap<Integer, ArrayList<RelatedMethod>>();
         this.relatedCondType = RelatedCondType.Unknown;
-    }
+        this.relatedVarType = RelatedVarType.Unknown;
+        this.callerOfSingnlar2SourceVar = new HashMap<String, List<Integer>>();
+        }
     public ExceptionInfo(SootMethod sootMethod, Unit unit, String exceptionType) {
         this();
         this.sootMethod = sootMethod;
@@ -93,16 +96,15 @@ public class ExceptionInfo {
     }
 
     public RelatedVarType getRelatedVarType() {
-        if(relatedVarType == null) {
-            if (isOverrideMissing()) return RelatedVarType.OverrideMissing;
-            if (isParameterOnly()) return RelatedVarType.ParameterOnly;
-            if (isFieldOnly()) return RelatedVarType.FieldOnly;
-            if (isParaAndField()) return RelatedVarType.ParaAndField;
-        }
+
+        if (isEmpty()) return RelatedVarType.EMPTY;
+        if (isParameterOnly()) return RelatedVarType.Parameter;
+        if (isFieldOnly()) return RelatedVarType.Field;
+        if (isParaAndField()) return RelatedVarType.ParaAndField;
         return relatedVarType;
     }
 
-    public boolean isOverrideMissing() {
+    public boolean isEmpty() {
         return getRelatedMethods().size() == 0 && getConditions().size() == 0 && !getRelatedCondType().equals(RelatedCondType.Caught);
     }
 
@@ -403,6 +405,26 @@ public class ExceptionInfo {
 //        } else
             if (!relatedMethods.contains(signature))
             relatedMethods.add(signature);
+    }
+
+    public Map<String, List<Integer>> getCallerOfSingnlar2SourceVar() {
+        return callerOfSingnlar2SourceVar;
+    }
+
+    public void setCallerOfSingnlar2SourceVar(Map<String, List<Integer>> callerOfSingnlar2SourceVar) {
+        this.callerOfSingnlar2SourceVar = callerOfSingnlar2SourceVar;
+    }
+
+    public void addCallerOfSingnlar2SourceVar(String method, int sourceId ) {
+        if(callerOfSingnlar2SourceVar.containsKey(method)){
+            if(callerOfSingnlar2SourceVar.get(method).contains(sourceId)){
+                return;
+            }
+        }else{
+            callerOfSingnlar2SourceVar.put(method, new ArrayList<>());
+        }
+        callerOfSingnlar2SourceVar.get(method).add(sourceId);
+
     }
 }
 

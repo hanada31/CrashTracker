@@ -1190,7 +1190,15 @@
         "id": "259",
         "category": "st",
         "tool": "Droidbot",
-        "realCate": "A"
+        "realCate": "A",
+        //"website":"https://github.com/aosp-mirror/platform_frameworks_base/blob/c5d02da0f6553a00da6b0d833b67d3bbe87341e0/core/java/android/content/res/Resources.java"
+        "relatedVarType":"ParameterOnly",
+        "paramValues":"@parameter0: int",
+        "callerOfSingnlar2SourceVar":{
+        "<android.content.Context: java.lang.String getString(int)>":"0",
+        "<android.content.Context: java.lang.String getString(int,java.lang.Object[])>":"0",
+        "<android.content.res.Resources: java.lang.String getString(int,java.lang.Object[])>":"0"
+        }
     },
     {
         "msg": " Unable to find explicit activity class {com.android.settings/com.android.settings.WirelessSettings}; have you declared this activity in your AndroidManifest.xml?",

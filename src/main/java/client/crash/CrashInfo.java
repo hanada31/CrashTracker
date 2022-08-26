@@ -43,7 +43,8 @@ public class CrashInfo {
     int minScore = ConstantUtils.INITSCORE;
     int maxScore = ConstantUtils.BOTTOMSCORE;
     List<String> noneCodeLabels = new ArrayList<String>();
-
+    String faultInducingPart;
+    List<Integer> faultInducingParas = new ArrayList<>();
     public Map<String, Integer> getExtendedCallDepth() {
         return extendedCallDepth;
     }
@@ -326,6 +327,32 @@ public class CrashInfo {
         edges.add(e);
     }
 
+    public void addNoneCodeLabel(String l) {
+        if(!noneCodeLabels.contains(l))
+            noneCodeLabels.add(l);
+    }
+
+    public List<String> getNoneCodeLabel() {
+        return noneCodeLabels;
+    }
+
+
+    public String getFaultInducingPart() {
+        return faultInducingPart;
+    }
+
+    public void setFaultInducingPart(String faultInducingPart) {
+        this.faultInducingPart = faultInducingPart;
+    }
+
+    public List<Integer> getFaultInducingParas() {
+        return faultInducingParas;
+    }
+
+    public void setFaultInducingParas(List<Integer> faultInducingParas) {
+        this.faultInducingParas = faultInducingParas;
+    }
+
     @Override
     public String toString() {
         return "CrashInfo{" +
@@ -342,14 +369,5 @@ public class CrashInfo {
                 ", exceptionInfo=" + exceptionInfo +
                 ", edges=" + edges +
                 '}';
-    }
-
-    public void addNoneCodeLabel(String l) {
-        if(!noneCodeLabels.contains(l))
-            noneCodeLabels.add(l);
-    }
-
-    public List<String> getNoneCodeLabel() {
-        return noneCodeLabels;
     }
 }

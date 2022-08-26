@@ -62,8 +62,6 @@ public class ExceptionAnalyzer extends Analyzer {
     }
 
     private void getExceptionList() {
-//        ConstantUtils.CGANALYSISPREFIX ="";
-
         FileUtils.writeText2File("Files"+File.separator+"android"+MyConfig.getInstance().getAndroidOSVersion()+File.separator
                 +"throwUnits.txt", "", false);
         JSONArray exceptionListElement  = new JSONArray(new ArrayList<>());
@@ -357,11 +355,8 @@ public class ExceptionAnalyzer extends Analyzer {
             exceptionInfo.setRelatedCondType(RelatedCondType.Caught);
         else if(retValue>0)
             exceptionInfo.setRelatedCondType(RelatedCondType.NotReturn);
-        else  if (exceptionInfo.getConditions().size() == 1)
-            exceptionInfo.setRelatedCondType(RelatedCondType.Direct);
-        else if (exceptionInfo.getConditions().size() > 1)
-            exceptionInfo.setRelatedCondType(RelatedCondType.Multiple);
-
+        else
+            exceptionInfo.setRelatedCondType(RelatedCondType.Basic);
     }
 
     private void getRetUnitsFlowIntoConditionUnits(SootMethod sootMethod, Unit unit, Set<Unit> retUnits, HashSet<Unit> history) {
@@ -603,7 +598,7 @@ public class ExceptionAnalyzer extends Analyzer {
                 exceptionInfo.getConditionUnits().add(ifStmt);
                 if(cond instanceof ConditionExpr){
                     Value value = ((ConditionExpr)cond).getOp1();
-                    extendRelatedValues(allPreds, exceptionInfo, predUnit, value, new ArrayList<>(),getCondHistory, fromThrow);
+                    extendRelatedValues(sootMethod, allPreds, exceptionInfo, predUnit, value, new ArrayList<>(),getCondHistory, fromThrow);
                 }
             }else if (predUnit instanceof SwitchStmt) {
                 exceptionInfo.getTracedUnits().add(predUnit);
@@ -611,7 +606,7 @@ public class ExceptionAnalyzer extends Analyzer {
                 Value key = swStmt.getKey();
                 exceptionInfo.addRelatedCondition(key);
                 exceptionInfo.getConditionUnits().add(swStmt);
-                extendRelatedValues(allPreds, exceptionInfo, predUnit, key, new ArrayList<>(), getCondHistory, fromThrow);
+                extendRelatedValues(sootMethod, allPreds, exceptionInfo, predUnit, key, new ArrayList<>(), getCondHistory, fromThrow);
             }else if (predUnit instanceof JIdentityStmt ) {
                 JIdentityStmt stmt = (JIdentityStmt) predUnit;
                 if(stmt.getRightOp() instanceof CaughtExceptionRef){
@@ -628,7 +623,7 @@ public class ExceptionAnalyzer extends Analyzer {
     /**
      * tracing the values relates to the one used in if condition
      */
-    private String extendRelatedValues(List<Unit> allPreds, ExceptionInfo exceptionInfo, Unit unit, Value value,
+    private String extendRelatedValues(SootMethod sootMethod, List<Unit> allPreds, ExceptionInfo exceptionInfo, Unit unit, Value value,
                                      List<Value> valueHistory, Set<Unit> getCondHistory , boolean fromThrow) {
         if(valueHistory.contains(value) || !allPreds.contains(unit)) return "";// if defUnit is not a pred of unit
         valueHistory.add(value);
@@ -643,13 +638,16 @@ public class ExceptionAnalyzer extends Analyzer {
                 }else if(defUnit.toString().contains("android.content.res.Resources")){
                     exceptionInfo.setResourceRelated(true);
                 }
-
                 if (defUnit instanceof JIdentityStmt) {
                     JIdentityStmt identityStmt = (JIdentityStmt) defUnit;
                     identityStmt.getRightOp();
                     if (identityStmt.getRightOp() instanceof ParameterRef) {//from parameter
+                        //TODO add parameter in the caller
                         exceptionInfo.addRelatedParamValue(identityStmt.getRightOp());
-                        exceptionInfo.getRelatedValueIndex().add(((ParameterRef) identityStmt.getRightOp()).getIndex());
+                        int id = ((ParameterRef) identityStmt.getRightOp()).getIndex();
+                        exceptionInfo.getRelatedValueIndex().add(id);
+                        traceCallerOfParamValue(sootMethod, exceptionInfo, id, 1);
+                        exceptionInfo.addCallerOfSingnlar2SourceVar(sootMethod.getSignature(), id);
                         return "ParameterRef";
                     }else if(identityStmt.getRightOp() instanceof CaughtExceptionRef){
                         exceptionInfo.addCaughtedValues(identityStmt.getRightOp());
@@ -660,18 +658,18 @@ public class ExceptionAnalyzer extends Analyzer {
                 } else if (defUnit instanceof JAssignStmt) {
                     Value rightOp = ((JAssignStmt) defUnit).getRightOp();
                     if (rightOp instanceof Local) {
-                        extendRelatedValues(allPreds, exceptionInfo, defUnit, rightOp, valueHistory, getCondHistory, fromThrow);
+                        extendRelatedValues(sootMethod, allPreds, exceptionInfo, defUnit, rightOp, valueHistory, getCondHistory, fromThrow);
                     } else if (rightOp instanceof AbstractInstanceFieldRef) {
                         //if main.java.base is from parameter, field is omitted, if main.java.base is this, parameter is recorded
                         Value base = ((AbstractInstanceFieldRef) rightOp).getBase();
-                        String defType = extendRelatedValues(allPreds, exceptionInfo, defUnit, base, valueHistory, getCondHistory, fromThrow);
+                        String defType = extendRelatedValues(sootMethod, allPreds, exceptionInfo, defUnit, base, valueHistory, getCondHistory, fromThrow);
                         //if the this variable is assigned from parameter, it is not field related.
                         if(defType.equals("ThisRef")){
                             SootField field = ((AbstractInstanceFieldRef) rightOp).getField();
                             Value baseF = ((AbstractInstanceFieldRef) rightOp).getBase();
                             List<Value> rightValues = getFiledValueAssigns(baseF, field, allPreds);
                             for(Value rv: rightValues){
-                                extendRelatedValues(allPreds, exceptionInfo, defUnit, rv, valueHistory, getCondHistory, fromThrow);
+                                extendRelatedValues(sootMethod, allPreds, exceptionInfo, defUnit, rv, valueHistory, getCondHistory, fromThrow);
                             }
                             exceptionInfo.addRelatedFieldValues(field);
 
@@ -680,20 +678,20 @@ public class ExceptionAnalyzer extends Analyzer {
                         if (rightOp instanceof InvokeExpr) {
                             InvokeExpr invokeExpr = SootUtils.getInvokeExp(defUnit);
                             for (Value val : invokeExpr.getArgs())
-                                extendRelatedValues(allPreds, exceptionInfo, defUnit, val, valueHistory, getCondHistory, fromThrow);
+                                extendRelatedValues(sootMethod, allPreds, exceptionInfo, defUnit, val, valueHistory, getCondHistory, fromThrow);
                             if (rightOp instanceof InstanceInvokeExpr) {
-                                extendRelatedValues(allPreds, exceptionInfo, defUnit, ((InstanceInvokeExpr) rightOp).getBase(), valueHistory, getCondHistory, fromThrow);
+                                extendRelatedValues(sootMethod, allPreds, exceptionInfo, defUnit, ((InstanceInvokeExpr) rightOp).getBase(), valueHistory, getCondHistory, fromThrow);
                             }
                         } else if (rightOp instanceof AbstractInstanceOfExpr || rightOp instanceof AbstractCastExpr
                                 || rightOp instanceof AbstractBinopExpr || rightOp instanceof AbstractUnopExpr) {
                             for (ValueBox vb : rightOp.getUseBoxes()) {
-                                extendRelatedValues(allPreds, exceptionInfo, defUnit, vb.getValue(), valueHistory, getCondHistory, fromThrow);
+                                extendRelatedValues(sootMethod, allPreds, exceptionInfo, defUnit, vb.getValue(), valueHistory, getCondHistory, fromThrow);
                             }
                         } else if (rightOp instanceof NewExpr) {
                             List<UnitValueBoxPair> usesOfOps = SootUtils.getUseOfLocal(exceptionInfo.getSootMethod().getSignature(), defUnit);
                             for (UnitValueBoxPair use : usesOfOps) {
                                 for (ValueBox vb : use.getUnit().getUseBoxes())
-                                    extendRelatedValues(allPreds, exceptionInfo, use.getUnit(), vb.getValue(), valueHistory, getCondHistory, fromThrow);
+                                    extendRelatedValues(sootMethod, allPreds, exceptionInfo, use.getUnit(), vb.getValue(), valueHistory, getCondHistory, fromThrow);
                             }
                         } else {
                             getExceptionCondition(exceptionInfo.getSootMethod(), defUnit, exceptionInfo, getCondHistory, fromThrow, null);
@@ -703,10 +701,10 @@ public class ExceptionAnalyzer extends Analyzer {
                         exceptionInfo.addRelatedFieldValues(((StaticFieldRef) rightOp).getField());
                     }else if (rightOp instanceof JArrayRef) {
                         JArrayRef jArrayRef = (JArrayRef) rightOp;
-                        extendRelatedValues(allPreds, exceptionInfo, defUnit, jArrayRef.getBase(), valueHistory, getCondHistory, fromThrow);
+                        extendRelatedValues(sootMethod, allPreds, exceptionInfo, defUnit, jArrayRef.getBase(), valueHistory, getCondHistory, fromThrow);
                     }else if (rightOp instanceof JInstanceFieldRef) {
                         JInstanceFieldRef jInstanceFieldRef = (JInstanceFieldRef) rightOp;
-                        extendRelatedValues(allPreds, exceptionInfo, defUnit, jInstanceFieldRef.getBase(), valueHistory, getCondHistory, fromThrow);
+                        extendRelatedValues(sootMethod, allPreds, exceptionInfo, defUnit, jInstanceFieldRef.getBase(), valueHistory, getCondHistory, fromThrow);
                     }else {
                         getExceptionCondition(exceptionInfo.getSootMethod(), defUnit, exceptionInfo, getCondHistory, fromThrow, null);
                     }
@@ -718,6 +716,37 @@ public class ExceptionAnalyzer extends Analyzer {
         return "";
     }
 
+    private void traceCallerOfParamValue(SootMethod sootMethod,ExceptionInfo exceptionInfo, int id, int depth) {
+        if(depth>ConstantUtils.SIGNLARCALLERDEPTH) return;
+        //get the caller of sootMethod, and trace the usage of param
+        for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesInto(sootMethod); it.hasNext(); ) {
+            Edge edge = it.next();
+            SootMethod edgeTgtMtd = edge.getTgt().method();
+            SootMethod edgeSrcMtd = edge.getSrc().method();
+            if(edgeTgtMtd == sootMethod){
+                for(Unit u: SootUtils.getUnitListFromMethod(edgeSrcMtd)){
+                    InvokeExpr invoke = SootUtils.getInvokeExp(u);
+                    if(invoke!=null && invoke.getMethod().equals(edgeTgtMtd)){
+                       if(invoke.getArgs().size()>id ){
+                           //get the idth param
+                           List<Unit> defs = getDefOfLocal(edgeSrcMtd.getSignature(), invoke.getArgs().get(id), u);
+                           for(Unit def: defs){
+                               if(def instanceof  IdentityStmt){
+                                   if(((IdentityStmt)def).getRightOp() instanceof  ParameterRef) {
+                                       int id2 = ((ParameterRef) ((IdentityStmt) def).getRightOp()).getIndex();
+                                       exceptionInfo.addCallerOfSingnlar2SourceVar(edgeSrcMtd.getSignature(), id2);
+                                       traceCallerOfParamValue(edgeSrcMtd, exceptionInfo, id2, depth + 1);
+                                   }else if(((IdentityStmt)def).getRightOp() instanceof  ThisRef) {
+                                       exceptionInfo.addCallerOfSingnlar2SourceVar(edgeSrcMtd.getSignature(), -1);
+                                   }
+                               }
+                           }
+                       }
+                    }
+                }
+            }
+        }
+    }
 
 
     /**
@@ -881,7 +910,7 @@ public class ExceptionAnalyzer extends Analyzer {
 //                        List<Unit> allPreds = new ArrayList<>();
 //                        SootUtils.getAllPredsofUnit(sootMethod, defOfLocal,allPreds);
 //                        allPreds.add(defOfLocal);
-//                        extendRelatedValues(allPreds, exceptionInfo, defOfLocal, argConstant, new ArrayList<>(), new HashSet<>(), true);
+//                        extendRelatedValues(sootMethod, allPreds, exceptionInfo, defOfLocal, argConstant, new ArrayList<>(), new HashSet<>(), true);
                     }
                     message.set(0, s);
 
@@ -931,7 +960,7 @@ public class ExceptionAnalyzer extends Analyzer {
 //                        List<Unit> allPreds = new ArrayList<>();
 //                        SootUtils.getAllPredsofUnit(sootMethod, succs,allPreds);
 //                        allPreds.add(succs);
-//                        extendRelatedValues(allPreds, exceptionInfo, succs, argConstant, new ArrayList<>(), new HashSet<>(), true);
+//                        extendRelatedValues(sootMethod, allPreds, exceptionInfo, succs, argConstant, new ArrayList<>(), new HashSet<>(), true);
                     }
                     message.set(0, s);
                 }
