@@ -44,7 +44,7 @@ public class CrashInfo {
     int maxScore = ConstantUtils.BOTTOMSCORE;
     List<String> noneCodeLabels = new ArrayList<String>();
     String faultInducingPart;
-    List<Integer> faultInducingParas = new ArrayList<>();
+    List<Integer> faultInducingParas = null;
     public Map<String, Integer> getExtendedCallDepth() {
         return extendedCallDepth;
     }
@@ -68,10 +68,7 @@ public class CrashInfo {
         return buggyCandidateObjs;
     }
 
-    public void addBuggyCandidates(String candi, int score, boolean filterByExtendedCG, String reason, List<String> trace) {
-        if(filterByExtendedCG && !extendedCallDepth.containsKey(candi))
-            score = score - ConstantUtils.OUTOFTRACESCORE;
-
+    public void addBuggyCandidates(String candi, int score, String reason, List<String> trace) {
         boolean findPrexInTrace = false;
         for(String traceMtd: getCrashMethodList()){
             int id = Math.max(traceMtd.split("\\.").length-2, 2);

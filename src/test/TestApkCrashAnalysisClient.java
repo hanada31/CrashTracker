@@ -29,7 +29,7 @@ public class TestApkCrashAnalysisClient {
 //        path = "apk\\";
 
         String name;
-        name = "com.manle.phone.android.tangniaobing-259.apk";
+        name = "com.microcell.MyHouse-398.apk";
 
 
         String client = "ApkCrashAnalysisClient";
@@ -46,9 +46,9 @@ public class TestApkCrashAnalysisClient {
         MyConfig.getInstance().setAndroidJar("E:\\AndroidSDK\\android-sdk-windows-new\\platforms");
         MyConfig.getInstance().setSrc_prec(Options.src_prec_apk);
         MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfo.json");
-//        MyConfig.getInstance().setStrategy("NoRelatedMethodFilter");
+        MyConfig.getInstance().setStrategy("NoExtendCG");
         MyConfig.getInstance().setStrategy("");
-        MyConfig.getInstance().setAndroidOSVersion("4.4");
+//        MyConfig.getInstance().setAndroidOSVersion("4.4");
 
     }
 
