@@ -1126,7 +1126,8 @@ public class CrashAnalysis extends Analyzer {
                 }
             }
             System.out.println(buggyRanking);
-            FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"buggyRanking.txt", buggyRanking, true);
+            String tag = MyConfig.getInstance().getResultWarpperFolder().replace(File.separator,"");
+            FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"Ranking-"+tag+".txt", buggyRanking, true);
         }
     }
 

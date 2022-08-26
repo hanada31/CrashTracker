@@ -38,7 +38,7 @@ public class TestExceptionInfoClient {
         MyConfig.getInstance().setMaxPathNumber(30);
         MyConfig.getInstance().setMaxFunctionExpandNumber(5); //10?
         MyConfig.getInstance().setMaxObjectSummarySize(100);
-        MyConfig.getInstance().setResultWarpperFolder("results/" + File.separator);
+        MyConfig.getInstance().setResultWarpperFolder("results" + File.separator);
         MyConfig.getInstance().setResultFolder("Files" + File.separator);
         MyConfig.getInstance().setTimeLimit(100);
         MyConfig.getInstance().setAndroidJar("E:\\AndroidSDK\\android-sdk-windows-new\\platforms");
