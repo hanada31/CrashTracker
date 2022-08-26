@@ -29,7 +29,7 @@ public class TestApkCrashAnalysisClient {
 //        path = "apk\\";
 
         String name;
-        name = "com.microcell.MyHouse-398.apk";
+        name = "com.infomil.leclercdrive-277.apk";
 
 
         String client = "ApkCrashAnalysisClient";

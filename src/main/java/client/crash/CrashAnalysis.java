@@ -425,7 +425,9 @@ public class CrashAnalysis extends Analyzer {
                     String sig = invoke.getMethod().getSignature();
                     if (sig.equals(calleeMethod) || SootUtils.getMethodSimpleNameFromSignature(sig).equals(calleeMethod)) {
                         for(int id :ids){
-                            if (invoke.getArgs().size() > id) {
+                            if(id == -1)
+                                System.out.println("this");
+                            else if (invoke.getArgs().size() > id) {
                                 //get the idth param
                                 List<Unit> defs = getDefOfLocal(caller.getSignature(), invoke.getArgs().get(id), u);
                                 for (Unit def : defs) {
@@ -1127,7 +1129,7 @@ public class CrashAnalysis extends Analyzer {
             }
             System.out.println(buggyRanking);
             String tag = MyConfig.getInstance().getResultWarpperFolder().replace(File.separator,"");
-            FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"Ranking-"+tag+".txt", buggyRanking, true);
+            FileUtils.writeText2File(MyConfig.getInstance().getResultWarpperFolder() +"Ranking-"+tag+".txt", buggyRanking, true);
         }
     }
 
