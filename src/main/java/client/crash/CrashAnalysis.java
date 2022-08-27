@@ -376,8 +376,11 @@ public class CrashAnalysis extends Analyzer {
                     if (map.containsKey(crashInfo.getCrashAPI())) {
                         crashInfo.faultInducingParas = (List<Integer>) map.get(crashInfo.getCrashAPI());
                         SootMethod finalCaller = traceCallerOfParamValue(crashInfo, crashInfo.getCrashAPI());
-//                    System.err.println(finalCaller);
                         n = getParameterTerminateMethod(score, crashInfo, finalCaller);
+                    }else{
+                        //if the parameter point to relationship is not tracked, use the type information to filter
+                        List<String> vars =crashInfo.getExceptionInfo().getRelatedParamValuesInStr();
+                        n = getParameterTerminateMethod(score, crashInfo, vars);
                     }
                 }
             }
@@ -387,29 +390,76 @@ public class CrashAnalysis extends Analyzer {
         withCrashAPIParaHandler(score2, crashInfo);
     }
 
+    private int getParameterTerminateMethod(int score, CrashInfo crashInfo, List<String> vars) {
+        int count =0;
+        boolean find = false;
+        for(String candi : crashInfo.getCrashMethodList()){
+            Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
+            String signature;
+            for(SootMethod sm: methods) {
+                boolean isParaPassed = false;
+                if (sm == null) break;
+                signature = sm.getSignature();
+                for (String paraTye :vars) {
+                    if (signature.contains(paraTye)) {
+                        isParaPassed = true;
+                        break;
+                    }
+                }
+                if (!isParaPassed) {
+                    List<String> trace = new ArrayList<>();
+                    if(signature != null){
+                        trace.add(signature);
+                    }else{
+                        trace.add(candi);
+                    }
+                    crashInfo.addBuggyCandidates(candi,score,"best_match_crash_trace_method", trace);
+                    count++;
+                    find = true;
+                }
+            }
+            if(find) break;
+        }
+        return count;
+    }
 
     //according to the parameter send into framework API
     private void withCrashAPIParaHandler(int score, CrashInfo crashInfo) {
-        if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoExtendCG)){
-            return;
-        }
-        for(SootMethod crashMethod: getCrashSootMethod(crashInfo)){
-            for(Unit unit : crashMethod.getActiveBody().getUnits()){
+        if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoExtendCG)){ return;}
+        boolean find= false;
+        for(SootMethod crashMethod: getCrashSootMethod(crashInfo)) {
+            for (Unit unit : crashMethod.getActiveBody().getUnits()) {
                 InvokeExpr invoke = SootUtils.getInvokeExp(unit);
                 if (invoke == null) continue;
                 String sig = invoke.getMethod().getSignature();
                 if (SootUtils.getMethodSimpleNameFromSignature(sig).equals(crashInfo.getCrashAPI())) {
-                    if(crashInfo.faultInducingParas!=null){
-                        for(int argId: crashInfo.faultInducingParas){
-                            findMethodsWhoModifyParam(score, crashInfo, crashMethod, unit, invoke.getArg(argId));
-                        }
-                    }else {
-                        for (Value argValue : invoke.getArgs()) {
-                            findMethodsWhoModifyParam(score, crashInfo, crashMethod, unit, argValue);
-                        }
+                    find = true;
+                    findMethodsWhoModifyParamWapper(score, crashInfo, crashMethod, unit, invoke);
+                }
+            }
+        }
+        if(find == false){
+            for(SootMethod crashMethod: getCrashSootMethod(crashInfo)){
+                for(Unit unit : crashMethod.getActiveBody().getUnits()){
+                    InvokeExpr invoke = SootUtils.getInvokeExp(unit);
+                    if (invoke == null) continue;
+                    String name = invoke.getMethod().getName();
+                    int last = crashInfo.getCrashAPI().split("\\.").length-1;
+                    if (name.equals(crashInfo.getCrashAPI().split("\\.")[last])) {
+                        findMethodsWhoModifyParamWapper(score, crashInfo, crashMethod, unit, invoke);
                     }
                 }
             }
+        }
+    }
+
+    private void findMethodsWhoModifyParamWapper(int score, CrashInfo crashInfo, SootMethod crashMethod, Unit unit, InvokeExpr invoke) {
+        if (crashInfo.faultInducingParas != null) {
+            for (int argId : crashInfo.faultInducingParas)
+                findMethodsWhoModifyParam(score, crashInfo, crashMethod, unit, invoke.getArg(argId));
+        } else {
+            for (Value argValue : invoke.getArgs())
+                findMethodsWhoModifyParam(score, crashInfo, crashMethod, unit, argValue);
         }
     }
 

@@ -26,10 +26,9 @@ public class TestApkCrashAnalysisClient {
         String path;
         path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
 //        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
-//        path = "apk\\";
 
         String name;
-        name = "com.piclens.fotos365-338.apk";
+        name = "com.source.coach-282.apk";
 
 
         String client = "ApkCrashAnalysisClient";

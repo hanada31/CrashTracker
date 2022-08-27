@@ -24,10 +24,10 @@ public class TestIROutputClient {
     private void setArgs() {
         String path;
         path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
-        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
-        path = "apk\\";
+//        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
+//        path = "apk\\";
         String name;
-        name = "condition.jar";
+        name = "com.source.coach-282.apk";
 
         String client = "IROutputClient";
 
