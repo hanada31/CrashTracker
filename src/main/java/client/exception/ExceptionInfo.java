@@ -97,7 +97,7 @@ public class ExceptionInfo {
 
     public RelatedVarType getRelatedVarType() {
 
-        if (isEmpty()) return RelatedVarType.EMPTY;
+        if (isEmpty()) return RelatedVarType.Empty;
         if (isParameterOnly()) return RelatedVarType.Parameter;
         if (isFieldOnly()) return RelatedVarType.Field;
         if (isParaAndField()) return RelatedVarType.ParaAndField;

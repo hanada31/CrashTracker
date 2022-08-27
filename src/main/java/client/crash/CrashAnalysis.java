@@ -70,24 +70,24 @@ public class CrashAnalysis extends Analyzer {
             else if(exceptionInfo!=null && exceptionInfo.getRelatedVarType()!=null) {
                 switch (exceptionInfo.getRelatedVarType()) {
                     //first choice filterExtendedCG false, second choice true
-                    case EMPTY:
-                        relatedVarType="EMPTY";
+                    case Empty:
+                        relatedVarType=RelatedVarType.Empty.toString();
                         overrideMissingHandler(ConstantUtils.INITSCORE,crashInfo); //OMA
                         break;
                     case Parameter:
-                        relatedVarType="Parameter";
+                        relatedVarType=RelatedVarType.Parameter.toString();
                         withParameterHandler(ConstantUtils.INITSCORE, crashInfo, true); //TMA
                         break;
                     case Field:
-                        relatedVarType="Field";
+                        relatedVarType=RelatedVarType.Field.toString();
                         withFieldHandler(ConstantUtils.INITSCORE, crashInfo);
                     case ParaAndField:
-                        relatedVarType="ParaAndField";
+                        relatedVarType=RelatedVarType.ParaAndField.toString();
                         withFieldHandler(ConstantUtils.INITSCORE, crashInfo); //FCA
                         withParameterHandler(ConstantUtils.INITSCORE, crashInfo, true); //TMA
                         break;
                     case Unknown:
-                        relatedVarType="Unknown";
+                        relatedVarType=RelatedVarType.Unknown.toString();
                         withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false);
                         break;
                 }
@@ -836,9 +836,7 @@ public class CrashAnalysis extends Analyzer {
             System.out.println("target is "+ targetVer);
 
             readExceptionSummary(crashInfo, targetMethodName);
-
         }
-
     }
 
     private int getTargetVersion(String[] versionType) {
@@ -846,22 +844,22 @@ public class CrashAnalysis extends Analyzer {
         System.out.println(PrintUtils.printArray(versionType));
         for(String relatedVarType: versionType) {
             if(relatedVarType ==null) continue;
-            if (relatedVarType.equals("ParaAndField")) paraAndField++;
-            if (relatedVarType.equals("FieldOnly")) fieldOnly++;
-            if (relatedVarType.equals("ParameterOnly")) parameterOnly++;
-            if (relatedVarType.equals("OverrideMissing")) overrideMissing++;
+            if (relatedVarType.equals(RelatedVarType.ParaAndField.toString())) paraAndField++;
+            if (relatedVarType.equals(RelatedVarType.Field.toString())) fieldOnly++;
+            if (relatedVarType.equals(RelatedVarType.Parameter.toString())) parameterOnly++;
+            if (relatedVarType.equals(RelatedVarType.Empty.toString())) overrideMissing++;
         }
-        String choice = "unknown";
+        String choice = RelatedVarType.Unknown.toString();
         if(paraAndField + parameterOnly + fieldOnly + overrideMissing ==0)
-            choice = "unknown";
+            choice = RelatedVarType.Unknown.toString();
         else if(paraAndField >= parameterOnly && paraAndField >= fieldOnly && paraAndField >= overrideMissing)
-            choice =  "ParaAndField";
+            choice =  RelatedVarType.ParaAndField.toString();
         else if(parameterOnly >= fieldOnly && parameterOnly >= paraAndField && parameterOnly >= overrideMissing)
-            choice = "ParameterOnly";
+            choice = RelatedVarType.Parameter.toString();
         else if(fieldOnly >= parameterOnly && fieldOnly >= paraAndField && fieldOnly >= overrideMissing)
-            choice = "FieldOnly";
+            choice =  RelatedVarType.Field.toString();
         else if(overrideMissing >= parameterOnly && overrideMissing >= paraAndField && overrideMissing >= fieldOnly)
-            choice = "OverrideMissing";
+            choice = RelatedVarType.Empty.toString();
 
         for(int i = versionType.length-1; i>=0; i--) {
             if(versionType[i]!=null && versionType[i].equals(choice)){
