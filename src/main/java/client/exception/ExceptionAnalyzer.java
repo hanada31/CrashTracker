@@ -376,7 +376,7 @@ public class ExceptionAnalyzer extends Analyzer {
         List<String> trace = new ArrayList<>();
         trace.add(sootMethod.getSignature());
 
-        getExceptionCondition(sootMethod, unit, exceptionInfo, new HashSet<>(), fromThrow, null);
+        getExceptionCondition(sootMethod, unit, exceptionInfo, new HashSet<>(), fromThrow);
         if(exceptionInfo.getRelatedParamValues().size()>0 && exceptionInfo.getRelatedFieldValues().size() ==0) {
             List<String> newTrace = new ArrayList<>(trace);
             RelatedMethod addMethod = new RelatedMethod(sootMethod.getSignature(), RelatedMethodSource.CALLER, 0, newTrace);
@@ -576,7 +576,7 @@ public class ExceptionAnalyzer extends Analyzer {
      * only analyze one level if condition, forward
      */
     private void getExceptionCondition(SootMethod sootMethod, Unit unit, ExceptionInfo exceptionInfo,
-                                       Set<Unit> getCondHistory, boolean fromThrow, Unit lastGoto) {
+                                       Set<Unit> getCondHistory, boolean fromThrow) {
         if(getCondHistory.contains(unit) || getCondHistory.size()> ConstantUtils.CONDITIONHISTORYSIZE) return;// if defUnit is not a pred of unit
         getCondHistory.add(unit);
         Body body = sootMethod.getActiveBody();
@@ -588,11 +588,8 @@ public class ExceptionAnalyzer extends Analyzer {
         for (Unit predUnit : predsOf) {
             if (predUnit instanceof IfStmt) {
                 //direct condition or multiple condition
-                if(exceptionInfo.getConditionUnits().size()>0 && lastGoto!=null && ((IfStmt) predUnit).getTarget() != lastGoto)
-                    continue;
                 exceptionInfo.getTracedUnits().add(predUnit);
                 IfStmt ifStmt = (IfStmt) predUnit;
-                lastGoto = ifStmt.getTarget();
                 Value cond = ifStmt.getCondition();
                 exceptionInfo.addRelatedCondition(cond);
                 exceptionInfo.getConditionUnits().add(ifStmt);
@@ -614,9 +611,9 @@ public class ExceptionAnalyzer extends Analyzer {
                     //analyzed try-catch contents
                 }
             }
-            if(fromThrow  && exceptionInfo.getConditions().size()>0 && gotoTargets.contains(predUnit))
-                continue;
-            getExceptionCondition(sootMethod, predUnit, exceptionInfo,getCondHistory, fromThrow, lastGoto);
+//            if(fromThrow  && exceptionInfo.getConditions().size()>0 && gotoTargets.contains(predUnit))
+//                continue;
+            getExceptionCondition(sootMethod, predUnit, exceptionInfo,getCondHistory, fromThrow);
         }
     }
 
@@ -694,7 +691,7 @@ public class ExceptionAnalyzer extends Analyzer {
                                     extendRelatedValues(sootMethod, allPreds, exceptionInfo, use.getUnit(), vb.getValue(), valueHistory, getCondHistory, fromThrow);
                             }
                         } else {
-                            getExceptionCondition(exceptionInfo.getSootMethod(), defUnit, exceptionInfo, getCondHistory, fromThrow, null);
+                            getExceptionCondition(exceptionInfo.getSootMethod(), defUnit, exceptionInfo, getCondHistory, fromThrow);
                         }
                     } else if (rightOp instanceof StaticFieldRef) {
                         //from static field value
@@ -706,7 +703,7 @@ public class ExceptionAnalyzer extends Analyzer {
                         JInstanceFieldRef jInstanceFieldRef = (JInstanceFieldRef) rightOp;
                         extendRelatedValues(sootMethod, allPreds, exceptionInfo, defUnit, jInstanceFieldRef.getBase(), valueHistory, getCondHistory, fromThrow);
                     }else {
-                        getExceptionCondition(exceptionInfo.getSootMethod(), defUnit, exceptionInfo, getCondHistory, fromThrow, null);
+                        getExceptionCondition(exceptionInfo.getSootMethod(), defUnit, exceptionInfo, getCondHistory, fromThrow);
                     }
                 } else {
                     System.out.println(defUnit.getClass().getName() + "::" + defUnit);
@@ -762,31 +759,6 @@ public class ExceptionAnalyzer extends Analyzer {
             else if(u instanceof GotoStmt){
                 GotoStmt gotoStmt = (GotoStmt)u;
                 res.add(gotoStmt.getTargetBox().getUnit());
-            }
-        }
-        return res;
-    }    /**
-     * get the goto destination of IfStatement
-     */
-    private List<Unit> getGotoTargetsTwice(Body body) {
-        List<Unit> temp = new ArrayList<>();
-        List<Unit> res = new ArrayList<>();
-        for(Unit u : body.getUnits()){
-            if(u instanceof JIfStmt){
-                JIfStmt ifStmt = (JIfStmt)u;
-                if(temp.contains(ifStmt.getTargetBox().getUnit())){
-                    res.add(ifStmt.getTargetBox().getUnit());
-                }else {
-                    temp.add(ifStmt.getTargetBox().getUnit());
-                }
-            }
-            else if(u instanceof GotoStmt){
-                GotoStmt gotoStmt = (GotoStmt)u;
-                if(temp.contains(gotoStmt.getTargetBox().getUnit())){
-                    res.add(gotoStmt.getTargetBox().getUnit());
-                }else {
-                    temp.add(gotoStmt.getTargetBox().getUnit());
-                }
             }
         }
         return res;
