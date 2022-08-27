@@ -29,7 +29,7 @@ public class TestApkCrashAnalysisClient {
 //        path = "apk\\";
 
         String name;
-        name = "com.twidroidpro-359.apk";
+        name = "com.piclens.fotos365-338.apk";
 
 
         String client = "ApkCrashAnalysisClient";

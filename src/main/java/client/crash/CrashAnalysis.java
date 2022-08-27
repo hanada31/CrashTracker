@@ -82,6 +82,7 @@ public class CrashAnalysis extends Analyzer {
                     case Field:
                         relatedVarType=RelatedVarType.Field.toString();
                         withFieldHandler(ConstantUtils.INITSCORE, crashInfo);
+                        break;
                     case ParaAndField:
                         relatedVarType=RelatedVarType.ParaAndField.toString();
                         withFieldHandler(ConstantUtils.INITSCORE, crashInfo); //FCA
