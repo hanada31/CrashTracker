@@ -71,9 +71,6 @@ public class CrashAnalysis extends Analyzer {
                 switch (exceptionInfo.getRelatedVarType()) {
                     //first choice filterExtendedCG false, second choice true
                     case Empty:
-                        relatedVarType=RelatedVarType.Empty.toString();
-                        overrideMissingHandler(ConstantUtils.INITSCORE,crashInfo); //OMA
-                        break;
                     case EMPTY:
                         relatedVarType=RelatedVarType.Empty.toString();
                         overrideMissingHandler(ConstantUtils.INITSCORE,crashInfo); //OMA
