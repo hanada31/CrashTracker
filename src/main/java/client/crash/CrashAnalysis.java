@@ -74,6 +74,10 @@ public class CrashAnalysis extends Analyzer {
                         relatedVarType=RelatedVarType.Empty.toString();
                         overrideMissingHandler(ConstantUtils.INITSCORE,crashInfo); //OMA
                         break;
+                    case EMPTY:
+                        relatedVarType=RelatedVarType.Empty.toString();
+                        overrideMissingHandler(ConstantUtils.INITSCORE,crashInfo); //OMA
+                        break;
                     case Parameter:
                         relatedVarType=RelatedVarType.Parameter.toString();
                         withParameterHandler(ConstantUtils.INITSCORE, crashInfo, true); //TMA

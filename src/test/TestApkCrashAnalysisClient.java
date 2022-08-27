@@ -25,11 +25,11 @@ public class TestApkCrashAnalysisClient {
     private void setArgs() {
         String path;
         path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
-        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
+//        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 //        path = "apk\\";
 
         String name;
-        name = "cgeo.geocaching-1503.apk";
+        name = "com.twidroidpro-359.apk";
 
 
         String client = "ApkCrashAnalysisClient";
