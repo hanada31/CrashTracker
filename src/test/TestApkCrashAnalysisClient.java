@@ -45,8 +45,8 @@ public class TestApkCrashAnalysisClient {
         MyConfig.getInstance().setAndroidJar("E:\\AndroidSDK\\android-sdk-windows-new\\platforms");
         MyConfig.getInstance().setSrc_prec(Options.src_prec_apk);
         MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfo.json");
-        MyConfig.getInstance().setStrategy("NoExtendCG");
-        MyConfig.getInstance().setStrategy("");
+        MyConfig.getInstance().setStrategy("NoRVType");
+//        MyConfig.getInstance().setStrategy("");
         MyConfig.getInstance().setAndroidOSVersion("5.0");
 
     }

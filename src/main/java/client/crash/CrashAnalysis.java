@@ -62,13 +62,13 @@ public class CrashAnalysis extends Analyzer {
             getExtendedCallTrace(crashInfo);
 //            System.out.println(PrintUtils.printMap(crashInfo.getExtendedCallDepth()));
             if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoRVType) ){
-                exceptionInfo = null;
+                relatedVarType=RelatedVarType.Unknown.toString();
+                withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false);
             }
             else if(exceptionInfo!=null && exceptionInfo.getRelatedVarType()!=null) {
                 switch (exceptionInfo.getRelatedVarType()) {
                     //first choice filterExtendedCG false, second choice true
                     case Empty:
-//                    case EMPTY:
                         relatedVarType=RelatedVarType.Empty.toString();
                         overrideMissingHandler(ConstantUtils.INITSCORE,crashInfo); //OMA
                         break;
