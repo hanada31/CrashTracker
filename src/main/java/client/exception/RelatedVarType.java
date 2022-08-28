@@ -6,4 +6,4 @@ package main.java.client.exception;
  * @Version 1.0
  */
 public enum RelatedVarType {
-    Empty, Parameter, Field, ParaAndField, Unknown,EMPTY}
+    Empty, Parameter, Field, ParaAndField, Unknown}

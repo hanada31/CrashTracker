@@ -24,10 +24,11 @@ public class TestIROutputClient {
     private void setArgs() {
         String path;
         path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
+        path = "D:\\SoftwareData\\dataset\\android-framework\\classes\\";
 //        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
-//        path = "apk\\";
+        path = "apk\\";
         String name;
-        name = "com.source.coach-282.apk";
+        name = "Kontalk-3.1.10-basic.apk";
 
         String client = "IROutputClient";
 
