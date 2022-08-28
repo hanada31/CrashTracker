@@ -166,7 +166,7 @@ public class ExceptionInfoClientOutput {
         jsonObject.put("keyAPIDiffClassNum", exceptionInfo.keyAPIDiffClassNum);
 
         JSONArray relatedMethodsSameArray = new JSONArray();
-        if (exceptionInfo.getRelatedMethodsInSameClass(false).size() > 0) {
+        if (exceptionInfo.getRelatedMethodsInSameClass(true).size() > 0) {
             for (RelatedMethod mtd : exceptionInfo.getRelatedMethodsInSameClass(false)) {
                 String mtdString = JSONObject.toJSONString(mtd);
                 JSONObject mtdObject = JSONObject.parseObject(mtdString);  // 转换为json对象
@@ -176,7 +176,7 @@ public class ExceptionInfoClientOutput {
         jsonObject.put("keyAPISameClass" , relatedMethodsSameArray);
 
         JSONArray relatedMethodsDiffArray = new JSONArray();
-        if (exceptionInfo.getRelatedMethodsInDiffClass(false).size() > 0) {
+        if (exceptionInfo.getRelatedMethodsInDiffClass(true).size() > 0) {
             for (RelatedMethod mtd : exceptionInfo.getRelatedMethodsInDiffClass(false)) {
                 String mtdString = JSONObject.toJSONString(mtd);
                 JSONObject mtdObject = JSONObject.parseObject(mtdString);  // 转换为json对象

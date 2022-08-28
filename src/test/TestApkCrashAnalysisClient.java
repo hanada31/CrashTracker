@@ -28,7 +28,7 @@ public class TestApkCrashAnalysisClient {
 //        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 
         String name;
-        name = "hamsoft.inc.barcodegen-466.apk";
+        name = "com.smallapp.BlowApp-71.apk";
 
 
         String client = "ApkCrashAnalysisClient";
