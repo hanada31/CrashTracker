@@ -81,10 +81,12 @@ public class ExceptionInfoClientOutput {
                 addBasic2(jsonObject, info);
                 addConditions(jsonObject, info);
                 addRelatedValues(jsonObject, info);
-//                addRelatedMethods(jsonObject, info);
+                addRelatedMethodNum(jsonObject, info);
+                addBackwardParamCallerNum(jsonObject, info);
             }
         }
     }
+
 
     public static void writeJsonForFramework(JSONArray exceptionListElement) {
         String path = MyConfig.getInstance().getExceptionFilePath()+ "summary"+ File.separator;
@@ -147,11 +149,21 @@ public class ExceptionInfoClientOutput {
                     +PrintUtils.printList(info.getRelatedFieldValues()) +"; "+ PrintUtils.printList(info.getCaughtedValues()));
     }
 
+    private static void addBackwardParamCallerNum(JSONObject jsonObject, ExceptionInfo exceptionInfo) {
+        if(exceptionInfo==null) return;
+        jsonObject.put("backwardParamCallerNum", exceptionInfo.getCallerOfSingnlar2SourceVar().size());
+    }
+
+    public static void addRelatedMethodNum(JSONObject jsonObject, ExceptionInfo exceptionInfo) {
+        if(exceptionInfo==null) return;
+        jsonObject.put("keyAPISameClassNum", exceptionInfo.keyAPISameClassNum);
+        jsonObject.put("keyAPIDiffClassNum", exceptionInfo.keyAPIDiffClassNum);
+    }
 
     public static void addRelatedMethods(JSONObject jsonObject, ExceptionInfo exceptionInfo) {
         if(exceptionInfo==null) return;
-        jsonObject.put("relatedMethodsInSameClass", exceptionInfo.getRelatedMethodsInSameClass(true).size());
-        jsonObject.put("relatedMethodsInDiffClass", exceptionInfo.getRelatedMethodsInDiffClass(true).size());
+        jsonObject.put("keyAPISameClassNum", exceptionInfo.keyAPISameClassNum);
+        jsonObject.put("keyAPIDiffClassNum", exceptionInfo.keyAPIDiffClassNum);
 
         JSONArray relatedMethodsSameArray = new JSONArray();
         if (exceptionInfo.getRelatedMethodsInSameClass(false).size() > 0) {
@@ -161,7 +173,7 @@ public class ExceptionInfoClientOutput {
                 relatedMethodsSameArray.add(mtdObject);
             }
         }
-        jsonObject.put("relatedMethodSameClass" , relatedMethodsSameArray);
+        jsonObject.put("keyAPISameClass" , relatedMethodsSameArray);
 
         JSONArray relatedMethodsDiffArray = new JSONArray();
         if (exceptionInfo.getRelatedMethodsInDiffClass(false).size() > 0) {
@@ -171,7 +183,7 @@ public class ExceptionInfoClientOutput {
                 relatedMethodsDiffArray.add(mtdObject);
             }
         }
-        jsonObject.put("relatedMethodDiffClass" , relatedMethodsDiffArray);
+        jsonObject.put("keyAPIDiffClass" , relatedMethodsDiffArray);
     }
 
     private static void addCallerOfParam(JSONObject jsonObject, ExceptionInfo exceptionInfo) {

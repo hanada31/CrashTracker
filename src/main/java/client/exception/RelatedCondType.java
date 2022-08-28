@@ -6,5 +6,5 @@ package main.java.client.exception;
  * @Version 1.0
  */
 public enum RelatedCondType {
-    Basic, NotReturn, Unknown, Caught
+    Basic, NotReturn, Empty
 }

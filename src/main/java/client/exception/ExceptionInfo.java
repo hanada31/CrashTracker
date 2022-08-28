@@ -43,6 +43,8 @@ public class ExceptionInfo {
     private boolean isResourceRelated;
     private boolean isHardwareRelated;
     private Map<String, List<Integer>> callerOfSingnlar2SourceVar;
+    public int keyAPISameClassNum;
+    public int keyAPIDiffClassNum;
 
     public ExceptionInfo() {
         this.relatedParamValues = new ArrayList<>();
@@ -59,7 +61,7 @@ public class ExceptionInfo {
         this.relatedValueIndex = new HashSet<>();
         this.relatedMethodsInSameClassMap = new TreeMap<Integer, ArrayList<RelatedMethod>>();
         this.relatedMethodsInDiffClassMap = new TreeMap<Integer, ArrayList<RelatedMethod>>();
-        this.relatedCondType = RelatedCondType.Unknown;
+        this.relatedCondType = RelatedCondType.Empty;
         this.relatedVarType = RelatedVarType.Unknown;
         this.callerOfSingnlar2SourceVar = new HashMap<String, List<Integer>>();
         }
@@ -105,7 +107,7 @@ public class ExceptionInfo {
     }
 
     public boolean isEmpty() {
-        return getRelatedMethods().size() == 0 && getConditions().size() == 0 && !getRelatedCondType().equals(RelatedCondType.Caught);
+        return getRelatedMethods().size() == 0 && getConditions().size() == 0 && caughtedValues.isEmpty();
     }
 
     public boolean isParameterOnly() {
@@ -168,6 +170,8 @@ public class ExceptionInfo {
                     return;
             }
             relatedMethodsInSameClassMap.get(m.getDepth()).add(m);
+            if(m.getSource() == RelatedMethodSource.FIELD || m.getSource() == RelatedMethodSource.FIELDCALLER)
+                keyAPISameClassNum++;
         }
     }
 
@@ -180,6 +184,8 @@ public class ExceptionInfo {
                     return;
             }
             relatedMethodsInDiffClassMap.get(m.getDepth()).add(m);
+            if(m.getSource() == RelatedMethodSource.FIELD || m.getSource() == RelatedMethodSource.FIELDCALLER)
+                keyAPIDiffClassNum++;
         }
     }
 
@@ -396,8 +402,6 @@ public class ExceptionInfo {
     public void setConditionUnits(List<Unit> conditionUnits) {
         this.conditionUnits = conditionUnits;
     }
-
-
 
     public void addRelatedMethods(String signature) {
 //        if (SootUtils.getSootMethodBySignature(signature) != null) {

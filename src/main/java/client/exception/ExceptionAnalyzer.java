@@ -351,12 +351,12 @@ public class ExceptionAnalyzer extends Analyzer {
     }
 
     private void getConditionType(ExceptionInfo exceptionInfo, int retValue) {
-        if(exceptionInfo.getCaughtedValues().size()>0)
-            exceptionInfo.setRelatedCondType(RelatedCondType.Caught);
-        else if(retValue>0)
+        if(retValue>0)
             exceptionInfo.setRelatedCondType(RelatedCondType.NotReturn);
-        else
+        else if(exceptionInfo.getConditions().size()>0)
             exceptionInfo.setRelatedCondType(RelatedCondType.Basic);
+        else
+            exceptionInfo.setRelatedCondType(RelatedCondType.Empty);
     }
 
     private void getRetUnitsFlowIntoConditionUnits(SootMethod sootMethod, Unit unit, Set<Unit> retUnits, HashSet<Unit> history) {
@@ -509,10 +509,12 @@ public class ExceptionAnalyzer extends Analyzer {
                         newTrace.add(0,"key field: " + field.toString());
                         newTrace.add(0,otherMethod.getSignature());
                         RelatedMethod addMethod = new RelatedMethod(otherMethod.getSignature(),mtdSource,depth, trace);
-                        if(otherMethod.getDeclaringClass() == exceptionInfo.getSootMethod().getDeclaringClass())
+                        if(otherMethod.getDeclaringClass() == exceptionInfo.getSootMethod().getDeclaringClass()) {
                             exceptionInfo.addRelatedMethodsInSameClassMap(addMethod);
-                        else
+                        }
+                        else {
                             exceptionInfo.addRelatedMethodsInDiffClassMap(addMethod);
+                        }
                         exceptionInfo.addRelatedMethods(otherMethod.getSignature());
                     }
                     List<String> newTrace = new ArrayList<>(trace);

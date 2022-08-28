@@ -30,7 +30,7 @@ public class TestExceptionInfoClient {
 //        MyConfig.getInstance().setAndroidOSVersion("");
 
         String client = "ExceptionInfoClient";
-        client = "IROutputClient";
+//        client = "IROutputClient";
 
 
         name = "android"+MyConfig.getInstance().getAndroidOSVersion();;

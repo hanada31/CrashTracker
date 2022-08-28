@@ -64,9 +64,6 @@ public class CrashAnalysis extends Analyzer {
             if(MyConfig.getInstance().getStrategy().equals(ConstantUtils.NoRVType) ){
                 exceptionInfo = null;
             }
-            if(exceptionInfo!=null && exceptionInfo.getRelatedCondType()==RelatedCondType.Caught) {
-                withParameterHandler(ConstantUtils.INITSCORE, crashInfo, false);
-            }
             else if(exceptionInfo!=null && exceptionInfo.getRelatedVarType()!=null) {
                 switch (exceptionInfo.getRelatedVarType()) {
                     //first choice filterExtendedCG false, second choice true
@@ -1012,7 +1009,7 @@ public class CrashAnalysis extends Analyzer {
                 exceptionInfo.setRelatedVarType(RelatedVarType.valueOf(jsonObject.getString("relatedVarType")));
             if (jsonObject.getString("relatedCondType") != null)
                 exceptionInfo.setRelatedCondType(RelatedCondType.valueOf(jsonObject.getString("relatedCondType")));
-            JSONArray sameClsObjs = jsonObject.getJSONArray("relatedMethodSameClass");
+            JSONArray sameClsObjs = jsonObject.getJSONArray("keyAPISameClass");
             for (Object obj : sameClsObjs) {
                 JSONObject sameClsObj = (JSONObject) obj;
                 RelatedMethod relatedMethod = new RelatedMethod();
@@ -1026,7 +1023,7 @@ public class CrashAnalysis extends Analyzer {
                 relatedMethod.addTrace(newTrace);
                 exceptionInfo.addRelatedMethodsInSameClass(relatedMethod);
             }
-            JSONArray diffClsObjs = jsonObject.getJSONArray("relatedMethodDiffClass");
+            JSONArray diffClsObjs = jsonObject.getJSONArray("keyAPIDiffClass");
             for (Object clsObj : diffClsObjs) {
                 JSONObject diffClsObj = (JSONObject) clsObj;
                 RelatedMethod relatedMethod = new RelatedMethod();

@@ -3,6 +3,9 @@ package main.java.client.dataAnalysis;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import main.java.base.MyConfig;
+import main.java.client.exception.ExceptionInfo;
+import main.java.client.exception.RelatedCondType;
+import main.java.client.exception.RelatedVarType;
 import main.java.utils.FileUtils;
 
 import java.io.File;
@@ -30,19 +33,34 @@ public class ExceptionInfoCount {
         System.out.println("write to "+ MyConfig.getInstance().getResultFolder() +"exceptionInfoCount.txt");
 
         StringBuilder sb = new StringBuilder();
-        sb.append("version\t" + "exceptionNum\t" + "exceptionTypeNum\t" + "uniqueMethodNum\t");
-        sb.append("msgWithsS\t" + "msgWithoutsS\t" + "notNullMsg\t");
-        sb.append("null"  + "\t");
-        sb.append("OverrideMissing"  + "\t");
-        sb.append("ParameterOnly"  + "\t");
-        sb.append("FieldOnly"  + "\t");
-        sb.append("ParaAndField"  + "\t");
+        sb.append("version\t" + "exception\t" + "exceptionType\t" + "method\t");
+        sb.append("msgWith_sS\t" + "msgWithout_sS\t" + "msgNotNull\t");
 
-        sb.append("Direct"  + "\t");
-        sb.append("Multiple"  + "\t");
-        sb.append("NotReturn"  + "\t");
-        sb.append("Caught"  + "\t");
-        sb.append("Unknown"  + "\n");
+        sb.append(RelatedVarType.Unknown.toString() + "\t");
+        sb.append(RelatedVarType.Empty.toString()  + "\t");
+        sb.append(RelatedVarType.Parameter.toString() + "\t");
+        sb.append(RelatedVarType.Field.toString()  + "\t");
+        sb.append(RelatedVarType.ParaAndField.toString()  + "\t");
+
+        sb.append(RelatedCondType.Basic.toString() + "\t");
+        sb.append(RelatedCondType.NotReturn.toString()  + "\t");
+        sb.append( RelatedCondType.Empty.toString()  + "\t");
+        sb.append("ConditionLengthSum"  + "\t");
+
+        sb.append("hasBackwardParamCaller"  + "\t");
+        sb.append("backwardParamCallerNum"  + "\t");
+
+        sb.append("hasKeyAPISameClassNum"  + "\t");
+        sb.append("keyAPISameClassNum"  + "\t");
+
+        sb.append("hasKeyAPIDiffClassNum"  + "\t");
+        sb.append("keyAPIDiffClassNum"  + "\t");
+
+        sb.append("hasKeyAPI"  + "\t");
+        sb.append("keyAPINum"  + "\t");
+
+
+        sb.append("exception"  + "\n");
 
         for (String version : versions) {
             String str = getExceptionWithGivenVersion(version);
@@ -70,6 +88,16 @@ public class ExceptionInfoCount {
         Map<String, Integer> relatedCondTypeMap = new HashMap<String, Integer>();
         int extractedMsgWithsS = 0;
         int extractedMsgWithoutsS = 0;
+        long conditionLengthSum = 0;
+        int hasBackwardParamCaller = 0;
+        long backwardParamCallerNum = 0;
+        int hasKeyAPISameClassNum = 0;
+        long keyAPISameClassNum = 0;
+        int hasKeyAPIDiffClassNum = 0;
+        long keyAPIDiffClassNum = 0;
+        int hasKeyAPI = 0;
+
+
         JSONArray methods = wrapperObject.getJSONArray("exceptions");//构建JSONArray数组
         exceptionNum = methods.size();
         for (int i = 0 ; i < methods.size();i++){
@@ -95,24 +123,60 @@ public class ExceptionInfoCount {
                 relatedCondTypeMap.put(relatedCondType, 1);
             }
             relatedCondTypeMap.put(relatedCondType, relatedCondTypeMap.get(relatedCondType)+1);
+
+            String conditions = jsonObject.getString("conditions");
+            if(conditions!=null){
+                conditionLengthSum += conditions.split(",").length;
+            }
+            if(jsonObject.getInteger("backwardParamCallerNum")!=null && jsonObject.getInteger("backwardParamCallerNum")>1) {
+                hasBackwardParamCaller++; //the method itself will be added
+                backwardParamCallerNum += jsonObject.getInteger("backwardParamCallerNum")-1;
+            }
+            if(jsonObject.getInteger("keyAPISameClassNum")!=null && jsonObject.getInteger("keyAPISameClassNum")>0) {
+                if(relatedVarType.equals(RelatedVarType.Parameter.toString())){
+                    System.out.println(jsonObject);
+                }
+                hasKeyAPISameClassNum++;
+                keyAPISameClassNum += jsonObject.getInteger("keyAPISameClassNum");
+            }
+            if(jsonObject.getInteger("keyAPIDiffClassNum")!=null && jsonObject.getInteger("keyAPIDiffClassNum")>0) {
+                hasKeyAPIDiffClassNum++;
+                keyAPIDiffClassNum += jsonObject.getInteger("keyAPIDiffClassNum");
+            }
+            if((jsonObject.getInteger("keyAPISameClassNum")!=null && jsonObject.getInteger("keyAPISameClassNum")>0) ||
+                    (jsonObject.getInteger("keyAPIDiffClassNum")!=null && jsonObject.getInteger("keyAPIDiffClassNum")>0)) {
+                hasKeyAPI++;
+            }
         }
         StringBuilder sb = new StringBuilder(version + "\t" + exceptionNum +"\t" + exceptionType.size()+"\t" + uniqueMethod.size()+"\t");
 
         sb.append(extractedMsgWithsS+ "\t");
         sb.append(extractedMsgWithoutsS+ "\t");
         sb.append(extractedMsgWithsS+extractedMsgWithoutsS+ "\t");
-        sb.append(relatedVarTypeMap.get(null)+ "\t");
-        sb.append(relatedVarTypeMap.get("OverrideMissing") + "\t");
-        sb.append(relatedVarTypeMap.get("ParameterOnly") + "\t");
-        sb.append(relatedVarTypeMap.get("FieldOnly") + "\t");
-        sb.append(relatedVarTypeMap.get("ParaAndField") + "\t");
+
+        sb.append(relatedVarTypeMap.get(RelatedVarType.Unknown.toString())+ "\t");
+        sb.append(relatedVarTypeMap.get(RelatedVarType.Empty.toString()) + "\t");
+        sb.append(relatedVarTypeMap.get(RelatedVarType.Parameter.toString()) + "\t");
+        sb.append(relatedVarTypeMap.get(RelatedVarType.Field.toString()) + "\t");
+        sb.append(relatedVarTypeMap.get(RelatedVarType.ParaAndField.toString()) + "\t");
+
+        sb.append(relatedCondTypeMap.get(RelatedCondType.Basic.toString()) + "\t");
+        sb.append(relatedCondTypeMap.get(RelatedCondType.NotReturn.toString()) + "\t");
+        sb.append(relatedCondTypeMap.get(RelatedCondType.Empty.toString()) + "\t");
+
+        sb.append(conditionLengthSum + "\t");
+        sb.append(hasBackwardParamCaller + "\t");
+        sb.append(backwardParamCallerNum + "\t");
+        sb.append(hasKeyAPISameClassNum + "\t");
+        sb.append(keyAPISameClassNum + "\t");
+        sb.append(hasKeyAPIDiffClassNum + "\t");
+        sb.append(keyAPIDiffClassNum + "\t");
+
+        sb.append(hasKeyAPI + "\t");
+        sb.append(keyAPISameClassNum + keyAPIDiffClassNum + "\t");
 
 
-        sb.append(relatedCondTypeMap.get("Direct") + "\t");
-        sb.append(relatedCondTypeMap.get("Multiple") + "\t");
-        sb.append(relatedCondTypeMap.get("NotReturn") + "\t");
-        sb.append(relatedCondTypeMap.get("Caught") + "\t");
-        sb.append(relatedCondTypeMap.get("Unknown") + "\t");
+        sb.append(exceptionNum+ "\t");
         return  sb+"\n";
     }
 }
