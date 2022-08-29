@@ -1002,9 +1002,9 @@ public class CrashAnalysis extends Analyzer {
                 exceptionInfo.setRelatedCondType(RelatedCondType.valueOf(jsonObject.getString("relatedCondType")));
 
             //strategy NoRVType
-            if(!MyConfig.getInstance().getStrategy().equals(Strategy.NoRVType.toString()) ){
+            if(MyConfig.getInstance().getStrategy().equals(Strategy.NoRVType.toString()) ){
                 exceptionInfo.setRelatedVarType(RelatedVarType.Unknown);
-            }else if(!MyConfig.getInstance().getStrategy().equals(Strategy.ExtendCG.toString()) ){
+            }else if(MyConfig.getInstance().getStrategy().equals(Strategy.ExtendCG.toString()) ){
                 exceptionInfo.setRelatedVarType(RelatedVarType.Unknown);
             }else{
                 exceptionInfo.setRelatedVarType(RelatedVarType.valueOf(jsonObject.getString("relatedVarType")));
