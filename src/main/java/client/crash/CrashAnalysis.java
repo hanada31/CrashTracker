@@ -125,7 +125,7 @@ public class CrashAnalysis extends Analyzer {
         String firstAppMethod = crashInfo.getCrashMethodList().get(crashInfo.getCrashMethodList().size() - 1);
         Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(firstAppMethod);
         for (SootMethod sm : methods) {
-            addCallersOfCrashMethod(sm, crashInfo, 2, trace);
+            addCallersOfCrashMethod(sm, crashInfo, 2, new ArrayList<>(trace));
         }
 
     }
