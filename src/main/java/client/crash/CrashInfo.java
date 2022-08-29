@@ -38,21 +38,31 @@ public class CrashInfo {
     List<String> classesInTrace= new ArrayList<>();
     Map<String, Integer> buggyCandidates = new TreeMap<>();
     Map<String, BuggyCandidate> buggyCandidateObjs = new HashMap<>();
-    Map<String, Integer> extendedCallDepth = new HashMap<String, Integer>();
+    Map<String, ExtendCandiMethod> extendedCallDepth = new HashMap<String, ExtendCandiMethod>();
     boolean findCandidateInTrace = false;
     int minScore = ConstantUtils.INITSCORE;
     int maxScore = ConstantUtils.BOTTOMSCORE;
     List<String> noneCodeLabels = new ArrayList<String>();
     String faultInducingPart;
     List<Integer> faultInducingParas = null;
-    public Map<String, Integer> getExtendedCallDepth() {
+
+    class ExtendCandiMethod {
+        int depth;
+        List<String> trace;
+        ExtendCandiMethod(int depth, List trace){
+            this.depth = depth;
+            this.trace = trace;
+        }
+    }
+
+    public Map<String, ExtendCandiMethod> getExtendedCallDepth() {
         return extendedCallDepth;
     }
 
-    public boolean addExtendedCallDepth(String key, int value) {
+    public boolean addExtendedCallDepth(String key, int value, List<String> trace) {
         if(key.startsWith("java.")|| key.startsWith("androidx.")  || key.startsWith("android.") || key.startsWith("com.android.")) return false;
-        if(!extendedCallDepth.containsKey(key) || extendedCallDepth.get(key)>value ) {
-            extendedCallDepth.put(key, value);
+        if(!extendedCallDepth.containsKey(key) || extendedCallDepth.get(key).depth>value ) {
+            extendedCallDepth.put(key, new ExtendCandiMethod(value, trace));
             return true;
         }
         return false;
@@ -367,4 +377,5 @@ public class CrashInfo {
                 ", edges=" + edges +
                 '}';
     }
+
 }

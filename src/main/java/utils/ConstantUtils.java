@@ -141,7 +141,5 @@ public class ConstantUtils {
 			"SensorManager", "SlidingDrawer", "StorageManager", "Surface", "SurfaceHolder", "TagTechnology",
 			"TokenWatcher", "UsbManager", "VelocityTracker", "WebIconDatabase", "WifiManager$MulticastLock", "WifiManager$WifiLock", "WifiManager"};
 	//strategies
-	public static String NoRelatedMethodFilter = "NoRelatedMethodFilter";
-	public static String NoRVType = "NoRVType";
-	public static String NoExtendCG = "NoExtendCG";
+
 }
