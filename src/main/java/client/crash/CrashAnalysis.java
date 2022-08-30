@@ -1181,7 +1181,8 @@ public class CrashAnalysis extends Analyzer {
                 JSONObject callerOfSingnlar2SourceVar = jsonObject.getJSONObject("callerOfSingnlar2SourceVar");
                 if (callerOfSingnlar2SourceVar != null) {
                     for (String key : callerOfSingnlar2SourceVar.keySet()) {
-                        String[] ids = ((String) callerOfSingnlar2SourceVar.get(key)).split(", ");
+                        String s = ((String) callerOfSingnlar2SourceVar.get(key)).replace(", ", ",");
+                        String[] ids = ((String) callerOfSingnlar2SourceVar.get(key)).split(",");
                         for (String id : ids)
                             crashInfo.addCallerOfSingnlar2SourceVarOracle(SootUtils.getMethodSimpleNameFromSignature(key), Integer.valueOf(id));
                     }
