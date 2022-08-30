@@ -39,7 +39,7 @@ public class MyConfig {
 	private String AndroidCGFilePath ;
 	private String AndroidOSVersion = null;
 
-	private String Strategy;
+	private String Strategy="";
 
 	private MyConfig() {
 	}

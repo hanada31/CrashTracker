@@ -2,6 +2,8 @@ package main.java.client.crash;
 
 import main.java.base.Global;
 import main.java.client.exception.ExceptionInfo;
+import main.java.client.exception.RelatedCondType;
+import main.java.client.exception.RelatedVarType;
 import main.java.utils.ConstantUtils;
 import main.java.utils.StringUtils;
 import soot.jimple.toolkits.callgraph.Edge;
@@ -45,6 +47,24 @@ public class CrashInfo {
     List<String> noneCodeLabels = new ArrayList<String>();
     String faultInducingPart;
     List<Integer> faultInducingParas = null;
+    RelatedVarType relatedVarTypeOracle;
+    RelatedCondType relatedCondTypeOracle = RelatedCondType.Empty;
+    private Map<String, List<Integer>> callerOfSingnlar2SourceVarOracle = new HashMap<>();
+    public RelatedVarType getRelatedVarTypeOracle() {
+        return relatedVarTypeOracle;
+    }
+
+    public void setRelatedVarTypeOracle(RelatedVarType relatedVarTypeOracle) {
+        this.relatedVarTypeOracle = relatedVarTypeOracle;
+    }
+
+    public RelatedCondType getRelatedCondTypeOracle() {
+        return relatedCondTypeOracle;
+    }
+
+    public void setRelatedCondTypeOracle(RelatedCondType relatedCondTypeOracle) {
+        this.relatedCondTypeOracle = relatedCondTypeOracle;
+    }
 
     class ExtendCandiMethod {
         int depth;
@@ -358,6 +378,26 @@ public class CrashInfo {
 
     public void setFaultInducingParas(List<Integer> faultInducingParas) {
         this.faultInducingParas = faultInducingParas;
+    }
+
+    public Map<String, List<Integer>> getCallerOfSingnlar2SourceVarOracle() {
+        return callerOfSingnlar2SourceVarOracle;
+    }
+
+    public void setCallerOfSingnlar2SourceVarOracle(Map<String, List<Integer>> callerOfSingnlar2SourceVar) {
+        this.callerOfSingnlar2SourceVarOracle = callerOfSingnlar2SourceVar;
+    }
+
+    public void addCallerOfSingnlar2SourceVarOracle(String method, int sourceId ) {
+        if(callerOfSingnlar2SourceVarOracle.containsKey(method)){
+            if(callerOfSingnlar2SourceVarOracle.get(method).contains(sourceId)){
+                return;
+            }
+        }else{
+            callerOfSingnlar2SourceVarOracle.put(method, new ArrayList<>());
+        }
+        callerOfSingnlar2SourceVarOracle.get(method).add(sourceId);
+
     }
 
     @Override

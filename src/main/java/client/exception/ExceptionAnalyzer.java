@@ -46,7 +46,7 @@ public class ExceptionAnalyzer extends Analyzer {
     //<android.app.ContextImpl: android.content.Intent registerReceiver(android.content.BroadcastReceiver
     private boolean filterMethod(SootMethod sootMethod) {
         List<String> mtds = new ArrayList<>();
-        mtds.add("android.app.ContextImpl: boolean bindService");
+        mtds.add("missingDialog");
         for(String tag: mtds){
             if (sootMethod.getSignature().contains(tag)) {
                 return false;
@@ -313,8 +313,8 @@ public class ExceptionAnalyzer extends Analyzer {
         ExceptionInfo exceptionInfo =  new ExceptionInfo(excpetionInfoSootMethod, unit, exceptionName);
         getExceptionMessage(sootMethod, unit, exceptionInfo, new ArrayList<>());
         if(exceptionInfo.getExceptionMsg()==null){
-//            exceptionInfo.setExceptionMsg("[\\s\\S]*");
-            return;
+            exceptionInfo.setExceptionMsg("[\\s\\S]*");
+//            return;
         }
         getConditionandValueFromUnit(sootMethod, unit, exceptionInfo, true);
         int b = exceptionInfo.getConditions().size();
@@ -609,6 +609,8 @@ public class ExceptionAnalyzer extends Analyzer {
                 if(cond instanceof ConditionExpr){
                     Value value = ((ConditionExpr)cond).getOp1();
                     extendRelatedValues(sootMethod, allPreds, exceptionInfo, predUnit, value, new ArrayList<>(),getCondHistory, fromThrow);
+                    Value value2 = ((ConditionExpr)cond).getOp2();
+                    extendRelatedValues(sootMethod, allPreds, exceptionInfo, predUnit, value2, new ArrayList<>(),getCondHistory, fromThrow);
                 }
             }else if (predUnit instanceof SwitchStmt) {
                 exceptionInfo.getTracedUnits().add(predUnit);

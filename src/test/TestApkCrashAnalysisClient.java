@@ -28,7 +28,7 @@ public class TestApkCrashAnalysisClient {
 //        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 
         String name;
-        name = "com.rjfittime.app-106.apk";
+        name = "com.infomil.leclercdrive-277.apk";
 
 
         String client = "ApkCrashAnalysisClient";
@@ -47,8 +47,8 @@ public class TestApkCrashAnalysisClient {
         MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfo.json");
         MyConfig.getInstance().setStrategy("ExtendCG");
         MyConfig.getInstance().setStrategy("");
-        MyConfig.getInstance().setStrategy("NoParaChain");
-//        MyConfig.getInstance().setAndroidOSVersion("5.0");
+        MyConfig.getInstance().setStrategy("NoRelatedMethodFilter");
+//        MyConfig.getInstance().setAndroidOSVersion("4.4");
     }
 
 }

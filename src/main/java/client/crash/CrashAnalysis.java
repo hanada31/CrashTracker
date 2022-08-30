@@ -102,7 +102,20 @@ public class CrashAnalysis extends Analyzer {
             crashInfo.addBuggyCandidates(candi,initscore--,"crash_trace_method", trace);
         }
     }
-
+    private void getPartOfExtendedCallTrace(CrashInfo crashInfo) {
+        //methods that preds of the next one in call stack
+        List<String> trace = new ArrayList<>();
+        for (int index = crashInfo.getCrashMethodList().size() - 1; index >= 0; index--) {
+            String candi = crashInfo.getCrashMethodList().get(index);
+            crashInfo.addExtendedCallDepth(candi, 1, new ArrayList<>(trace));
+            Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
+            for (SootMethod sm : methods) {
+                addEntryMethods2ExtendedCG(sm, crashInfo, new ArrayList<>(trace));
+                String last = (index == 0) ? crashInfo.getCrashAPI() : crashInfo.getCrashMethodList().get(index - 1);
+                addPredCallersOfMethodsInStack(last, sm, crashInfo, new ArrayList<>(trace));
+            }
+        }
+    }
     /**
      * use the same strategy as CrashLocator, extend cg, remove control flow and data flow unrelated edges
      * @param crashInfo
@@ -168,7 +181,7 @@ public class CrashAnalysis extends Analyzer {
                 if(callee.equals(last)){
                     List newTrace = new ArrayList(trace);
                     newTrace.add(callee);
-                    addPredsOfUnit2ExtendedCG(u, sm, crashInfo, 2,newTrace);
+                    addPredsOfUnit2ExtendedCG(u, sm, crashInfo, 2,newTrace, null);
                 }
             }
         }
@@ -182,8 +195,9 @@ public class CrashAnalysis extends Analyzer {
      * @param sm
      * @param crashInfo
      * @param depth
+     * @param value
      */
-    private void addPredsOfUnit2ExtendedCG(Unit u, SootMethod sm, CrashInfo crashInfo, int depth, List trace) {
+    private void addPredsOfUnit2ExtendedCG(Unit u, SootMethod sm, CrashInfo crashInfo, int depth, List trace, Value value) {
         BriefUnitGraph graph = new BriefUnitGraph(SootUtils.getSootActiveBody(sm));
         List<Unit> worklist = new ArrayList<>();
         List<Unit> predUnits = new ArrayList<>();
@@ -202,7 +216,7 @@ public class CrashAnalysis extends Analyzer {
         }
         //data flow filter
         Set<Unit> dataSlice = new HashSet<>();
-        getDataSliceOfUnit(dataSlice, sm, u, predUnits);
+        getDataSliceOfUnit(dataSlice, sm, u, predUnits, value);
         for(Unit pred: predUnits){
             if(!dataSlice.contains(pred)) continue;
             Set<SootMethod> calleeMethod = SootUtils.getInvokedMethodSet(sm, pred);
@@ -217,17 +231,18 @@ public class CrashAnalysis extends Analyzer {
         }
     }
 
-    private void getDataSliceOfUnit(Set<Unit> dataSlice, SootMethod sm, Unit u, List<Unit> predUnits) {
+    private void getDataSliceOfUnit(Set<Unit> dataSlice, SootMethod sm, Unit u, List<Unit> predUnits, Value value) {
         InvokeExpr invokeExpr = SootUtils.getInvokeExp(u);
         if(invokeExpr==null) return;
         for (Value val : invokeExpr.getArgs()){
+            if(value!=null && val !=value) continue;
             List<Unit> defs = SootUtils.getDefOfLocal(sm.getSignature(), val, u);
             for(Unit def: defs) {
                 List<UnitValueBoxPair> uses = SootUtils.getUseOfLocal(sm.getSignature(), def);
                 for(UnitValueBoxPair pair : uses){
                     if(predUnits.contains(pair.getUnit()) && !dataSlice.contains(pair.getUnit()) ) {
                         dataSlice.add(pair.getUnit());
-                        getDataSliceOfUnit(dataSlice, sm, pair.getUnit(), predUnits);
+                        getDataSliceOfUnit(dataSlice, sm, pair.getUnit(), predUnits, value);
                     }
                 }
             }
@@ -361,6 +376,7 @@ public class CrashAnalysis extends Analyzer {
                         n = getParameterTerminateMethod(score, crashInfo, vars);
                     }
                 }
+//                addPredsOfUnit2ExtendedCG(u, caller, crashInfo, 2,new ArrayList(), invoke.getArgs().get(id));
             }
         }
         noParameterPassingMethodScore(score-n, crashInfo);
@@ -368,9 +384,70 @@ public class CrashAnalysis extends Analyzer {
         if(MyConfig.getInstance().getStrategy().equals(Strategy.ExtendCG.toString())) {
             getExtendedCallTrace(crashInfo);
             addExtendedCallGraph(crashInfo);
+        }else{
+            getCrashAPIInvocationRelatedMethod(crashInfo,score2);
         }
         withCrashAPIParaHandler(score2, crashInfo);
     }
+
+    private void getCrashAPIInvocationRelatedMethod(CrashInfo crashInfo, int score) {
+        List<Integer> ids = new ArrayList<>();
+        Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(crashInfo.getCrashMethod());
+        for (SootMethod crashMethod : methods) {
+            for (Unit u : SootUtils.getUnitListFromMethod(crashMethod)) {
+                InvokeExpr invoke = SootUtils.getInvokeExp(u);
+                if (invoke == null) continue;
+                String sig = invoke.getMethod().getSignature();
+                if (sig.equals(crashInfo.getCrashAPI()) || SootUtils.getMethodSimpleNameFromSignature(sig).equals(crashInfo.getCrashAPI())) {
+                        if(crashInfo.faultInducingParas!=null){
+                            ids = crashInfo.faultInducingParas;
+                        }else{
+                            for(int i=-1; i< invoke.getArgs().size(); i++){
+                                ids.add(i);
+                            }
+                        }
+                    for(int id :ids){
+                        if(id == -1)
+                            System.out.println("this");
+                        else if (invoke.getArgs().size() > id) {
+                            BriefUnitGraph graph = new BriefUnitGraph(SootUtils.getSootActiveBody(crashMethod));
+                            List<Unit> worklist = new ArrayList<>();
+                            List<Unit> predUnits = new ArrayList<>();
+                            //control flow filter
+                            worklist.add(u);
+                            while(worklist.size()>0){
+                                Unit todo = worklist.get(0);
+                                worklist.remove(0);
+                                List<Unit> preds = graph.getPredsOf(todo);
+                                for(Unit pred: preds){
+                                    if(!predUnits.contains(pred)){
+                                        predUnits.add(pred);
+                                        worklist.add(pred);
+                                    }
+                                }
+                            }
+                            //data flow filter
+                            Set<Unit> dataSlice = new HashSet<>();
+                            getDataSliceOfUnit(dataSlice, crashMethod, u, predUnits, invoke.getArgs().get(id));
+                            for(Unit pred: predUnits){
+                                if(!dataSlice.contains(pred)) continue;
+                                Set<SootMethod> calleeMethod = SootUtils.getInvokedMethodSet(crashMethod, pred);
+                                for(SootMethod method: calleeMethod){
+                                    String callee = method.getDeclaringClass().getName()+ "." + method.getName();
+                                    List<String> trace = new ArrayList<>();
+                                    trace.add(crashInfo.getCrashAPI());
+                                    trace.add(callee);
+                                    crashInfo.addBuggyCandidates(callee, score, "modify_paras_send_to_framework", trace);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
 
     private void addExtendedCallGraph(CrashInfo crashInfo) {
         for(Map.Entry entry: crashInfo.getExtendedCallDepth().entrySet()){
@@ -776,7 +853,7 @@ public class CrashAnalysis extends Analyzer {
         if(crashMethod==null || crashInfo.getExceptionInfo()==null) return null;
         List<SootField> fields = new ArrayList<>();
         for(SootField field: crashMethod.getDeclaringClass().getFields()) {
-            if (field.getType().toString().equals(faultInducingValue.getType().toString())) {
+            if (faultInducingValue!=null && field.getType().toString().equals(faultInducingValue.getType().toString())) {
                 fields.add(field);
             }
 
@@ -842,8 +919,8 @@ public class CrashAnalysis extends Analyzer {
         return order+2;
     }
 
-    private void getExceptionOfCrashInfo() {
-        for(CrashInfo crashInfo: crashInfoList) {
+    public void getExceptionOfCrashInfo() {
+        for(CrashInfo crashInfo: this.crashInfoList) {
             if(crashInfo.getTrace().size()==0 ) continue;
             String targetVer;
             String targetMethodName;
@@ -868,7 +945,6 @@ public class CrashAnalysis extends Analyzer {
                         System.out.println("version "+ versions[i] +" is matched.");
                     }
                     i++;
-
                 }
 
                 int targetVerId = getTargetVersion(versionTypes);
@@ -957,7 +1033,7 @@ public class CrashAnalysis extends Analyzer {
                     if (jsonObject.getString("relatedVarType") != null) {
                         return new Pair<>(jsonObject.getString("relatedVarType"), exceptionInfo.getSootMethodName());
                     }else{
-                        return new Pair<>("unknown", exceptionInfo.getSootMethodName());
+                        return new Pair<>("Unknown", exceptionInfo.getSootMethodName());
                     }
                 }
             }
@@ -1097,6 +1173,20 @@ public class CrashAnalysis extends Analyzer {
                     crashInfo.setId(crashInfo.getIdentifier() + "-" + jsonObject.getString("id"));
                 crashInfo.setReason(jsonObject.getString("reason"));
                 crashInfo.setMethodName(crashInfo.getTrace().get(0));
+                if(jsonObject.getString("relatedVarType")!=null)
+                    crashInfo.setRelatedVarTypeOracle(RelatedVarType.valueOf(jsonObject.getString("relatedVarType")));
+                if(jsonObject.getString("relatedCondType")!=null)
+                    crashInfo.setRelatedCondTypeOracle(RelatedCondType.valueOf(jsonObject.getString("relatedCondType")));
+
+                JSONObject callerOfSingnlar2SourceVar = jsonObject.getJSONObject("callerOfSingnlar2SourceVar");
+                if (callerOfSingnlar2SourceVar != null) {
+                    for (String key : callerOfSingnlar2SourceVar.keySet()) {
+                        String[] ids = ((String) callerOfSingnlar2SourceVar.get(key)).split(", ");
+                        for (String id : ids)
+                            crashInfo.addCallerOfSingnlar2SourceVarOracle(SootUtils.getMethodSimpleNameFromSignature(key), Integer.valueOf(id));
+                    }
+                }
+
             }
         }
     }
