@@ -269,31 +269,6 @@ public class CrashAnalysis extends Analyzer {
     }
 
 
-    private void findMethodsWhoModifyParam(int score, CrashInfo crashInfo, SootMethod crashMethod, Unit unit, Value value) {
-        List<Unit> allPreds = new ArrayList<>();
-        SootUtils.getAllPredsofUnit(crashMethod, unit,allPreds);
-        HashSet<SootField> fields = new HashSet<>();
-        extendRelatedValues(crashMethod, allPreds, unit, value, new ArrayList<>(), fields);
-
-        List<SootField> keyFields = getKeySootFields(crashMethod, crashInfo);
-        for (SootField field : fields) {
-            if(keyFields!=null && !keyFields.contains(field))
-                continue;
-            for (SootMethod otherMethod : crashMethod.getDeclaringClass().getMethods()) {
-                if (!otherMethod.hasActiveBody()) continue;
-                if (SootUtils.fieldIsChanged(field, otherMethod)) {
-                    String candi = otherMethod.getDeclaringClass().getName() + "." + otherMethod.getName();
-                    List<String> trace = new ArrayList<>();
-                    trace.add(otherMethod.getSignature());
-                    trace.add("key field: " + field);
-                    trace.add(crashMethod.getSignature());
-                    trace.add("key field: " + field);
-                    crashInfo.addBuggyCandidates(candi, score, "modify_fields_send_to_framework", trace);
-                }
-            }
-        }
-    }
-
     /**
      * tracing the values relates to the one used in if condition
      */
@@ -371,6 +346,7 @@ public class CrashAnalysis extends Analyzer {
      */
     private void withParameterHandler(int score, CrashInfo crashInfo, boolean hasFaultInducingParas) {
         int n = 0;
+        //TODO!!! rerun
         if(crashInfo.getExceptionInfo()!=null && crashInfo.getExceptionInfo().getRelatedVarType()!=null) {
             if(crashInfo.getExceptionInfo().getCallerOfSingnlar2SourceVar()!=null){
                 if(hasFaultInducingParas) {
@@ -442,6 +418,32 @@ public class CrashAnalysis extends Analyzer {
                 findMethodsWhoModifyParam(score, crashInfo, crashMethod, unit, argValue);
         }
     }
+
+    private void findMethodsWhoModifyParam(int score, CrashInfo crashInfo, SootMethod crashMethod, Unit unit, Value faultInducingValue) {
+        List<Unit> allPreds = new ArrayList<>();
+        SootUtils.getAllPredsofUnit(crashMethod, unit,allPreds);
+        HashSet<SootField> fields = new HashSet<>();
+        extendRelatedValues(crashMethod, allPreds, unit, faultInducingValue, new ArrayList<>(), fields);
+
+        List<SootField> keyFields = getKeySootFields(crashMethod, crashInfo, faultInducingValue);
+        for (SootField field : fields) {
+            if(keyFields!=null && !keyFields.contains(field))
+                continue;
+            for (SootMethod otherMethod : crashMethod.getDeclaringClass().getMethods()) {
+                if (!otherMethod.hasActiveBody()) continue;
+                if (SootUtils.fieldIsChanged(field, otherMethod)) {
+                    String candi = otherMethod.getDeclaringClass().getName() + "." + otherMethod.getName();
+                    List<String> trace = new ArrayList<>();
+                    trace.add(otherMethod.getSignature());
+                    trace.add("key field: " + field);
+                    trace.add(crashMethod.getSignature());
+                    trace.add("key field: " + field);
+                    crashInfo.addBuggyCandidates(candi, score, "modify_fields_send_to_framework", trace);
+                }
+            }
+        }
+    }
+
 
     private SootMethod traceCallerOfParamValue(CrashInfo crashInfo, String calleeMethod) {
         List<Integer> ids = crashInfo.faultInducingParas;
@@ -754,20 +756,30 @@ public class CrashAnalysis extends Analyzer {
      * get fields the related to the buggy variable passes to framework
      * @param crashMethod
      * @param crashInfo
+     * @param faultInducingValue
      * @return
      */
-    private List<SootField> getKeySootFields(SootMethod crashMethod, CrashInfo crashInfo) {
+    private List<SootField> getKeySootFields(SootMethod crashMethod, CrashInfo crashInfo, Value faultInducingValue) {
+//        if(crashMethod==null || crashInfo.getExceptionInfo()==null) return null;
+//        List<String> typeList = crashInfo.getExceptionInfo().getRelatedParamValuesInStr();
+//        if(typeList==null) return null;
+//
+//        List<SootField> fields = new ArrayList<>();
+//        for(SootField field: crashMethod.getDeclaringClass().getFields()) {
+//            for (String bugParaType : typeList) {
+//                if (field.getType().toString().equals(bugParaType)) {
+//                    fields.add(field);
+//                }
+//            }
+//
+//        }
         if(crashMethod==null || crashInfo.getExceptionInfo()==null) return null;
-        List<String> typeList = crashInfo.getExceptionInfo().getRelatedParamValuesInStr();
-        if(typeList==null) return null;
-
         List<SootField> fields = new ArrayList<>();
         for(SootField field: crashMethod.getDeclaringClass().getFields()) {
-            for (String bugParaType : typeList) {
-                if (field.getType().toString().equals(bugParaType)) {
-                    fields.add(field);
-                }
+            if (field.getType().toString().equals(faultInducingValue.getType().toString())) {
+                fields.add(field);
             }
+
         }
         return  fields;
     }
@@ -999,9 +1011,8 @@ public class CrashAnalysis extends Analyzer {
             exceptionInfo.setHardwareRelated(jsonObject.getBoolean("hardwareRelated"));
             exceptionInfo.setManifestRelated(jsonObject.getBoolean("manifestRelated"));
             exceptionInfo.setConditions(jsonObject.getString("conditions"));
-            exceptionInfo.setRelatedFieldValuesInStr(jsonObject.getString("fieldValues"));
             exceptionInfo.setRelatedParamValuesInStr(jsonObject.getString("paramValues"));
-
+            exceptionInfo.setRelatedFieldValuesInStr(jsonObject.getString("fieldValues"));
             if (jsonObject.getString("relatedCondType") != null)
                 exceptionInfo.setRelatedCondType(RelatedCondType.valueOf(jsonObject.getString("relatedCondType")));
 
@@ -1038,7 +1049,7 @@ public class CrashAnalysis extends Analyzer {
                 }
             }
 
-            //strategy NoParaChain
+            //strategy NoParaChain TODO
             if(!MyConfig.getInstance().getStrategy().equals(Strategy.NoParaChain.toString()) ) {
                 JSONObject callerOfSingnlar2SourceVar = jsonObject.getJSONObject("callerOfSingnlar2SourceVar");
                 if (callerOfSingnlar2SourceVar != null) {

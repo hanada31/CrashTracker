@@ -28,7 +28,7 @@ public class TestApkCrashAnalysisClient {
 //        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 
         String name;
-        name = "com.glt.infobank.app-64.apk";
+        name = "com.rjfittime.app-106.apk";
 
 
         String client = "ApkCrashAnalysisClient";
@@ -47,7 +47,7 @@ public class TestApkCrashAnalysisClient {
         MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfo.json");
         MyConfig.getInstance().setStrategy("ExtendCG");
         MyConfig.getInstance().setStrategy("");
-        MyConfig.getInstance().setStrategy("NoRelatedMethodFilter");
+        MyConfig.getInstance().setStrategy("NoParaChain");
 //        MyConfig.getInstance().setAndroidOSVersion("5.0");
     }
 
