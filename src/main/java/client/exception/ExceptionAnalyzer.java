@@ -579,7 +579,7 @@ public class ExceptionAnalyzer extends Analyzer {
      */
     private void getExceptionCondition(SootMethod sootMethod, Unit unit, ExceptionInfo exceptionInfo,
                                        Set<Unit> getCondHistory, boolean fromThrow, Unit lastGoto) {
-        ConditionTracker conditionTracker = ConditionTracker.Three;
+        ConditionTracker conditionTracker = ConditionTracker.All;
         if(getCondHistory.contains(unit) || getCondHistory.size()> ConstantUtils.CONDITIONHISTORYSIZE) return;// if defUnit is not a pred of unit
         getCondHistory.add(unit);
         Body body = sootMethod.getActiveBody();

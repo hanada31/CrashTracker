@@ -25,10 +25,10 @@ public class TestApkCrashAnalysisClient {
     private void setArgs() {
         String path;
         path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
-        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
+//        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 
         String name;
-        name = "org.kontalk-709.apk";
+        name = "com.google.android.gms-475.apk";
 
 
         String client = "ApkCrashAnalysisClient";
