@@ -668,6 +668,9 @@ public class CrashAnalysis extends Analyzer {
     }
 
     private boolean currentMethodContainCandi(SootMethod sootMethod, CrashInfo crashInfo) {
+        if(MyConfig.getInstance().getStrategy().equals(Strategy.NoRelatedMethodFilter)){
+            return true;
+        }
         for(String method: crashInfo.getCrashMethodList()) {
             for (SootMethod crashMethod : SootUtils.getSootMethodBySimpleName(method)) {
                 if (crashMethod.getActiveBody().toString().contains(sootMethod.getDeclaringClass().getName().split("\\$")[0])) {
@@ -687,6 +690,7 @@ public class CrashAnalysis extends Analyzer {
         if(!MyConfig.getInstance().getStrategy().equals(Strategy.NoRelatedMethodFilter.toString())){
             size =getsizeOfCaller(relatedMethod.getMethod());
         }
+//        System.out.println(size);
         //filter the related methods with too many caller
         for (Edge edge : Global.v().getAppModel().getCg()) {
             String sig = edge.getTgt().method().getSignature();

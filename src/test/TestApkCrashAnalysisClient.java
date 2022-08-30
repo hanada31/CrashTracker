@@ -28,7 +28,7 @@ public class TestApkCrashAnalysisClient {
 //        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 
         String name;
-        name = "com.spice.hangman-421.apk";
+        name = "com.glt.infobank.app-64.apk";
 
 
         String client = "ApkCrashAnalysisClient";
@@ -46,8 +46,8 @@ public class TestApkCrashAnalysisClient {
         MyConfig.getInstance().setSrc_prec(Options.src_prec_apk);
         MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfo.json");
         MyConfig.getInstance().setStrategy("ExtendCG");
-//        MyConfig.getInstance().setStrategy("");
-//        MyConfig.getInstance().setStrategy("NoParaChain");
+        MyConfig.getInstance().setStrategy("");
+        MyConfig.getInstance().setStrategy("NoRelatedMethodFilter");
 //        MyConfig.getInstance().setAndroidOSVersion("5.0");
     }
 
