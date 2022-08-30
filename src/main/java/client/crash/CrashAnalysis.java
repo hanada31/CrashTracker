@@ -1001,14 +1001,8 @@ public class CrashAnalysis extends Analyzer {
             if (jsonObject.getString("relatedCondType") != null)
                 exceptionInfo.setRelatedCondType(RelatedCondType.valueOf(jsonObject.getString("relatedCondType")));
 
-            //strategy NoRVType
-            if(MyConfig.getInstance().getStrategy().equals(Strategy.NoRVType.toString()) ){
-                exceptionInfo.setRelatedVarType(RelatedVarType.Unknown);
-            }else if(MyConfig.getInstance().getStrategy().equals(Strategy.ExtendCG.toString()) ){
-                exceptionInfo.setRelatedVarType(RelatedVarType.Unknown);
-            }else{
-                exceptionInfo.setRelatedVarType(RelatedVarType.valueOf(jsonObject.getString("relatedVarType")));
-            }
+            exceptionInfo.setRelatedVarType(RelatedVarType.valueOf(jsonObject.getString("relatedVarType")));
+
             //strategy NoKeyAPI
             if(!MyConfig.getInstance().getStrategy().equals(Strategy.NoKeyAPI.toString()) ){
                 JSONArray sameClsObjs = jsonObject.getJSONArray("keyAPISameClass");

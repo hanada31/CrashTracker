@@ -28,6 +28,8 @@ public class CrashInfoCounter {
     private void writeCrashInfo() {
         FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"crashLength.txt", "", false);
         System.out.println("write to "+ MyConfig.getInstance().getResultFolder() +"crashLength.txt");
+        FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"crashLength.txt", "app\ttraceSize\tcrashMethodListSize\n", true);
+
         for(CrashInfo crashInfo: crashInfoList) {
             String str= crashInfo.getId()+"\t"+ crashInfo.getTrace().size()+"\t" +crashInfo.getCrashMethodList().size();
             FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"crashLength.txt", str+"\n", true);

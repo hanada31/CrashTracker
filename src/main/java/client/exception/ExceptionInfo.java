@@ -1,5 +1,7 @@
 package main.java.client.exception;
 
+import main.java.base.MyConfig;
+import main.java.client.crash.Strategy;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Unit;
@@ -98,7 +100,12 @@ public class ExceptionInfo {
     }
 
     public RelatedVarType getRelatedVarType() {
-
+        //strategy NoRVType
+        if(MyConfig.getInstance().getStrategy().equals(Strategy.NoRVType.toString()) ){
+            return RelatedVarType.Unknown;
+        }else if(MyConfig.getInstance().getStrategy().equals(Strategy.ExtendCG.toString()) ){
+            return RelatedVarType.Unknown;
+        }
         if (isEmpty()) return RelatedVarType.Empty;
         if (isParameterOnly()) return RelatedVarType.Parameter;
         if (isFieldOnly()) return RelatedVarType.Field;

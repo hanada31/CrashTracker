@@ -107,6 +107,7 @@ public class BuggyStatistic {
         
         int count = 0,countA= 0,countB= 0,countC= 0;
         int find = 0,rankSum = 0,candiSum= 0;
+        double candiAvg= 0;
         double MRR = 0.0,MRRA= 0.0,MRRB= 0.0,MRRC= 0.0;
 
         for(String line: lines){
@@ -143,16 +144,22 @@ public class BuggyStatistic {
 
             }
         }
+        candiAvg = candiSum*1.0/count;
+
 //        System.out.println(countA +"  "+countB +"  "+ countC);
-        printRankInfo2SB("all", cateAllMap, sb, count==0?0:MRR/count);
-        printRankInfo2SB("A", cateAMap, sb, countA==0?0:MRRA/countA);
+        printRankInfo2SB("All", cateAllMap, sb, count==0?0:MRR/count);
+//        printRankInfo2SB("A", cateAMap, sb, countA==0?0:MRRA/countA);
         printRankInfo2SB("B", cateBMap, sb, countB==0?0:MRRB/countB);
-        printRankInfo2SB("C", cateCMap, sb, countC==0?0:MRRC/countC);
+//        printRankInfo2SB("C", cateCMap, sb, countC==0?0:MRRC/countC);
 
+        int find_base = 568, rankSum_base = 738, CandiSum_base =3421;
+        double CandiAvg_base = 5.898;
 
-        sb.append("Find\t"+ find + "\t");
-        sb.append("rankSum\t"+ rankSum + "\t");
-        sb.append("CandiSum\t"+ candiSum + "\n");
+        sb.append("Find\t"+ (find-find_base) + "\t");
+        sb.append("rankSum\t"+ (rankSum-rankSum_base) + "\n");
+        sb.append("CandiSum\t"+ (candiSum-CandiSum_base) + "\t");
+        BigDecimal candiAvgb = new BigDecimal(candiAvg-CandiAvg_base);
+        sb.append("CandiSum\t"+ candiAvgb.setScale(3,   BigDecimal.ROUND_HALF_UP).doubleValue() + "\n");
     }
 
     private void analyzeSingleFileRankRVType(List<String> lines, StringBuilder sb) {
@@ -215,20 +222,27 @@ public class BuggyStatistic {
     }
 
     private void printRankInfo2SB(String tag, Map<String, Integer> map, StringBuilder sb, double MRR) {
+        int r1 = 0, r5 = 0,r10 = 0; double mrr = 0.0;
+        if(tag.equals("All")){
+            r1 = 500; r5 = 561; r10 = 567; mrr= 0.902;
+        }else if(tag.equals("B")){
+            r1 = 14; r5 = 37; r10 = 43; mrr= 0.393;
+        }
         sb.append(tag + "\t");
-        sb.append(map.get("Recall@1") + "\t");
-        sb.append(map.get("Recall@5") + "\t");
-        sb.append(map.get("Recall@10") + "\t");
-        BigDecimal b1 = new BigDecimal(map.get("Recall@1")==0?0:1.0* map.get("Recall@1")/map.get("Recall@all"));
-        sb.append(b1.setScale(3,   BigDecimal.ROUND_HALF_UP).doubleValue() + "\t");
+        sb.append(map.get("Recall@1")-r1 + "\t");
+        sb.append(map.get("Recall@5")-r5 + "\t");
+        sb.append(map.get("Recall@10")-r10 + "\t");
 
-        BigDecimal b2 = new BigDecimal(map.get("Recall@5")==0?0:1.0* map.get("Recall@5")/map.get("Recall@all"));
-        sb.append(b2.setScale(3,   BigDecimal.ROUND_HALF_UP).doubleValue() + "\t");
+//        BigDecimal b1 = new BigDecimal(map.get("Recall@1")==0?0:1.0* map.get("Recall@1")/map.get("Recall@all"));
+//        sb.append(b1.setScale(3,   BigDecimal.ROUND_HALF_UP).doubleValue() + "\t");
+//
+//        BigDecimal b2 = new BigDecimal(map.get("Recall@5")==0?0:1.0* map.get("Recall@5")/map.get("Recall@all"));
+//        sb.append(b2.setScale(3,   BigDecimal.ROUND_HALF_UP).doubleValue() + "\t");
+//
+//        BigDecimal b3 = new BigDecimal(map.get("Recall@10")==0?0:1.0* map.get("Recall@10")/map.get("Recall@all"));
+//        sb.append(b3.setScale(3,   BigDecimal.ROUND_HALF_UP).doubleValue() + "\t");
 
-        BigDecimal b3 = new BigDecimal(map.get("Recall@10")==0?0:1.0* map.get("Recall@10")/map.get("Recall@all"));
-        sb.append(b3.setScale(3,   BigDecimal.ROUND_HALF_UP).doubleValue() + "\t");
-
-        BigDecimal b = new BigDecimal(MRR);
+        BigDecimal b = new BigDecimal(MRR-mrr);
         sb.append(b.setScale(3,   BigDecimal.ROUND_HALF_UP).doubleValue() + "\n");
     }
 

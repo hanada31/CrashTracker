@@ -25,10 +25,10 @@ public class TestApkCrashAnalysisClient {
     private void setArgs() {
         String path;
         path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
-        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
+//        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 
         String name;
-        name = "com.pcinpact-147505046.apk";
+        name = "com.spice.hangman-421.apk";
 
 
         String client = "ApkCrashAnalysisClient";
@@ -45,11 +45,10 @@ public class TestApkCrashAnalysisClient {
         MyConfig.getInstance().setAndroidJar("E:\\AndroidSDK\\android-sdk-windows-new\\platforms");
         MyConfig.getInstance().setSrc_prec(Options.src_prec_apk);
         MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfo.json");
-//        MyConfig.getInstance().setStrategy("NoRVType");
         MyConfig.getInstance().setStrategy("ExtendCG");
 //        MyConfig.getInstance().setStrategy("");
-        MyConfig.getInstance().setAndroidOSVersion("5.0");
-
+//        MyConfig.getInstance().setStrategy("NoParaChain");
+//        MyConfig.getInstance().setAndroidOSVersion("5.0");
     }
 
 }
