@@ -28,7 +28,7 @@ public class TestApkCrashAnalysisClient {
 //        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 
         String name;
-        name = "com.google.android.gms-475.apk";
+        name = "com.wlanplus.chang-354.apk";
 
 
         String client = "ApkCrashAnalysisClient";

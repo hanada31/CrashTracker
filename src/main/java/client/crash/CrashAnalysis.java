@@ -920,6 +920,7 @@ public class CrashAnalysis extends Analyzer {
     }
 
     public void getExceptionOfCrashInfo() {
+        System.out.println("getExceptionOfCrashInfo...");
         for(CrashInfo crashInfo: this.crashInfoList) {
             if(crashInfo.getTrace().size()==0 ) continue;
             String targetVer;
@@ -1022,7 +1023,7 @@ public class CrashAnalysis extends Analyzer {
                 Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg());
                 Matcher m = p.matcher(crashInfo.getMsg());
                 if (m.matches()) {
-                    if(!classFilter) {
+                    if(!classFilter || exceptionInfo.getExceptionMsg().equals("[\\s\\S]*") ) {
                         String str = exceptionInfo.getExceptionMsg();
                         str = str.replace("[\\s\\S]*", "");
                         str = str.replace("\\Q", "");
