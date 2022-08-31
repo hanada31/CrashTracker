@@ -106,10 +106,10 @@ public class ExceptionInfo {
         }else if(MyConfig.getInstance().getStrategy().equals(Strategy.ExtendCG.toString()) ){
             return RelatedVarType.Unknown;
         }
-        if (isEmpty()) return RelatedVarType.Empty;
         if (isParameterOnly()) return RelatedVarType.Parameter;
         if (isFieldOnly()) return RelatedVarType.Field;
         if (isParaAndField()) return RelatedVarType.ParaAndField;
+        if (isEmpty()) return RelatedVarType.Empty;
         return relatedVarType;
     }
 

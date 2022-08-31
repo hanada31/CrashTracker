@@ -42,10 +42,12 @@ public class ExceptionMather {
     }
 
     private void exceptionOracleAnalysis() {
-//        FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"ETSCorrectness.txt", "", false);
+        FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"ETSCorrectness.txt", "", false);
         System.out.println("write to "+ MyConfig.getInstance().getResultFolder() +"ETSCorrectness.txt");
         for(CrashInfo crashInfo: crashInfoList) {
-            if(!crashInfo.getId().equals("fr.shywim.antoinedaniel-461")) continue;
+            String targetMethodName;
+            String targetVer;
+//            if(!crashInfo.getId().equals("com.tgb.bg.jevcyxr-215")) continue;
             String str= crashInfo.getId()+"\t"+crashInfo.getSignaler()+"\t";
             String[] versionTypes = new String[versions.length];
             String[] versionTypeCandis = new String[versions.length];
@@ -62,12 +64,23 @@ public class ExceptionMather {
                 }
                 i++;
             }
-            String targetVerStr = getTargetType(versionTypes);
-            if (targetVerStr ==null) {
-                targetVerStr = getTargetType(versionTypeCandis);
+            int targetVerId = getTargetVersion(versionTypes);
+            if (targetVerId == -1) {
+                targetVerId = getTargetVersion(versionTypeCandis);
             }
-            if (targetVerStr ==null)
-                targetVerStr = RelatedVarType.Unknown.toString();
+            if (targetVerId == -1)
+                targetVerId = 6;
+            targetVer = versions[targetVerId];
+            targetMethodName = targetMethodNames[targetVerId];
+            MyConfig.getInstance().setExceptionFilePath("Files"+File.separator+"android"+targetVer+File.separator+"exceptionInfo"+File.separator);
+            MyConfig.getInstance().setPermissionFilePath("Files"+File.separator+"android"+targetVer+File.separator+"Permission"+File.separator+"permission.txt");
+            MyConfig.getInstance().setAndroidCGFilePath("Files"+File.separator+"android"+targetVer+File.separator+
+                    "CallGraphInfo" + File.separator + "android"+targetVer + "_cg.txt");
+            System.out.println("target is "+ targetVer);
+
+            RelatedVarType type = getVarTypeFromExceptionSummary(crashInfo, targetMethodName);
+
+            String targetVerStr = type==null? RelatedVarType.Unknown.toString(): type.toString();
             str += targetVerStr +"\t"+crashInfo.getRelatedVarTypeOracle()+"\t"+ (targetVerStr.equals(crashInfo.getRelatedVarTypeOracle().toString()))+"\n";
             System.out.println(str);
             FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"ETSCorrectness.txt", str, true);
@@ -76,7 +89,37 @@ public class ExceptionMather {
 
 
 
-    private void readExceptionSummary(CrashInfo crashInfo, String targetMethodName) {
+    private int getTargetVersion(String[] versionType) {
+        int paraAndField =0 , fieldOnly =0 ,parameterOnly =0 , overrideMissing = 0;
+//        System.out.println(PrintUtils.printArray(versionType));
+        for(String relatedVarType: versionType) {
+            if(relatedVarType ==null) continue;
+            if (relatedVarType.equals(RelatedVarType.ParaAndField.toString())) paraAndField++;
+            if (relatedVarType.equals(RelatedVarType.Field.toString())) fieldOnly++;
+            if (relatedVarType.equals(RelatedVarType.Parameter.toString())) parameterOnly++;
+            if (relatedVarType.equals(RelatedVarType.Empty.toString())) overrideMissing++;
+        }
+        String choice = RelatedVarType.Unknown.toString();
+        if(paraAndField + parameterOnly + fieldOnly + overrideMissing ==0)
+            choice = RelatedVarType.Unknown.toString();
+        else if(paraAndField >= parameterOnly && paraAndField >= fieldOnly && paraAndField >= overrideMissing)
+            choice =  RelatedVarType.ParaAndField.toString();
+        else if(parameterOnly >= fieldOnly && parameterOnly >= paraAndField && parameterOnly >= overrideMissing)
+            choice = RelatedVarType.Parameter.toString();
+        else if(fieldOnly >= parameterOnly && fieldOnly >= paraAndField && fieldOnly >= overrideMissing)
+            choice =  RelatedVarType.Field.toString();
+        else if(overrideMissing >= parameterOnly && overrideMissing >= paraAndField && overrideMissing >= fieldOnly)
+            choice = RelatedVarType.Empty.toString();
+
+        for(int i = versionType.length-1; i>=0; i--) {
+            if(versionType[i]!=null && versionType[i].equals(choice)){
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private RelatedVarType getVarTypeFromExceptionSummary(CrashInfo crashInfo, String targetMethodName) {
         if(!crashInfo.getMethodName().equals(targetMethodName)) {
             crashInfo.setMethodName(targetMethodName);
         }
@@ -86,7 +129,7 @@ public class ExceptionMather {
         JSONObject wrapperObject = (JSONObject) JSONObject.parse(jsonString);
         if(wrapperObject==null) {
             System.out.println( crashInfo.getClassName()+" is not modeled.");
-            return;
+            return RelatedVarType.Unknown;
         }
         JSONArray methods = wrapperObject.getJSONArray("exceptions");//构建JSONArray数组
         for (Object method : methods) {
@@ -99,22 +142,23 @@ public class ExceptionMather {
                 if (exceptionInfo.getExceptionMsg() == null) continue;
                 Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg());
                 Matcher m = p.matcher(crashInfo.getMsg());
+//                System.out.println("version " +version);
+//                System.out.println("pp " +exceptionInfo.getExceptionMsg() );
+//                System.out.println("mm " +crashInfo.getMsg() +" "+m.matches());
                 String str = exceptionInfo.getExceptionMsg();
                 str = str.replace("[\\s\\S]*", "");
                 str = str.replace("\\Q", "");
                 str = str.replace("\\E", "");
                 if (str.length() >= 3 || crashInfo.getSignaler().equals(exceptionInfo.getSootMethodName())) {
                     if (m.matches()) {
-                        crashInfo.setExceptionInfo(exceptionInfo);
+                        return RelatedVarType.valueOf(jsonObject.getString("relatedVarType"));
                     } else {
                         continue;
                     }
                 }
             }
-            exceptionInfo.setRelatedVarType(RelatedVarType.valueOf(jsonObject.getString("relatedVarType")));
-
-
         }
+        return RelatedVarType.Unknown;
     }
 
     /**
@@ -143,6 +187,9 @@ public class ExceptionMather {
                     str = str.replace("\\E", "");
                     if (str.length() < 3)
                         continue;
+//                    System.out.println("version " +version);
+//                    System.out.println("p " +exceptionInfo.getExceptionMsg());
+//                    System.out.println("m " +crashInfo.getMsg() +" " +m.matches());
                     if (jsonObject.getString("relatedVarType") != null) {
                         return new Pair<>(jsonObject.getString("relatedVarType"), exceptionInfo.getSootMethodName());
                     }else{

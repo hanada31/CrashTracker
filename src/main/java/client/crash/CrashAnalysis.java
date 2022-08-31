@@ -752,7 +752,7 @@ public class CrashAnalysis extends Analyzer {
         }
         for(String method: crashInfo.getCrashMethodList()) {
             for (SootMethod crashMethod : SootUtils.getSootMethodBySimpleName(method)) {
-                if (crashMethod.getActiveBody().toString().contains(sootMethod.getDeclaringClass().getName().split("\\$")[0])) {
+                if (crashMethod.hasActiveBody() && crashMethod.getActiveBody().toString().contains(sootMethod.getDeclaringClass().getName().split("\\$")[0])) {
                     return true;
                 }
             }

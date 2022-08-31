@@ -28,7 +28,7 @@ public class TestApkCrashAnalysisClient {
 //        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 
         String name;
-        name = "fr.shywim.antoinedaniel-461.apk";
+        name = "com.infomil.leclercdrive-277.apk";
 
 
         String client = "ApkCrashAnalysisClient";
