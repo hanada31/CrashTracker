@@ -458,7 +458,10 @@ public class CrashAnalysis extends Analyzer {
     }
     //according to the parameter send into framework API
     private void withCrashAPIParaHandler(int score, CrashInfo crashInfo) {
+        //TODO
         if(MyConfig.getInstance().getStrategy().equals(Strategy.NoAppDataTrace.toString())){ return;}
+        if(MyConfig.getInstance().getStrategy().equals(Strategy.NOParaChainANDDataTrace.toString())){ return;}
+
         boolean find= false;
         for(SootMethod crashMethod: getCrashSootMethod(crashInfo)) {
             for (Unit unit : crashMethod.getActiveBody().getUnits()) {
@@ -1131,7 +1134,8 @@ public class CrashAnalysis extends Analyzer {
             }
 
             //strategy NoParaChain TODO
-            if(!MyConfig.getInstance().getStrategy().equals(Strategy.NoParaChain.toString()) ) {
+            if(!MyConfig.getInstance().getStrategy().equals(Strategy.NoParaChain.toString())
+            && !MyConfig.getInstance().getStrategy().equals(Strategy.NOParaChainANDDataTrace.toString()) ) {
                 JSONObject callerOfSingnlar2SourceVar = jsonObject.getJSONObject("callerOfSingnlar2SourceVar");
                 if (callerOfSingnlar2SourceVar != null) {
                     for (String key : callerOfSingnlar2SourceVar.keySet()) {

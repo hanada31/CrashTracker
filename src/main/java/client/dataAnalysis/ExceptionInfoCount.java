@@ -97,6 +97,7 @@ public class ExceptionInfoCount {
         long keyAPIDiffClassNum = 0;
         int hasKeyAPI = 0;
 
+        String condLen = "";
 
         JSONArray methods = wrapperObject.getJSONArray("exceptions");//构建JSONArray数组
         exceptionNum = methods.size();
@@ -127,6 +128,7 @@ public class ExceptionInfoCount {
             String conditions = jsonObject.getString("conditions");
             if(conditions!=null){
                 conditionLengthSum += conditions.split(",").length;
+                condLen += conditions.split(",").length+ "\n";
             }
             if(jsonObject.getInteger("backwardParamCallerNum")!=null && jsonObject.getInteger("backwardParamCallerNum")>1) {
                 hasBackwardParamCaller++; //the method itself will be added
@@ -148,6 +150,9 @@ public class ExceptionInfoCount {
                 hasKeyAPI++;
             }
         }
+        FileUtils.writeText2File("condLen.txt", condLen, true);
+
+
         StringBuilder sb = new StringBuilder(version + "\t" + exceptionNum +"\t" + exceptionType.size()+"\t" + uniqueMethod.size()+"\t");
 
         sb.append(extractedMsgWithsS+ "\t");

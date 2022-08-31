@@ -152,9 +152,9 @@ public class BuggyStatistic {
         printRankInfo2SB("B", cateBMap, sb, countB==0?0:MRRB/countB);
 //        printRankInfo2SB("C", cateCMap, sb, countC==0?0:MRRC/countC);
 
-        int find_base = 568, rankSum_base = 715, CandiSum_base =3445;
+        int find_base = 568, rankSum_base = 717, CandiSum_base =3555;
 //        find_base = 0; rankSum_base = 0; CandiSum_base =0;
-        double CandiAvg_base = 5.94;
+        double CandiAvg_base = 5.94+0.189;
 //        CandiAvg_base = 0;
 
         sb.append("Find\t"+ (find-find_base) + "\t");
@@ -226,7 +226,7 @@ public class BuggyStatistic {
     private void printRankInfo2SB(String tag, Map<String, Integer> map, StringBuilder sb, double MRR) {
         int r1 = 0, r5 = 0,r10 = 0; double mrr = 0.0;
         if(tag.equals("All")){
-            r1 = 500; r5 = 562; r10 = 567; mrr= 0.907;
+            r1 = 499; r5 = 562; r10 = 567; mrr= 0.906;
 //            r1 = 0; r5 = 0; r10 = 0; mrr=0;
         }else if(tag.equals("B")){
             r1 = 14; r5 = 38; r10 = 43; mrr= 0.433;
