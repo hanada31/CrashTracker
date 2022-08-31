@@ -28,7 +28,7 @@ public class TestApkCrashAnalysisClient {
 //        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 
         String name;
-        name = "com.infomil.leclercdrive-277.apk";
+        name = "com.cg.android.birthdaycountdown-393.apk";
 
 
         String client = "ApkCrashAnalysisClient";
@@ -45,7 +45,6 @@ public class TestApkCrashAnalysisClient {
         MyConfig.getInstance().setAndroidJar("E:\\AndroidSDK\\android-sdk-windows-new\\platforms");
         MyConfig.getInstance().setSrc_prec(Options.src_prec_apk);
         MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfo.json");
-        MyConfig.getInstance().setStrategy("ExtendCG");
         MyConfig.getInstance().setStrategy("");
 //        MyConfig.getInstance().setStrategy("NoRelatedMethodFilter");
 //        MyConfig.getInstance().setAndroidOSVersion("4.4");

@@ -959,7 +959,7 @@ public class CrashAnalysis extends Analyzer {
                     System.out.println(PrintUtils.printArray(versionTypes));
                 }
                 if (targetVerId == -1)
-                    targetVerId = 6;
+                    targetVerId = 0;
                 targetVer = versions[targetVerId];
                 targetMethodName = targetMethodNames[targetVerId];
             }else{
@@ -998,7 +998,7 @@ public class CrashAnalysis extends Analyzer {
         else if(overrideMissing >= parameterOnly && overrideMissing >= paraAndField && overrideMissing >= fieldOnly)
             choice = RelatedVarType.Empty.toString();
 
-        for(int i = versionType.length-1; i>=0; i--) {
+        for(int i = 0; i<versionType.length; i++) {
             if(versionType[i]!=null && versionType[i].equals(choice)){
                 return i;
             }
