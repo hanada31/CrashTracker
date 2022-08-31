@@ -28,7 +28,7 @@ public class TestApkCrashAnalysisClient {
 //        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 
         String name;
-        name = "com.wlanplus.chang-354.apk";
+        name = "com.telenav.doudouyou.android.autonavi-205.apk";
 
 
         String client = "ApkCrashAnalysisClient";
