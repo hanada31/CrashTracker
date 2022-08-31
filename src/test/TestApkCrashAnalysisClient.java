@@ -25,10 +25,10 @@ public class TestApkCrashAnalysisClient {
     private void setArgs() {
         String path;
         path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
-//        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
+        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 
         String name;
-        name = "com.cg.android.birthdaycountdown-393.apk";
+        name = "cgeo.geocaching-4450.apk";
 
 
         String client = "ApkCrashAnalysisClient";
@@ -47,7 +47,7 @@ public class TestApkCrashAnalysisClient {
         MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfo.json");
         MyConfig.getInstance().setStrategy("");
 //        MyConfig.getInstance().setStrategy("NoRelatedMethodFilter");
-//        MyConfig.getInstance().setAndroidOSVersion("4.4");
+//        MyConfig.getInstance().setAndroidOSVersion("2.3");
     }
 
 }
