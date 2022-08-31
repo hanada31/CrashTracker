@@ -103,7 +103,7 @@ public class ExceptionInfo {
         //strategy NoRVType
         if(MyConfig.getInstance().getStrategy().equals(Strategy.NoSourceType.toString()) ){
             return RelatedVarType.Unknown;
-        }else if(MyConfig.getInstance().getStrategy().equals(Strategy.NoSourceType.toString()) ){
+        }else if(MyConfig.getInstance().getStrategy().equals(Strategy.ExtendCGOnly.toString()) ){
             return RelatedVarType.Unknown;
         }
         if (isParameterOnly()) return RelatedVarType.Parameter;

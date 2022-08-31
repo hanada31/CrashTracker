@@ -27,16 +27,19 @@ public class CrashInfoCounter {
 
     private void writeCrashInfo() {
         FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"crashLength.txt", "", false);
-        System.out.println("write to "+ MyConfig.getInstance().getResultFolder() +"crashLength.txt");
         FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"crashLength.txt", "app\ttraceSize\tcrashMethodListSize\n", true);
+        FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"C-tag.txt", "", false);
 
         for(CrashInfo crashInfo: crashInfoList) {
             String str= crashInfo.getId()+"\t"+ crashInfo.getTrace().size()+"\t" +crashInfo.getCrashMethodList().size();
             FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"crashLength.txt", str+"\n", true);
-//            if(crashInfo.getNoneCodeLabel().get(0)!=null) {
+            if(crashInfo.getNoneCodeLabel().get(0)!=null && crashInfo.getNoneCodeLabel().get(0)!=null) {
                 str = crashInfo.getRealCate() + "\t" + crashInfo.getId() + "\t" + crashInfo.getNoneCodeLabel().get(0);
                 FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() + "C-tag.txt", str + "\n", true);
-//            }
+            }else{
+                str = crashInfo.getRealCate() + "\t" + crashInfo.getId() + "\t";
+                FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() + "C-tag.txt", str + "\n", true);
+            }
         }
     }
 

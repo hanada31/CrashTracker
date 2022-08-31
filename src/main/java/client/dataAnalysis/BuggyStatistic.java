@@ -237,14 +237,14 @@ public class BuggyStatistic {
         sb.append(map.get("Recall@5")-r5 + "\t");
         sb.append(map.get("Recall@10")-r10 + "\t");
 
-//        BigDecimal b1 = new BigDecimal(map.get("Recall@1")==0?0:1.0* map.get("Recall@1")/map.get("Recall@all"));
-//        sb.append(b1.setScale(3,   BigDecimal.ROUND_HALF_UP).doubleValue() + "\t");
-//
-//        BigDecimal b2 = new BigDecimal(map.get("Recall@5")==0?0:1.0* map.get("Recall@5")/map.get("Recall@all"));
-//        sb.append(b2.setScale(3,   BigDecimal.ROUND_HALF_UP).doubleValue() + "\t");
-//
-//        BigDecimal b3 = new BigDecimal(map.get("Recall@10")==0?0:1.0* map.get("Recall@10")/map.get("Recall@all"));
-//        sb.append(b3.setScale(3,   BigDecimal.ROUND_HALF_UP).doubleValue() + "\t");
+        BigDecimal b1 = new BigDecimal(map.get("Recall@1")==0?0:1.0* map.get("Recall@1")/map.get("Recall@all"));
+        sb.append(b1.setScale(3,   BigDecimal.ROUND_HALF_UP).doubleValue() + "\t");
+
+        BigDecimal b2 = new BigDecimal(map.get("Recall@5")==0?0:1.0* map.get("Recall@5")/map.get("Recall@all"));
+        sb.append(b2.setScale(3,   BigDecimal.ROUND_HALF_UP).doubleValue() + "\t");
+
+        BigDecimal b3 = new BigDecimal(map.get("Recall@10")==0?0:1.0* map.get("Recall@10")/map.get("Recall@all"));
+        sb.append(b3.setScale(3,   BigDecimal.ROUND_HALF_UP).doubleValue() + "\t");
 
         BigDecimal b = new BigDecimal(MRR-mrr);
         sb.append(b.setScale(3,   BigDecimal.ROUND_HALF_UP).doubleValue() + "\n");
