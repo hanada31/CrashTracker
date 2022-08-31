@@ -28,7 +28,7 @@ public class TestApkCrashAnalysisClient {
 //        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 
         String name;
-        name = "com.telenav.doudouyou.android.autonavi-205.apk";
+        name = "fr.shywim.antoinedaniel-461.apk";
 
 
         String client = "ApkCrashAnalysisClient";
@@ -47,7 +47,7 @@ public class TestApkCrashAnalysisClient {
         MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfo.json");
         MyConfig.getInstance().setStrategy("ExtendCG");
         MyConfig.getInstance().setStrategy("");
-        MyConfig.getInstance().setStrategy("NoRelatedMethodFilter");
+//        MyConfig.getInstance().setStrategy("NoRelatedMethodFilter");
 //        MyConfig.getInstance().setAndroidOSVersion("4.4");
     }
 

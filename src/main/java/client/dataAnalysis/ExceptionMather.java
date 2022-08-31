@@ -42,9 +42,10 @@ public class ExceptionMather {
     }
 
     private void exceptionOracleAnalysis() {
-        FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"ETSCorrectness.txt", "", false);
+//        FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"ETSCorrectness.txt", "", false);
         System.out.println("write to "+ MyConfig.getInstance().getResultFolder() +"ETSCorrectness.txt");
         for(CrashInfo crashInfo: crashInfoList) {
+            if(!crashInfo.getId().equals("fr.shywim.antoinedaniel-461")) continue;
             String str= crashInfo.getId()+"\t"+crashInfo.getSignaler()+"\t";
             String[] versionTypes = new String[versions.length];
             String[] versionTypeCandis = new String[versions.length];
@@ -70,6 +71,49 @@ public class ExceptionMather {
             str += targetVerStr +"\t"+crashInfo.getRelatedVarTypeOracle()+"\t"+ (targetVerStr.equals(crashInfo.getRelatedVarTypeOracle().toString()))+"\n";
             System.out.println(str);
             FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"ETSCorrectness.txt", str, true);
+        }
+    }
+
+
+
+    private void readExceptionSummary(CrashInfo crashInfo, String targetMethodName) {
+        if(!crashInfo.getMethodName().equals(targetMethodName)) {
+            crashInfo.setMethodName(targetMethodName);
+        }
+        String fn = MyConfig.getInstance().getExceptionFilePath()+crashInfo.getClassName()+".json";
+        System.out.println("readExceptionSummary::"+fn);
+        String jsonString = FileUtils.readJsonFile(fn);
+        JSONObject wrapperObject = (JSONObject) JSONObject.parse(jsonString);
+        if(wrapperObject==null) {
+            System.out.println( crashInfo.getClassName()+" is not modeled.");
+            return;
+        }
+        JSONArray methods = wrapperObject.getJSONArray("exceptions");//构建JSONArray数组
+        for (Object method : methods) {
+            JSONObject jsonObject = (JSONObject) method;
+            ExceptionInfo exceptionInfo = new ExceptionInfo();
+            exceptionInfo.setSootMethodName(jsonObject.getString("method"));
+            exceptionInfo.setExceptionMsg(jsonObject.getString("message"));
+
+            if (exceptionInfo.getSootMethodName().equals(crashInfo.getMethodName())) {
+                if (exceptionInfo.getExceptionMsg() == null) continue;
+                Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg());
+                Matcher m = p.matcher(crashInfo.getMsg());
+                String str = exceptionInfo.getExceptionMsg();
+                str = str.replace("[\\s\\S]*", "");
+                str = str.replace("\\Q", "");
+                str = str.replace("\\E", "");
+                if (str.length() >= 3 || crashInfo.getSignaler().equals(exceptionInfo.getSootMethodName())) {
+                    if (m.matches()) {
+                        crashInfo.setExceptionInfo(exceptionInfo);
+                    } else {
+                        continue;
+                    }
+                }
+            }
+            exceptionInfo.setRelatedVarType(RelatedVarType.valueOf(jsonObject.getString("relatedVarType")));
+
+
         }
     }
 

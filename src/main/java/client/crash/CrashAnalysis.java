@@ -1072,10 +1072,16 @@ public class CrashAnalysis extends Analyzer {
                 if (exceptionInfo.getExceptionMsg() == null) continue;
                 Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg());
                 Matcher m = p.matcher(crashInfo.getMsg());
-                if (m.matches()) {
-                    crashInfo.setExceptionInfo(exceptionInfo);
-                } else {
-                    continue;
+                String str = exceptionInfo.getExceptionMsg();
+                str = str.replace("[\\s\\S]*", "");
+                str = str.replace("\\Q", "");
+                str = str.replace("\\E", "");
+                if (str.length() >= 3 || crashInfo.getSignaler().equals(exceptionInfo.getSootMethodName())) {
+                    if (m.matches()) {
+                        crashInfo.setExceptionInfo(exceptionInfo);
+                    } else {
+                        continue;
+                    }
                 }
             }
             exceptionInfo.setExceptionType(jsonObject.getString("type"));
