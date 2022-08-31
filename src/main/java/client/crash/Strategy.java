@@ -6,5 +6,5 @@ package main.java.client.crash;
  * @Version 1.0
  */
 public enum Strategy {
-    NoRelatedMethodFilter, NoRVType, ExtendCG, NoAppParaTracing, NoKeyAPI, NoParaChain
+    NoCallFilter, NoSourceType, ExtendCGOnly, NoAppDataTrace, NoKeyAPI, NoParaChain
 }

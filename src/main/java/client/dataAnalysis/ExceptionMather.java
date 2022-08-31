@@ -42,12 +42,18 @@ public class ExceptionMather {
     }
 
     private void exceptionOracleAnalysis() {
+        boolean flag = false;
         FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"ETSCorrectness.txt", "", false);
         System.out.println("write to "+ MyConfig.getInstance().getResultFolder() +"ETSCorrectness.txt");
         for(CrashInfo crashInfo: crashInfoList) {
             String targetMethodName;
             String targetVer;
-//            if(!crashInfo.getId().equals("com.tgb.bg.jevcyxr-215")) continue;
+//            if(flag==false && !crashInfo.getId().equals("com.infomil.leclercdrive-277")){
+//                continue;
+//            }else{
+//                flag = true;
+//            }
+//            if(!crashInfo.getId().equals("com.microcell.MyHouse-398")) continue;
             String str= crashInfo.getId()+"\t"+crashInfo.getSignaler()+"\t";
             String[] versionTypes = new String[versions.length];
             String[] versionTypeCandis = new String[versions.length];
@@ -79,7 +85,6 @@ public class ExceptionMather {
             System.out.println("target is "+ targetVer);
 
             RelatedVarType type = getVarTypeFromExceptionSummary(crashInfo, targetMethodName);
-
             String targetVerStr = type==null? RelatedVarType.Unknown.toString(): type.toString();
             str += targetVerStr +"\t"+crashInfo.getRelatedVarTypeOracle()+"\t"+ (targetVerStr.equals(crashInfo.getRelatedVarTypeOracle().toString()))+"\n";
             System.out.println(str);
@@ -137,25 +142,40 @@ public class ExceptionMather {
             ExceptionInfo exceptionInfo = new ExceptionInfo();
             exceptionInfo.setSootMethodName(jsonObject.getString("method"));
             exceptionInfo.setExceptionMsg(jsonObject.getString("message"));
-
             if (exceptionInfo.getSootMethodName().equals(crashInfo.getMethodName())) {
                 if (exceptionInfo.getExceptionMsg() == null) continue;
                 Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg());
                 Matcher m = p.matcher(crashInfo.getMsg());
-//                System.out.println("version " +version);
 //                System.out.println("pp " +exceptionInfo.getExceptionMsg() );
 //                System.out.println("mm " +crashInfo.getMsg() +" "+m.matches());
                 String str = exceptionInfo.getExceptionMsg();
                 str = str.replace("[\\s\\S]*", "");
                 str = str.replace("\\Q", "");
                 str = str.replace("\\E", "");
-                if (str.length() >= 3 || crashInfo.getSignaler().equals(exceptionInfo.getSootMethodName())) {
+                if (str.length() >= 3) {
                     if (m.matches()) {
                         return RelatedVarType.valueOf(jsonObject.getString("relatedVarType"));
                     } else {
                         continue;
                     }
                 }
+            }
+        }
+        for (Object method : methods) {
+            JSONObject jsonObject = (JSONObject) method;
+            ExceptionInfo exceptionInfo = new ExceptionInfo();
+            exceptionInfo.setSootMethodName(jsonObject.getString("method"));
+            exceptionInfo.setExceptionMsg(jsonObject.getString("message"));
+            if (exceptionInfo.getSootMethodName().equals(crashInfo.getMethodName())) {
+                if (exceptionInfo.getExceptionMsg() == null) continue;
+                Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg());
+                Matcher m = p.matcher(crashInfo.getMsg());
+                if (m.matches()) {
+                    return RelatedVarType.valueOf(jsonObject.getString("relatedVarType"));
+                } else {
+                    continue;
+                }
+
             }
         }
         return RelatedVarType.Unknown;

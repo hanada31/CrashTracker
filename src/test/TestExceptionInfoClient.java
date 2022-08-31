@@ -25,7 +25,6 @@ public class TestExceptionInfoClient {
         String path, name;
         path = "C:\\Users\\yanjw\\programs\\framework\\classes\\";
         path = "D:\\SoftwareData\\dataset\\android-framework\\classes\\";
-//        path = "C:\\Users\\79940\\Desktop\\condition";
         MyConfig.getInstance().setAndroidOSVersion("5.0");
 //        MyConfig.getInstance().setAndroidOSVersion("");
 
@@ -45,7 +44,6 @@ public class TestExceptionInfoClient {
         MyConfig.getInstance().setTimeLimit(100);
         MyConfig.getInstance().setAndroidJar("E:\\AndroidSDK\\android-sdk-windows-new\\platforms");
         MyConfig.getInstance().setSrc_prec(Options.src_prec_only_class);
-        MyConfig.getInstance().setFileSuffixLength(0);
         MyConfig.getInstance().setFileSuffixLength(0);
         String androidFolder = "Files"+File.separator+name+File.separator;
         MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);

@@ -381,7 +381,7 @@ public class CrashAnalysis extends Analyzer {
         }
         noParameterPassingMethodScore(score-n, crashInfo);
         int score2 = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
-        if(MyConfig.getInstance().getStrategy().equals(Strategy.ExtendCG.toString())) {
+        if(MyConfig.getInstance().getStrategy().equals(Strategy.ExtendCGOnly.toString())) {
             getExtendedCallTrace(crashInfo);
             addExtendedCallGraph(crashInfo);
         }else{
@@ -458,7 +458,7 @@ public class CrashAnalysis extends Analyzer {
     }
     //according to the parameter send into framework API
     private void withCrashAPIParaHandler(int score, CrashInfo crashInfo) {
-        if(MyConfig.getInstance().getStrategy().equals(Strategy.NoAppParaTracing.toString())){ return;}
+        if(MyConfig.getInstance().getStrategy().equals(Strategy.NoAppDataTrace.toString())){ return;}
         boolean find= false;
         for(SootMethod crashMethod: getCrashSootMethod(crashInfo)) {
             for (Unit unit : crashMethod.getActiveBody().getUnits()) {
@@ -731,7 +731,7 @@ public class CrashAnalysis extends Analyzer {
         Set<Integer> paramIndexCaller = SootUtils.getIndexesFromMethod(edge, crashInfo.exceptionInfo.getRelatedValueIndex());
         if(paramIndexCaller.size() == 0) return;
 
-        if(!MyConfig.getInstance().getStrategy().equals(Strategy.NoRelatedMethodFilter.toString())){
+        if(!MyConfig.getInstance().getStrategy().equals(Strategy.NoCallFilter.toString())){
             int size = CollectionUtils.getSizeOfIterator(Global.v().getAppModel().getCg().edgesInto(sootMethod));
             if(size>ConstantUtils.LARGECALLERSET) return;
         }
@@ -747,7 +747,7 @@ public class CrashAnalysis extends Analyzer {
     }
 
     private boolean currentMethodContainCandi(SootMethod sootMethod, CrashInfo crashInfo) {
-        if(MyConfig.getInstance().getStrategy().equals(Strategy.NoRelatedMethodFilter)){
+        if(MyConfig.getInstance().getStrategy().equals(Strategy.NoCallFilter)){
             return true;
         }
         for(String method: crashInfo.getCrashMethodList()) {
@@ -766,7 +766,7 @@ public class CrashAnalysis extends Analyzer {
     private void getBuggyFromRelatedMethods(CrashInfo crashInfo, RelatedMethod relatedMethod, int initScore) {
         crashInfo.setEdges(new ArrayList<>());
         int size =  0;
-        if(!MyConfig.getInstance().getStrategy().equals(Strategy.NoRelatedMethodFilter.toString())){
+        if(!MyConfig.getInstance().getStrategy().equals(Strategy.NoCallFilter.toString())){
             size =getsizeOfCaller(relatedMethod.getMethod());
         }
 //        System.out.println(size);
