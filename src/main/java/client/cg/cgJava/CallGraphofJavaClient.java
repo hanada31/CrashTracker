@@ -1,14 +1,8 @@
 package main.java.client.cg.cgJava;
 
 import main.java.base.Global;
-import main.java.base.MyConfig;
 import main.java.client.BaseClient;
-import main.java.client.cg.CgClientOutput;
-import main.java.utils.ConstantUtils;
-import main.java.utils.FileUtils;
 import soot.jimple.toolkits.callgraph.CallGraph;
-
-import java.io.File;
 
 /**
  * Analyzer Class

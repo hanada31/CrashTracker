@@ -20,7 +20,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static main.java.utils.SootUtils.*;
+import static main.java.utils.SootUtils.getDefOfLocal;
+import static main.java.utils.SootUtils.getFiledValueAssigns;
 
 /**
  * @Author hanada

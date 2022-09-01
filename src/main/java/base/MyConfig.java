@@ -12,8 +12,6 @@ import soot.options.Options;
 public class MyConfig {
 
 	private boolean isJimple = true;
-	private boolean writeSootOutput = false;
-	private String androidVersion;
 	private String resultFolder;
 	private String resultWarpperFolder;
 	private String appName;
@@ -21,9 +19,6 @@ public class MyConfig {
 	private String client;
 	private String callgraphAlgorithm = "SPARK";
 	private int timeLimit;
-	private int maxPathNumber;
-	private int maxFunctionExpandNumber;
-	private int maxObjectSummarySize;
 	private String androidJar;
 	private boolean stopFlag = false;
 
@@ -68,19 +63,6 @@ public class MyConfig {
 
 	public void setJimple(boolean isJimple) {
 		this.isJimple = isJimple;
-	}
-
-	public void setWriteSootOutput(boolean writeSootOutput) {
-		this.writeSootOutput = writeSootOutput;
-	}
-
-
-	public String getAndroidVersion() {
-		return androidVersion;
-	}
-
-	public void setAndroidVersion(String androidVersion) {
-		this.androidVersion = androidVersion;
 	}
 
 	public String getResultFolder() {
@@ -151,21 +133,6 @@ public class MyConfig {
 	 */
 	public void setAndroidJar(String androidJar) {
 		this.androidJar = androidJar;
-	}
-
-	/**
-	 * @return the maxPathNumber
-	 */
-	public int getMaxPathNumber() {
-		return maxPathNumber;
-	}
-
-	/**
-	 * @param maxPathNumber
-	 *            the maxPathNumber to set
-	 */
-	public void setMaxPathNumber(int maxPathNumber) {
-		this.maxPathNumber = maxPathNumber;
 	}
 
 	/**
@@ -255,34 +222,6 @@ public class MyConfig {
 	 */
 	public void setCallgraphAlgorithm(String callgraphAlgorithm) {
 		this.callgraphAlgorithm = callgraphAlgorithm;
-	}
-
-	/**
-	 * @return the maxFunctionExpandNumber
-	 */
-	public int getMaxFunctionExpandNumber() {
-		return maxFunctionExpandNumber;
-	}
-
-	/**
-	 * @param maxFunctionExpandNumber the maxFunctionExpandNumber to set
-	 */
-	public void setMaxFunctionExpandNumber(int maxFunctionExpandNumber) {
-		this.maxFunctionExpandNumber = maxFunctionExpandNumber;
-	}
-
-	/**
-	 * @return the maxObjectSummarySize
-	 */
-	public int getMaxObjectSummarySize() {
-		return maxObjectSummarySize;
-	}
-
-	/**
-	 * @param maxObjectSummarySize the maxObjectSummarySize to set
-	 */
-	public void setMaxObjectSummarySize(int maxObjectSummarySize) {
-		this.maxObjectSummarySize = maxObjectSummarySize;
 	}
 
 	public int getFileSuffixLength() {

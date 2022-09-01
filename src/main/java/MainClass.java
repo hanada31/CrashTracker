@@ -117,29 +117,27 @@ public class MainClass {
 		options.addOption("name", true, "-name: Set the name of the apk under analysis.");
 		options.addOption("path", true, "-path: Set the path to the apk under analysis.");
 		options.addOption("androidJar", true, "-androidJar: Set the path of android.jar.");
-		options.addOption("AndroidSDKVersion", true, "-AndroidSDKVersion [default:23]: Version of Android SDK.");
-		options.addOption("crashPath", true, "-crashPath: crash info file.");
-		options.addOption("exceptionPath", true, "-exceptionPath: exception file folder.");
-		options.addOption("androidCGPath", true, "-androidCGPath: Android CallGraph file.");
-		options.addOption("permissionPath", true, "-permissionPath: Android permissionPath file.");
-		options.addOption("AndroidOSVersion", true, "-AndroidOSVersion: Android OS version");
+		options.addOption("crashPath", true, "-crashPath: crash information file.");
+		options.addOption("frameworkVersion", true, "-frameworkVersion: The version of framework under analysis");
 		options.addOption("strategy", true, "-strategy: effectiveness of strategy m");
+
+		options.addOption("exceptionPath", true, "-exceptionPath: exception file folder [optional].");
+		options.addOption("androidCGPath", true, "-androidCGPath: Android CallGraph file [optional.");
+		options.addOption("permissionPath", true, "-permissionPath: Android permissionPath file [optional.");
+
 
 		/** analysis config **/
 		options.addOption("client", true, "-client "
+				+ "ExceptionInfoClient: Extract exception information from Android framework.\n"
+				+ "CrashAnalysisClient: Analysis the crash information for an apk.\n"
+				+ "JarCrashAnalysisClient: Analysis the crash information for an third party SDK.\n"
 				+ "CallGraphClient: Output call graph files.\n"
 				+ "ManifestClient: Output manifest.xml file.\n"
 				+ "IROutputClient: Output soot IR files.\n"
-				+ "CrashAnalysisClient: Analysis the crash information for an apk.\n"
-				+ "ExceptionInfoClient: Extract exception information from Android framework.\n"
 			);
 		/** analysis config **/
 		options.addOption("time", true, "-time [default:90]: Set the max running time (min).");
-		options.addOption("maxPathNumber", true, "-maxPathNumber [default:100]: Set the max number of paths.");
-		options.addOption("maxFunctionExpandNumber", true, "-maxFunctionExpandNumber [default:10]: Set the max number of expanded functions when perform inter-precedural analysis.");
-		options.addOption("maxObjectSummarySize", true, "-maxObjectSummarySize [default:1000]: Set the max number of units in an object summary.");
-		options.addOption("callgraphAlgorithm", true, "-callgraphAlgorithm [default:SPARK]: Set algorithm for CG, CHA or SPARK.");
-		
+//		options.addOption("callgraphAlgorithm", true, "-callgraphAlgorithm [default:SPARK]: Set algorithm for CG, CHA or SPARK.");
 		/** output **/
 		options.addOption("outputDir", true, "-outputDir: Set the output folder of the apk.");
 		options.addOption("sootOutput", false, "-sootOutput: Output the sootOutput");
@@ -171,12 +169,11 @@ public class MainClass {
 		MyConfig.getInstance().setAppName(mCmd.getOptionValue("name", ""));
 		MyConfig.getInstance().setAppPath(mCmd.getOptionValue("path", System.getProperty("user.dir")) + File.separator);
 		MyConfig.getInstance().setAndroidJar(mCmd.getOptionValue("androidJar", "lib"+File.separator+"platforms") + File.separator);
-		MyConfig.getInstance().setAndroidVersion("android-" + mCmd.getOptionValue("AndroidSDKVersion", "23"));
 		MyConfig.getInstance().setCrashInfoFilePath(mCmd.getOptionValue("crashPath","Files"+File.separator+"crashInfo.json"));
 
-		if(mCmd.getOptionValue("AndroidOSVersion")!=null) {
-			MyConfig.getInstance().setAndroidOSVersion(mCmd.getOptionValue("AndroidOSVersion"));
-			String androidFolder = "Files" + File.separator + "android" + mCmd.getOptionValue("AndroidOSVersion") + File.separator;
+		if(mCmd.getOptionValue("frameworkVersion")!=null) {
+			MyConfig.getInstance().setAndroidOSVersion(mCmd.getOptionValue("frameworkVersion"));
+			String androidFolder = "Files" + File.separator + "android" + mCmd.getOptionValue("frameworkVersion") + File.separator;
 			MyConfig.getInstance().setPermissionFilePath(mCmd.getOptionValue("permissionPath", androidFolder + "Permission" + File.separator + "permission.txt"));
 			MyConfig.getInstance().setExceptionFilePath(mCmd.getOptionValue("exceptionPath", androidFolder + "exceptionInfo" + File.separator));
 			MyConfig.getInstance().setAndroidCGFilePath(mCmd.getOptionValue("androidCGPath", androidFolder + "CallGraphInfo" + File.separator + "cg.txt"));
@@ -184,14 +181,9 @@ public class MainClass {
 
 		MyConfig.getInstance().setStrategy(mCmd.getOptionValue("strategy", ""));
 		System.out.println("###The strategy is #" + MyConfig.getInstance().getStrategy()+"#");
-		if (mCmd.hasOption("sootOutput"))
-			MyConfig.getInstance().setWriteSootOutput(true);
 
 		int timeLimit = Integer.valueOf(mCmd.getOptionValue("time", "90"));
 		MyConfig.getInstance().setTimeLimit(timeLimit);
-		MyConfig.getInstance().setMaxPathNumber(Integer.valueOf(mCmd.getOptionValue("maxPathNumber", "100")));
-		MyConfig.getInstance().setMaxFunctionExpandNumber(Integer.valueOf(mCmd.getOptionValue("maxFunctionExpandNumber", "10")));
-		MyConfig.getInstance().setMaxObjectSummarySize(Integer.valueOf(mCmd.getOptionValue("maxObjectSummarySize", "1000")));
 		MyConfig.getInstance().setCallgraphAlgorithm(mCmd.getOptionValue("callgraphAlgorithm", "SPARK"));
 
 		String client = mCmd.getOptionValue("client", "MainClient");
@@ -213,7 +205,7 @@ public class MainClass {
 		System.out.println(string);
 		HelpFormatter formatter = new HelpFormatter();
 		System.out.println("Please check the help inforamtion");
-		formatter.printHelp("java -jar ICCBot.jar [options]", getOptions());
+		formatter.printHelp("java -jar CrashTracker.jar [options]", getOptions());
 		System.exit(0);
 	}
 

@@ -34,28 +34,19 @@ public class ValueObtainer {
 		this(method_name, flag, new Context(), new Counter());
 	}
 
-	public ValueObtainer(String method_name, String flag, Counter counter) {
-		this(method_name, flag, new Context(), counter);
-	}
-
-	public ValueObtainer(String method_name, String flag, Context contextsValue, String targetname, Counter counter) {
-		this(method_name, flag, new Context(), counter);
-	}
-
 	public ValueObtainer(String method_name, String flag, Context contextsValue, Counter counter) {
 		this.method_name = method_name;
 		this.flag = flag;
 		this.contextsValue = contextsValue;
-		this.dependentMap = new HashMap<Value, List<Value>>();
+		this.dependentMap = new HashMap<>();
 		this.counter = counter;
 	}
 
 	/**
 	 * get value of strVal in unit u
-	 * 
-	 * @param strVal
-	 * @param u
-	 * @return
+	 * @param strVal Value
+	 * @param u unit
+	 * @return NestableObj
 	 */
 	public NestableObj getValueofVar(Value strVal, Unit u, int depth) {
 //		System.out.println(depth+"  " +strVal.toString() +"  "+u.toString());
@@ -101,21 +92,12 @@ public class ValueObtainer {
 								resList.addValue(staval);
 							} else
 								resList.addValue("new " + val.getType());
-						} else if (val instanceof JInstanceFieldRef) {
-							SootField field = ((JInstanceFieldRef) val).getField();
-							if (Global.v().getAppModel().getStaticRefSignature2initAssignMap()
-									.containsKey(field.getSignature())) {
-								String staval = Global.v().getAppModel().getStaticRefSignature2initAssignMap()
-										.get(field.getSignature());
-								resList.addValue(staval);
-							} else
-								resList.addValue("new " + val.getType());
 						} else if (val instanceof JVirtualInvokeExpr || val instanceof JStaticInvokeExpr) {
 							NestableObj obj = null;
 							try {
 								obj = stringApisOperation(defUnit, depth);
 							} catch (Exception e) {
-
+								e.printStackTrace();
 							}
 							if (obj != null)
 								resList.setValues(obj.getValues());
@@ -147,6 +129,7 @@ public class ValueObtainer {
 										resList.setValues(handleCallerEdgePara(defUnit, ass.getInvokeExpr(),
 												b.getMethod(), depth + 1).getValues());
 									} catch (StackOverflowError e) {
+										e.printStackTrace();
 									}
 								}
 							}
@@ -159,9 +142,9 @@ public class ValueObtainer {
 							if (val.toString().contains("new java.lang.StringBuilder")
 									|| val.toString().contains("new java.lang.String")) {
 								List<UnitValueBoxPair> use_var_list = SootUtils.getUseOfLocal(method_name, defUnit);
-								String sbString = "";
-								for (int i = 0; i < use_var_list.size(); i++) {
-									Unit useUnit = use_var_list.get(i).getUnit();
+								StringBuilder sbString = new StringBuilder();
+								for (UnitValueBoxPair unitValueBoxPair : use_var_list) {
+									Unit useUnit = unitValueBoxPair.getUnit();
 									if (useUnit.toString().contains("<init>") || useUnit.toString().contains("append")) {
 										InvokeExpr invokeExpr = SootUtils.getInvokeExp(useUnit);
 										if (invokeExpr != null && invokeExpr.getArgCount() > 0) {
@@ -169,11 +152,11 @@ public class ValueObtainer {
 											List<String> tempVals = getValueofVar(initSb, useUnit, depth + 1)
 													.getValues();
 											if (tempVals.size() > 0)
-												sbString += tempVals.get(0);
+												sbString.append(tempVals.get(0));
 										}
 									}
 								}
-								resList.addValue(sbString);// signature,
+								resList.addValue(sbString.toString());// signature,
 							} else {
 								// Utils.printInfo("other new expr " +val);
 								// new object -- unkonwn
@@ -188,7 +171,7 @@ public class ValueObtainer {
 										&& dependentMap.get(arg.getValue()).contains(strVal))
 									continue;
 								if (!dependentMap.containsKey(strVal))
-									dependentMap.put(strVal, new ArrayList<Value>());
+									dependentMap.put(strVal, new ArrayList<>());
 								dependentMap.get(strVal).add(arg.getValue());
 								resList.setValues(getValueofVar(arg.getValue(), defUnit, depth + 1).getValues());
 							}
@@ -266,37 +249,6 @@ public class ValueObtainer {
 		}
 		// System.out.println(type);
 		return false;
-	}
-
-	/**
-	 * get value of strVal in unit u
-	 * 
-	 * @param strVal
-	 * @param u
-	 * @return
-	 */
-	public String getTypeofValue(Value strVal, Unit u) {
-		String type = "";
-		if (strVal instanceof Constant) {
-			type = "String1";
-		} else {
-			if (!(strVal instanceof Local))
-				return null;
-			List<Unit> def_var_list = SootUtils.getDefOfLocal(method_name, strVal, u);
-			if (def_var_list.size() > 0) {
-				for (Unit defUnit : def_var_list) {
-					if (defUnit instanceof JAssignStmt) {
-						Value left = ((JAssignStmt) defUnit).getLeftOp();
-						type = left.getType().toString();
-					}
-					// para $r0 := @parameter0: java.lang.String
-					else if (defUnit instanceof JIdentityStmt) {
-						type = defUnit.toString().split("\\.")[-1];
-					}
-				}
-			}
-		}
-		return type;
 	}
 
 	/**
@@ -388,6 +340,7 @@ public class ValueObtainer {
 						try {
 							b = Integer.parseInt(str_b);
 						} catch (Exception NumberFormatException) {
+							NumberFormatException.printStackTrace();
 						}
 					if (b < 0)
 						b = 0;
@@ -402,6 +355,7 @@ public class ValueObtainer {
 						try {
 							e = Integer.parseInt(str_e);
 						} catch (Exception NumberFormatException) {
+							NumberFormatException.printStackTrace();
 						}
 
 					if (e < 0)
@@ -517,7 +471,7 @@ public class ValueObtainer {
 				if (useUnit instanceof JAssignStmt) {
 					JAssignStmt jas = (JAssignStmt) useUnit;
 					if (jas.containsFieldRef()) {
-						NestableObj o = null;
+						NestableObj o;
 						if (father.getObjs().containsKey(jas.getFieldRef().getField().getSignature()))
 							o = father.getObjs().get(jas.getFieldRef().getField().getSignature());
 						else {

@@ -35,9 +35,6 @@ public class TestIROutputClient {
         MyConfig.getInstance().setAppName(name);
         MyConfig.getInstance().setAppPath(path + File.separator);
         MyConfig.getInstance().setClient(client);
-        MyConfig.getInstance().setMaxPathNumber(30);
-        MyConfig.getInstance().setMaxFunctionExpandNumber(5); //10?
-        MyConfig.getInstance().setMaxObjectSummarySize(100);
         MyConfig.getInstance().setResultWarpperFolder("results" + File.separator);
         MyConfig.getInstance().setResultFolder(MyConfig.getInstance().getResultWarpperFolder()+ "output" + File.separator);
         MyConfig.getInstance().setTimeLimit(10);
