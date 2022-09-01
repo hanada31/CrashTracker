@@ -1071,6 +1071,7 @@ public class CrashAnalysis extends Analyzer {
             return;
         }
         JSONArray methods = wrapperObject.getJSONArray("exceptions");//构建JSONArray数组
+        boolean flag= false;
         for (Object method : methods) {
             JSONObject jsonObject = (JSONObject) method;
             ExceptionInfo exceptionInfo = new ExceptionInfo();
@@ -1085,70 +1086,95 @@ public class CrashAnalysis extends Analyzer {
                 str = str.replace("[\\s\\S]*", "");
                 str = str.replace("\\Q", "");
                 str = str.replace("\\E", "");
-                if (str.length() >= 3 || crashInfo.getSignaler().equals(exceptionInfo.getSootMethodName())) {
+                if (str.length() >= 3) {
                     if (m.matches()) {
                         crashInfo.setExceptionInfo(exceptionInfo);
+                        flag = true;
                     } else {
                         continue;
                     }
                 }
             }
-            exceptionInfo.setExceptionType(jsonObject.getString("type"));
-            exceptionInfo.setModifier(jsonObject.getString("modifier"));
-            exceptionInfo.setOsVersionRelated(jsonObject.getBoolean("osVersionRelated"));
-            exceptionInfo.setResourceRelated(jsonObject.getBoolean("resourceRelated"));
-            exceptionInfo.setAssessRelated(jsonObject.getBoolean("assessRelated"));
-            exceptionInfo.setHardwareRelated(jsonObject.getBoolean("hardwareRelated"));
-            exceptionInfo.setManifestRelated(jsonObject.getBoolean("manifestRelated"));
-            exceptionInfo.setConditions(jsonObject.getString("conditions"));
-            exceptionInfo.setRelatedParamValuesInStr(jsonObject.getString("paramValues"));
-            exceptionInfo.setRelatedFieldValuesInStr(jsonObject.getString("fieldValues"));
-            if (jsonObject.getString("relatedCondType") != null)
-                exceptionInfo.setRelatedCondType(RelatedCondType.valueOf(jsonObject.getString("relatedCondType")));
+            readMoreInfo(exceptionInfo, jsonObject);
+        }
+        if(flag) return;
+        for (Object method : methods) {
+            JSONObject jsonObject = (JSONObject) method;
+            ExceptionInfo exceptionInfo = new ExceptionInfo();
+            exceptionInfo.setSootMethodName(jsonObject.getString("method"));
+            exceptionInfo.setExceptionMsg(jsonObject.getString("message"));
 
-            exceptionInfo.setRelatedVarType(RelatedVarType.valueOf(jsonObject.getString("relatedVarType")));
-
-            //strategy NoKeyAPI
-            if(!MyConfig.getInstance().getStrategy().equals(Strategy.NoKeyAPI.toString()) ){
-                JSONArray sameClsObjs = jsonObject.getJSONArray("keyAPISameClass");
-                for (Object obj : sameClsObjs) {
-                    JSONObject sameClsObj = (JSONObject) obj;
-                    RelatedMethod relatedMethod = new RelatedMethod();
-                    relatedMethod.setMethod(sameClsObj.getString("method"));
-
-                    relatedMethod.setDepth(sameClsObj.getInteger("depth"));
-                    relatedMethod.setSource(RelatedMethodSource.valueOf(sameClsObj.getString("source")));
-                    String trace = sameClsObj.getString("trace");
-                    String newTrace = "fw: " + trace.replace("[", "").
-                            replace("]", "").replace("\"", "").replace(">,", ">, ");
-                    relatedMethod.addTrace(newTrace);
-                    exceptionInfo.addRelatedMethodsInSameClass(relatedMethod);
+            if (exceptionInfo.getSootMethodName().equals(crashInfo.getMethodName())) {
+                if (exceptionInfo.getExceptionMsg() == null) continue;
+                Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg());
+                Matcher m = p.matcher(crashInfo.getMsg());
+                if (m.matches()) {
+                    crashInfo.setExceptionInfo(exceptionInfo);
+                } else {
+                    continue;
                 }
-                JSONArray diffClsObjs = jsonObject.getJSONArray("keyAPIDiffClass");
-                for (Object clsObj : diffClsObjs) {
-                    JSONObject diffClsObj = (JSONObject) clsObj;
-                    RelatedMethod relatedMethod = new RelatedMethod();
-                    relatedMethod.setMethod(diffClsObj.getString("method"));
-                    relatedMethod.setDepth(diffClsObj.getInteger("depth"));
-                    relatedMethod.setSource(RelatedMethodSource.valueOf(diffClsObj.getString("source")));
-                    String trace = diffClsObj.getString("trace");
-                    String newTrace = "fw: " + trace.replace("[", "").
-                            replace("]", "").replace("\"", "").replace(">,", ">, ");
-                    relatedMethod.addTrace(newTrace);
-                    exceptionInfo.addRelatedMethodsInDiffClass(relatedMethod);
-                }
+
             }
+            readMoreInfo(exceptionInfo, jsonObject);
+        }
+    }
 
-            //strategy NoParaChain TODO
-            if(!MyConfig.getInstance().getStrategy().equals(Strategy.NoParaChain.toString())
-            && !MyConfig.getInstance().getStrategy().equals(Strategy.NOParaChainANDDataTrace.toString()) ) {
-                JSONObject callerOfSingnlar2SourceVar = jsonObject.getJSONObject("callerOfSingnlar2SourceVar");
-                if (callerOfSingnlar2SourceVar != null) {
-                    for (String key : callerOfSingnlar2SourceVar.keySet()) {
-                        String[] ids = ((String) callerOfSingnlar2SourceVar.get(key)).split(", ");
-                        for (String id : ids)
-                            exceptionInfo.addCallerOfSingnlar2SourceVar(SootUtils.getMethodSimpleNameFromSignature(key), Integer.valueOf(id));
-                    }
+    private void readMoreInfo(ExceptionInfo exceptionInfo, JSONObject jsonObject) {
+        exceptionInfo.setExceptionType(jsonObject.getString("type"));
+        exceptionInfo.setModifier(jsonObject.getString("modifier"));
+        exceptionInfo.setOsVersionRelated(jsonObject.getBoolean("osVersionRelated"));
+        exceptionInfo.setResourceRelated(jsonObject.getBoolean("resourceRelated"));
+        exceptionInfo.setAssessRelated(jsonObject.getBoolean("assessRelated"));
+        exceptionInfo.setHardwareRelated(jsonObject.getBoolean("hardwareRelated"));
+        exceptionInfo.setManifestRelated(jsonObject.getBoolean("manifestRelated"));
+        exceptionInfo.setConditions(jsonObject.getString("conditions"));
+        exceptionInfo.setRelatedParamValuesInStr(jsonObject.getString("paramValues"));
+        exceptionInfo.setRelatedFieldValuesInStr(jsonObject.getString("fieldValues"));
+        if (jsonObject.getString("relatedCondType") != null)
+            exceptionInfo.setRelatedCondType(RelatedCondType.valueOf(jsonObject.getString("relatedCondType")));
+
+        exceptionInfo.setRelatedVarType(RelatedVarType.valueOf(jsonObject.getString("relatedVarType")));
+
+        //strategy NoKeyAPI
+        if(!MyConfig.getInstance().getStrategy().equals(Strategy.NoKeyAPI.toString()) ){
+            JSONArray sameClsObjs = jsonObject.getJSONArray("keyAPISameClass");
+            for (Object obj : sameClsObjs) {
+                JSONObject sameClsObj = (JSONObject) obj;
+                RelatedMethod relatedMethod = new RelatedMethod();
+                relatedMethod.setMethod(sameClsObj.getString("method"));
+
+                relatedMethod.setDepth(sameClsObj.getInteger("depth"));
+                relatedMethod.setSource(RelatedMethodSource.valueOf(sameClsObj.getString("source")));
+                String trace = sameClsObj.getString("trace");
+                String newTrace = "fw: " + trace.replace("[", "").
+                        replace("]", "").replace("\"", "").replace(">,", ">, ");
+                relatedMethod.addTrace(newTrace);
+                exceptionInfo.addRelatedMethodsInSameClass(relatedMethod);
+            }
+            JSONArray diffClsObjs = jsonObject.getJSONArray("keyAPIDiffClass");
+            for (Object clsObj : diffClsObjs) {
+                JSONObject diffClsObj = (JSONObject) clsObj;
+                RelatedMethod relatedMethod = new RelatedMethod();
+                relatedMethod.setMethod(diffClsObj.getString("method"));
+                relatedMethod.setDepth(diffClsObj.getInteger("depth"));
+                relatedMethod.setSource(RelatedMethodSource.valueOf(diffClsObj.getString("source")));
+                String trace = diffClsObj.getString("trace");
+                String newTrace = "fw: " + trace.replace("[", "").
+                        replace("]", "").replace("\"", "").replace(">,", ">, ");
+                relatedMethod.addTrace(newTrace);
+                exceptionInfo.addRelatedMethodsInDiffClass(relatedMethod);
+            }
+        }
+
+        //strategy NoParaChain TODO
+        if(!MyConfig.getInstance().getStrategy().equals(Strategy.NoParaChain.toString())
+                && !MyConfig.getInstance().getStrategy().equals(Strategy.NOParaChainANDDataTrace.toString()) ) {
+            JSONObject callerOfSingnlar2SourceVar = jsonObject.getJSONObject("callerOfSingnlar2SourceVar");
+            if (callerOfSingnlar2SourceVar != null) {
+                for (String key : callerOfSingnlar2SourceVar.keySet()) {
+                    String[] ids = ((String) callerOfSingnlar2SourceVar.get(key)).split(", ");
+                    for (String id : ids)
+                        exceptionInfo.addCallerOfSingnlar2SourceVar(SootUtils.getMethodSimpleNameFromSignature(key), Integer.valueOf(id));
                 }
             }
         }

@@ -146,8 +146,6 @@ public class ExceptionMather {
                 if (exceptionInfo.getExceptionMsg() == null) continue;
                 Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg());
                 Matcher m = p.matcher(crashInfo.getMsg());
-//                System.out.println("pp " +exceptionInfo.getExceptionMsg() );
-//                System.out.println("mm " +crashInfo.getMsg() +" "+m.matches());
                 String str = exceptionInfo.getExceptionMsg();
                 str = str.replace("[\\s\\S]*", "");
                 str = str.replace("\\Q", "");
@@ -207,9 +205,6 @@ public class ExceptionMather {
                     str = str.replace("\\E", "");
                     if (str.length() < 3)
                         continue;
-//                    System.out.println("version " +version);
-//                    System.out.println("p " +exceptionInfo.getExceptionMsg());
-//                    System.out.println("m " +crashInfo.getMsg() +" " +m.matches());
                     if (jsonObject.getString("relatedVarType") != null) {
                         return new Pair<>(jsonObject.getString("relatedVarType"), exceptionInfo.getSootMethodName());
                     }else{
