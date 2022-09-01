@@ -1,8 +1,11 @@
 package main.java.client.crash;
-import main.java.Global;
-import main.java.analyze.utils.ConstantUtils;
-import main.java.analyze.utils.StringUtils;
+
+import main.java.base.Global;
 import main.java.client.exception.ExceptionInfo;
+import main.java.client.exception.RelatedCondType;
+import main.java.client.exception.RelatedVarType;
+import main.java.utils.ConstantUtils;
+import main.java.utils.StringUtils;
 import soot.jimple.toolkits.callgraph.Edge;
 
 import java.util.*;
@@ -37,19 +40,49 @@ public class CrashInfo {
     List<String> classesInTrace= new ArrayList<>();
     Map<String, Integer> buggyCandidates = new TreeMap<>();
     Map<String, BuggyCandidate> buggyCandidateObjs = new HashMap<>();
-    Map<String, Integer> extendedCallDepth = new HashMap<String, Integer>();
+    Map<String, ExtendCandiMethod> extendedCallDepth = new HashMap<String, ExtendCandiMethod>();
     boolean findCandidateInTrace = false;
     int minScore = ConstantUtils.INITSCORE;
+    int maxScore = ConstantUtils.BOTTOMSCORE;
     List<String> noneCodeLabels = new ArrayList<String>();
+    String faultInducingPart;
+    List<Integer> faultInducingParas = null;
+    RelatedVarType relatedVarTypeOracle;
+    RelatedCondType relatedCondTypeOracle = RelatedCondType.Empty;
+    private Map<String, List<Integer>> callerOfSingnlar2SourceVarOracle = new HashMap<>();
+    public RelatedVarType getRelatedVarTypeOracle() {
+        return relatedVarTypeOracle;
+    }
 
-    public Map<String, Integer> getExtendedCallDepth() {
+    public void setRelatedVarTypeOracle(RelatedVarType relatedVarTypeOracle) {
+        this.relatedVarTypeOracle = relatedVarTypeOracle;
+    }
+
+    public RelatedCondType getRelatedCondTypeOracle() {
+        return relatedCondTypeOracle;
+    }
+
+    public void setRelatedCondTypeOracle(RelatedCondType relatedCondTypeOracle) {
+        this.relatedCondTypeOracle = relatedCondTypeOracle;
+    }
+
+    class ExtendCandiMethod {
+        int depth;
+        List<String> trace;
+        ExtendCandiMethod(int depth, List trace){
+            this.depth = depth;
+            this.trace = trace;
+        }
+    }
+
+    public Map<String, ExtendCandiMethod> getExtendedCallDepth() {
         return extendedCallDepth;
     }
 
-    public boolean addExtendedCallDepth(String key, int value) {
-        if(key.startsWith("java.") || key.startsWith("android.") || key.startsWith("com.android.")) return false;
-        if(!extendedCallDepth.containsKey(key) || extendedCallDepth.get(key)>value ) {
-            extendedCallDepth.put(key, value);
+    public boolean addExtendedCallDepth(String key, int value, List<String> trace) {
+        if(key.startsWith("java.")|| key.startsWith("androidx.")  || key.startsWith("android.") || key.startsWith("com.android.")) return false;
+        if(!extendedCallDepth.containsKey(key) || extendedCallDepth.get(key).depth>value ) {
+            extendedCallDepth.put(key, new ExtendCandiMethod(value, trace));
             return true;
         }
         return false;
@@ -65,33 +98,34 @@ public class CrashInfo {
         return buggyCandidateObjs;
     }
 
-    public void addBuggyCandidates(String candi, int score, boolean filterByExtendedCG, String reason, List<String> trace) {
-        if(filterByExtendedCG && !extendedCallDepth.containsKey(candi))
-            return;
+    public void addBuggyCandidates(String candi, int score, String reason, List<String> trace) {
         boolean findPrexInTrace = false;
-
         for(String traceMtd: getCrashMethodList()){
             int id = Math.max(traceMtd.split("\\.").length-2, 2);
             String prefixInTrace = StringUtils.getPkgPrefix(traceMtd, id);
             if(candi.contains(prefixInTrace)) {
                 findPrexInTrace = true;
+                break;
             }
         }
         if(!findPrexInTrace) return;
-
-//        if(!extendedCallDepth.containsKey(candi))
-//            score = score - ConstantUtils.NOTINEXTENDEDCG;
         String pkgPrefix = StringUtils.getPkgPrefix(Global.v().getAppModel().getPackageName(),2);
         if(!candi.contains(pkgPrefix)) {
             score = score - ConstantUtils.OUTOFPKGSCORE;
         }
-        if(this.buggyCandidates.containsKey(candi) && this.buggyCandidates.get(candi) > score)
-            return;
+        if(this.buggyCandidates.containsKey(candi) && this.buggyCandidates.get(candi) >= score)
+            score = this.buggyCandidates.get(candi);
         if(score > ConstantUtils.BOTTOMSCORE) {
+            if(this.buggyCandidates.containsKey(candi)){
+                this.buggyCandidateObjs.get(candi).addReasonTrace(reason,trace);
+            }else {
+                BuggyCandidate candiObj = new BuggyCandidate(candi, score);
+                candiObj.addReasonTrace(reason,trace);
+                this.buggyCandidateObjs.put(candi, candiObj);
+            }
             this.buggyCandidates.put(candi, score);
-            BuggyCandidate candiObj = new BuggyCandidate(candi,score,reason,trace);
-            this.buggyCandidateObjs.put(candi, candiObj);
             if(score< minScore) minScore = score;
+            if(score> maxScore) maxScore = score;
         }
     }
 
@@ -157,7 +191,7 @@ public class CrashInfo {
         trace= trace.replace("\"","");
         trace= trace.replace("[","").replace("]","");
         trace= trace.replace("at ","");
-        String ss[] = trace.split(",");
+        String[] ss = trace.split(",");
         boolean firstUserAPI= true;
         for(int i=0; i< ss.length;i++){
             String method = ss[i];
@@ -171,10 +205,10 @@ public class CrashInfo {
                 setCrashAPI(ss[i-1]);
                 setCrashMethod(method);
             }else if(getCrashAPI()!=null && getCrashCallBack()==null
-                    && (method.startsWith("android.")|| method.startsWith("com.android.")|| method.startsWith("java")) ) {
+                    && (method.startsWith("androidx.") || method.startsWith("android.")|| method.startsWith("com.android.")|| method.startsWith("java")) ) {
                 setCrashCallBack(method);
             }
-            if(!method.startsWith("android.") &&!method.startsWith("com.android.") && !method.startsWith("java")) {
+            if(!method.startsWith("androidx.") &&!method.startsWith("android.") &&!method.startsWith("com.android.") && !method.startsWith("java")) {
 //                if(firstUserAPI)
                     crashMethodList.add(method);
             }else{
@@ -311,9 +345,6 @@ public class CrashInfo {
         return edgeMap;
     }
 
-    public void setEdgeMap(Map<Integer, ArrayList<Edge>> edgeMap) {
-        this.edgeMap = edgeMap;
-    }
     public void add2EdgeMap(Integer depth, Edge e) {
         if(!edgeMap.containsKey(depth)){
             edgeMap.put(depth,new ArrayList<Edge>());
@@ -321,6 +352,52 @@ public class CrashInfo {
         if(!edgeMap.get(depth).contains(e))
             edgeMap.get(depth).add(e);
         edges.add(e);
+    }
+
+    public void addNoneCodeLabel(String l) {
+        if(!noneCodeLabels.contains(l))
+            noneCodeLabels.add(l);
+    }
+
+    public List<String> getNoneCodeLabel() {
+        return noneCodeLabels;
+    }
+
+
+    public String getFaultInducingPart() {
+        return faultInducingPart;
+    }
+
+    public void setFaultInducingPart(String faultInducingPart) {
+        this.faultInducingPart = faultInducingPart;
+    }
+
+    public List<Integer> getFaultInducingParas() {
+        return faultInducingParas;
+    }
+
+    public void setFaultInducingParas(List<Integer> faultInducingParas) {
+        this.faultInducingParas = faultInducingParas;
+    }
+
+    public Map<String, List<Integer>> getCallerOfSingnlar2SourceVarOracle() {
+        return callerOfSingnlar2SourceVarOracle;
+    }
+
+    public void setCallerOfSingnlar2SourceVarOracle(Map<String, List<Integer>> callerOfSingnlar2SourceVar) {
+        this.callerOfSingnlar2SourceVarOracle = callerOfSingnlar2SourceVar;
+    }
+
+    public void addCallerOfSingnlar2SourceVarOracle(String method, int sourceId ) {
+        if(callerOfSingnlar2SourceVarOracle.containsKey(method)){
+            if(callerOfSingnlar2SourceVarOracle.get(method).contains(sourceId)){
+                return;
+            }
+        }else{
+            callerOfSingnlar2SourceVarOracle.put(method, new ArrayList<>());
+        }
+        callerOfSingnlar2SourceVarOracle.get(method).add(sourceId);
+
     }
 
     @Override
@@ -341,12 +418,4 @@ public class CrashInfo {
                 '}';
     }
 
-    public void addNoneCodeLabel(String l) {
-        if(!noneCodeLabels.contains(l))
-            noneCodeLabels.add(l);
-    }
-
-    public List<String> getNoneCodeLabel() {
-        return noneCodeLabels;
-    }
 }

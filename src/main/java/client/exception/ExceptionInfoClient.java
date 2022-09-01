@@ -1,16 +1,13 @@
 package main.java.client.exception;
 
-import main.java.Analyzer;
-import main.java.Global;
-import main.java.MyConfig;
-import main.java.analyze.utils.output.FileUtils;
+import main.java.base.Analyzer;
+import main.java.base.MyConfig;
 import main.java.client.BaseClient;
 import main.java.client.cg.cgJava.CallGraphofJavaClient;
 import main.java.client.soot.SootAnalyzer;
-import main.java.client.statistic.model.StatisticResult;
+import main.java.utils.ConstantUtils;
 import org.dom4j.DocumentException;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -27,24 +24,18 @@ public class ExceptionInfoClient extends BaseClient {
      */
     @Override
     protected void clientAnalyze() {
-        result = new StatisticResult();
         if (!MyConfig.getInstance().isSootAnalyzeFinish()) {
             SootAnalyzer sootAnalyzer = new SootAnalyzer();
             sootAnalyzer.analyze();
         }
         if (!MyConfig.getInstance().isCallGraphAnalyzeFinish()) {
+            ConstantUtils.CGANALYSISPREFIX = ConstantUtils.FRAMEWORKPREFIX;
             new CallGraphofJavaClient().start();
             MyConfig.getInstance().setCallGraphAnalyzeFinish(true);
         }
-//        if (!MyConfig.getInstance().isStaitiucValueAnalyzeFinish()) {
-//            if (MyConfig.getInstance().getMySwithch().isStaticFieldSwitch()) {
-//                StaticValueAnalyzer staticValueAnalyzer = new StaticValueAnalyzer();
-//                staticValueAnalyzer.analyze();
-//                MyConfig.getInstance().setStaitiucValueAnalyzeFinish(true);
-//            }
-//        }
+
         System.out.println("Start analyze with ExceptionInfoClient.");
-        Analyzer analyzer = new ExceptionAnalyzer(result);
+        Analyzer analyzer = new ExceptionAnalyzer();
         analyzer.analyze();
         System.out.println("Successfully analyze with ExceptionInfoClient.");
     }
@@ -56,6 +47,6 @@ public class ExceptionInfoClient extends BaseClient {
 //        FileUtils.createFolder(summary_app_dir);
 //
 //        ExceptionInfoClientOutput.writeToJson(summary_app_dir+Global.v().getAppModel().getAppName()+".json", Global.v().getAppModel().getExceptionInfoList());
-
+//
     }
 }

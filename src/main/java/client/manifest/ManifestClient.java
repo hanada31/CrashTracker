@@ -1,16 +1,11 @@
 package main.java.client.manifest;
 
-import java.io.File;
-import java.io.IOException;
-
-import main.java.Global;
-import main.java.MyConfig;
-import main.java.analyze.utils.ConstantUtils;
-import main.java.analyze.utils.output.FileUtils;
+import main.java.base.MyConfig;
 import main.java.client.BaseClient;
-import main.java.client.manifest.ManifestClient;
 import main.java.client.soot.SootAnalyzer;
 import org.dom4j.DocumentException;
+
+import java.io.IOException;
 
 /**
  * Analyzer Class
@@ -34,12 +29,14 @@ public class ManifestClient extends BaseClient {
 
 	@Override
 	public void clientOutput() throws IOException, DocumentException {
-		String summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
-				+ File.separator;
-		FileUtils.createFolder(summary_app_dir + ConstantUtils.MANIFOLDETR);
+//		String summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
+//				+ File.separator;
+//		FileUtils.createFolder(summary_app_dir + ConstantUtils.MANIFOLDETR);
+//
+//		/** manifest **/
+//		ManifestClientOutput.writeManifest(summary_app_dir + ConstantUtils.MANIFOLDETR, ConstantUtils.MANIFEST);
 
-		/** manifest **/
-		ManifestClientOutput.writeManifest(summary_app_dir + ConstantUtils.MANIFOLDETR, ConstantUtils.MANIFEST);
+
 		// String content = Global.v().getAppModel().getAppName() + "\t" +
 		// Global.v().getAppModel().getPackageName()
 		// + "\t" + Global.v().getAppModel().getComponentMap().size() + "\t"

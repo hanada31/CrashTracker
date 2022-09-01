@@ -1,11 +1,11 @@
 package main.java.client.manifest;
 
+import main.java.base.Global;
+import main.java.utils.FileUtils;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-
-import main.java.Global;
-import main.java.analyze.utils.output.FileUtils;
 
 /**
  * output analyze result

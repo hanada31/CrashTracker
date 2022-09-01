@@ -1,26 +1,21 @@
 package main.java.client.cg.cgApk;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import main.java.Analyzer;
-import main.java.MyConfig;
-import main.java.analyze.utils.SootUtils;
-import main.java.analyze.utils.ValueObtainer;
-import main.java.client.obj.model.component.BroadcastReceiverModel;
-import main.java.client.obj.model.component.ComponentModel;
-import main.java.client.obj.model.component.Data;
-import main.java.client.obj.model.component.IntentFilterModel;
-import soot.Scene;
-import soot.SootClass;
-import soot.SootMethod;
-import soot.Unit;
-import soot.Value;
+import main.java.base.Analyzer;
+import main.java.model.component.BroadcastReceiverModel;
+import main.java.model.component.ComponentModel;
+import main.java.model.component.Data;
+import main.java.model.component.IntentFilterModel;
+import main.java.utils.SootUtils;
+import main.java.utils.ValueObtainer;
+import soot.*;
 import soot.jimple.InvokeExpr;
 import soot.jimple.internal.JAssignStmt;
 import soot.jimple.internal.JInvokeStmt;
 import soot.toolkits.scalar.UnitValueBoxPair;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class DynamicReceiverCGAnalyzer extends Analyzer {
 	private SootMethod m;
@@ -36,10 +31,6 @@ public class DynamicReceiverCGAnalyzer extends Analyzer {
 	@Override
 	public void analyze() {
 		for (SootClass sc : Scene.v().getApplicationClasses()) {
-			if (!MyConfig.getInstance().getMySwithch().allowLibCodeSwitch()) {
-				if (!SootUtils.isNonLibClass(sc.getName()))
-					continue;
-			}
 			for (SootMethod sm : sc.getMethods()) {
 				m = sm;
 				List<Unit> units = SootUtils.getUnitListFromMethod(m);

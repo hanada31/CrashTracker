@@ -1,0 +1,24 @@
+package test;
+
+import main.java.base.MyConfig;
+import main.java.client.dataAnalysis.ExceptionMather;
+import main.java.utils.SootUtils;
+import soot.jimple.internal.JInvokeStmt;
+
+import java.io.File;
+
+/**
+ * @Author hanada
+ * @Date 2022/3/11 15:27
+ * @Version 1.0
+ */
+public class TestExceptionMatch {
+
+    @org.junit.Test
+    public void testExceptionMatch() {
+        MyConfig.getInstance().setResultFolder("Files"  + File.separator);
+        MyConfig.getInstance().setCrashInfoFilePath("Files\\crashInfo.json");
+        ExceptionMather matcher = new ExceptionMather();
+        matcher.analyze();
+    }
+}

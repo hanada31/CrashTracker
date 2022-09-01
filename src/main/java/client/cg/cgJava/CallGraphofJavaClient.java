@@ -1,19 +1,14 @@
 package main.java.client.cg.cgJava;
 
-import main.java.Global;
-import main.java.MyConfig;
-import main.java.analyze.utils.ConstantUtils;
-import main.java.analyze.utils.output.FileUtils;
+import main.java.base.Global;
+import main.java.base.MyConfig;
 import main.java.client.BaseClient;
 import main.java.client.cg.CgClientOutput;
-import soot.PhaseOptions;
-import soot.Scene;
-import soot.jimple.spark.SparkTransformer;
-import soot.jimple.toolkits.callgraph.CHATransformer;
+import main.java.utils.ConstantUtils;
+import main.java.utils.FileUtils;
 import soot.jimple.toolkits.callgraph.CallGraph;
 
 import java.io.File;
-import java.util.HashMap;
 
 /**
  * Analyzer Class
@@ -36,17 +31,13 @@ public class CallGraphofJavaClient extends BaseClient {
 
 	@Override
 	public void clientOutput() {
-		String summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
-				+ File.separator;
-		FileUtils.createFolder(summary_app_dir + ConstantUtils.CGFOLDETR);
+		/** call graph, if needed, open output**/
+//		String summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
+//				+ File.separator;
+//		FileUtils.createFolder(summary_app_dir + ConstantUtils.CGFOLDETR);
+//		CgClientOutput.writeCG(summary_app_dir + ConstantUtils.CGFOLDETR,
+//				Global.v().getAppModel().getAppName()+"_cg.txt", Global.v().getAppModel().getCg());
 
-		/** call graph **/
-		CgClientOutput.writeCG(summary_app_dir + ConstantUtils.CGFOLDETR,
-				ConstantUtils.CG, Global.v().getAppModel().getCg());
-		CgClientOutput.writeCGToString(summary_app_dir + ConstantUtils.CGFOLDETR, 
-				Global.v().getAppModel().getAppName()+"_cg.txt", Global.v().getAppModel().getCg());
-		CgClientOutput.writeTopoMethodFile(summary_app_dir + ConstantUtils.CGFOLDETR, ConstantUtils.TOPO, Global.v()
-				.getAppModel().getTopoMethodQueue());
 	}
 
 }

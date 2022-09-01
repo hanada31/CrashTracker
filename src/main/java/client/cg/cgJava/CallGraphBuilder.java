@@ -1,20 +1,24 @@
 package main.java.client.cg.cgJava;
 
-import main.java.MyConfig;
-import main.java.analyze.utils.ConstantUtils;
-import main.java.analyze.utils.SootUtils;
-import soot.*;
+import main.java.utils.ConstantUtils;
+import main.java.utils.SootUtils;
+import soot.Scene;
+import soot.SootClass;
+import soot.SootMethod;
+import soot.Unit;
 import soot.jimple.InvokeExpr;
 import soot.jimple.Stmt;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
-import soot.util.Chain;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 public class CallGraphBuilder {
 
-	private static CallGraph cg = Scene.v().getCallGraph();
+	private static final CallGraph cg = Scene.v().getCallGraph();
 
 	static {
 //		filterEdges(cg);
@@ -28,8 +32,8 @@ public class CallGraphBuilder {
 		Iterator<Edge> it = cg.iterator();
 		while(it.hasNext()){
 			Edge e = it.next();
-			if(!e.getSrc().method().getDeclaringClass().getPackageName().startsWith(ConstantUtils.PKGPREFIX) ||
-					!e.getTgt().method().getDeclaringClass().getPackageName().startsWith(ConstantUtils.PKGPREFIX)){
+			if(!e.getSrc().method().getDeclaringClass().getPackageName().startsWith(ConstantUtils.CGANALYSISPREFIX) ||
+					!e.getTgt().method().getDeclaringClass().getPackageName().startsWith(ConstantUtils.CGANALYSISPREFIX)){
 				res.add(e);
 			}
 		}
@@ -44,11 +48,7 @@ public class CallGraphBuilder {
 
 	private static void addEdgesByOurAnalyze(CallGraph callGraph) {
 		for (SootClass sc : Scene.v().getApplicationClasses()) {
-			if(!sc.getPackageName().startsWith(ConstantUtils.PKGPREFIX)) continue;
-			if (!MyConfig.getInstance().getMySwithch().allowLibCodeSwitch()) {
-				if (!SootUtils.isNonLibClass(sc.getName()))
-					continue;
-			}
+			if(!sc.getPackageName().startsWith(ConstantUtils.CGANALYSISPREFIX)) continue;
 			ArrayList<SootMethod> methodList = new ArrayList<SootMethod>(sc.getMethods());
 			for (SootMethod sm : methodList) {
 				if (SootUtils.hasSootActiveBody(sm) == false)
@@ -62,7 +62,7 @@ public class CallGraphBuilder {
 					if (invoke != null) { // u is invoke stmt
 						Set<SootMethod> targetSet = SootUtils.getInvokedMethodSet(sm, u);
 						for (SootMethod target : targetSet) {
-							if(!target.getDeclaringClass().getPackageName().startsWith(ConstantUtils.PKGPREFIX)) continue;
+							if(!target.getDeclaringClass().getPackageName().startsWith(ConstantUtils.CGANALYSISPREFIX)) continue;
 							Edge e = new Edge(sm, (Stmt) u, target);
 							callGraph.addEdge(e);
 						}

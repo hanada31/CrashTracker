@@ -1,21 +1,19 @@
 package main.java.client.soot;
 
-import java.io.File;
-import java.util.*;
-
 import com.google.common.collect.Lists;
-import main.java.Analyzer;
-import main.java.Global;
-import main.java.MyConfig;
-import main.java.analyze.utils.ConstantUtils;
-import soot.*;
-import soot.jimple.infoflow.InfoflowConfiguration;
-import soot.jimple.spark.SparkTransformer;
-import soot.jimple.toolkits.callgraph.CHATransformer;
-import soot.jimple.toolkits.callgraph.CallGraph;
+import main.java.base.Analyzer;
+import main.java.base.Global;
+import main.java.base.MyConfig;
+import main.java.utils.ConstantUtils;
+import soot.PackManager;
+import soot.Scene;
+import soot.SootClass;
+import soot.Transform;
 import soot.options.Options;
 
-import static soot.jimple.infoflow.InfoflowConfiguration.CallgraphAlgorithm.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SootAnalyzer extends Analyzer {
 	public SootAnalyzer() {

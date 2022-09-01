@@ -1,16 +1,15 @@
 package main.java.client.cg;
 
+import main.java.utils.FileUtils;
+import soot.SootMethod;
+import soot.jimple.toolkits.callgraph.CallGraph;
+import soot.jimple.toolkits.callgraph.Edge;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.Iterator;
 import java.util.List;
-
-import main.java.analyze.utils.SootUtils;
-import main.java.analyze.utils.output.FileUtils;
-import soot.SootMethod;
-import soot.jimple.toolkits.callgraph.CallGraph;
-import soot.jimple.toolkits.callgraph.Edge;
 
 /**
  * output analyze result
@@ -89,8 +88,6 @@ public class CgClientOutput {
 	 * @param dir
 	 * @param file
 	 * @param topoMethodQueue
-	 * @param AppModel
-	 *            .getInstance()
 	 */
 	public static void writeTopoMethodFile(String dir, String file, List<SootMethod> topoMethodQueue) {
 		File f = new File(dir + file);

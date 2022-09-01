@@ -4,16 +4,17 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import main.java.analyze.utils.CollectionUtils;
-import main.java.analyze.utils.output.PrintUtils;
 import main.java.client.exception.ExceptionInfo;
 import main.java.client.exception.RelatedMethod;
-import main.java.client.statistic.model.StatisticResult;
-import soot.jimple.toolkits.callgraph.Edge;
+import main.java.utils.CollectionUtils;
+import main.java.utils.PrintUtils;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Author hanada
@@ -22,7 +23,7 @@ import java.util.*;
  */
 public class CrashAnalysisClientOutput {
 
-    public CrashAnalysisClientOutput(StatisticResult result) {
+    public CrashAnalysisClientOutput() {
 
     }
 
@@ -50,7 +51,7 @@ public class CrashAnalysisClientOutput {
             PrintWriter printWriter = new PrintWriter(file);
             String jsonString = JSON.toJSONString(rootElement, SerializerFeature.PrettyFormat,
                     SerializerFeature.DisableCircularReferenceDetect);
-            printWriter.write(jsonString.toString());
+            printWriter.write(jsonString);
             printWriter.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -93,6 +94,8 @@ public class CrashAnalysisClientOutput {
         if(exceptionInfo!=null) {
             jsonObject.put("reg message", crashInfo.getExceptionInfo().getExceptionMsg());
             jsonObject.put("relatedVarType", crashInfo.getExceptionInfo().getRelatedVarType());
+            jsonObject.put("faultInducingParas", crashInfo.getFaultInducingParas());
+            jsonObject.put("relatedCondType", crashInfo.getExceptionInfo().getRelatedCondType());
             jsonObject.put("conditions", crashInfo.getExceptionInfo().getConditions());
             if(crashInfo.getExceptionInfo().getConditions().size()>0)
                 jsonObject.put("conditions", PrintUtils.printList(crashInfo.getExceptionInfo().getConditions()));
@@ -115,13 +118,6 @@ public class CrashAnalysisClientOutput {
         }
         jsonObject.put("stack trace" , traceArray);
     }
-    private void addExtendedCG(JSONObject jsonObject, CrashInfo crashInfo) {
-        JSONArray extendedCG = new JSONArray();
-        crashInfo.getExtendedCallDepth().forEach((key, value) -> {
-            extendedCG.add(key+"-->"+value);
-        });
-        jsonObject.put("extended CG" , extendedCG);
-    }
 
     private void addBuggyMethods(JSONObject jsonObject, CrashInfo crashInfo) {
         JSONArray buggyArray = new JSONArray();
@@ -129,7 +125,10 @@ public class CrashAnalysisClientOutput {
         for (int i = 0; i < treeMapList.size(); i++) {
             String buggy = treeMapList.get(i).toString();
             BuggyCandidate bc = crashInfo.getBuggyCandidateObjs().get(treeMapList.get(i).getKey());
-            buggyArray.add(buggy +"    Reason: "+ bc.getReason() +"  @  " +bc.getTrace());
+            buggyArray.add(buggy);
+            for(int j=0 ; j<bc.getReason().size(); j++){
+                buggyArray.add("    Reason: "+ bc.getReason().get(j) +"  @  " +bc.getTrace().get(j));
+            }
         }
         jsonObject.put("locatedBuggyMethod" , buggyArray);
 
@@ -139,18 +138,6 @@ public class CrashAnalysisClientOutput {
             noneCodeLabelArray.add(label);
         }
         jsonObject.put("noneCodeLabels" , noneCodeLabelArray);
-    }
-
-
-
-    private void addEdges(JSONObject jsonObject, CrashInfo crashInfo) {
-        JSONArray edgeArray = new JSONArray();
-        for (Map.Entry entry: crashInfo.getEdgeMap().entrySet()) {
-            for(Edge edge :(List<Edge>)entry.getValue()){
-                edgeArray.add(edge.toString());
-            }
-        }
-        jsonObject.put("edges" , edgeArray);
     }
 }
 

@@ -1,9 +1,11 @@
 package main.java.client.exception;
 
-import main.java.analyze.utils.SootUtils;
-import main.java.analyze.utils.output.FileUtils;
-import main.java.analyze.utils.output.PrintUtils;
-import soot.*;
+import main.java.base.MyConfig;
+import main.java.client.crash.Strategy;
+import soot.SootField;
+import soot.SootMethod;
+import soot.Unit;
+import soot.Value;
 import soot.jimple.StringConstant;
 
 import java.util.*;
@@ -16,31 +18,35 @@ import java.util.*;
 public class ExceptionInfo {
     private String exceptionType;
     private String exceptionMsg;
-    private List<Value> relatedParamValues;
-    private List<String> relatedParamValuesInStr;
+    private final List<Value> relatedParamValues;
+    private final List<String> relatedParamValuesInStr;
     private Set<Integer> relatedValueIndex;
-    private List<SootField> relatedFieldValues;
-    private List<String> relatedFieldValuesInStr;
+    private final List<SootField> relatedFieldValues;
+    private final List<String> relatedFieldValuesInStr;
 
     private List<Value> caughtedValues;
     private List<RelatedMethod> relatedMethodsInSameClass;
     private List<RelatedMethod> relatedMethodsInDiffClass;
     private List<String> relatedMethods;
-    private Map<Integer, ArrayList<RelatedMethod>> relatedMethodsInSameClassMap;
-    private Map<Integer, ArrayList<RelatedMethod>> relatedMethodsInDiffClassMap;
-    private List<Value> conditions;
-    private Set<Unit> conditionUnits;
+    private final Map<Integer, ArrayList<RelatedMethod>> relatedMethodsInSameClassMap;
+    private final Map<Integer, ArrayList<RelatedMethod>> relatedMethodsInDiffClassMap;
+    private final List<Value> conditions;
+    private List<Unit> conditionUnits;
     private String modifier;
     private List<Unit> tracedUnits;
     private SootMethod sootMethod;
     private String sootMethodName;
     private Unit unit;
     private RelatedVarType relatedVarType;
+    private RelatedCondType relatedCondType;
     private boolean isOsVersionRelated;
     private boolean isAssessRelated;
     private boolean isManifestRelated;
     private boolean isResourceRelated;
     private boolean isHardwareRelated;
+    private Map<String, List<Integer>> callerOfSingnlar2SourceVar;
+    public int keyAPISameClassNum;
+    public int keyAPIDiffClassNum;
 
     public ExceptionInfo() {
         this.relatedParamValues = new ArrayList<>();
@@ -50,14 +56,17 @@ public class ExceptionInfo {
         this.relatedMethodsInDiffClass = new ArrayList<>();
         this.relatedMethods = new ArrayList<>();
         this.conditions = new ArrayList<>();
-        this.conditionUnits = new HashSet<>();
+        this.conditionUnits = new ArrayList<>();
         this.tracedUnits = new ArrayList<>();
         this.relatedParamValuesInStr = new ArrayList<>();
         this.relatedFieldValuesInStr = new ArrayList<>();
         this.relatedValueIndex = new HashSet<>();
         this.relatedMethodsInSameClassMap = new TreeMap<Integer, ArrayList<RelatedMethod>>();
         this.relatedMethodsInDiffClassMap = new TreeMap<Integer, ArrayList<RelatedMethod>>();
-    }
+        this.relatedCondType = RelatedCondType.Empty;
+        this.relatedVarType = RelatedVarType.Unknown;
+        this.callerOfSingnlar2SourceVar = new HashMap<String, List<Integer>>();
+        }
     public ExceptionInfo(SootMethod sootMethod, Unit unit, String exceptionType) {
         this();
         this.sootMethod = sootMethod;
@@ -78,44 +87,46 @@ public class ExceptionInfo {
             setModifier("default");
     }
 
+    public RelatedCondType getRelatedCondType() {
+        return relatedCondType;
+    }
+
+    public void setRelatedCondType(RelatedCondType relatedCondType) {
+        this.relatedCondType = relatedCondType;
+    }
+
     public void setRelatedVarType(RelatedVarType relatedVarType) {
         this.relatedVarType = relatedVarType;
     }
 
     public RelatedVarType getRelatedVarType() {
-        if(isOverrideMissing()) return  RelatedVarType.OverrideMissing;
-        if(isParameterOnly()) return  RelatedVarType.ParameterOnly;
-        if(isFieldOnly()) return  RelatedVarType.FieldOnly;
-        if(isParaAndField()) return  RelatedVarType.ParaAndField;
+        //strategy NoRVType
+        if(MyConfig.getInstance().getStrategy().equals(Strategy.NoSourceType.toString()) ){
+            return RelatedVarType.Unknown;
+        }else if(MyConfig.getInstance().getStrategy().equals(Strategy.ExtendCGOnly.toString()) ){
+            return RelatedVarType.Unknown;
+        }
+        if (isParameterOnly()) return RelatedVarType.Parameter;
+        if (isFieldOnly()) return RelatedVarType.Field;
+        if (isParaAndField()) return RelatedVarType.ParaAndField;
+        if (isEmpty()) return RelatedVarType.Empty;
         return relatedVarType;
     }
 
-    public boolean isOverrideMissing() {
-        if(getRelatedMethods().size() ==0 && getConditions().size() ==0 )
-            return true;
-        else
-            return false;
+    public boolean isEmpty() {
+        return getRelatedMethods().size() == 0 && getConditions().size() == 0 && caughtedValues.isEmpty();
     }
 
     public boolean isParameterOnly() {
-        if(getRelatedParamValues().size()>0 && getRelatedFieldValues().size()==0 )
-            return true;
-        else
-            return false;
+        return getRelatedParamValues().size() > 0 && getRelatedFieldValues().size() == 0;
     }
 
     public boolean isFieldOnly() {
-        if(getRelatedParamValues().size()==0 && getRelatedFieldValues().size()>0 )
-            return true;
-        else
-            return false;
+        return getRelatedParamValues().size() == 0 && getRelatedFieldValues().size() > 0;
     }
 
     public boolean isParaAndField() {
-        if(getRelatedParamValues().size()> 0 && getRelatedFieldValues().size()>0 )
-            return true;
-        else
-            return false;
+        return getRelatedParamValues().size() > 0 && getRelatedFieldValues().size() > 0;
     }
 
     public String getModifier() {
@@ -157,26 +168,32 @@ public class ExceptionInfo {
         return sootMethod;
     }
 
-    public Map<Integer, ArrayList<RelatedMethod>> getRelatedMethodsInSameClassMap() {
-        return relatedMethodsInSameClassMap;
-    }
-
-    public Map<Integer, ArrayList<RelatedMethod>> getRelatedMethodsInDiffClassMap() {
-        return relatedMethodsInDiffClassMap;
-    }
-
     public void addRelatedMethodsInSameClassMap(RelatedMethod m) {
         if(!relatedMethodsInSameClassMap.containsKey(m.getDepth()))
             relatedMethodsInSameClassMap.put(m.getDepth(), new ArrayList<>());
-        if(!relatedMethods.contains(m.getMethod()))
+        if(!relatedMethods.contains(m.getMethod())) {
+            for(RelatedMethod temp : relatedMethodsInSameClassMap.get(m.getDepth())){
+                if(temp.toString().equals(m.toString()))
+                    return;
+            }
             relatedMethodsInSameClassMap.get(m.getDepth()).add(m);
+            if(m.getSource() == RelatedMethodSource.FIELD || m.getSource() == RelatedMethodSource.FIELDCALLER)
+                keyAPISameClassNum++;
+        }
     }
 
     public void addRelatedMethodsInDiffClassMap(RelatedMethod m) {
         if(!relatedMethodsInDiffClassMap.containsKey(m.getDepth()))
             relatedMethodsInDiffClassMap.put(m.getDepth(), new ArrayList<>());
-        if(!relatedMethods.contains(m.getMethod()))
+        if(!relatedMethods.contains(m.getMethod())){
+            for(RelatedMethod temp : relatedMethodsInDiffClassMap.get(m.getDepth())){
+                if(temp.toString().equals(m.toString()))
+                    return;
+            }
             relatedMethodsInDiffClassMap.get(m.getDepth()).add(m);
+            if(m.getSource() == RelatedMethodSource.FIELD || m.getSource() == RelatedMethodSource.FIELDCALLER)
+                keyAPIDiffClassNum++;
+        }
     }
 
     public List<RelatedMethod> getRelatedMethodsInSameClass(boolean compute) {
@@ -260,7 +277,7 @@ public class ExceptionInfo {
         if(relatedParamValues == null) return;
         relatedParamValues= relatedParamValues.replace("<","");
         relatedParamValues= relatedParamValues.replace(">","");
-        String ss[] = relatedParamValues.split(", ");
+        String[] ss = relatedParamValues.split(", ");
         for(String t: ss){
             if(t.contains(": "))
                 this.relatedParamValuesInStr.add(t.split(": ")[1]);
@@ -271,7 +288,7 @@ public class ExceptionInfo {
         if(relatedFieldValues == null) return;
         relatedFieldValues= relatedFieldValues.replace("<","");
         relatedFieldValues= relatedFieldValues.replace(">","");
-        String ss[] = relatedFieldValues.split(", ");
+        String[] ss = relatedFieldValues.split(", ");
         for(String t: ss){
             this.relatedFieldValuesInStr.add(t);
         }
@@ -298,7 +315,7 @@ public class ExceptionInfo {
         conditions= conditions.replace("\"","");
         conditions= conditions.replace("[","").replace("]","");
         conditions= conditions.replace("at ","");
-        String ss[] = conditions.split(", ");
+        String[] ss = conditions.split(", ");
         for(String t: ss){
             this.conditions.add(StringConstant.v(t));
         }
@@ -334,27 +351,16 @@ public class ExceptionInfo {
 
     public void setSootMethodName(String sootMethodName) {
         //			"method":"<android.database.sqlite.SQLiteClosable: void acquireReference()>",
-        String ss[] = sootMethodName.split(" ");
+        String[] ss = sootMethodName.split(" ");
         String prefix = ss[0].replace("<","").replace(":",".");
         String suffix = ss[2].split("\\(")[0];
         this.sootMethodName = prefix+suffix;
-    }
-
-    public String printRelatedMethodsInSameClass() {
-        return  PrintUtils.printList(relatedMethodsInSameClass,"\n");
-    }
-
-    public String printRelatedMethodsInDiffClass() {
-        return  PrintUtils.printList(relatedMethodsInDiffClass,"\n");
     }
 
     public Set<Integer> getRelatedValueIndex() {
         return relatedValueIndex;
     }
 
-    public void setRelatedValueIndex(Set<Integer> relatedValueIndex) {
-        this.relatedValueIndex = relatedValueIndex;
-    }
 
     public boolean isOsVersionRelated() {
         return isOsVersionRelated;
@@ -396,15 +402,13 @@ public class ExceptionInfo {
         isHardwareRelated = hardwareRelated;
     }
 
-    public Set<Unit> getConditionUnits() {
+    public List<Unit> getConditionUnits() {
         return conditionUnits;
     }
 
-    public void setConditionUnits(Set<Unit> conditionUnits) {
+    public void setConditionUnits(List<Unit> conditionUnits) {
         this.conditionUnits = conditionUnits;
     }
-
-
 
     public void addRelatedMethods(String signature) {
 //        if (SootUtils.getSootMethodBySignature(signature) != null) {
@@ -412,6 +416,26 @@ public class ExceptionInfo {
 //        } else
             if (!relatedMethods.contains(signature))
             relatedMethods.add(signature);
+    }
+
+    public Map<String, List<Integer>> getCallerOfSingnlar2SourceVar() {
+        return callerOfSingnlar2SourceVar;
+    }
+
+    public void setCallerOfSingnlar2SourceVar(Map<String, List<Integer>> callerOfSingnlar2SourceVar) {
+        this.callerOfSingnlar2SourceVar = callerOfSingnlar2SourceVar;
+    }
+
+    public void addCallerOfSingnlar2SourceVar(String method, int sourceId ) {
+        if(callerOfSingnlar2SourceVar.containsKey(method)){
+            if(callerOfSingnlar2SourceVar.get(method).contains(sourceId)){
+                return;
+            }
+        }else{
+            callerOfSingnlar2SourceVar.put(method, new ArrayList<>());
+        }
+        callerOfSingnlar2SourceVar.get(method).add(sourceId);
+
     }
 }
 

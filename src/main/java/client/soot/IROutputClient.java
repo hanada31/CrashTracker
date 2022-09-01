@@ -1,8 +1,7 @@
 package main.java.client.soot;
 
-import main.java.MyConfig;
+import main.java.base.MyConfig;
 import main.java.client.BaseClient;
-import main.java.client.soot.IROutputClient;
 import soot.PackManager;
 
 /**
