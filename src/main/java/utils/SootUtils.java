@@ -1,6 +1,5 @@
 package main.java.utils;
 
-import com.sun.xml.bind.v2.runtime.reflect.opt.Const;
 import heros.solver.Pair;
 import main.java.base.Global;
 import main.java.base.MyConfig;

@@ -3,7 +3,6 @@ package main.java.client.dataAnalysis;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import main.java.base.MyConfig;
-import main.java.client.exception.ExceptionInfo;
 import main.java.client.exception.RelatedCondType;
 import main.java.client.exception.RelatedVarType;
 import main.java.utils.FileUtils;

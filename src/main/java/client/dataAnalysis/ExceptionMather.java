@@ -2,14 +2,12 @@ package main.java.client.dataAnalysis;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import main.java.base.Analyzer;
 import main.java.base.MyConfig;
-import main.java.client.crash.CrashAnalysis;
 import main.java.client.crash.CrashInfo;
-import main.java.client.crash.Strategy;
-import main.java.client.exception.*;
+import main.java.client.exception.ExceptionInfo;
+import main.java.client.exception.RelatedCondType;
+import main.java.client.exception.RelatedVarType;
 import main.java.utils.FileUtils;
-import main.java.utils.PrintUtils;
 import main.java.utils.SootUtils;
 import soot.toolkits.scalar.Pair;
 
@@ -29,20 +27,20 @@ import java.util.regex.Pattern;
 public class ExceptionMather {
     List<CrashInfo> crashInfoList = new ArrayList<>();
     String[] versions = {"2.3", "4.4", "5.0", "6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0"};
-    Map<String, JSONObject> version2JsonStr = new HashMap<String,JSONObject>();
+    Map<String, JSONObject> version2JsonStr = new HashMap<>();
 
     public void analyze() {
         readAllCrashInfo();
         System.out.println("readCrashInfo Finish...");
 
         exceptionOracleAnalysis();
-//        getExceptionOfCrashInfoWithGivenVersion();
+        getExceptionOfCrashInfoWithGivenVersion();
         System.out.println("getExceptionOfCrashInfo Finish...");
 
     }
 
     private void exceptionOracleAnalysis() {
-        boolean flag = false;
+//        boolean flag = false;
         FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"ETSCorrectness.txt", "", false);
         System.out.println("write to "+ MyConfig.getInstance().getResultFolder() +"ETSCorrectness.txt");
         for(CrashInfo crashInfo: crashInfoList) {
@@ -153,8 +151,6 @@ public class ExceptionMather {
                 if (str.length() >= 3) {
                     if (m.matches()) {
                         return RelatedVarType.valueOf(jsonObject.getString("relatedVarType"));
-                    } else {
-                        continue;
                     }
                 }
             }
@@ -170,10 +166,7 @@ public class ExceptionMather {
                 Matcher m = p.matcher(crashInfo.getMsg());
                 if (m.matches()) {
                     return RelatedVarType.valueOf(jsonObject.getString("relatedVarType"));
-                } else {
-                    continue;
                 }
-
             }
         }
         return RelatedVarType.Unknown;
@@ -216,43 +209,16 @@ public class ExceptionMather {
         return new Pair<>("notFound",crashInfo.getSignaler());
     }
 
-    private String getTargetType(String[] versionType) {
-        int paraAndField =0 , fieldOnly =0 ,parameterOnly =0 , overrideMissing = 0;
-        for(String relatedVarType: versionType) {
-            if(relatedVarType ==null) continue;
-            if (relatedVarType.equals(RelatedVarType.ParaAndField.toString())) paraAndField++;
-            if (relatedVarType.equals(RelatedVarType.Field.toString())) fieldOnly++;
-            if (relatedVarType.equals(RelatedVarType.Parameter.toString())) parameterOnly++;
-            if (relatedVarType.equals(RelatedVarType.Empty.toString())) overrideMissing++;
-        }
-        String choice = RelatedVarType.Unknown.toString();
-        if(paraAndField + parameterOnly + fieldOnly + overrideMissing ==0)
-            choice = RelatedVarType.Unknown.toString();
-        else if(paraAndField >= parameterOnly && paraAndField >= fieldOnly && paraAndField >= overrideMissing)
-            choice =  RelatedVarType.ParaAndField.toString();
-        else if(parameterOnly >= fieldOnly && parameterOnly >= paraAndField && parameterOnly >= overrideMissing)
-            choice = RelatedVarType.Parameter.toString();
-        else if(fieldOnly >= parameterOnly && fieldOnly >= paraAndField && fieldOnly >= overrideMissing)
-            choice =  RelatedVarType.Field.toString();
-        else if(overrideMissing >= parameterOnly && overrideMissing >= paraAndField && overrideMissing >= fieldOnly)
-            choice = RelatedVarType.Empty.toString();
-        for(int i = versionType.length-1; i>=0; i--) {
-            if (versionType[i] != null && versionType[i].equals(choice))
-                return choice;
-        }
-        return null;
-    }
     private void getExceptionOfCrashInfoWithGivenVersion() {
         FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"exceptionMatch.txt", "", false);
         System.out.println("write to "+ MyConfig.getInstance().getResultFolder() +"exceptionMatch.txt");
         for(CrashInfo crashInfo: crashInfoList) {
-            String str= crashInfo.getId()+"\t"+crashInfo.getSignaler()+"\t";
+            StringBuilder str= new StringBuilder(crashInfo.getId() + "\t" + crashInfo.getSignaler() + "\t");
             System.out.println("Analysis crash "+ str);
             for (String version : versions) {
                 String relatedVarType = getExceptionWithGivenVersion(crashInfo, version);
-                str+=relatedVarType+"\t";
+                str.append(relatedVarType).append("\t");
             }
-//            System.out.println(str);
             FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +"exceptionMatch.txt", str+"\n", true);
         }
     }
@@ -262,8 +228,8 @@ public class ExceptionMather {
      * getExceptionOfCrashInfo from exception.json
      */
     private String getExceptionWithGivenVersion(CrashInfo crashInfo, String version) {
-        String jsonString = "";
-        JSONObject wrapperObject = null;
+        String jsonString;
+        JSONObject wrapperObject;
         if(version2JsonStr.containsKey(version)){
             wrapperObject = version2JsonStr.get(version);
         }else {
@@ -276,18 +242,18 @@ public class ExceptionMather {
 
         if(wrapperObject==null) return "noFile";
         JSONArray methods = wrapperObject.getJSONArray("exceptions");//构建JSONArray数组
-        for (int i = 0 ; i < methods.size();i++){
-            JSONObject jsonObject = (JSONObject)methods.get(i);
+        for (Object method : methods) {
+            JSONObject jsonObject = (JSONObject) method;
             ExceptionInfo exceptionInfo = new ExceptionInfo();
             exceptionInfo.setSootMethodName(jsonObject.getString("method"));
-            if(crashInfo.getSignaler().equals(exceptionInfo.getSootMethodName())){
+            if (crashInfo.getSignaler().equals(exceptionInfo.getSootMethodName())) {
                 exceptionInfo.setExceptionMsg(jsonObject.getString("message"));
                 if (exceptionInfo.getExceptionMsg() == null) continue;
                 Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg());
                 Matcher m = p.matcher(crashInfo.getMsg());
                 if (exceptionInfo.getExceptionMsg().equals(crashInfo.getMsg()) || m.matches()) {
                     crashInfo.setExceptionInfo(exceptionInfo);
-                    if(exceptionInfo!=null && jsonObject.getString("relatedVarType")!=null) {
+                    if (jsonObject.getString("relatedVarType") != null) {
                         return jsonObject.getString("relatedVarType");
                     }
                 }
@@ -306,8 +272,8 @@ public class ExceptionMather {
         System.out.println("readCrashInfo::"+fn);
         String jsonString = FileUtils.readJsonFile(fn);
         JSONArray jsonArray = JSONArray.parseArray(jsonString);
-        for (int i = 0 ; i < jsonArray.size();i++){
-            JSONObject jsonObject = (JSONObject)jsonArray.get(i);
+        for (Object o : jsonArray) {
+            JSONObject jsonObject = (JSONObject) o;
             CrashInfo crashInfo = new CrashInfo();
             crashInfoList.add(crashInfo);
             crashInfo.setIdentifier(jsonObject.getString("identifier"));
@@ -318,16 +284,16 @@ public class ExceptionMather {
             crashInfo.setMsg(jsonObject.getString("msg").trim());
             crashInfo.setRealCate(jsonObject.getString("realCate"));
             crashInfo.setCategory(jsonObject.getString("category"));
-            if(jsonObject.getString("fileName")!=null)
+            if (jsonObject.getString("fileName") != null)
                 crashInfo.setId(jsonObject.getString("fileName"));
             else
-                crashInfo.setId(crashInfo.getIdentifier()+"-"+ jsonObject.getString("id"));
+                crashInfo.setId(crashInfo.getIdentifier() + "-" + jsonObject.getString("id"));
             crashInfo.setReason(jsonObject.getString("reason"));
             crashInfo.setMethodName(crashInfo.getTrace().get(0));
 
-            if(jsonObject.getString("relatedVarType")!=null)
+            if (jsonObject.getString("relatedVarType") != null)
                 crashInfo.setRelatedVarTypeOracle(RelatedVarType.valueOf(jsonObject.getString("relatedVarType")));
-            if(jsonObject.getString("relatedCondType")!=null)
+            if (jsonObject.getString("relatedCondType") != null)
                 crashInfo.setRelatedCondTypeOracle(RelatedCondType.valueOf(jsonObject.getString("relatedCondType")));
 
             JSONObject callerOfSingnlar2SourceVar = jsonObject.getJSONObject("callerOfSingnlar2SourceVar");
@@ -335,7 +301,7 @@ public class ExceptionMather {
                 for (String key : callerOfSingnlar2SourceVar.keySet()) {
                     String[] ids = ((String) callerOfSingnlar2SourceVar.get(key)).split(",");
                     for (String id : ids)
-                        crashInfo.addCallerOfSingnlar2SourceVarOracle(SootUtils.getMethodSimpleNameFromSignature(key), Integer.valueOf(id));
+                        crashInfo.addCallerOfSingnlar2SourceVarOracle(SootUtils.getMethodSimpleNameFromSignature(key), Integer.parseInt(id));
                 }
             }
         }

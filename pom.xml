@@ -1,8 +1,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>LoFDroid</groupId>
-  <artifactId>LoFDroid</artifactId>
+  <groupId>CrashTracker</groupId>
+  <artifactId>CrashTracker</artifactId>
   <version>1.0-SNAPSHOT</version>
 
    <properties>
@@ -116,7 +116,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
                   	  <mainClass>main.java.MainClass</mainClass>
                       <attachToBuild>true</attachToBuild>
                       <classifier>onejar</classifier>
-                      <filename>LoFDroid.jar</filename>
+                      <filename>CrashTracker.jar</filename>
                   </configuration>
                   <goals>
                       <goal>one-jar</goal>

@@ -28,7 +28,7 @@ public class TestApkCrashAnalysisClient {
 //        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 
         String name;
-        name = "com.jss.android.windows8-378.apk";
+        name = "llc.auroraappdesign.votd-370.apk";
 
 
         String client = "ApkCrashAnalysisClient";
@@ -36,9 +36,6 @@ public class TestApkCrashAnalysisClient {
         MyConfig.getInstance().setAppName(name);
         MyConfig.getInstance().setAppPath(path + File.separator);
         MyConfig.getInstance().setClient(client);
-        MyConfig.getInstance().setMaxPathNumber(30);
-        MyConfig.getInstance().setMaxFunctionExpandNumber(5); //10?
-        MyConfig.getInstance().setMaxObjectSummarySize(100);
         MyConfig.getInstance().setResultWarpperFolder("results" + File.separator);
         MyConfig.getInstance().setResultFolder(MyConfig.getInstance().getResultWarpperFolder()+ "output" + File.separator);
         MyConfig.getInstance().setTimeLimit(10);
