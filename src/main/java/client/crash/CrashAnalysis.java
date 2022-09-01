@@ -959,7 +959,7 @@ public class CrashAnalysis extends Analyzer {
                     System.out.println(PrintUtils.printArray(versionTypes));
                 }
                 if (targetVerId == -1)
-                    targetVerId = 5;
+                    targetVerId = 6;
                 targetVer = versions[targetVerId];
                 targetMethodName = targetMethodNames[targetVerId];
             }else{
