@@ -40,6 +40,7 @@ replay_pid*
 .settings/
 /CrashTracker/target/
 Files/
+!Files/crashInfo.json
 /result/
 /results/
 /apk/
