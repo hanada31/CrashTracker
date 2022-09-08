@@ -24,6 +24,6 @@ if __name__ == '__main__' :
     path = "D:\\SoftwareData\\dataset\\android-framework\\classes\\";
     name = "android"+sys.argv[1];
     
-    command = "java -jar "+jarFile+"  -path "+ path +" -name "+name+" -androidJar "+ sdk +"/platforms -client ExceptionInfoClient " +" -outputDir Files/ "  +" -frameworkVersion " + sys.argv[1] +" >> Files/logs/android-" +sys.argv[1]+".txt"
+    command = "java -jar "+jarFile+"  -path "+ path +" -name "+name+" -androidJar "+ sdk +"/platforms  -exceptionInput ../Files/  -client ExceptionInfoClient " +" -outputDir Files/ "  +" -frameworkVersion " + sys.argv[1] +" >> Files/logs/android-" +sys.argv[1]+".txt"
     executeCmd(command)
                     
