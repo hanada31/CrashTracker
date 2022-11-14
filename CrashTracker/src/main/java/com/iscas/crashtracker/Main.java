@@ -142,8 +142,8 @@ public class Main {
 		/** output **/
 		options.addOption("outputDir", true, "-outputDir: Set the output folder of the apk.");
 		options.addOption("sootOutput", false, "-sootOutput: Output the sootOutput");
-
-
+		options.addOption("crashInput", false, "-crashInput: crashInfo.json file path");
+		options.addOption("exceptionInput", false, "-exceptionInput: exception file folder");
 		return options;
 	}
 
