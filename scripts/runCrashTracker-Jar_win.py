@@ -34,7 +34,6 @@ def analyzeJar(jarPath, resPath, sdk, frameworkVersion, strategy):
                 resFile = logDir+"/"+jar[:-4]+".txt"
                 if(reRun or not os.path.exists(resFile)): 
                     command = "java -jar "+jarFile+"  -path "+ jarPath +" -name "+jar+" -androidJar "+ sdk +"/platforms  "+ extraArgs +" -crashInput Files/crashInfo.json  -exceptionInput Files/  -client JarCrashAnalysisClient" +" -outputDir "+outputDir+" >> "+logDir+"/"+jar[:-4]+".txt"
-                    print (command)
                     future1 = pool.submit(executeCmd, command)
         pool.shutdown()
 
