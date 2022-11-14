@@ -31,7 +31,7 @@ def analyzeJar(jarPath, resPath, sdk, frameworkVersion, strategy):
             if len(filterList)>0  and jar  in filterList:
                 continue
             if jar[-4:] ==".jar":
-                resFile = outputDir + os.sep + apk[:-4] + os.sep +apk[:-4] + ".json"
+                resFile = outputDir + os.sep + jar[:-4] + os.sep +jar[:-4] + ".json"
                 if(reRun or not os.path.exists(resFile)): 
                     command = "java -jar "+jarFile+"  -path "+ jarPath +" -name "+jar+" -androidJar "+ sdk +"/platforms  "+ extraArgs +" -crashInput Files/crashInfo.json  -exceptionInput Files/  -client JarCrashAnalysisClient" +" -outputDir "+outputDir+" >> "+logDir+"/"+jar[:-4]+".txt"
                     future1 = pool.submit(executeCmd, command)
