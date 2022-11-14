@@ -98,9 +98,10 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
+					<appendAssemblyId>false</appendAssemblyId>
                 </configuration>
             </plugin>
         </plugins>
-        <finalName>crashTracker</finalName>
+        <finalName>CrashTracker</finalName>
     </build>
 </project>

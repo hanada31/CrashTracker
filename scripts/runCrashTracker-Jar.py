@@ -10,8 +10,8 @@ filterList = list()
 
 
 def analyzeJar(jarPath, resPath, sdk, frameworkVersion, strategy):
-    logDir = resPath+"/logs"
-    outputDir = resPath+"/output"
+    logDir = resPath+os.sep+"logs"
+    outputDir = resPath+os.sep+"output"
     if(not os.path.exists(logDir)): 
         os.makedirs(logDir) 
     if(not os.path.exists(outputDir)): 
@@ -33,7 +33,7 @@ def analyzeJar(jarPath, resPath, sdk, frameworkVersion, strategy):
             if jar[-4:] ==".jar":
                 resFile = logDir+"/"+jar[:-4]+".txt"
                 if(reRun or not os.path.exists(resFile)): 
-                    command = "java -jar "+jarFile+"  -path "+ jarPath +" -name "+jar+" -androidJar "+ sdk +"/platforms  "+ extraArgs +" -crashInput ../Files/crashInfo.json  -exceptionInput ../Files/   -client JarCrashAnalysisClient" +" -outputDir "+outputDir+" >> "+logDir+"/"+jar[:-4]+".txt"
+                    command = "java -jar "+jarFile+"  -path "+ jarPath +" -name "+jar+" -androidJar "+ sdk +"/platforms  "+ extraArgs +" -crashInput Files/crashInfo.json  -exceptionInput Files/   -client JarCrashAnalysisClient" +" -outputDir "+outputDir+" >> "+logDir+"/"+jar[:-4]+".txt"
                     print (command)
                     future1 = pool.submit(executeCmd, command)
         pool.shutdown()

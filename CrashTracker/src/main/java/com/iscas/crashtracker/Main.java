@@ -169,9 +169,9 @@ public class Main {
 		MyConfig.getInstance().setJimple(true);
 		MyConfig.getInstance().setAppName(mCmd.getOptionValue("name", ""));
 		MyConfig.getInstance().setAppPath(mCmd.getOptionValue("path", System.getProperty("user.dir")) + File.separator);
-		MyConfig.getInstance().setAndroidJar(mCmd.getOptionValue("androidJar", "..\\lib"+File.separator+"platforms") + File.separator);
-		MyConfig.getInstance().setCrashInfoFilePath(mCmd.getOptionValue("crashInput","..\\Files"+File.separator+"crashInfo.json"));
-		MyConfig.getInstance().setExceptionFolderPath(mCmd.getOptionValue("exceptionInput","..\\Files"));
+		MyConfig.getInstance().setAndroidJar(mCmd.getOptionValue("androidJar", "lib"+File.separator+"platforms") + File.separator);
+		MyConfig.getInstance().setCrashInfoFilePath(mCmd.getOptionValue("crashInput","Files"+File.separator+"crashInfo.json"));
+		MyConfig.getInstance().setExceptionFolderPath(mCmd.getOptionValue("exceptionInput","Files"));
 
 		if(mCmd.getOptionValue("frameworkVersion")!=null) {
 			MyConfig.getInstance().setAndroidOSVersion(mCmd.getOptionValue("frameworkVersion"));
