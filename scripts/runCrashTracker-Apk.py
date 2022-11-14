@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 import threading
 import time
 
-reRun = True
+reRun = False
 filterList = list()
 
 
@@ -32,7 +32,7 @@ def analyzeApk(apkPath, resPath, sdk, frameworkVersion, strategy):
             if len(filterList)>0  and apk  in filterList:
                 continue
             if apk[-4:] ==".apk":
-                resFile = logDir+"/"+apk[:-4]+".txt"
+                resFile = outputDir+"/"+apk[:-4]+".json"
                 if(reRun or not os.path.exists(resFile)): 
                     command = "java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms  "+ extraArgs +" -crashInput Files/crashInfo.json  -exceptionInput Files/  -client ApkCrashAnalysisClient" +" -outputDir "+outputDir + " >> "+logDir+"/"+apk[:-4]+".txt"
                     future1 = pool.submit(executeCmd, command)

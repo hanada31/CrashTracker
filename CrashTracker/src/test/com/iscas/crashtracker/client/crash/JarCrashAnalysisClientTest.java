@@ -28,6 +28,7 @@ public class JarCrashAnalysisClientTest {
     private void setArgs() {
         String path;
         path = "..\\apk\\";
+        path = "D:\\SoftwareData\\dataset\\apk\\android-sdk-project\\";
         String name;
         name = "facebook-android-sdk-905.jar";
 
