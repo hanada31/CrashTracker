@@ -408,9 +408,10 @@ public class CrashAnalysis extends Analyzer {
                             }
                         }
                     for(int id :ids){
-                        if(id == -1)
-                            log.info("this");
-                        else if (invoke.getArgs().size() > id) {
+//                        if(id == -1)
+//                            log.info("this");
+//                        else
+                            if (invoke.getArgs().size() > id) {
                             BriefUnitGraph graph = new BriefUnitGraph(SootUtils.getSootActiveBody(crashMethod));
                             List<Unit> worklist = new ArrayList<>();
                             List<Unit> predUnits = new ArrayList<>();
@@ -429,7 +430,8 @@ public class CrashAnalysis extends Analyzer {
                             }
                             //data flow filter
                             Set<Unit> dataSlice = new HashSet<>();
-                            getDataSliceOfUnit(dataSlice, crashMethod, u, predUnits, invoke.getArgs().get(id));
+                            if(id > -1)
+                                getDataSliceOfUnit(dataSlice, crashMethod, u, predUnits, invoke.getArgs().get(id));
                             for(Unit pred: predUnits){
                                 if(!dataSlice.contains(pred)) continue;
                                 Set<SootMethod> calleeMethod = SootUtils.getInvokedMethodSet(crashMethod, pred);
@@ -647,7 +649,7 @@ public class CrashAnalysis extends Analyzer {
             if(!isLibraryMethod(candi)){
                 List<String> trace = new ArrayList<>();
                 trace.add(candi);
-                String ParamIds = "";
+                String ParamIds = "Unknown";
                 if(crashInfo.getExceptionInfo()!=null)
                     ParamIds = PrintUtils.printList(crashInfo.getExceptionInfo().getRelatedParamIdsInStr());
                 crashInfo.addBuggyCandidates(candi, initScore--,
@@ -988,10 +990,10 @@ public class CrashAnalysis extends Analyzer {
                 targetVer = MyConfig.getInstance().getAndroidOSVersion();
                 targetMethodName = crashInfo.getSignaler();
             }
-//            MyConfig.getInstance().setExceptionFilePath("Files"+File.separator+"android"+targetVer+File.separator+"exceptionInfo"+File.separator);
-//            MyConfig.getInstance().setPermissionFilePath("Files"+File.separator+"android"+targetVer+File.separator+"Permission"+File.separator+"permission.txt");
-//            MyConfig.getInstance().setAndroidCGFilePath("Files"+File.separator+"android"+targetVer+File.separator+
-//                    "CallGraphInfo" + File.separator + "android"+targetVer + "_cg.txt");
+            String androidFolder = MyConfig.getInstance().getExceptionFolderPath()+File.separator+"android"+targetVer+File.separator;
+            MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);
+            MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
+            MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"android"+targetVer+"_cg.txt");
             log.info("target is "+ targetVer);
 
             readExceptionSummary(crashInfo, targetMethodName);
@@ -1041,7 +1043,7 @@ public class CrashAnalysis extends Analyzer {
         String androidFolder = MyConfig.getInstance().getExceptionFolderPath()+File.separator+"android"+version+File.separator;
         MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);
         MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
-        MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"cg.txt");
+        MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"android"+version+"_cg.txt");
 
         String fn = MyConfig.getInstance().getExceptionFilePath()+"summary"+ File.separator+ "exception.json";
         String jsonString = FileUtils.readJsonFile(fn);

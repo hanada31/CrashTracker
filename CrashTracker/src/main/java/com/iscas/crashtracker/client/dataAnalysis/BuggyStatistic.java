@@ -34,15 +34,15 @@ public class BuggyStatistic {
             List<String> lines = FileUtils.getListFromFile(folder+ "buggyRanking" + File.separator + fn);
             StringBuilder sb = new StringBuilder(fn+ "\tR@1\tR@5\tR@10\tR@1\tR@5\tR@10\tMRR\n");
             analyzeSingleFileRank(lines, sb);
-            FileUtils.writeText2File( "Files" + File.separator+"RankingStatistic-Category.txt", sb +"\n\n\n", true);
+            FileUtils.writeText2File( folder+ File.separator+"RankingStatistic-Category.txt", sb +"\n\n\n", true);
 
             StringBuilder sb2 = new StringBuilder(fn+ "\tParameter\tField\tParaAndField\tEmpty\tUnknown\n");
             analyzeSingleFileVarType(lines, sb2);
-            FileUtils.writeText2File( "Files" + File.separator+"VarTypeStatistic.txt", sb2 +"\n\n\n", true);
+            FileUtils.writeText2File( folder+ File.separator+"VarTypeStatistic.txt", sb2 +"\n\n\n", true);
 
             StringBuilder sb3 = new StringBuilder(fn+ "\tR@1\tR@5\tR@10\tR@1\tR@5\tR@10\tMRR\n");
             analyzeSingleFileRankRVType(lines, sb3);
-            FileUtils.writeText2File( "Files" + File.separator+"RankingStatistic-RVType.txt", sb3 +"\n\n\n", true);
+            FileUtils.writeText2File( folder + File.separator+"RankingStatistic-RVType.txt", sb3 +"\n\n\n", true);
         }
     }
     private Map initMap() {
