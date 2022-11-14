@@ -21,6 +21,7 @@ def analyzeJar(jarPath, resPath, sdk, frameworkVersion, strategy):
         jars = os.listdir(jarPath)
         
         extraArgs = "" 
+        
         if frameworkVersion != "no": 
             extraArgs = extraArgs +  " -frameworkVersion " + frameworkVersion +" "
         extraArgs = extraArgs +" -strategy " +strategy +" "
