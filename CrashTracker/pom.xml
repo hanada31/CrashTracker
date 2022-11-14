@@ -97,10 +97,11 @@
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.soot-oss/soot -->
-        <dependency>
-            <groupId>org.soot-oss</groupId>
-            <artifactId>soot</artifactId>
-            <version>4.3.0</version>
+<!-- https://mvnrepository.com/artifact/io.github.nkbai/soot -->
+	<dependency>
+		<groupId>io.github.nkbai</groupId>
+		<artifactId>soot</artifactId>
+		<version>4.3.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.smali</groupId>
