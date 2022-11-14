@@ -649,7 +649,7 @@ public class CrashAnalysis extends Analyzer {
                 trace.add(candi);
                 crashInfo.addBuggyCandidates(candi, initScore--,
                         "crash_trace_method, this candidate influences the parameter "
-                                + crashInfo.getExceptionInfo().getRelatedParamIdsInStr() +
+                                + PrintUtils.printList(crashInfo.getExceptionInfo().getRelatedParamIdsInStr()) +
                                 " of "+ crashInfo.getSignaler(),
                         trace);
                 Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
