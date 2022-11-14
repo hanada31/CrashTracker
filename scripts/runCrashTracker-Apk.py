@@ -59,7 +59,7 @@ if __name__ == '__main__' :
     resPath = sys.argv[2]
     frameworkVersion = sys.argv[3]
     strategy = sys.argv[4] 
-    os.system("mvn -f pom.xml package -q")
+    os.system("mvn -f pom.xml package")
     if os.path.exists("target/CrashTracker.jar"):
         print("Successfully build! generate jar-with-dependencies in folder target/")
         shutil.copy("target/CrashTracker.jar", jarFile)
