@@ -59,6 +59,8 @@ public class PrintUtils {
 	 * @return
 	 */
 	public static String printList(List<?> list) {
+		if (list == null)
+			return "";
 		String split = ", ";
 		return printList(list, split);
 	}

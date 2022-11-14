@@ -35,7 +35,7 @@ public class ApkCrashAnalysisClientTest {
         name = "cgeo.geocaching-600.apk";
 //        name = "org.wordpress.android-1590.apk";
 //        name = "org.kontalk-773.apk";
-//        name = "org.kontalk-782.apk";
+        name = "org.wordpress.android-2695.apk";
 
 
         String client = "ApkCrashAnalysisClient";
