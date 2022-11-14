@@ -20,6 +20,7 @@ public class ExceptionInfo {
     private String exceptionMsg;
     private final List<Value> relatedParamValues;
     private final List<String> relatedParamValuesInStr;
+    private final List<String> relatedParamIdsInStr;
     private Set<Integer> relatedValueIndex;
     private final List<SootField> relatedFieldValues;
     private final List<String> relatedFieldValuesInStr;
@@ -59,6 +60,7 @@ public class ExceptionInfo {
         this.conditionUnits = new ArrayList<>();
         this.tracedUnits = new ArrayList<>();
         this.relatedParamValuesInStr = new ArrayList<>();
+        this.relatedParamIdsInStr = new ArrayList<>();
         this.relatedFieldValuesInStr = new ArrayList<>();
         this.relatedValueIndex = new HashSet<>();
         this.relatedMethodsInSameClassMap = new TreeMap<Integer, ArrayList<RelatedMethod>>();
@@ -268,7 +270,9 @@ public class ExceptionInfo {
     public List<String> getRelatedParamValuesInStr() {
         return relatedParamValuesInStr;
     }
-
+    public List<String> getRelatedParamIdsInStr() {
+        return relatedParamIdsInStr;
+    }
     public List<String> getRelatedFieldValuesInStr() {
         return relatedFieldValuesInStr;
     }
@@ -281,8 +285,10 @@ public class ExceptionInfo {
         for(String t: ss){
             if(t.contains(": "))
                 this.relatedParamValuesInStr.add(t.split(": ")[1]);
+                this.relatedParamIdsInStr.add(t.split(": ")[0].replace("@parameter",""));
         }
     }
+
 
     public void setRelatedFieldValuesInStr(String relatedFieldValues) {
         if(relatedFieldValues == null) return;

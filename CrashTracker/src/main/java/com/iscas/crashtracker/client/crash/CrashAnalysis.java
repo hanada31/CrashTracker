@@ -100,7 +100,7 @@ public class CrashAnalysis extends Analyzer {
             if(l++>5) return;
             List<String> trace = new ArrayList<>();
             trace.add(candi);
-            crashInfo.addBuggyCandidates(candi,initscore--,"crash_trace_method", trace);
+            crashInfo.addBuggyCandidates(candi,initscore--,"crash_trace_method, add method in crash trace but not a caller of related method. ", trace);
         }
     }
     private void getPartOfExtendedCallTrace(CrashInfo crashInfo) {
@@ -438,7 +438,10 @@ public class CrashAnalysis extends Analyzer {
                                     List<String> trace = new ArrayList<>();
                                     trace.add(crashInfo.getCrashAPI());
                                     trace.add(callee);
-                                    crashInfo.addBuggyCandidates(callee, score, "modify_paras_send_to_framework", trace);
+                                    crashInfo.addBuggyCandidates(callee, score,
+                                            "parameter_match_3, this candidate influences the parameter " +id +
+                                                    " of "+ crashInfo.getSignaler(),
+                                            trace);
                                 }
                             }
                         }
@@ -454,7 +457,7 @@ public class CrashAnalysis extends Analyzer {
         for(Map.Entry entry: crashInfo.getExtendedCallDepth().entrySet()){
             String candi = (String) entry.getKey();
             CrashInfo.ExtendCandiMethod method = (CrashInfo.ExtendCandiMethod) entry.getValue();
-            crashInfo.addBuggyCandidates(candi, ConstantUtils.INITSCORE-method.depth, "extended_call_graph", method.trace);
+            crashInfo.addBuggyCandidates(candi, ConstantUtils.INITSCORE-method.depth, "extended_call_graph, this method is invoked but not shown in crash trace", method.trace);
         }
     }
     //according to the parameter send into framework API
@@ -516,10 +519,10 @@ public class CrashAnalysis extends Analyzer {
                     String candi = otherMethod.getDeclaringClass().getName() + "." + otherMethod.getName();
                     List<String> trace = new ArrayList<>();
                     trace.add(otherMethod.getSignature());
-                    trace.add("key field: " + field);
+                    trace.add("modify key field: " + field);
                     trace.add(crashMethod.getSignature());
-                    trace.add("key field: " + field);
-                    crashInfo.addBuggyCandidates(candi, score, "modify_fields_send_to_framework", trace);
+//                    trace.add("key field: " + field);
+                    crashInfo.addBuggyCandidates(candi, score, "modify_fields_send_to_framework, " +otherMethod.getSignature() +" modifies the field " + field, trace);
                 }
             }
         }
@@ -575,10 +578,12 @@ public class CrashAnalysis extends Analyzer {
             Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
             String signature;
             for(SootMethod sm: methods) {
+                int paraId = -1;
                 boolean isParaPassed = false;
                 if (sm == null) break;
                 signature = sm.getSignature();
                 for (String paraTye :vars) {
+                    paraId++;
                     if (signature.contains(paraTye)) {
                         isParaPassed = true;
                         break;
@@ -591,8 +596,12 @@ public class CrashAnalysis extends Analyzer {
                     }else{
                         trace.add(candi);
                     }
-                    crashInfo.addBuggyCandidates(candi,score,"best_match_crash_trace_method", trace);
-                    count++;
+                    crashInfo.addBuggyCandidates(candi,score,
+                            "parameter_match_1, this candidate influences the parameter "
+                                    + crashInfo.getExceptionInfo().getRelatedParamIdsInStr() +
+                            " of "+ crashInfo.getSignaler(),
+                            trace);
+                            count++;
                     find = true;
                 }
             }
@@ -610,7 +619,12 @@ public class CrashAnalysis extends Analyzer {
                 if (sm == finalCaller) {
                     List<String> trace = new ArrayList<>();
                     trace.add(finalCaller.getSignature());
-                    crashInfo.addBuggyCandidates(candi,score, "best_match_crash_trace_method", trace);
+                    crashInfo.addBuggyCandidates(candi,score,
+                            "parameter_match_2, this candidate influences the parameter "
+                                    +crashInfo.getFaultInducingParas() +
+                                    " of "+ crashInfo.getSignaler(),
+                            trace);
+
                     count++;
                     find = true;
                 }
@@ -633,7 +647,11 @@ public class CrashAnalysis extends Analyzer {
             if(!isLibraryMethod(candi)){
                 List<String> trace = new ArrayList<>();
                 trace.add(candi);
-                crashInfo.addBuggyCandidates(candi, initScore--,"crash_trace_method", trace);
+                crashInfo.addBuggyCandidates(candi, initScore--,
+                        "crash_trace_method, this candidate influences the parameter "
+                                + crashInfo.getExceptionInfo().getRelatedParamIdsInStr() +
+                                " of "+ crashInfo.getSignaler(),
+                        trace);
                 Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
                 for(SootMethod sm: methods) {
                     if (sm == null) continue;
@@ -730,7 +748,9 @@ public class CrashAnalysis extends Analyzer {
         int score = initScore - getOrderInTrace(crashInfo, candi) - method.getDepth() - depth;
         if(crashInfo.getTrace().contains(candi)) score += ConstantUtils.METHODINTACE;
         if(currentMethodContainCandi(sootMethod, crashInfo))
-            crashInfo.addBuggyCandidates(candi, score, "related_method_caller", trace);
+            crashInfo.addBuggyCandidates(candi, score,
+                    "related_method_caller, this candidate influences the field: "+ crashInfo.getExceptionInfo().getRelatedFieldValuesInStr() ,
+                    trace);
         //if the buggy type is not passed by parameter, do not find its caller
         Set<Integer> paramIndexCaller = SootUtils.getIndexesFromMethod(edge, crashInfo.exceptionInfo.getRelatedValueIndex());
         if(paramIndexCaller.size() == 0) return;
@@ -896,7 +916,7 @@ public class CrashAnalysis extends Analyzer {
 
                         List<String> trace = new ArrayList<>();
                         trace.add(crashInfo.getMethodName());
-                        crashInfo.addBuggyCandidates(candi, updateScore, "not_override_method", trace);
+                        crashInfo.addBuggyCandidates(candi, updateScore, "not_override_method, user should override " + crashInfo.getMethodName(), trace);
                     }
                 }
             }

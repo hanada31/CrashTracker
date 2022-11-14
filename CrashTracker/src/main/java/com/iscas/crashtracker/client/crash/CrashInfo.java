@@ -5,6 +5,7 @@ import com.iscas.crashtracker.client.exception.ExceptionInfo;
 import com.iscas.crashtracker.client.exception.RelatedCondType;
 import com.iscas.crashtracker.client.exception.RelatedVarType;
 import com.iscas.crashtracker.utils.ConstantUtils;
+import com.iscas.crashtracker.utils.PrintUtils;
 import com.iscas.crashtracker.utils.StringUtils;
 import soot.jimple.toolkits.callgraph.Edge;
 
@@ -52,6 +53,10 @@ public class CrashInfo {
     private Map<String, List<Integer>> callerOfSingnlar2SourceVarOracle = new HashMap<>();
     public RelatedVarType getRelatedVarTypeOracle() {
         return relatedVarTypeOracle;
+    }
+
+    public String getFaultInducingParasInStr() {
+        return PrintUtils.printList(faultInducingParas);
     }
 
     public void setRelatedVarTypeOracle(RelatedVarType relatedVarTypeOracle) {

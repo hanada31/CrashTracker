@@ -3,6 +3,9 @@ package test;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @Author hanada
  * @Date 2022/6/24 11:20
@@ -27,5 +30,8 @@ public class TestQE {
             exceptionMsg = exceptionMsg.replace("[\\s\\S]*[\\s\\S]*", "[\\s\\S]*");
         }
         log.info(exceptionMsg);
+        Map map = new HashMap();
+        map.put("11",23);
+        System.out.println(map.get("22"));
     }
 }
