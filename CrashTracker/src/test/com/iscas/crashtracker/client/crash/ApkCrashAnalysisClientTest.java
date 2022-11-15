@@ -37,7 +37,7 @@ public class ApkCrashAnalysisClientTest {
 //        name = "org.kontalk-773.apk";
         name = "cgeo.geocaching-1503.apk";
         name = "com.Android56-123.apk";
-        name = "com.influenster-223.apk";
+//        name = "com.influenster-223.apk";
 //        name = "com.source.coach-282.apk";
 
 
@@ -57,6 +57,9 @@ public class ApkCrashAnalysisClientTest {
 
         MyConfig.getInstance().setCrashInfoFilePath("..\\Files\\crashInfo.json");
         MyConfig.getInstance().setExceptionFolderPath("..\\Files\\");
+        MyConfig.getInstance().setCallgraphAlgorithm("SPARK");
+//        MyConfig.getInstance().setCallgraphAlgorithm("CHA");
+
 
     }
 
