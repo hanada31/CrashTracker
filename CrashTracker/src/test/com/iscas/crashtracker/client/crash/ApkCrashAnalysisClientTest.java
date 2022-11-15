@@ -38,7 +38,7 @@ public class ApkCrashAnalysisClientTest {
         name = "cgeo.geocaching-1503.apk";
         name = "com.Android56-123.apk";
         name = "com.influenster-223.apk";
-        name = "com.source.coach-282.apk";
+//        name = "com.source.coach-282.apk";
 
 
         String client = "ApkCrashAnalysisClient";
