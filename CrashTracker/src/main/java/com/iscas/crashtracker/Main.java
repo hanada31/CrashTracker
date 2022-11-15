@@ -138,13 +138,13 @@ public class Main {
 			);
 		/** analysis config **/
 		options.addOption("time", true, "-time [default:90]: Set the max running time (min).");
-//		options.addOption("callgraphAlgorithm", true, "-callgraphAlgorithm [default:SPARK]: Set algorithm for CG, CHA or SPARK.");
+		options.addOption("callgraphAlgorithm", true, "-callgraphAlgorithm [default:SPARK]: Set algorithm for CG, CHA or SPARK.");
 		/** output **/
 		options.addOption("outputDir", true, "-outputDir: Set the output folder of the apk.");
 		options.addOption("sootOutput", false, "-sootOutput: Output the sootOutput");
 		options.addOption("crashInput", false, "-crashInput: crashInfo.json file path");
 		options.addOption("exceptionInput", false, "-exceptionInput: exception file folder");
-		options.addOption("callgraphAlgorithm", false, "-callgraphAlgorithm: callgraphAlgorithm");
+//		options.addOption("callgraphAlgorithm", false, "-callgraphAlgorithm: callgraphAlgorithm");
 
 		return options;
 	}
@@ -188,7 +188,7 @@ public class Main {
 
 		int timeLimit = Integer.valueOf(mCmd.getOptionValue("time", "90"));
 		MyConfig.getInstance().setTimeLimit(timeLimit);
-		MyConfig.getInstance().setCallgraphAlgorithm(mCmd.getOptionValue("callgraphAlgorithm", "SPARK"));
+		MyConfig.getInstance().setCallgraphAlgorithm(mCmd.getOptionValue("callgraphAlgorithm", "CHA"));
 
 		String client = mCmd.getOptionValue("client", "MainClient");
 		MyConfig.getInstance().setClient(mCmd.getOptionValue("client", client));

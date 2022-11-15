@@ -28,7 +28,7 @@ public class ApkCrashAnalysisClientTest {
     private void setArgs() {
         String path;
         path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
-//        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
+        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
 //        path = "..\\apk\\";
 
         String name;
@@ -39,6 +39,7 @@ public class ApkCrashAnalysisClientTest {
         name = "com.Android56-123.apk";
 //        name = "com.influenster-223.apk";
 //        name = "com.source.coach-282.apk";
+        name = "cgeo.geocaching-3570.apk";
 
 
         String client = "ApkCrashAnalysisClient";
@@ -58,7 +59,7 @@ public class ApkCrashAnalysisClientTest {
         MyConfig.getInstance().setCrashInfoFilePath("..\\Files\\crashInfo.json");
         MyConfig.getInstance().setExceptionFolderPath("..\\Files\\");
         MyConfig.getInstance().setCallgraphAlgorithm("SPARK");
-//        MyConfig.getInstance().setCallgraphAlgorithm("CHA");
+        MyConfig.getInstance().setCallgraphAlgorithm("CHA");
 
 
     }
