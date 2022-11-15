@@ -144,6 +144,8 @@ public class Main {
 		options.addOption("sootOutput", false, "-sootOutput: Output the sootOutput");
 		options.addOption("crashInput", false, "-crashInput: crashInfo.json file path");
 		options.addOption("exceptionInput", false, "-exceptionInput: exception file folder");
+		options.addOption("callgraphAlgorithm", false, "-callgraphAlgorithm: callgraphAlgorithm");
+
 		return options;
 	}
 
