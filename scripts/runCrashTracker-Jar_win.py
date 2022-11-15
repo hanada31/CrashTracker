@@ -15,12 +15,12 @@ def isAPKisAnalyzed(resPath, name):
             line = file_object1.readline()
             if line:
                 if name in line:
-                    print (name +" is analyzed: "+line )
                     return True
             else:
                 break
     finally:
-        return False
+        file_object1.close()
+    print (name +" is not analyzed: " )
     return False
 
 
@@ -48,7 +48,7 @@ def analyzeJar(jarPath, resPath, sdk, frameworkVersion, strategy):
                 continue
             if jar[-4:] ==".jar":
                 resFile = outputDir + os.sep + jar[:-4] + os.sep +jar[:-4] + ".json"
-                if(reRun or not os.path.exists(resFile) or isAPKisAnalyzed(resPath,jar[:-4])): 
+                if(reRun or not os.path.exists(resFile) or not isAPKisAnalyzed(resPath,jar[:-4])): 
                     command = "java -jar "+jarFile+"  -path "+ jarPath +" -name "+jar+" -androidJar "+ sdk +"/platforms  "+ extraArgs +" -crashInput Files/crashInfo.json  -exceptionInput Files/  -client JarCrashAnalysisClient" +" -outputDir "+outputDir+" >> "+logDir+"/"+jar[:-4]+".txt"
                     future1 = pool.submit(executeCmd, command)
         pool.shutdown()
