@@ -8,7 +8,22 @@ import time
 reRun = False
 filterList = list()
 
+def isAPKisAnalyzed(resPath, name):
+    file_object1 = open(resPath+os.sep+"Ranking-"+resPath+".txt",'r')
+    try:
+        while True:
+            line = file_object1.readline()
+            if line:
+                if name in line:
+                    print (name +" is analyzed: "+line )
+                    return True
+            else:
+                break
+    finally:
+        return False
+    return False
 
+    
 def analyzeApk(apkPath, resPath, sdk, frameworkVersion, strategy):
     logDir = resPath+os.sep+"logs"
     outputDir = resPath+os.sep+"output"
@@ -32,7 +47,7 @@ def analyzeApk(apkPath, resPath, sdk, frameworkVersion, strategy):
                 continue
             if apk[-4:] ==".apk":
                 resFile = outputDir + os.sep + apk[:-4] + os.sep +apk[:-4] + ".json"
-                if(reRun or not os.path.exists(resFile)): 
+                if(reRun or not os.path.exists(resFile) or isAPKisAnalyzed(resPath,apk[:-4])): 
                     command = "java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +"/platforms  "+ extraArgs +"-crashInput Files/crashInfo.json  -exceptionInput Files/  -client ApkCrashAnalysisClient " +" -outputDir "+outputDir+" >> "+logDir+"/"+apk[:-4]+".txt"
                     future1 = pool.submit(executeCmd, command)
         pool.shutdown()
