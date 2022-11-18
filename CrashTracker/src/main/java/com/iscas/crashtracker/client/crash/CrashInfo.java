@@ -1,5 +1,8 @@
 package com.iscas.crashtracker.client.crash;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.google.gson.JsonArray;
 import com.iscas.crashtracker.base.Global;
 import com.iscas.crashtracker.client.exception.ExceptionInfo;
 import com.iscas.crashtracker.client.exception.RelatedCondType;
@@ -73,8 +76,8 @@ public class CrashInfo {
 
     class ExtendCandiMethod {
         int depth;
-        List<String> trace;
-        ExtendCandiMethod(int depth, List trace){
+        JSONArray trace;
+        ExtendCandiMethod(int depth, JSONArray trace){
             this.depth = depth;
             this.trace = trace;
         }
@@ -84,15 +87,22 @@ public class CrashInfo {
         return extendedCallDepth;
     }
 
-    public boolean addExtendedCallDepth(String key, int value, List<String> trace) {
+//    public boolean addExtendedCallDepth(String key, int value, List<String> trace) {
+//        if(key.startsWith("java.")|| key.startsWith("androidx.")  || key.startsWith("android.") || key.startsWith("com.android.")) return false;
+//        if(!extendedCallDepth.containsKey(key) || extendedCallDepth.get(key).depth>value ) {
+//            extendedCallDepth.put(key, new ExtendCandiMethod(value, trace));
+//            return true;
+//        }
+//        return false;
+//    }
+    public boolean addExtendedCallDepth(String key, int value, JSONObject reason) {
         if(key.startsWith("java.")|| key.startsWith("androidx.")  || key.startsWith("android.") || key.startsWith("com.android.")) return false;
         if(!extendedCallDepth.containsKey(key) || extendedCallDepth.get(key).depth>value ) {
-            extendedCallDepth.put(key, new ExtendCandiMethod(value, trace));
+            extendedCallDepth.put(key, new ExtendCandiMethod(value, reason.getJSONArray("Trace")));
             return true;
         }
         return false;
     }
-
 
 
     public Map<String, Integer> getBuggyCandidates() {
@@ -103,7 +113,8 @@ public class CrashInfo {
         return buggyCandidateObjs;
     }
 
-    public void addBuggyCandidates(String candi, int score, String reason, List<String> trace) {
+
+    public void addBuggyCandidates(String candi, int score, JSONObject reason) {
         boolean findPrexInTrace = false;
         for(String traceMtd: getCrashMethodList()){
             int id = Math.max(traceMtd.split("\\.").length-2, 2);
@@ -122,18 +133,21 @@ public class CrashInfo {
             score = this.buggyCandidates.get(candi);
         if(score > ConstantUtils.BOTTOMSCORE) {
             if(this.buggyCandidates.containsKey(candi)){
-                this.buggyCandidateObjs.get(candi).addReasonTrace(reason,trace);
+//                System.out.println(reason.remove("Influenced Field"));
+                this.buggyCandidateObjs.get(candi).addReasonTrace(reason);
             }else {
                 BuggyCandidate candiObj = new BuggyCandidate(candi, score);
-                candiObj.addReasonTrace(reason,trace);
+//                System.out.println(reason.remove("Influenced Field"));
+                candiObj.addReasonTrace(reason);
                 this.buggyCandidateObjs.put(candi, candiObj);
             }
+            if(score> ConstantUtils.INITSCORE) maxScore = ConstantUtils.INITSCORE;
             this.buggyCandidates.put(candi, score);
             if(score< minScore) minScore = score;
             if(score> maxScore) maxScore = score;
+
         }
     }
-
 
     public List<String> getCrashMethodList() {
         return crashMethodList;

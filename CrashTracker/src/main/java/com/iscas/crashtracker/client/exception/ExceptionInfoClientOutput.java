@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import static com.alibaba.fastjson.JSON.toJSONString;
+
 /**
  * @Author hanada
  * @Date 2022/3/11 15:06
@@ -52,8 +54,8 @@ public class ExceptionInfoClientOutput {
                     addCallerOfParam(jsonObject, info);
                 }
                 PrintWriter printWriter = new PrintWriter(file);
-                String jsonString = JSON.toJSONString(rootElement, SerializerFeature.PrettyFormat,
-                        SerializerFeature.DisableCircularReferenceDetect);
+                String jsonString = toJSONString(rootElement, SerializerFeature.PrettyFormat,
+                        SerializerFeature.SortField);
                 printWriter.write(jsonString);
                 printWriter.close();
             } catch (Exception e) {
@@ -95,8 +97,8 @@ public class ExceptionInfoClientOutput {
             file.createNewFile();
             rootElement.put("exceptions", exceptionListElement);
             PrintWriter printWriter = new PrintWriter(file);
-            String jsonString = JSON.toJSONString(rootElement, SerializerFeature.PrettyFormat,
-                    SerializerFeature.DisableCircularReferenceDetect);
+            String jsonString = toJSONString(rootElement, SerializerFeature.PrettyFormat,
+                    SerializerFeature.SortField);
             printWriter.write(jsonString);
             printWriter.close();
         } catch (Exception e) {
@@ -111,7 +113,9 @@ public class ExceptionInfoClientOutput {
     }
 
     public static void addBasic2(JSONObject jsonObject, ExceptionInfo info) {
+//        jsonObject.put("relatedVarType", info.getRelatedVarType());
         jsonObject.put("relatedVarType", info.getRelatedVarType());
+//        jsonObject.put("relatedCondType", info.getRelatedCondType());
         jsonObject.put("relatedCondType", info.getRelatedCondType());
         jsonObject.put("modifier", info.getModifier());
         jsonObject.put("type", info.getExceptionType());
@@ -166,7 +170,8 @@ public class ExceptionInfoClientOutput {
         JSONArray relatedMethodsSameArray = new JSONArray();
         if (exceptionInfo.getRelatedMethodsInSameClass(true).size() > 0) {
             for (RelatedMethod mtd : exceptionInfo.getRelatedMethodsInSameClass(false)) {
-                String mtdString = JSONObject.toJSONString(mtd);
+                String mtdString = toJSONString(mtd, SerializerFeature.PrettyFormat,
+                        SerializerFeature.SortField);
                 JSONObject mtdObject = JSONObject.parseObject(mtdString);  // 转换为json对象
                 relatedMethodsSameArray.add(mtdObject);
             }
@@ -176,7 +181,8 @@ public class ExceptionInfoClientOutput {
         JSONArray relatedMethodsDiffArray = new JSONArray();
         if (exceptionInfo.getRelatedMethodsInDiffClass(true).size() > 0) {
             for (RelatedMethod mtd : exceptionInfo.getRelatedMethodsInDiffClass(false)) {
-                String mtdString = JSONObject.toJSONString(mtd);
+                String mtdString = toJSONString(mtd, SerializerFeature.PrettyFormat,
+                        SerializerFeature.SortField);
                 JSONObject mtdObject = JSONObject.parseObject(mtdString);  // 转换为json对象
                 relatedMethodsDiffArray.add(mtdObject);
             }
@@ -185,7 +191,7 @@ public class ExceptionInfoClientOutput {
     }
 
     private static void addCallerOfParam(JSONObject jsonObject, ExceptionInfo exceptionInfo) {
-        JSONObject callerOfSingnlar2SourceVar = new JSONObject();
+        JSONObject callerOfSingnlar2SourceVar = new JSONObject(true);
         if (exceptionInfo.getCallerOfSingnlar2SourceVar().size() > 0) {
             for (String mtd : exceptionInfo.getCallerOfSingnlar2SourceVar().keySet()) {
                 String vals = PrintUtils.printList(exceptionInfo.getCallerOfSingnlar2SourceVar().get(mtd));

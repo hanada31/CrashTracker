@@ -1,5 +1,8 @@
 package com.iscas.crashtracker.client.crash;
 
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.iscas.crashtracker.utils.PrintUtils;
 
 import java.util.ArrayList;
@@ -8,38 +11,36 @@ import java.util.List;
 import java.util.Set;
 
 public class BuggyCandidate {
-    private String candi;
-    private List<String> reasons = new ArrayList<>();
-    private List<List<String>> traces = new ArrayList<List<String>>();
-    private final int score;
+    @JSONField(name = "Candidate Name")
+    private String candidateName;
+    @JSONField(name = "Candidate Score")
+    private final int candidateScore;
+    @JSONField(name = "Reasons")
+    private JSONArray reasons = new JSONArray();
     private Set<String> reasonTrace = new HashSet<String>();
 
-    public BuggyCandidate(String candi, int score){
-        this.candi = candi;
-        this.score = score;
+    public int getcandidateScore() {
+        return candidateScore;
     }
 
-    public String getCandi() {
-        return candi;
+    public String getCandidateName() {
+        return candidateName;
     }
 
-    public List<String> getReason() {
+    public JSONArray getReasons() {
         return reasons;
     }
 
-    public void addReasonTrace(String reason, List<String> trace) {
-        if(reasonTrace.contains(reason+PrintUtils.printList(trace)))
+    public BuggyCandidate(String candi, int score){
+        this.candidateName = candi;
+        this.candidateScore = score;
+    }
+
+    public void addReasonTrace(JSONObject reason) {
+        if(reasonTrace.contains(reason.toJSONString()))
             return;
-        reasonTrace.add(reason+PrintUtils.printList(trace));
+        reasonTrace.add(reason.toJSONString());
         reasons.add(reason);
-        traces.add(trace);
-    }
-    public List<List<String>> getTrace() {
-        return traces;
     }
 
-
-    public int getScore() {
-        return score;
-    }
 }

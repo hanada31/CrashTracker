@@ -6,6 +6,7 @@ import com.iscas.crashtracker.utils.FileUtils;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -155,15 +156,15 @@ public class BuggyStatistic {
 //        printRankInfo2SB("C", cateCMap, sb, countC==0?0:MRRC/countC);
 
         int find_base = 568, rankSum_base = 717, CandiSum_base =3555;
-//        find_base = 0; rankSum_base = 0; CandiSum_base =0;
+        find_base = 0; rankSum_base = 0; CandiSum_base =0;
         double CandiAvg_base = 5.94+0.189;
-//        CandiAvg_base = 0;
+        CandiAvg_base = 0.0;
 
         sb.append("Find\t"+ (find-find_base) + "\t");
         sb.append("rankSum\t"+ (rankSum-rankSum_base) + "\n");
         sb.append("CandiSum\t"+ (candiSum-CandiSum_base) + "\t");
         BigDecimal candiAvgb = new BigDecimal(candiAvg-CandiAvg_base);
-        sb.append("CandiSum\t"+ candiAvgb.setScale(3,   BigDecimal.ROUND_HALF_UP).doubleValue() + "\n");
+        sb.append("CandiSum\t"+ candiAvgb.setScale(3, RoundingMode.HALF_UP).doubleValue() + "\n");
     }
 
     private void analyzeSingleFileRankRVType(List<String> lines, StringBuilder sb) {
@@ -229,10 +230,10 @@ public class BuggyStatistic {
         int r1 = 0, r5 = 0,r10 = 0; double mrr = 0.0;
         if(tag.equals("All")){
             r1 = 499; r5 = 562; r10 = 567; mrr= 0.906;
-//            r1 = 0; r5 = 0; r10 = 0; mrr=0;
+            r1 = 0; r5 = 0; r10 = 0; mrr=0;
         }else if(tag.equals("B")){
             r1 = 14; r5 = 38; r10 = 43; mrr= 0.433;
-//            r1 = 0; r5 = 0; r10 = 0; mrr= 0;
+            r1 = 0; r5 = 0; r10 = 0; mrr= 0;
         }
         sb.append(tag + "\t");
         sb.append(map.get("Recall@1")-r1 + "\t");
