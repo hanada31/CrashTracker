@@ -14,10 +14,16 @@ build and run *CrashTracker* to analyze single apk/ class Folder: :
 
 
 ```
-mvn -f pom.xml clean package
+# Initialize soot-dev submodule
+git submodule update --init soot-dev
 
-cp target/CrashTracker-jar-with-dependencies.jar CrashTracker.jar
+# Use -DskipTests to skip tests of soot (make build faster)
+mvn -f pom.xml clean package -DskipTests
 
+# Copy jar to root directory
+cp target/CrashTracker.jar CrashTracker.jar
+
+# Execute tool
 java -jar CrashTracker.jar  -path apk// -name xxx.apk -androidJar androidSdk//platforms  -crashInput ../Files/crashInfo.json  -exceptionInput ../Files/ -client ApkCrashAnalysisClient -time 30  -outputDir results//output
                     
 ```

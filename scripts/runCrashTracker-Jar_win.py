@@ -72,6 +72,7 @@ if __name__ == '__main__' :
     resPath = sys.argv[2]
     frameworkVersion = sys.argv[3]
     strategy = sys.argv[4] 
+    os.system("git submodule update --init soot-dev")
     os.system("mvn -f pom.xml package -q")
     if os.path.exists("target/CrashTracker.jar"):
         print("Successfully build! generate jar-with-dependencies in folder target/")
