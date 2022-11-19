@@ -96,7 +96,7 @@
             </exclusions>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.soot-oss/soot -->
+<!-- https://mvnrepository.com/artifact/org.soot-oss/soot -->
 <!-- https://mvnrepository.com/artifact/io.github.nkbai/soot -->
 	<dependency>
 		<groupId>io.github.nkbai</groupId>
