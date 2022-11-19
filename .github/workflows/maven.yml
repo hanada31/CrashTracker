@@ -22,5 +22,7 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
+    - name: Update submodules
+      run: git submodule update --init soot-dev
     - name: Build with Maven
-      run: mvn -f pom.xml package 
+      run: mvn -f pom.xml package -DskipTests
