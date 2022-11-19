@@ -41,9 +41,9 @@ public class ApkCrashAnalysisClientTest {
         name = "com.nextgis.mobile-315.apk";
         name = "com.travelzoo.android-90.apk";
 
-        name = "com.influenster-223.apk";
+//        name = "com.influenster-223.apk";
 //        name = "nz.co.stuff.android.news-2.apk";
-//        name = "com.source.coach-282.apk";
+        name = "com.source.coach-282.apk";
 
         String client = "ApkCrashAnalysisClient";
 

@@ -10,9 +10,9 @@
 
 
     <packaging>pom</packaging>
-    <modules>
-        <module>CrashTracker</module>
+    <modules>		
 		<module>soot-dev</module>
+        <module>CrashTracker</module>
     </modules>
 
     <properties>

@@ -97,13 +97,45 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
+		
+	<!-- https://mvnrepository.com/artifact/org.soot-oss/soot -->
+        <dependency>
+            <groupId>org.soot-oss</groupId>
+            <artifactId>soot</artifactId>
+            <version>4.4.0-SNAPSHOT-CrashTracker</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.smali</groupId>
+                    <artifactId>dexlib2</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-io</groupId>
+                    <artifactId>commons-io</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.errorprone</groupId>
+                    <artifactId>error_prone_annotations</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 	<!-- https://mvnrepository.com/artifact/org.soot-oss/soot -->
 	<!-- https://mvnrepository.com/artifact/io.github.nkbai/soot -->
-		<dependency>
-			<!-- <groupId>io.github.nkbai</groupId>
+		<!--<dependency>
+			 <groupId>io.github.nkbai</groupId>
 			<artifactId>soot</artifactId>
-			<version>4.3.1</version>-->
+			<version>4.3.1</version>
 			<groupId>org.soot-oss</groupId>
 			<artifactId>soot</artifactId>
 			<version>4.4.0-SNAPSHOT</version>
@@ -133,7 +165,7 @@
 					<artifactId>error_prone_annotations</artifactId>
 				</exclusion>
 			</exclusions>
-		</dependency>
+		</dependency>-->
 
 	  
         <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
