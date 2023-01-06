@@ -41,7 +41,8 @@ replay_pid*
 /CrashTracker/target/
 Files/
 !Files/crashInfo.json
-!Files/android*.zip
+!Files/*.zip
+
 /result/
 /results/
 dependency-reduced-pom.xml

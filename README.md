@@ -28,6 +28,8 @@ mvn -f pom.xml clean package -DskipTests
 # Copy jar to root directory
 cp target\CrashTracker.jar CrashTracker.jar
 
+unzip android*.zip files in Files\ folder first.
+
 # Run the tool
 ## for apk files
 java -jar CrashTracker.jar  -path app\ -name cgeo.geocaching-4450.apk -androidJar platforms  -crashInput ..\Files\crashInfo.json  -exceptionInput ..\Files\ -client ApkCrashAnalysisClient -time 30  -outputDir results\output
