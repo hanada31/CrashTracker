@@ -1410,8 +1410,7 @@ public class CrashAnalysis extends Analyzer {
                 }
             }
             log.info(buggyRanking);
-            String tag = MyConfig.getInstance().getResultWarpperFolder().replace(File.separator,"");
-            FileUtils.writeText2File(MyConfig.getInstance().getResultWarpperFolder() +"Ranking-"+tag+".txt", buggyRanking, true);
+            FileUtils.writeText2File(MyConfig.getInstance().getResultWarpperFolder() +"BuggyCandidatesRanking.txt", buggyRanking, true);
         }
     }
 

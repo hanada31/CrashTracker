@@ -1,17 +1,22 @@
 # [CrashTracker](https://github.com/hanada31/CrashTracker)
-Locating Framework-specific Crashing Faults with Compact and Explainable Candidate Set
 
-Requirements：
+[TOC]
+
+## Install Requirements：
 
 1. Python 3+ 
 
 2. Java 1.8+
 
+3. maven 3.6
+   
+   
 
+## Steps to run *CrashTracker* 
 
-build and run *CrashTracker* to analyze single apk/ class Folder: : 
+*Note: Only **English** characters are allowed in the path.*
 
-
+**Choice 1:** build and run *CrashTracker* to analyze single apk class Folder: 
 
 ```
 # Initialize soot-dev submodule
@@ -21,26 +26,43 @@ git submodule update --init soot-dev
 mvn -f pom.xml clean package -DskipTests
 
 # Copy jar to root directory
-cp target/CrashTracker.jar CrashTracker.jar
+cp target\CrashTracker.jar CrashTracker.jar
 
-# Execute tool
-java -jar CrashTracker.jar  -path apk// -name xxx.apk -androidJar androidSdk//platforms  -crashInput ../Files/crashInfo.json  -exceptionInput ../Files/ -client ApkCrashAnalysisClient -time 30  -outputDir results//output
-                    
+# Run the tool
+## for apk files
+java -jar CrashTracker.jar  -path app\ -name cgeo.geocaching-4450.apk -androidJar platforms  -crashInput ..\Files\crashInfo.json  -exceptionInput ..\Files\ -client ApkCrashAnalysisClient -time 30  -outputDir results\output
+
+## for java libraries based on android framework files
+java -jar CrashTracker.jar  -path app\ -name facebook-android-sdk-905.jar -androidJar platforms  -crashInput ..\Files\crashInfo.json  -exceptionInput ..\Files\ -client JarCrashAnalysisClient -time 30  -outputDir results\output
+
+you can config the -path, -name, -androidJar and -outputDir.
 ```
-or analyze apks under given folder with Python script:
+
+
+
+**Choice 2:**  analyze apks under given folder with Python script:
 
 ```
-modify the sdk folder in the scripts.
+First, modify the sdk folder in the scripts.
 
-run:
+Then, run the .py file.
+
+# for apk files
 python scripts/runCrashTracker-Apk.py  [apkPath] [resultPath] [target framework version] [strategy name]
-- [target framework version]: have a folder called Files/android[target framework version], which stores the framework code. E.g., "4.4", "6.0", or "no"
-- [strategy name]:  "NoCallFilter", "NoSourceType", "ExtendCGOnly",  "NoKeyAPI", "NoParaChain, "NoAppDataTrace", "NOParaChainANDDataTrace"or "no"
+e.g., python .\scripts\runCrashTracker-Apk.py  app results "no" "no"
+
+# for java libraries based on android framework files
+python scripts\runCrashTracker-Jar.py  [apkPath] [resultPath] [target framework version] [strategy name]
+e.g., python .\scripts\runCrashTracker-Jar.py  app results "no" "no"
+
+- [target framework version]: E.g., "2.3", "4.4", "6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0" or "no". Pick "no" if the crash triggering framework version is unknown.
+
+- [strategy name]:  "NoCallFilter", "NoSourceType", "ExtendCGOnly",  "NoKeyAPI", "NoParaChain, "NoAppDataTrace", "NOParaChainANDDataTrace"or "no". Pick "no" to use the best/default strategy.
 ```
 
 
 
-Usage of CrashTracker.jar:
+## Usage of CrashTracker.jar file
 
 ```
 java -jar CrashTracker.jar -h
@@ -65,3 +87,49 @@ usage: java -jar CrashTracker.jar [options] [-path] [-name] [-androidJar] [-outp
  -outputDir <arg>          -outputDir: Set the output folder of the apk.
 
 ```
+
+
+
+## Examples for CrashTracker‘s report 
+
+In folder results\output
+
+- *Six types of reasons provided by CrashTracker.*
+
+  - **a)**  **Key_API_Related**: Caller of *keyAPI*;
+  - **b)**  **Key_Variable_Related_1**: Influences the value of *keyVar* by modifying the value of the passed parameters;
+  - **c)**  **Key_Variable_Related_2**: Influences the value of *keyVar* by modifying the value of related object fields;
+  - **d)**  **Executed_Method_1**: Not influence the *keyVar* but in crash trace; 
+  - **e)**  **Executed_Method_2**: Not in the crash stack but has been executed;
+  - **f)**   **Not_Override_Method**: Forgets to override the *Signaler* method.
+
+- *The simplified report by CrashTracker for com.travelzoo.android.apk.*
+
+  - As we can see, there is one reason for this buggy candidate. The crash is triggered when a framework API that throws an exception without any condition is invoked, and the override is required.
+
+    ![com.nextgis.mobile](Figures/com.nextgis.mobile.png)
+
+
+
+- *The simplified report by CrashTracker for com.nextgis.mobile.apk.*
+
+  - As we can see, there are two types of reasons, explaining how the exception is triggered in both the application level (which influences the data passed to crashAPI) and framework level (which influences the exception-triggering condition in signaler).
+
+  
+
+![com.travelzoo.android](Figures/com.travelzoo.android.png)
+
+
+
+## Examples for ETS of exception 
+
+In folder Files
+
+![ETS](Figures/ETS.png)
+
+
+
+
+
+
+

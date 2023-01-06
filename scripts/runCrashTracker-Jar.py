@@ -5,11 +5,11 @@ from concurrent.futures import ThreadPoolExecutor
 import threading
 import time
 
-reRun = False
+reRun = True
 filterList = list()
 
-def isAPKisAnalyzed(resPath, name):
-    file_object1 = open(resPath+os.sep+"Ranking-"+resPath+".txt",'r')
+def isJarisAnalyzed(resPath, name):
+    file_object1 = open(resPath+os.sep+"BuggyCandidatesRanking.txt",'r')
     try:
         while True:
             line = file_object1.readline()
@@ -48,9 +48,9 @@ def analyzeJar(jarPath, resPath, sdk, frameworkVersion, strategy):
                 continue
             if jar[-4:] ==".jar":
                 resFile = outputDir + os.sep + jar[:-4] + os.sep +jar[:-4] + ".json"
-                analyzed = isAPKisAnalyzed(resPath,jar[:-4])
+                analyzed = isJarisAnalyzed(resPath,jar[:-4])
                 if(reRun or not os.path.exists(resFile) or not analyzed ): 
-                    command = "java -jar "+jarFile+"  -path "+ jarPath +" -name "+jar+" -androidJar "+ sdk +"/platforms  "+ extraArgs +" -crashInput Files/crashInfo.json  -exceptionInput Files/   -client JarCrashAnalysisClient" +" -outputDir "+outputDir+" >> "+logDir+"/"+jar[:-4]+".txt"
+                    command = "java -jar "+jarFile+"  -path "+ jarPath +" -name "+jar+" -androidJar "+ sdk +" "+ extraArgs +" -crashInput Files"+ os.sep +"crashInfo.json  -exceptionInput Files/  -client JarCrashAnalysisClient" +" -outputDir "+outputDir #+ " >> "+logDir+"/"+jar[:-4]+".txt"
                     print(command + "@@@"+ str(analyzed))
                     future1 = pool.submit(executeCmd, command)
         pool.shutdown()
@@ -67,16 +67,18 @@ def readFilterFile(filterFile):
         filterList.append(line.strip()+".jar")
     
 if __name__ == '__main__' :
-    sdk = "lib/"   
-    sdk = "../../other/android-sdk-linux/"
+    sdk = "platforms"   
+    #sdk = "../../other/android-sdk-linux/platforms"
+    #sdk = "E:/AndroidSDK/android-sdk-windows-new/platforms"
+
     jarFile = "CrashTracker.jar"
     
     jarPath = sys.argv[1]
     resPath = sys.argv[2]
     frameworkVersion = sys.argv[3]
     strategy = sys.argv[4] 
-    #os.system("git submodule update --init soot-dev")
-    #os.system("mvn -f pom.xml clean package -DskipTests")
+    os.system("git submodule update --init soot-dev")
+    os.system("mvn -f pom.xml clean package -DskipTests")
     if os.path.exists("target/CrashTracker.jar"):
         print("Successfully build! generate jar-with-dependencies in folder target/")
         shutil.copy("target/CrashTracker.jar", jarFile)

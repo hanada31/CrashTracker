@@ -33,8 +33,8 @@ public class Main {
 		
 		/** start**/
 		startAnalyze();
-		
-		log.info("Finish...\n");
+
+
 		System.exit(0);
 	}
 
@@ -69,6 +69,7 @@ public class Main {
 		log.info("---------------------------------------");
 		log.info("Analyzing " + MyConfig.getInstance().getAppName() + " Finish...\n");
 		log.info(MyConfig.getInstance().getClient() + " time = " + (endTime - startTime) / 1000 + " seconds");
+		log.info("Success! Please see files in the result folder "+ MyConfig.getInstance().getResultFolder());
 	}
 
 	/**
@@ -142,8 +143,8 @@ public class Main {
 		/** output **/
 		options.addOption("outputDir", true, "-outputDir: Set the output folder of the apk.");
 		options.addOption("sootOutput", false, "-sootOutput: Output the sootOutput");
-		options.addOption("crashInput", false, "-crashInput: crashInfo.json file path");
-		options.addOption("exceptionInput", false, "-exceptionInput: exception file folder");
+		options.addOption("crashInput", true, "-crashInput: crashInfo.json file path");
+		options.addOption("exceptionInput", true, "-exceptionInput: exception file folder");
 //		options.addOption("callgraphAlgorithm", false, "-callgraphAlgorithm: callgraphAlgorithm");
 
 		return options;
@@ -198,6 +199,9 @@ public class Main {
 		if(resFolder.contains(File.separator)){
 			resFolder = resFolder.substring(0,resFolder.lastIndexOf(File.separator));
 			MyConfig.getInstance().setResultWarpperFolder(resFolder+ File.separator);
+		}else if(resFolder.contains("//")){
+			resFolder = resFolder.substring(0,resFolder.lastIndexOf("//"));
+			MyConfig.getInstance().setResultWarpperFolder(resFolder+ "//");
 		}
 		
 		if (!mCmd.hasOption("name")) {

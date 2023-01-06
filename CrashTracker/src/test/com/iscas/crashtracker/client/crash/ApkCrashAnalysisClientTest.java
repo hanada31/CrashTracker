@@ -20,7 +20,6 @@ public class ApkCrashAnalysisClientTest {
     public void testConfig() {
         setArgs();
         Main.startAnalyze();
-        log.info("ApkCrashAnalysisClientTest Finish...\n");
         System.exit(0);
 
     }
@@ -29,21 +28,10 @@ public class ApkCrashAnalysisClientTest {
         String path;
         path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
 //        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
-//        path = "..\\apk\\";
+        path = "..\\app\\";
 
         String name;
-        name = "cgeo.geocaching-600.apk";
-        name = "org.wordpress.android-1590.apk";
-        name = "org.kontalk-773.apk";
-        name = "cgeo.geocaching-1503.apk";
-        name = "com.Android56-123.apk";
-        name = "cgeo.geocaching-3570.apk";
-        name = "com.nextgis.mobile-315.apk";
-        name = "com.travelzoo.android-90.apk";
-
-//        name = "com.influenster-223.apk";
-//        name = "nz.co.stuff.android.news-2.apk";
-        name = "com.source.coach-282.apk";
+        name = "cgeo.geocaching-4450.apk";
 
         String client = "ApkCrashAnalysisClient";
 
