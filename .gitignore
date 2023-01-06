@@ -41,9 +41,7 @@ replay_pid*
 /CrashTracker/target/
 Files/
 !Files/crashInfo.json
+!Files/android*.zip
 /result/
 /results/
-/apk/
-!/apk/cgeo.geocaching-4450.apk
-!/apk/facebook-android-sdk-905.jar
 dependency-reduced-pom.xml
