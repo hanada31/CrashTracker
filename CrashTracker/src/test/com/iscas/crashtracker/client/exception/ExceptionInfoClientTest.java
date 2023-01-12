@@ -29,7 +29,7 @@ public class ExceptionInfoClientTest {
         String path, androidVersion;
         path = "C:\\Users\\yanjw\\programs\\framework\\classes\\";
         path = "D:\\SoftwareData\\dataset\\android-framework\\classes\\";
-        MyConfig.getInstance().setAndroidOSVersion("5.0");
+        MyConfig.getInstance().setAndroidOSVersion("2.3");
 //        MyConfig.getInstance().setAndroidOSVersion("");
 
         String client = "ExceptionInfoClient";
@@ -44,7 +44,7 @@ public class ExceptionInfoClientTest {
         MyConfig.getInstance().setAndroidJar("E:\\AndroidSDK\\android-sdk-windows-new\\platforms");
         MyConfig.getInstance().setSrc_prec(Options.src_prec_only_class);
         MyConfig.getInstance().setFileSuffixLength(0);
-        String androidFolder = "..\\Files"+File.separator+androidVersion+File.separator;
+        String androidFolder = MyConfig.getInstance().getResultFolder() +File.separator+androidVersion+File.separator;
         MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);
         MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
         MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"cg.txt");
