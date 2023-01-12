@@ -13,7 +13,7 @@ if __name__ == '__main__' :
     #sdk = "E:/AndroidSDK/android-sdk-windows-new/platforms"
     jarFile = "CrashTracker.jar"
    
-    os.system("mvn -f pom.xml package")
+    os.system("mvn -f pom.xml package  -DskipTests")
     if os.path.exists("target/CrashTracker.jar"):
         print("Successfully build! generate jar-with-dependencies in folder target/")
         shutil.copy("target/CrashTracker.jar", jarFile)
@@ -21,12 +21,13 @@ if __name__ == '__main__' :
     else:
         print("Fail to build! Please run \"mvn -f pom.xml package\" to see the detail info.")
     
-    #download from  https://github.com/hanada31/AndroidFrameworkImpl and unzip files
-    #path = "framework/classes/";
-    path = "D:\\SoftwareData\\dataset\\android-framework\\classes\\";
+    #do not use the android.jar file in the Android SDK, as they have empty implementation. Instead, extract android.jar files from your android phone or an emulator with the target version.
+    #Also, you can download from  https://github.com/hanada31/AndroidFrameworkImpl and unzip files
+    #path = "framework/classes/"; "D:\\SoftwareData\\dataset\\android-framework\\classes\\";
+    path = sys.argv[1]
 
-    name = "android"+sys.argv[1];
+    name = "android"+sys.argv[2];
     
-    command = "java -jar "+jarFile+"  -path "+ path +" -name "+name+" -androidJar "+ sdk +" -exceptionInput Files/  -client ExceptionInfoClient " +" -outputDir Files/ "  +" -frameworkVersion " + sys.argv[1] +" >> Files/logs/android-" +sys.argv[1]+".txt"
+    command = "java -jar "+jarFile+"  -path "+ path +" -name "+name+" -androidJar "+ sdk +" -exceptionInput Files/  -client ExceptionInfoClient " +" -outputDir " +sys.argv[3] +" -frameworkVersion " + sys.argv[1] 
     executeCmd(command)
                     

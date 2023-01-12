@@ -62,9 +62,29 @@ e.g., python .\scripts\runCrashTracker-Jar.py  app results "no" "no"
 - [strategy name]:  "NoCallFilter", "NoSourceType", "ExtendCGOnly",  "NoKeyAPI", "NoParaChain, "NoAppDataTrace", "NOParaChainANDDataTrace"or "no". Pick "no" to use the best/default strategy.
 ```
 
+**(Optional)**
+
+If you want to localize other versions of Android framework using CrashTracker.jar.
+
+Extracting exception-thrown summary (ETS) for that framework is required before the localization!
+
+```
+# Use the following commands to analyze your framework files.
+python scripts\runCrashTracker-framework.py [framework code location] [version] [outputDir]  
+
+For example, if the sturcture of your files is as follows:
+- CrashTrackerTool
+    |-- framework
+     |-- android5.0
+        |-- a list of .class files extracted from android.jar files (do not use the android.jar file in the Android SDK, as they 			have empty implementation. Instead, extract android.jar files from your android phone or an emulator with the target 			version. Also, you can download from  https://github.com/hanada31/AndroidFrameworkImpl and unzip files)
+
+run: 
+    python scripts\runCrashTracker-framework.py  framework 2.3 ETSResults
+```
 
 
-## Usage of CrashTracker.jar file
+
+## CrashTracker.jar -h arguments
 
 ```
 java -jar CrashTracker.jar -h
