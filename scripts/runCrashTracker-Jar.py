@@ -9,6 +9,8 @@ reRun = True
 filterList = list()
 
 def isJarisAnalyzed(resPath, name):
+    if(not os.path.exists(resPath+os.sep+"BuggyCandidatesRanking.txt")): 
+        return False
     file_object1 = open(resPath+os.sep+"BuggyCandidatesRanking.txt",'r')
     try:
         while True:
@@ -50,7 +52,7 @@ def analyzeJar(jarPath, resPath, sdk, frameworkVersion, strategy):
                 resFile = outputDir + os.sep + jar[:-4] + os.sep +jar[:-4] + ".json"
                 analyzed = isJarisAnalyzed(resPath,jar[:-4])
                 if(reRun or not os.path.exists(resFile) or not analyzed ): 
-                    command = "java -jar "+jarFile+"  -path "+ jarPath +" -name "+jar+" -androidJar "+ sdk +" "+ extraArgs +" -crashInput Files"+ os.sep +"crashInfo.json  -exceptionInput Files/  -client JarCrashAnalysisClient" +" -outputDir "+outputDir #+ " >> "+logDir+"/"+jar[:-4]+".txt"
+                    command = "java -jar "+jarFile+"  -path "+ jarPath +" -name "+jar+" -androidJar "+ sdk +" "+ extraArgs +" -crashInput Files/"+ os.sep +"crashInfo.json  -exceptionInput Files/  -client JarCrashAnalysisClient" +" -outputDir "+outputDir #+ " >> "+logDir+"/"+jar[:-4]+".txt"
                     print(command + "@@@"+ str(analyzed))
                     future1 = pool.submit(executeCmd, command)
         pool.shutdown()
@@ -77,8 +79,8 @@ if __name__ == '__main__' :
     resPath = sys.argv[2]
     frameworkVersion = sys.argv[3]
     strategy = sys.argv[4] 
-    os.system("git submodule update --init soot-dev")
-    os.system("mvn -f pom.xml clean package -DskipTests")
+    #os.system("git submodule update --init soot-dev")
+    #os.system("mvn -f pom.xml clean package -DskipTests")
     if os.path.exists("target/CrashTracker.jar"):
         print("Successfully build! generate jar-with-dependencies in folder target/")
         shutil.copy("target/CrashTracker.jar", jarFile)

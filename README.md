@@ -36,10 +36,10 @@ unzip android*.zip files in Files\ folder first.
 
 # Run the tool
 ## for apk files
-java -jar CrashTracker.jar  -path app\ -name cgeo.geocaching-4450.apk -androidJar platforms  -crashInput ..\Files\crashInfo.json  -exceptionInput ..\Files\ -client ApkCrashAnalysisClient -time 30  -outputDir results\output
+java -jar CrashTracker.jar  -path M_application\ -name cgeo.geocaching-4450.apk -androidJar platforms  -crashInput Files\crashInfo.json  -exceptionInput Files\ -client ApkCrashAnalysisClient -time 30  -outputDir results\output
 
 ## for java libraries based on android framework files
-java -jar CrashTracker.jar  -path app\ -name facebook-android-sdk-905.jar -androidJar platforms  -crashInput ..\Files\crashInfo.json  -exceptionInput ..\Files\ -client JarCrashAnalysisClient -time 30  -outputDir results\output
+java -jar CrashTracker.jar  -path M_application\ -name facebook-android-sdk-905.jar -androidJar platforms  -crashInput Files\crashInfo.json  -exceptionInput Files\ -client JarCrashAnalysisClient -time 30  -outputDir results\output
 
 you can config the -path, -name, -androidJar and -outputDir.
 ```

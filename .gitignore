@@ -1,5 +1,5 @@
 # Compiled class file
-
+*.class
 !M_framework/*.class
 
 # Log file
@@ -12,6 +12,7 @@
 .mtj.tmp/
 
 # Package Files #
+*.jar
 *.war
 *.nar
 *.ear
@@ -39,10 +40,11 @@ replay_pid*
 # custom
 .settings/
 /CrashTracker/target/
+target
 Files/
 !Files/crashInfo.json
 !Files/*.zip
-
+ETSResults/
 /result/
 /results/
 dependency-reduced-pom.xml

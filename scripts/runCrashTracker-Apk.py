@@ -10,6 +10,8 @@ reRun = True
 filterList = list()
 
 def isAPKisAnalyzed(resPath, name):
+    if(not os.path.exists(resPath+os.sep+"BuggyCandidatesRanking.txt")): 
+        return False
     file_object1 = open(resPath+os.sep+"BuggyCandidatesRanking.txt",'r')
     try:
         while True:
@@ -50,7 +52,7 @@ def analyzeApk(apkPath, resPath, sdk, frameworkVersion, strategy):
             if apk[-4:] ==".apk":
                 resFile = outputDir + os.sep + apk[:-4] + os.sep +apk[:-4] + ".json"
                 if(reRun or not os.path.exists(resFile) or not isAPKisAnalyzed(resPath,apk[:-4])): 
-                    command = "java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +" "+ extraArgs +" -crashInput Files"+ os.sep +"crashInfo.json  -exceptionInput Files  -client ApkCrashAnalysisClient" +" -outputDir "+outputDir #+ " >> "+logDir+"/"+apk[:-4]+".txt"
+                    command = "java -jar "+jarFile+"  -path "+ apkPath +" -name "+apk+" -androidJar "+ sdk +" "+ extraArgs +" -crashInput Files/"+ os.sep +"crashInfo.json  -exceptionInput Files\  -client ApkCrashAnalysisClient" +" -outputDir "+outputDir #+ " >> "+logDir+"/"+jar[:-4]+".txt"
                     future1 = pool.submit(executeCmd, command)
         pool.shutdown()
 
@@ -76,8 +78,8 @@ if __name__ == '__main__' :
     resPath = sys.argv[2]
     frameworkVersion = sys.argv[3]
     strategy = sys.argv[4] 
-    os.system("git submodule update --init soot-dev")
-    os.system("mvn -f pom.xml clean package -DskipTests")
+    #os.system("git submodule update --init soot-dev")
+    #os.system("mvn -f pom.xml clean package -DskipTests")
     if os.path.exists("target/CrashTracker.jar"):
         print("Successfully build! generate jar-with-dependencies in folder target/")
         shutil.copy("target/CrashTracker.jar", jarFile)
