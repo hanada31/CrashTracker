@@ -16,9 +16,7 @@
 
 The default usage is to perform **Android** framework-specific  fault localization using CrashTracker.jar. 
 
-You have two choices:
-
-   **Choice 1:** build and run *CrashTracker* to analyze single apk class Folder: 
+First，
 
 ```
 # Initialize soot-dev submodule
@@ -41,7 +39,13 @@ unzip Files/android9.0.zip -d Files/android9.0/
 unzip Files/android10.0.zip -d Files/android10.0/
 unzip Files/android11.0.zip -d Files/android11.0/
 unzip Files/android12.0.zip -d Files/android12.0/
+```
 
+Then, You have two choices:
+
+   **Choice 1:** build and run *CrashTracker* to analyze single apk class Folder: 
+
+```
 # Run the tool
 ## for apk files (When using Windows, the separator should be changed from / to \)
 java -jar CrashTracker.jar  -path M_application -name cgeo.geocaching-4450.apk -androidJar platforms  -crashInput Files/crashInfo.json  -exceptionInput Files -client ApkCrashAnalysisClient -time 30  -outputDir results/output
@@ -55,9 +59,7 @@ you can config the -path, -name, -androidJar and -outputDir.
    **Choice 2:**  analyze apks under given folder with Python script:
 
 ```
-First, modify the sdk folder in the scripts.
-
-Then, run the .py file.
+Run the .py file.
 
 # for apk files
 python scripts/runCrashTracker-Apk.py  [apkPath] [resultPath] [target framework version] [strategy name]
