@@ -10,6 +10,10 @@
 
 3. maven 3.6
    
+4. Linux OS  (by default)
+
+5. When using Windows, the separator should be changed from / to  \\. 
+
    
 
 ## Steps to run *CrashTracker* 
@@ -30,16 +34,26 @@ git submodule update --init soot-dev
 mvn -f pom.xml clean package -DskipTests
 
 # Copy jar to root directory
-cp target\CrashTracker.jar CrashTracker.jar
+cp target/CrashTracker.jar CrashTracker.jar
 
-unzip android*.zip files in Files\ folder first.
+unzip android*.zip files in Files/ folder first.
+unzip Files/android2.3.zip -d Files/android2.3/
+unzip Files/android4.4.zip -d Files/android4.4/
+unzip Files/android5.0.zip -d Files/android5.0/
+unzip Files/android6.0.zip -d Files/android6.0/
+unzip Files/android7.0.zip -d Files/android7.0/
+unzip Files/android8.0.zip -d Files/android8.0/
+unzip Files/android9.0.zip -d Files/android9.0/
+unzip Files/android10.0.zip -d Files/android10.0/
+unzip Files/android11.0.zip -d Files/android11.0/
+unzip Files/android12.0.zip -d Files/android12.0/
 
 # Run the tool
 ## for apk files
-java -jar CrashTracker.jar  -path M_application\ -name cgeo.geocaching-4450.apk -androidJar platforms  -crashInput Files\crashInfo.json  -exceptionInput Files\ -client ApkCrashAnalysisClient -time 30  -outputDir results\output
+java -jar CrashTracker.jar  -path M_application -name cgeo.geocaching-4450.apk -androidJar platforms  -crashInput Files/crashInfo.json  -exceptionInput Files -client ApkCrashAnalysisClient -time 30  -outputDir results/output
 
 ## for java libraries based on android framework files
-java -jar CrashTracker.jar  -path M_application\ -name facebook-android-sdk-905.jar -androidJar platforms  -crashInput Files\crashInfo.json  -exceptionInput Files\ -client JarCrashAnalysisClient -time 30  -outputDir results\output
+java -jar CrashTracker.jar  -path M_application -name facebook-android-sdk-905.jar -androidJar platforms  -crashInput Files/crashInfo.json  -exceptionInput Files -client JarCrashAnalysisClient -time 30  -outputDir results/output
 
 you can config the -path, -name, -androidJar and -outputDir.
 ```
@@ -53,11 +67,11 @@ Then, run the .py file.
 
 # for apk files
 python scripts/runCrashTracker-Apk.py  [apkPath] [resultPath] [target framework version] [strategy name]
-e.g., python .\scripts\runCrashTracker-Apk.py  M_application results "no" "no"
+e.g., python ./scripts/runCrashTracker-Apk.py  M_application results "no" "no"
 
 # for java libraries based on android framework files
-python scripts\runCrashTracker-Jar.py  [apkPath] [resultPath] [target framework version] [strategy name]
-e.g., python .\scripts\runCrashTracker-Jar.py  M_application results "no" "no"
+python scripts/runCrashTracker-Jar.py  [apkPath] [resultPath] [target framework version] [strategy name]
+e.g., python ./scripts/runCrashTracker-Jar.py  M_application results "no" "no"
 
 - [target framework version]: E.g., "2.3", "4.4", "6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0" or "no". Pick "no" if the crash triggering framework version is unknown.
 
@@ -72,7 +86,7 @@ Extracting exception-thrown summary (ETS) for that framework is required before 
 
 ```
 # Use the following commands to analyze your framework files.
-python scripts\runCrashTracker-framework.py [framework code location] [version] [outputDir]  
+python scripts/runCrashTracker-framework.py [framework code location] [version] [outputDir]  
 
 For example, if the sturcture of your files is as follows:
 - CrashTrackerTool
@@ -81,7 +95,7 @@ For example, if the sturcture of your files is as follows:
         |-- a list of .class files extracted from android.jar files (do not use the android.jar file in the Android SDK, as they 			have empty implementation. Instead, extract android.jar files from your android phone or an emulator with the target 			version. Also, you can download from  https://github.com/hanada31/AndroidFrameworkImpl and unzip files)
 
 run: 
-    python scripts\runCrashTracker-framework.py  M_framework 2.3 ETSResults
+    python scripts/runCrashTracker-framework.py  M_framework 2.3 ETSResults
 ```
 
 
@@ -116,7 +130,7 @@ usage: java -jar CrashTracker.jar [options] [-path] [-name] [-androidJar] [-outp
 
 ## Examples for CrashTracker‘s report 
 
-In folder results\output
+In folder results/output
 
 - *Six types of reasons provided by CrashTracker.*
 
