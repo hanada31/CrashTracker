@@ -5,16 +5,10 @@
 ## Install Requirements：
 
 1. Python 3+ 
-
 2. Java 1.8+
-
 3. maven 3.6
-   
 4. Linux OS  (by default)
-
-5. When using Windows, the separator should be changed from / to  \\. 
-
-   
+5. When using Windows, the separator should be changed from / to  \\ for part of commands. 
 
 ## Steps to run *CrashTracker* 
 
@@ -49,10 +43,10 @@ unzip Files/android11.0.zip -d Files/android11.0/
 unzip Files/android12.0.zip -d Files/android12.0/
 
 # Run the tool
-## for apk files
+## for apk files (When using Windows, the separator should be changed from / to \)
 java -jar CrashTracker.jar  -path M_application -name cgeo.geocaching-4450.apk -androidJar platforms  -crashInput Files/crashInfo.json  -exceptionInput Files -client ApkCrashAnalysisClient -time 30  -outputDir results/output
 
-## for java libraries based on android framework files
+## for java libraries based on android framework files (When using Windows, the separator should be changed from / to \)
 java -jar CrashTracker.jar  -path M_application -name facebook-android-sdk-905.jar -androidJar platforms  -crashInput Files/crashInfo.json  -exceptionInput Files -client JarCrashAnalysisClient -time 30  -outputDir results/output
 
 you can config the -path, -name, -androidJar and -outputDir.

@@ -14,9 +14,9 @@ if __name__ == '__main__' :
     jarFile = "CrashTracker.jar"
    
     #os.system("mvn -f pom.xml package  -DskipTests")
-    if os.path.exists("target/CrashTracker.jar"):
+    if os.path.exists("target"+ os.sep +"CrashTracker.jar"):
         print("Successfully build! generate jar-with-dependencies in folder target/")
-        shutil.copy("target/CrashTracker.jar", jarFile)
+        shutil.copy("target"+ os.sep +"CrashTracker.jar", jarFile)
         print("copy jar to the root directory.")
     else:
         print("Fail to build! Please run \"mvn -f pom.xml package\" to see the detail info.")
