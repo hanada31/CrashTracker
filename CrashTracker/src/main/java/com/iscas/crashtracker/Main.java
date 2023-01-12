@@ -176,10 +176,12 @@ public class Main {
 		MyConfig.getInstance().setCrashInfoFilePath(mCmd.getOptionValue("crashInput","Files"+File.separator+"crashInfo.json"));
 		MyConfig.getInstance().setExceptionFolderPath(mCmd.getOptionValue("exceptionInput","Files"));
 
+		MyConfig.getInstance().setResultFolder(mCmd.getOptionValue("outputDir", "outputDir") + File.separator);
+
 		if(mCmd.getOptionValue("frameworkVersion")!=null) {
 			MyConfig.getInstance().setAndroidOSVersion(mCmd.getOptionValue("frameworkVersion"));
 			String androidFolder = "";
-			if(MyConfig.getInstance().getClient().equals("ExceptionInfoClient")){
+			if(mCmd.getOptionValue("client").equals("ExceptionInfoClient")){
 				androidFolder = MyConfig.getInstance().getResultFolder() + File.separator + "android" + mCmd.getOptionValue("frameworkVersion") + File.separator;
 				MyConfig.getInstance().setPermissionFilePath(androidFolder + "Permission" + File.separator + "permission.txt");
 				MyConfig.getInstance().setExceptionFilePath(androidFolder + "exceptionInfo" + File.separator);
@@ -202,7 +204,6 @@ public class Main {
 		String client = mCmd.getOptionValue("client", "MainClient");
 		MyConfig.getInstance().setClient(mCmd.getOptionValue("client", client));
 
-		MyConfig.getInstance().setResultFolder(mCmd.getOptionValue("outputDir", "outputDir") + File.separator);
 		String resFolder = mCmd.getOptionValue("outputDir", "results"+File.separator+"outputDir");
 		if(resFolder.contains(File.separator)){
 			resFolder = resFolder.substring(0,resFolder.lastIndexOf(File.separator));

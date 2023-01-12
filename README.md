@@ -16,7 +16,11 @@
 
 *Note: Only **English** characters are allowed in the path.*
 
-**Choice 1:** build and run *CrashTracker* to analyze single apk class Folder: 
+The default usage is to perform **Android** framework-specific  fault localization using CrashTracker.jar. 
+
+You have two choices:
+
+   **Choice 1:** build and run *CrashTracker* to analyze single apk class Folder: 
 
 ```
 # Initialize soot-dev submodule
@@ -40,9 +44,7 @@ java -jar CrashTracker.jar  -path app\ -name facebook-android-sdk-905.jar -andro
 you can config the -path, -name, -androidJar and -outputDir.
 ```
 
-
-
-**Choice 2:**  analyze apks under given folder with Python script:
+   **Choice 2:**  analyze apks under given folder with Python script:
 
 ```
 First, modify the sdk folder in the scripts.
@@ -51,11 +53,11 @@ Then, run the .py file.
 
 # for apk files
 python scripts/runCrashTracker-Apk.py  [apkPath] [resultPath] [target framework version] [strategy name]
-e.g., python .\scripts\runCrashTracker-Apk.py  app results "no" "no"
+e.g., python .\scripts\runCrashTracker-Apk.py  M_application results "no" "no"
 
 # for java libraries based on android framework files
 python scripts\runCrashTracker-Jar.py  [apkPath] [resultPath] [target framework version] [strategy name]
-e.g., python .\scripts\runCrashTracker-Jar.py  app results "no" "no"
+e.g., python .\scripts\runCrashTracker-Jar.py  M_application results "no" "no"
 
 - [target framework version]: E.g., "2.3", "4.4", "6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0" or "no". Pick "no" if the crash triggering framework version is unknown.
 
@@ -79,7 +81,7 @@ For example, if the sturcture of your files is as follows:
         |-- a list of .class files extracted from android.jar files (do not use the android.jar file in the Android SDK, as they 			have empty implementation. Instead, extract android.jar files from your android phone or an emulator with the target 			version. Also, you can download from  https://github.com/hanada31/AndroidFrameworkImpl and unzip files)
 
 run: 
-    python scripts\runCrashTracker-framework.py  framework 2.3 ETSResults
+    python scripts\runCrashTracker-framework.py  M_framework 2.3 ETSResults
 ```
 
 

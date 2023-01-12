@@ -25,9 +25,11 @@ if __name__ == '__main__' :
     #Also, you can download from  https://github.com/hanada31/AndroidFrameworkImpl and unzip files
     #path = "framework/classes/"; "D:\\SoftwareData\\dataset\\android-framework\\classes\\";
     path = sys.argv[1]
-
-    name = "android"+sys.argv[2];
+    version = sys.argv[2]
+    output = sys.argv[3]
+    name = "android"+version;
     
-    command = "java -jar "+jarFile+"  -path "+ path +" -name "+name+" -androidJar "+ sdk +" -exceptionInput Files/  -client ExceptionInfoClient " +" -outputDir " +sys.argv[3] +" -frameworkVersion " + sys.argv[1] 
+    command = "java -jar "+jarFile+"  -path "+ path +" -name "+name+" -androidJar "+ sdk +" -client ExceptionInfoClient " +" -outputDir " +output +" -frameworkVersion " + version 
+    print (command)
     executeCmd(command)
                     

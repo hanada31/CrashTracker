@@ -4,6 +4,12 @@ import com.iscas.crashtracker.base.Global;
 import com.iscas.crashtracker.client.BaseClient;
 import lombok.extern.slf4j.Slf4j;
 import soot.jimple.toolkits.callgraph.CallGraph;
+import com.iscas.crashtracker.base.MyConfig;
+import com.iscas.crashtracker.client.cg.CgClientOutput;
+import com.iscas.crashtracker.utils.ConstantUtils;
+import com.iscas.crashtracker.utils.FileUtils;
+
+import java.io.File;
 
 /**
  * Analyzer Class
@@ -27,11 +33,11 @@ public class CallGraphofJavaClient extends BaseClient {
 	@Override
 	public void clientOutput() {
 		/** call graph, if needed, open output**/
-//		String summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
-//				+ File.separator;
-//		FileUtils.createFolder(summary_app_dir + ConstantUtils.CGFOLDETR);
-//		CgClientOutput.writeCG(summary_app_dir + ConstantUtils.CGFOLDETR,
-//				Global.v().getAppModel().getAppName()+"_cg.txt", Global.v().getAppModel().getCg());
+		String summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
+				+ File.separator;
+		FileUtils.createFolder(summary_app_dir + ConstantUtils.CGFOLDETR);
+		CgClientOutput.writeCG(summary_app_dir + ConstantUtils.CGFOLDETR,
+				Global.v().getAppModel().getAppName()+"_cg.txt", Global.v().getAppModel().getCg());
 
 	}
 
