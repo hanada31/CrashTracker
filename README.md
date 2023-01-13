@@ -19,7 +19,7 @@
 
 For ICSE 2023 paper：
 
-> **Locating Framework-specific Crashing Faults with Compact and Explainable Candidate Set**
+> **Locating Framework-specific Crashing Faults with Compact and Explainable Candidate Set.**  [pdf](paper.pdf)
 
 **Abstract:**
 
