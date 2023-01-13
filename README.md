@@ -45,11 +45,11 @@ For more evaluation data in the paper, please refer to project [**CrashTracker-A
 
 ## Install Requirements
 
-1. Python 3+ 
-2. Java 1.8+
+1. Python 3.8
+2. Java 1.8
 3. maven 3.6
 4. Linux OS  (by default)
-5. When using Windows, the separator should be changed from / to  \\ for part of commands. 
+5. When using Windows, the separator should be changed from / to  \\ for part of commands.  Also, please use the Windows PowerShell to execute commands.
 
 ## Steps to run *CrashTracker* 
 
@@ -69,7 +69,7 @@ mvn -f pom.xml clean package -DskipTests
 # Copy jar to root directory
 cp target/CrashTracker.jar CrashTracker.jar
 
-unzip android*.zip files in Files/ folder first.
+# unzip all the android*.zip files in Files/ folder first. 
 unzip Files/android2.3.zip -d Files/android2.3/
 unzip Files/android4.4.zip -d Files/android4.4/
 unzip Files/android5.0.zip -d Files/android5.0/
@@ -80,6 +80,8 @@ unzip Files/android9.0.zip -d Files/android9.0/
 unzip Files/android10.0.zip -d Files/android10.0/
 unzip Files/android11.0.zip -d Files/android11.0/
 unzip Files/android12.0.zip -d Files/android12.0/
+
+# If unzip failed on windows, use other commands or unzip them manually.
 ```
 
 Then, You have two choices:
@@ -100,15 +102,15 @@ you can config the -path, -name, -androidJar and -outputDir.
    **Choice 2:**  analyze apks under given folder with Python script:
 
 ```
-Run the .py file.
+Run the .py file. (use python or python3 according to your configration)
 
 # for apk files
 python scripts/runCrashTracker-Apk.py  [apkPath] [resultPath] [target framework version] [strategy name]
-e.g., python ./scripts/runCrashTracker-Apk.py  M_application results "no" "no"
+e.g., python scripts/runCrashTracker-Apk.py  M_application results "no" "no"
 
 # for java libraries based on android framework files
 python scripts/runCrashTracker-Jar.py  [apkPath] [resultPath] [target framework version] [strategy name]
-e.g., python ./scripts/runCrashTracker-Jar.py  M_application results "no" "no"
+e.g., python scripts/runCrashTracker-Jar.py  M_application results "no" "no"
 
 - [target framework version]: E.g., "2.3", "4.4", "6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0" or "no". Pick "no" if the crash triggering framework version is unknown.
 
