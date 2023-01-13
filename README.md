@@ -1,8 +1,51 @@
-# [CrashTracker](https://github.com/hanada31/CrashTracker)
+# CrashTracker: Locating Framework-specific Crashing Faults with Compact and Explainable Candidate Set
 
-[TOC]
+- [CrashTracker: Locating Framework-specific Crashing Faults with Compact and Explainable Candidate Set](#crashtracker-locating-framework-specific-crashing-faults-with-compact-and-explainable-candidate-set)
+- [Paper Information](#paper-information)
+  - [Name \& Abstract](#name--abstract)
+  - [Artifact Project](#artifact-project)
+- [CrashTracker Tool](#crashtracker-tool)
+  - [Tool Overview](#tool-overview)
+  - [Install Requirements](#install-requirements)
+  - [Steps to run *CrashTracker*](#steps-to-run-crashtracker)
+  - [CrashTracker.jar -h Arguments](#crashtrackerjar--h-arguments)
+  - [Examples for CrashTracker's Report](#examples-for-crashtrackers-report)
+  - [Examples for Exception-Thrown Summary (ETS)](#examples-for-exception-thrown-summary-ets)
 
-## Install Requirements：
+
+# Paper Information
+
+## Name & Abstract 
+
+Tool for ICSE 2023 paper：
+
+> **Locating Framework-specific Crashing Faults with Compact and Explainable Candidate Set**
+
+Abstract:
+```
+ Nowadays, many applications do not exist independently but rely on various frameworks or libraries. The frequent evolution and the complex implementation of APIs induce lots of unexpected post-release crashes. Starting from the crash stack traces, existing approaches either perform application-level call graph (CG) tracing or construct datasets with similar crash-fixing records to locate buggy methods. However, these approaches are limited by the completeness of CG or dependent on historical fixing records, and some of them only focus on specific manually modeled exception types. 
+ 
+ To achieve effective debugging on complex framework-specific crashes, we propose a code-separation-based locating approach that weakly relies on CG tracing and does not require any prior knowledge. Our key insight is that one crash trace with the description message can be mapped to a definite exception-thrown point in the framework, the semantics analysis of which can help to figure out the root causes of the crash-triggering procedure. Thus, we can pre-construct reusable summaries for all the framework-specific exceptions to support fault localization in application code. Based on that idea, we design the exception-thrown summary (ETS) that describes both the key variables and key APIs related to the exception triggering.  Then, we perform static analysis to automatically compute such summaries and make a data-tracking of key variables and APIs in the application code to get the ranked buggy candidates. In the scenario of locating Android framework-specific crashing faults, our tool CrashTracker exhibited an overall MRR value of 0.91 and outperforms the state-of-the-art tool Anchor with higher precision. It only provides a compact candidate set and gives user-friendly reports with explainable reasons for each candidate.
+```
+
+Keywords: 
+
+```
+Fault localization, Framework-specific Exception, Crash Stack Trace, Android Application
+```
+
+
+## Artifact Project
+For more evaluation data in the paper, please refer to project [**CrashTracker-ArtifactForICSE** ](https://github.com/hanada31/CrashTracker-ArtifactForICSE).
+
+# CrashTracker Tool 
+
+## Tool Overview
+<p align="left">
+<img src="Figures/LoFDroid-overview.png" width="70%">
+</p>
+
+## Install Requirements
 
 1. Python 3+ 
 2. Java 1.8+
@@ -96,7 +139,7 @@ run:
 
 
 
-## CrashTracker.jar -h arguments
+## CrashTracker.jar -h Arguments
 
 ```
 java -jar CrashTracker.jar -h
@@ -124,7 +167,7 @@ usage: java -jar CrashTracker.jar [options] [-path] [-name] [-androidJar] [-outp
 
 
 
-## Examples for CrashTracker‘s report 
+## Examples for CrashTracker's Report 
 
 In folder results/output
 
@@ -155,7 +198,7 @@ In folder results/output
 
 
 
-## Examples for ETS of exception 
+## Examples for Exception-Thrown Summary (ETS)
 
 In folder Files
 
