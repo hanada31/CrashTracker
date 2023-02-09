@@ -86,7 +86,7 @@ unzip Files/android12.0.zip -d Files/android12.0/
 
 Then, You have two choices:
 
-   **Choice 1:** build and run *CrashTracker* to analyze single apk class Folder: 
+ **Choice 1:** build and run *CrashTracker* to analyze single apk with java command:
 
 ```
 # Run the tool
@@ -99,7 +99,7 @@ java -jar CrashTracker.jar  -path M_application -name facebook-android-sdk-905.j
 you can config the -path, -name, -androidJar and -outputDir.
 ```
 
-   **Choice 2:**  analyze apks under given folder with Python script:
+**Choice 2:**  build and run *CrashTracker* to analyze a set of apks under given folder with Python script:
 
 ```
 Run the .py file. (use python or python3 according to your configration)
