@@ -97,8 +97,8 @@
                 </exclusion>
             </exclusions>
         </dependency>
-		
-	<!-- https://mvnrepository.com/artifact/org.soot-oss/soot -->
+
+        <!-- https://mvnrepository.com/artifact/org.soot-oss/soot -->
         <dependency>
             <groupId>org.soot-oss</groupId>
             <artifactId>soot</artifactId>
@@ -252,7 +252,7 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>7.6.1</version>
+            <version>7.7.0</version>
             <scope>test</scope>
         </dependency>
 

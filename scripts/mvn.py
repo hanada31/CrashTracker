@@ -3,7 +3,7 @@ import sys
 import shutil
 
 if __name__ == '__main__' :
-    os.system("mvn -f pom.xml clean package ")
+    os.system("mvn -f pom.xml clean package  -DskipTests")
     if os.path.exists("target/CrashTracker.jar"):
         print("Successfully build! generate jar-with-dependencies in folder target/")
         shutil.copy("target/CrashTracker.jar", "CrashTracker.jar")

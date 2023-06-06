@@ -8,8 +8,13 @@ import com.iscas.crashtracker.client.soot.SootAnalyzer;
 import com.iscas.crashtracker.utils.ConstantUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.DocumentException;
+import soot.Scene;
+import soot.SootClass;
+import soot.SootMethod;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * @Author hanada
@@ -30,6 +35,16 @@ public class ExceptionInfoClient extends BaseClient {
             SootAnalyzer sootAnalyzer = new SootAnalyzer();
             sootAnalyzer.analyze();
         }
+//        int classNum, methodNum = 0;
+//        HashSet<SootClass> applicationClasses = new HashSet<>(Scene.v().getApplicationClasses());
+//        classNum = applicationClasses.size();
+//        for (SootClass sootClass : applicationClasses) {
+//            if (!sootClass.getPackageName().startsWith(ConstantUtils.CGANALYSISPREFIX)) continue;
+//            methodNum += sootClass.getMethods().size();
+//        }
+//        System.out.println(classNum);
+//        System.out.println(methodNum);
+
         if (!MyConfig.getInstance().isCallGraphAnalyzeFinish()) {
             ConstantUtils.CGANALYSISPREFIX = ConstantUtils.FRAMEWORKPREFIX;
             new CallGraphofJavaClient().start();
