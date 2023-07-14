@@ -67,7 +67,7 @@ git submodule update --init soot-dev
 mvn -f pom.xml clean package -DskipTests
 
 # Copy jar to root directory
-cp target/CrashTracker.jar CrashTracker.jar
+cp target/CrashTracker-jar-with-dependencies.jar CrashTracker.jar
 
 # unzip all the android*.zip files in Files/ folder first. 
 unzip Files/android2.3.zip -d Files/android2.3/
