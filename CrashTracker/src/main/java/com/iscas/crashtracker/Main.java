@@ -211,6 +211,9 @@ public class Main {
 		}else if(resFolder.contains("//")){
 			resFolder = resFolder.substring(0,resFolder.lastIndexOf("//"));
 			MyConfig.getInstance().setResultWarpperFolder(resFolder+ "//");
+		}else if(resFolder.contains("/")){
+			resFolder = resFolder.substring(0,resFolder.lastIndexOf("/"));
+			MyConfig.getInstance().setResultWarpperFolder(resFolder+ "/");
 		}
 		
 		if (!mCmd.hasOption("name")) {
