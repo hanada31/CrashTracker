@@ -12,7 +12,6 @@
   - [Examples for CrashTracker's Report](#examples-for-crashtrackers-report)
   - [Examples for Exception-Thrown Summary (ETS)](#examples-for-exception-thrown-summary-ets)
 
-
 # Paper Information
 
 ## Name & Abstract 
@@ -31,10 +30,8 @@ For ICSE 2023 paper：
 
 > Fault localization, Framework-specific Exception, Crash Stack Trace, Android Application
 
-
 ## Artifact Project
 For more evaluation data in the paper, please refer to project [**CrashTracker-ArtifactForICSE** ](https://github.com/hanada31/CrashTracker-ArtifactForICSE).
-
 
 # CrashTracker Tool 
 
@@ -128,16 +125,16 @@ Extracting exception-thrown summary (ETS) for that framework is required before 
 python scripts/runCrashTracker-framework.py [framework code location] [version] [outputDir]  
 
 For example, if the sturcture of your files is as follows:
-- CrashTrackerTool
-    |-- framework
-     |-- android5.0
-        |-- a list of .class files extracted from android.jar files (do not use the android.jar file in the Android SDK, as they 			have empty implementation. Instead, extract android.jar files from your android phone or an emulator with the target 			version. Also, you can download from  https://github.com/hanada31/AndroidFrameworkImpl and unzip files)
++-- CrashTrackerTool
+|   +-- framework
+|   |   +-- android5.0
+|   |   |   +-- a list of .class files extracted from android.jar files (do not use the android.jar file in the Android SDK, as they
+                have empty implementation. Instead, extract android.jar files from your android phone or an emulator with the target
+                version. Also, you can download from  https://github.com/hanada31/AndroidFrameworkImpl and unzip files)
 
 run: 
     python scripts/runCrashTracker-framework.py  M_framework 2.3 ETSResults
 ```
-
-
 
 ## CrashTracker.jar -h Arguments
 
@@ -147,7 +144,7 @@ java -jar CrashTracker.jar -h
 usage: java -jar CrashTracker.jar [options] [-path] [-name] [-androidJar] [-outputDir] [-crashInput] [-exceptionInput] [-client]
  -h                        -h: Show the help information.
  -client <arg>             -client 
- 						   	   ExceptionInfoClient: Extract exception information from Android framework.
+                               ExceptionInfoClient: Extract exception information from Android framework.
                                CrashAnalysisClient: Analysis the crash information for an apk.
                                JarCrashAnalysisClient: Analysis the crash information for an third party SDK.
                                CallGraphClient: Output call graph files.
@@ -164,8 +161,6 @@ usage: java -jar CrashTracker.jar [options] [-path] [-name] [-androidJar] [-outp
  -outputDir <arg>          -outputDir: Set the output folder of the apk.
 
 ```
-
-
 
 ## Examples for CrashTracker's Report 
 
@@ -184,29 +179,16 @@ In folder results/output
 
   - As we can see, there is one reason for this buggy candidate. The crash is triggered when a framework API that throws an exception without any condition is invoked, and the override is required.
 
-    ![com.nextgis.mobile](Figures/com.nextgis.mobile.png)
-
-
+  ![com.travelzoo.android](Figures/com.travelzoo.android.png)
 
 - *The simplified report by CrashTracker for com.nextgis.mobile.apk.*
 
   - As we can see, there are two types of reasons, explaining how the exception is triggered in both the application level (which influences the data passed to crashAPI) and framework level (which influences the exception-triggering condition in signaler).
 
-  
-
-![com.travelzoo.android](Figures/com.travelzoo.android.png)
-
-
+  ![com.nextgis.mobile](Figures/com.nextgis.mobile.png)
 
 ## Examples for Exception-Thrown Summary (ETS)
 
 In folder Files
 
 ![ETS](Figures/ETS.png)
-
-
-
-
-
-
-
