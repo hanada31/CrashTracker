@@ -10,15 +10,15 @@
 
 
     <packaging>pom</packaging>
-    <modules>		
-		<module>soot-dev</module>
+    <modules>
         <module>CrashTracker</module>
+        <module>soot-dev</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -99,7 +99,6 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-					<appendAssemblyId>false</appendAssemblyId>
                 </configuration>
             </plugin>
         </plugins>
