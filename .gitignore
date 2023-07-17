@@ -48,3 +48,5 @@ ETSResults/
 /result/
 /results/
 dependency-reduced-pom.xml
+src/main/generated
+CrashTracker.jar
