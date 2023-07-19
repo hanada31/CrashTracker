@@ -17,17 +17,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 /**
- * @Author hanada
- * @Date 2022/3/11 15:03
- * @Version 1.0
+ * @author hanada
+ * @version 1.0
+ * @since 2022/3/11 15:03
  */
 
 @Slf4j
 public class ExceptionInfoClient extends BaseClient {
     /**
      * analyze logic for single app
-     *
-     * @return
      */
     @Override
     protected void clientAnalyze() {
@@ -35,15 +33,6 @@ public class ExceptionInfoClient extends BaseClient {
             SootAnalyzer sootAnalyzer = new SootAnalyzer();
             sootAnalyzer.analyze();
         }
-//        int classNum, methodNum = 0;
-//        HashSet<SootClass> applicationClasses = new HashSet<>(Scene.v().getApplicationClasses());
-//        classNum = applicationClasses.size();
-//        for (SootClass sootClass : applicationClasses) {
-//            if (!sootClass.getPackageName().startsWith(ConstantUtils.CGANALYSISPREFIX)) continue;
-//            methodNum += sootClass.getMethods().size();
-//        }
-//        System.out.println(classNum);
-//        System.out.println(methodNum);
 
         if (!MyConfig.getInstance().isCallGraphAnalyzeFinish()) {
             ConstantUtils.CGANALYSISPREFIX = ConstantUtils.FRAMEWORKPREFIX;
@@ -59,11 +48,5 @@ public class ExceptionInfoClient extends BaseClient {
 
     @Override
     public void clientOutput() throws IOException, DocumentException {
-//        String summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
-//                + File.separator;
-//        FileUtils.createFolder(summary_app_dir);
-//
-//        ExceptionInfoClientOutput.writeToJson(summary_app_dir+Global.v().getAppModel().getAppName()+".json", Global.v().getAppModel().getExceptionInfoList());
-//
     }
 }
