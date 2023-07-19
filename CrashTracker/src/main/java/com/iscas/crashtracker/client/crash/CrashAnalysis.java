@@ -187,14 +187,13 @@ public class CrashAnalysis extends Analyzer {
     private void addPredCallersOfMethodsInStack(String last, SootMethod sm, CrashInfo crashInfo, JSONObject reason) {
         if(!sm.hasActiveBody())return;
         for(Unit u : sm.getActiveBody().getUnits()){
-            InvokeExpr invoke = SootUtils.getSingleInvokedMethod(u);
-            if (invoke != null) { // u is invoke stmt
-                String callee = invoke.getMethod().getDeclaringClass().getName()+ "." + invoke.getMethod().getName();
-                if(callee.equals(last)){
-                    JSONObject newReason = reason.clone();
-                    newReason.getJSONArray("Trace").add(callee);
-                    addPredsOfUnit2ExtendedCG(u, sm, crashInfo,2, newReason,null);
-                }
+            InvokeExpr invoke = SootUtils.getInvokeExp(u);
+            if (invoke == null) continue;
+            String callee = invoke.getMethod().getDeclaringClass().getName()+ "." + invoke.getMethod().getName();
+            if(callee.equals(last)){
+                JSONObject newReason = reason.clone();
+                newReason.getJSONArray("Trace").add(callee);
+                addPredsOfUnit2ExtendedCG(u, sm, crashInfo,2, newReason,null);
             }
         }
     }

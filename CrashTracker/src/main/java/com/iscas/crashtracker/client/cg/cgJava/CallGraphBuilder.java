@@ -59,14 +59,11 @@ public class CallGraphBuilder {
 					Unit u = it.next();
 					InvokeExpr exp = SootUtils.getInvokeExp(u);
 					if (exp == null)  continue;
-					InvokeExpr invoke = SootUtils.getSingleInvokedMethod(u);
-					if (invoke != null) { // u is invoke stmt
-						Set<SootMethod> targetSet = SootUtils.getInvokedMethodSet(sm, u);
-						for (SootMethod target : targetSet) {
-							if(!target.getDeclaringClass().getPackageName().startsWith(ConstantUtils.CGANALYSISPREFIX)) continue;
-							Edge e = new Edge(sm, (Stmt) u, target);
-							callGraph.addEdge(e);
-						}
+					Set<SootMethod> targetSet = SootUtils.getInvokedMethodSet(sm, u);
+					for (SootMethod target : targetSet) {
+						if(!target.getDeclaringClass().getPackageName().startsWith(ConstantUtils.CGANALYSISPREFIX)) continue;
+						Edge e = new Edge(sm, (Stmt) u, target);
+						callGraph.addEdge(e);
 					}
 				}
 			}

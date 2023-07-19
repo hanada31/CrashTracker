@@ -512,41 +512,18 @@ public class SootUtils {
 	}
 
 	/**
-	 * getSingleInvokedMethod
-	 * 
-	 * @param u
-	 */
-	public static InvokeExpr getSingleInvokedMethod(Unit u) {
-		InvokeExpr invoke = null;
-		if (u instanceof JAssignStmt) {
-			JAssignStmt jas = (JAssignStmt) u;
-			if (jas.containsInvokeExpr()) {
-				invoke = jas.getInvokeExpr();
-			}
-		} else if (u instanceof JInvokeStmt) {
-			invoke = ((JInvokeStmt) u).getInvokeExpr();
-		} else if (u instanceof JStaticInvokeExpr) {
-			invoke = ((JStaticInvokeExpr) u);
-		}
-		return invoke;
-
-	}
-
-	/**
 	 * getInvokedMethod
 	 * 
 	 * @param u
 	 * @return
 	 */
 	public static Set<SootMethod> getInvokedMethodSet(SootMethod sm, Unit u) {
-		InvokeExpr invoke = getSingleInvokedMethod(u);
-		if (invoke != null) { // u is invoke stmt
-			if (Global.v().getAppModel().getUnit2TargetsMap().containsKey(u.toString() + u.hashCode())) {
-				return Global.v().getAppModel().getUnit2TargetsMap().get(u.toString() + u.hashCode());
-			}
-			return addInvokedMethods(sm, u, invoke);
+		InvokeExpr invoke = getInvokeExp(u);
+		if (invoke == null) return new HashSet<>();
+		if (Global.v().getAppModel().getUnit2TargetsMap().containsKey(u.toString() + u.hashCode())) {
+			return Global.v().getAppModel().getUnit2TargetsMap().get(u.toString() + u.hashCode());
 		}
-		return new HashSet<SootMethod>();
+		return addInvokedMethods(sm, u, invoke);
 	}
 
 	/**
