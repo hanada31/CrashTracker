@@ -960,51 +960,51 @@ public class SootUtils {
 	}
 
 	/**
-	 * get Def Of Local
-	 * 
-	 * @param u
-	 * @return
+	 * get definition of local
+	 *
+	 * @param u a unit that specifies the method context
+	 * @return a list of Units where the local is defined in the current method context.
 	 */
 	public static List<Unit> getDefOfLocal(String methodName, Value val, Unit u) {
-		List<Unit> res = new ArrayList<Unit>();
+		List<Unit> res = new ArrayList<>();
+
 		if (!(val instanceof Local))
 			return res;
+		Local local = (Local) val;
 
-		Pair<Value, Unit> pair = new Pair<Value, Unit>(val, u);
+		Pair<Value, Unit> pair = new Pair<>(val, u);
 		if (Global.v().getAppModel().getUnit2defMap().containsKey(pair))
 			return Global.v().getAppModel().getUnit2defMap().get(pair);
 
-		Local local = (Local) val;
-		SootMethod sm = null;
+		SootMethod sm;
 		try {
 			sm = SootUtils.getSootMethodBySignature(methodName);
 		} catch (Exception e) {
 			return res;
 		}
-		if (sm == null)
-			return res;
+		if (sm == null) return res;
+
 		Body b = getSootActiveBody(sm);
-		if (b == null)
-			return res;
+		if (b == null) return res;
+
 		UnitGraph graph = new BriefUnitGraph(b);
 		if (MyConfig.getInstance().isJimple()) {
 			try {
 				SimpleLocalDefs defs = new SimpleLocalDefs(graph);
 				res = defs.getDefsOfAt(local, u);
 			} catch (Exception e) {
-				res = new ArrayList<Unit>();
+				res = new ArrayList<>();
 			}
 		} else {
 			try {
 				ShimpleLocalDefs defs = new ShimpleLocalDefs((ShimpleBody) getSootActiveBody(sm));
 				res = defs.getDefsOfAt(local, u);
 			} catch (Exception e) {
-				res = new ArrayList<Unit>();
+				res = new ArrayList<>();
 			}
 		}
 		Global.v().getAppModel().getUnit2defMap().put(pair, res);
 		return res;
-
 	}
 
 	/**
