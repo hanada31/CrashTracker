@@ -18,7 +18,7 @@ import java.io.File;
  * @version 2.0
  */
 @Slf4j
-public class CallGraphofJavaClient extends BaseClient {
+public class CallGraphJavaClient extends BaseClient {
 
 	@Override
 	protected void clientAnalyze() {

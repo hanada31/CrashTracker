@@ -3,18 +3,13 @@ package com.iscas.crashtracker.client.exception;
 import com.iscas.crashtracker.base.Analyzer;
 import com.iscas.crashtracker.base.MyConfig;
 import com.iscas.crashtracker.client.BaseClient;
-import com.iscas.crashtracker.client.cg.cgJava.CallGraphofJavaClient;
+import com.iscas.crashtracker.client.cg.cgJava.CallGraphJavaClient;
 import com.iscas.crashtracker.client.soot.SootAnalyzer;
 import com.iscas.crashtracker.utils.ConstantUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.DocumentException;
-import soot.Scene;
-import soot.SootClass;
-import soot.SootMethod;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
 
 /**
  * @author hanada
@@ -36,7 +31,7 @@ public class ExceptionInfoClient extends BaseClient {
 
         if (!MyConfig.getInstance().isCallGraphAnalyzeFinish()) {
             ConstantUtils.CGANALYSISPREFIX = ConstantUtils.FRAMEWORKPREFIX;
-            new CallGraphofJavaClient().start();
+            new CallGraphJavaClient().start();
             MyConfig.getInstance().setCallGraphAnalyzeFinish(true);
         }
 
