@@ -122,7 +122,7 @@ Extracting exception-thrown summary (ETS) for that framework is required before 
 
 ```
 # Use the following commands to analyze your framework files.
-python scripts/runCrashTracker-framework.py [framework code location] [version] [outputDir]  
+python scripts/runCrashTracker-framework.py [framework code path] [framework code folder name] [version] [outputDir]  
 
 For example, if the sturcture of your files is as follows:
 +-- CrashTrackerTool
@@ -133,7 +133,7 @@ For example, if the sturcture of your files is as follows:
                 version. Also, you can download from  https://github.com/hanada31/AndroidFrameworkImpl and unzip files)
 
 run: 
-    python scripts/runCrashTracker-framework.py  M_framework 2.3 ETSResults
+    python scripts/runCrashTracker-framework.py  M_framework android2.3 2.3 ETSResults
 ```
 
 ## CrashTracker.jar -h Arguments
