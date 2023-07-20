@@ -67,6 +67,10 @@ mvn -f pom.xml clean package -DskipTests
 cp target/CrashTracker-jar-with-dependencies.jar CrashTracker.jar
 
 # unzip all the android*.zip files in Files/ folder first. 
+# Choice 1: use unzip_files script
+./unzip_files.sh
+
+# Choice 2: unzip files manually
 unzip Files/android2.3.zip -d Files/android2.3/
 unzip Files/android4.4.zip -d Files/android4.4/
 unzip Files/android5.0.zip -d Files/android5.0/
