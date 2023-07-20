@@ -1049,7 +1049,6 @@ public class CrashAnalysis extends Analyzer {
                 targetMethodName = crashInfo.getSignaler();
             }
             String androidFolder = MyConfig.getInstance().getExceptionFolderPath()+File.separator+"android"+targetVer+File.separator;
-            MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);
             MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
             MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"android"+targetVer+"_cg.txt");
             log.info("target is "+ targetVer);
@@ -1099,7 +1098,6 @@ public class CrashAnalysis extends Analyzer {
      */
     private Pair<String,String> getExceptionWithGivenVersion(CrashInfo crashInfo, String version, boolean classFilter) {
         String androidFolder = MyConfig.getInstance().getExceptionFolderPath()+File.separator+"android"+version+File.separator;
-        MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);
         MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
         MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"android"+version+"_cg.txt");
 

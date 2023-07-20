@@ -45,8 +45,8 @@ public class ExceptionAnalyzer extends Analyzer {
     }
 
     private void getExceptionList() {
-        FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +File.separator+"android"+ MyConfig.getInstance().getAndroidOSVersion()+File.separator
-                +"throwUnits.txt", "", false);
+        String throwUnitsURL = MyConfig.getInstance().getExceptionFilePath() + "throwUnits.txt";
+        FileUtils.writeText2File(throwUnitsURL, "", false);
         JSONArray exceptionListElement  = new JSONArray(new ArrayList<>());
         HashSet<SootClass> applicationClasses = new HashSet<>(Scene.v().getApplicationClasses());
         for (SootClass sootClass : applicationClasses) {
@@ -76,8 +76,7 @@ public class ExceptionAnalyzer extends Analyzer {
             ExceptionInfoClientOutput.getSummaryJsonArray(exceptionInfoList, exceptionListElement);
         }
         ExceptionInfoClientOutput.writeJsonForFramework(exceptionListElement);
-        FileUtils.writeText2File(MyConfig.getInstance().getResultFolder() +File.separator+"android"+MyConfig.getInstance().getAndroidOSVersion()+File.separator
-                +"throwUnits.txt", PrintUtils.printSet(nonThrowUnits,"\n"), true);
+        FileUtils.writeText2File(throwUnitsURL, PrintUtils.printSet(nonThrowUnits,"\n"), true);
     }
 
     /**
