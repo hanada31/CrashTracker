@@ -37,6 +37,9 @@ replay_pid*
 .idea/
 *.iml
 
+# MacOS
+.DS_Store
+
 # custom
 .settings/
 /CrashTracker/target/

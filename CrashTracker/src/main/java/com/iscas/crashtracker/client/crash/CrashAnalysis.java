@@ -187,14 +187,13 @@ public class CrashAnalysis extends Analyzer {
     private void addPredCallersOfMethodsInStack(String last, SootMethod sm, CrashInfo crashInfo, JSONObject reason) {
         if(!sm.hasActiveBody())return;
         for(Unit u : sm.getActiveBody().getUnits()){
-            InvokeExpr invoke = SootUtils.getSingleInvokedMethod(u);
-            if (invoke != null) { // u is invoke stmt
-                String callee = invoke.getMethod().getDeclaringClass().getName()+ "." + invoke.getMethod().getName();
-                if(callee.equals(last)){
-                    JSONObject newReason = reason.clone();
-                    newReason.getJSONArray("Trace").add(callee);
-                    addPredsOfUnit2ExtendedCG(u, sm, crashInfo,2, newReason,null);
-                }
+            InvokeExpr invoke = SootUtils.getInvokeExp(u);
+            if (invoke == null) continue;
+            String callee = invoke.getMethod().getDeclaringClass().getName()+ "." + invoke.getMethod().getName();
+            if(callee.equals(last)){
+                JSONObject newReason = reason.clone();
+                newReason.getJSONArray("Trace").add(callee);
+                addPredsOfUnit2ExtendedCG(u, sm, crashInfo,2, newReason,null);
             }
         }
     }
@@ -1050,7 +1049,6 @@ public class CrashAnalysis extends Analyzer {
                 targetMethodName = crashInfo.getSignaler();
             }
             String androidFolder = MyConfig.getInstance().getExceptionFolderPath()+File.separator+"android"+targetVer+File.separator;
-            MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);
             MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
             MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"android"+targetVer+"_cg.txt");
             log.info("target is "+ targetVer);
@@ -1100,7 +1098,6 @@ public class CrashAnalysis extends Analyzer {
      */
     private Pair<String,String> getExceptionWithGivenVersion(CrashInfo crashInfo, String version, boolean classFilter) {
         String androidFolder = MyConfig.getInstance().getExceptionFolderPath()+File.separator+"android"+version+File.separator;
-        MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);
         MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
         MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"android"+version+"_cg.txt");
 

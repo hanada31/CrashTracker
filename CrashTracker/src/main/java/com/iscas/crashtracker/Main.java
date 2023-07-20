@@ -180,17 +180,16 @@ public class Main {
 
 		if(mCmd.getOptionValue("frameworkVersion")!=null) {
 			MyConfig.getInstance().setAndroidOSVersion(mCmd.getOptionValue("frameworkVersion"));
-			String androidFolder = "";
+			String appName = MyConfig.getInstance().getAppName();
+			String exceptionFolder = MyConfig.getInstance().getResultFolder() + File.separator + appName + File.separator;
 			if(mCmd.getOptionValue("client").equals("ExceptionInfoClient")){
-				androidFolder = MyConfig.getInstance().getResultFolder() + File.separator + "android" + mCmd.getOptionValue("frameworkVersion") + File.separator;
-				MyConfig.getInstance().setPermissionFilePath(androidFolder + "Permission" + File.separator + "permission.txt");
-				MyConfig.getInstance().setExceptionFilePath(androidFolder + "exceptionInfo" + File.separator);
-				MyConfig.getInstance().setAndroidCGFilePath(androidFolder + "CallGraphInfo" + File.separator + "cg.txt");
+				MyConfig.getInstance().setPermissionFilePath(exceptionFolder + "Permission" + File.separator + "permission.txt");
+				MyConfig.getInstance().setExceptionFilePath(exceptionFolder + "exceptionInfo" + File.separator);
+				MyConfig.getInstance().setAndroidCGFilePath(exceptionFolder + "CallGraphInfo" + File.separator + "cg.txt");
 			}else {
-				androidFolder = MyConfig.getInstance().getExceptionFolderPath() + File.separator + "android" + mCmd.getOptionValue("frameworkVersion") + File.separator;
-				MyConfig.getInstance().setPermissionFilePath(mCmd.getOptionValue("permissionPath", androidFolder + "Permission" + File.separator + "permission.txt"));
-				MyConfig.getInstance().setExceptionFilePath(mCmd.getOptionValue("exceptionPath", androidFolder + "exceptionInfo" + File.separator));
-				MyConfig.getInstance().setAndroidCGFilePath(mCmd.getOptionValue("androidCGPath", androidFolder + "CallGraphInfo" + File.separator + "cg.txt"));
+				MyConfig.getInstance().setPermissionFilePath(mCmd.getOptionValue("permissionPath", exceptionFolder + "Permission" + File.separator + "permission.txt"));
+				MyConfig.getInstance().setExceptionFilePath(mCmd.getOptionValue("exceptionPath", exceptionFolder + "exceptionInfo" + File.separator));
+				MyConfig.getInstance().setAndroidCGFilePath(mCmd.getOptionValue("androidCGPath", exceptionFolder + "CallGraphInfo" + File.separator + "cg.txt"));
 			}
 		}
 

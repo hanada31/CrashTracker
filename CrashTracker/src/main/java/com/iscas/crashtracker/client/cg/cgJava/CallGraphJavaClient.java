@@ -18,7 +18,7 @@ import java.io.File;
  * @version 2.0
  */
 @Slf4j
-public class CallGraphofJavaClient extends BaseClient {
+public class CallGraphJavaClient extends BaseClient {
 
 	@Override
 	protected void clientAnalyze() {
@@ -27,18 +27,15 @@ public class CallGraphofJavaClient extends BaseClient {
 		Global.v().getAppModel().setCg(cg);
 		log.info("Call Graph has " + cg.size() + " edges.");
 		log.info("Successfully analyze with CallGraphClient.");
-
 	}
 
 	@Override
 	public void clientOutput() {
-		/** call graph, if needed, open output**/
 		String summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
 				+ File.separator;
 		FileUtils.createFolder(summary_app_dir + ConstantUtils.CGFOLDETR);
 		CgClientOutput.writeCG(summary_app_dir + ConstantUtils.CGFOLDETR,
 				Global.v().getAppModel().getAppName()+"_cg.txt", Global.v().getAppModel().getCg());
-
 	}
 
 }

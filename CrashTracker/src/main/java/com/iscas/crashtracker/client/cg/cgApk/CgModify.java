@@ -197,15 +197,11 @@ public class CgModify extends Analyzer {
 		while (it.hasNext()) {
 			Unit u = it.next();
 			InvokeExpr exp = SootUtils.getInvokeExp(u);
-			if (exp == null)
-				continue;
-			InvokeExpr invoke = SootUtils.getSingleInvokedMethod(u);
-			if (invoke != null) { // u is invoke stmt
-				Set<SootMethod> targetSet = SootUtils.getInvokedMethodSet(sm, u);
-				for (SootMethod target : targetSet) {
-					Edge e = new Edge(sm, (Stmt) u, target);
-					callGraph.addEdge(e);
-				}
+			if (exp == null) continue;
+			Set<SootMethod> targetSet = SootUtils.getInvokedMethodSet(sm, u);
+			for (SootMethod target : targetSet) {
+				Edge e = new Edge(sm, (Stmt) u, target);
+				callGraph.addEdge(e);
 			}
 		}
 	}

@@ -67,6 +67,10 @@ mvn -f pom.xml clean package -DskipTests
 cp target/CrashTracker-jar-with-dependencies.jar CrashTracker.jar
 
 # unzip all the android*.zip files in Files/ folder first. 
+# Choice 1: use unzip_files script
+./unzip_files.sh
+
+# Choice 2: unzip files manually
 unzip Files/android2.3.zip -d Files/android2.3/
 unzip Files/android4.4.zip -d Files/android4.4/
 unzip Files/android5.0.zip -d Files/android5.0/
@@ -122,7 +126,7 @@ Extracting exception-thrown summary (ETS) for that framework is required before 
 
 ```
 # Use the following commands to analyze your framework files.
-python scripts/runCrashTracker-framework.py [framework code location] [version] [outputDir]  
+python scripts/runCrashTracker-framework.py [framework code path] [framework code folder name] [version] [outputDir]  
 
 For example, if the sturcture of your files is as follows:
 +-- CrashTrackerTool
@@ -133,7 +137,7 @@ For example, if the sturcture of your files is as follows:
                 version. Also, you can download from  https://github.com/hanada31/AndroidFrameworkImpl and unzip files)
 
 run: 
-    python scripts/runCrashTracker-framework.py  M_framework 2.3 ETSResults
+    python scripts/runCrashTracker-framework.py  M_framework android2.3 2.3 ETSResults
 ```
 
 ## CrashTracker.jar -h Arguments

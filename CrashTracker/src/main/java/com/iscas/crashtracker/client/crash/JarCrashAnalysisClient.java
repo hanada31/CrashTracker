@@ -4,7 +4,7 @@ import com.iscas.crashtracker.base.Analyzer;
 import com.iscas.crashtracker.base.Global;
 import com.iscas.crashtracker.base.MyConfig;
 import com.iscas.crashtracker.client.BaseClient;
-import com.iscas.crashtracker.client.cg.cgJava.CallGraphofJavaClient;
+import com.iscas.crashtracker.client.cg.cgJava.CallGraphJavaClient;
 import com.iscas.crashtracker.client.soot.SootAnalyzer;
 import com.iscas.crashtracker.utils.ConstantUtils;
 import com.iscas.crashtracker.utils.FileUtils;
@@ -29,7 +29,7 @@ public class JarCrashAnalysisClient extends BaseClient {
         }
         if (!MyConfig.getInstance().isCallGraphAnalyzeFinish()) {
             ConstantUtils.CGANALYSISPREFIX = Global.v().getAppModel().getPackageName();
-            new CallGraphofJavaClient().start();
+            new CallGraphJavaClient().start();
             MyConfig.getInstance().setCallGraphAnalyzeFinish(true);
         }
 

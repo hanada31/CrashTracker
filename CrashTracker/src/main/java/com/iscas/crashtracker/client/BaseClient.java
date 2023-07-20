@@ -13,20 +13,12 @@ import java.io.IOException;
 public abstract class BaseClient {
 
 	public void start() {
-		
 		try {
 			clientAnalyze();
 			clientOutput();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (DocumentException e) {
+		} catch (IOException | DocumentException e) {
 			e.printStackTrace();
 		}
-//		catch (RuntimeException e) {
-//			e.printStackTrace();
-//			System.err.println("The analysis is stopped, caused by "+ e.getMessage());
-//			System.exit(0);
-//		}
 	}
 
 	protected abstract void clientAnalyze();
