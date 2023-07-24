@@ -36,6 +36,7 @@ public class MyConfig {
 	private String AndroidOSVersion = null;
 
 	private String Strategy="";
+	private boolean outputIR = false;
 
 	private MyConfig() {
 	}
@@ -273,5 +274,11 @@ public class MyConfig {
 		PermissionFilePath = permissionFilePath;
 	}
 
+	public void setOutputIR(boolean outputIR) {
+		this.outputIR = outputIR;
+	}
 
+	public boolean getOutputIR() {
+		return outputIR;
+	}
 }

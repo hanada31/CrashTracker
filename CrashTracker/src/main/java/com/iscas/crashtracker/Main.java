@@ -70,6 +70,10 @@ public class Main {
 		log.info("Analyzing " + MyConfig.getInstance().getAppName() + " Finish...\n");
 		log.info(MyConfig.getInstance().getClient() + " time = " + (endTime - startTime) / 1000 + " seconds");
 		log.info("Success! Please see files in the result folder "+ MyConfig.getInstance().getResultFolder());
+
+		if (MyConfig.getInstance().getOutputIR()) {
+			new IROutputClient().start();
+		}
 	}
 
 	/**
@@ -177,6 +181,9 @@ public class Main {
 		MyConfig.getInstance().setExceptionFolderPath(mCmd.getOptionValue("exceptionInput","Files"));
 
 		MyConfig.getInstance().setResultFolder(mCmd.getOptionValue("outputDir", "outputDir") + File.separator);
+		if (mCmd.hasOption("sootOutput")) {
+			MyConfig.getInstance().setOutputIR(true);
+		}
 
 		if(mCmd.getOptionValue("frameworkVersion")!=null) {
 			MyConfig.getInstance().setAndroidOSVersion(mCmd.getOptionValue("frameworkVersion"));
