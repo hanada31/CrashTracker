@@ -170,6 +170,7 @@ public class ExceptionMather {
      */
     private Pair<String,String> getExceptionWithGivenVersion(CrashInfo crashInfo, String version, boolean classFilter) {
         String androidFolder = MyConfig.getInstance().getExceptionFolderPath()+File.separator+"android"+version+File.separator;
+        MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);
         MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
         MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"cg.txt");
 
@@ -228,6 +229,7 @@ public class ExceptionMather {
             wrapperObject = version2JsonStr.get(version);
         }else {
             String androidFolder = MyConfig.getInstance().getExceptionFolderPath()+File.separator+"android"+version+File.separator;
+            MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);
             MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
             MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"cg.txt");
 
