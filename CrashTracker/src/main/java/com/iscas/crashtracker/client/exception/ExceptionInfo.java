@@ -248,10 +248,10 @@ public class ExceptionInfo {
             relatedParamValues.add(v);
     }
 
-    public List<Value> getCaughtedValues() {
+    public List<Value> getCaughtValues() {
         return caughtedValues;
     }
-    public void addCaughtedValues(Value v) {
+    public void addCaughtValues(Value v) {
         if(!caughtedValues.contains(v))
             caughtedValues.add(v);
     }

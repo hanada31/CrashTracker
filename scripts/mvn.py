@@ -9,4 +9,4 @@ if __name__ == '__main__':
         shutil.copy("target/CrashTracker-jar-with-dependencies.jar", "CrashTracker.jar")
         print("copy jar to the root directory.")
     else:
-        print("Fail to build! Please run \"mvn -f pom.xml package\" to see the detail info.")
+        print("Fail to build! Please run \"mvn -f pom.xml clean package -DskipTests\" to see the detail info.")

@@ -52,7 +52,8 @@ public class ExceptionAnalyzer extends Analyzer {
         for (SootClass sootClass : applicationClasses) {
             if(!sootClass.getPackageName().startsWith(ConstantUtils.CGANALYSISPREFIX)) continue;
             exceptionInfoList = new ArrayList<>();
-            for (SootMethod sootMethod : sootClass.getMethods()) {
+            HashSet<SootMethod> methodsInTheClass = new HashSet<>(sootClass.getMethods());
+            for (SootMethod sootMethod : methodsInTheClass) {
                 if (!sootMethod.hasActiveBody()) continue;
                 try {
                     Map<SootMethod, Map<Unit,Local>> method2unit2Value = getThrowUnitWithValue(sootMethod);
@@ -559,8 +560,14 @@ public class ExceptionAnalyzer extends Analyzer {
             }else if (predUnit instanceof JIdentityStmt ) {
                 JIdentityStmt stmt = (JIdentityStmt) predUnit;
                 if(stmt.getRightOp() instanceof CaughtExceptionRef){
-                    exceptionInfo.addCaughtedValues(stmt.getRightOp());
-                    //analyzed try-catch contents
+                    exceptionInfo.addCaughtValues(stmt.getRightOp());
+                    //analyze the try-catch block of this exception
+                    List<Unit> caughtUnits = getTryCatchUnits(sootMethod, predUnit);
+                    for(Unit caughtUnit: caughtUnits) {
+                        for (ValueBox vb : caughtUnit.getUseBoxes()) {
+                            extendRelatedValues(sootMethod,SootUtils.getUnitListFromMethod(sootMethod), exceptionInfo, caughtUnit, vb.getValue(), new ArrayList<>(), getCondHistory, fromThrow);
+                        }
+                    }
                 }
             }
             getExceptionCondition(sootMethod, predUnit, exceptionInfo,getCondHistory, fromThrow, lastGoto);
@@ -597,7 +604,14 @@ public class ExceptionAnalyzer extends Analyzer {
                         exceptionInfo.addCallerOfSingnlar2SourceVar(sootMethod.getSignature(), id);
                         return "ParameterRef";
                     }else if(identityStmt.getRightOp() instanceof CaughtExceptionRef){
-                        exceptionInfo.addCaughtedValues(identityStmt.getRightOp());
+                        exceptionInfo.addCaughtValues(identityStmt.getRightOp());
+                        //analyze the try-catch block of this exception
+                        List<Unit> caughtUnits = getTryCatchUnits(sootMethod, defUnit);
+                        for(Unit caughtUnit: caughtUnits) {
+                            for (ValueBox vb : caughtUnit.getUseBoxes()) {
+                                extendRelatedValues(sootMethod, SootUtils.getUnitListFromMethod(sootMethod), exceptionInfo, caughtUnit, vb.getValue(), valueHistory, getCondHistory, fromThrow);
+                            }
+                        }
                         return "CaughtExceptionRef";
                     }else if(identityStmt.getRightOp() instanceof ThisRef){
                        return "ThisRef";
@@ -619,7 +633,6 @@ public class ExceptionAnalyzer extends Analyzer {
                                 extendRelatedValues(sootMethod, allPreds, exceptionInfo, defUnit, rv, valueHistory, getCondHistory, fromThrow);
                             }
                             exceptionInfo.addRelatedFieldValues(field);
-
                         }
                     } else if (rightOp instanceof Expr) {
                         if (rightOp instanceof InvokeExpr) {
@@ -661,6 +674,29 @@ public class ExceptionAnalyzer extends Analyzer {
             }
         }
         return "";
+    }
+
+    private List getTryCatchUnits(SootMethod sootMethod, Unit defUnit) {
+        List<Unit> tryCatchUnits = new ArrayList<>();
+        for (Trap trap : sootMethod.getActiveBody().getTraps()) {
+            if(trap.getHandlerUnit() == defUnit){
+                Unit begin = trap.getBeginUnit();
+                Unit end = trap.getEndUnit();
+                boolean startRec = false;
+                for(Unit temp: SootUtils.getUnitListFromMethod(sootMethod)){
+                    if(temp == begin){
+                        startRec = true;
+                    }
+                    if(temp == end){
+                        startRec = false;
+                    }
+                    if(startRec) {
+                        tryCatchUnits.add(temp);
+                    }
+                }
+            }
+        }
+        return  tryCatchUnits;
     }
 
     private void traceCallerOfParamValue(SootMethod sootMethod,ExceptionInfo exceptionInfo, int id, int depth) {

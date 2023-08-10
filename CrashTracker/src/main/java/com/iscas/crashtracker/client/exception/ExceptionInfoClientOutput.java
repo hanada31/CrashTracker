@@ -1,6 +1,5 @@
 package com.iscas.crashtracker.client.exception;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -144,11 +143,11 @@ public class ExceptionInfoClientOutput {
             jsonObject.put("paramValues", PrintUtils.printList(info.getRelatedParamValues()));
         if(info.getRelatedFieldValues().size()>0)
             jsonObject.put("fieldValues", PrintUtils.printList(info.getRelatedFieldValues()));
-        if(info.getCaughtedValues().size()>0)
-            jsonObject.put("caughtValues", PrintUtils.printList(info.getCaughtedValues()));
-        if(info.getRelatedParamValues().size() + info.getRelatedFieldValues().size() + info.getCaughtedValues().size()>0)
+        if(info.getCaughtValues().size()>0)
+            jsonObject.put("caughtValues", PrintUtils.printList(info.getCaughtValues()));
+        if(info.getRelatedParamValues().size() + info.getRelatedFieldValues().size() + info.getCaughtValues().size()>0)
             jsonObject.put("relatedValues", PrintUtils.printList(info.getRelatedParamValues())+"; "
-                    +PrintUtils.printList(info.getRelatedFieldValues()) +"; "+ PrintUtils.printList(info.getCaughtedValues()));
+                    +PrintUtils.printList(info.getRelatedFieldValues()) +"; "); // + PrintUtils.printList(info.getCaughtValues())
     }
 
     private static void addBackwardParamCallerNum(JSONObject jsonObject, ExceptionInfo exceptionInfo) {

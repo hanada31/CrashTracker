@@ -2,7 +2,6 @@ package com.iscas.crashtracker.client.crash;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.google.gson.JsonArray;
 import com.iscas.crashtracker.base.Global;
 import com.iscas.crashtracker.client.exception.ExceptionInfo;
 import com.iscas.crashtracker.client.exception.RelatedCondType;
@@ -303,7 +302,7 @@ public class CrashInfo {
 
             this.exceptionInfo.getRelatedParamValues().addAll(exceptionInfo.getRelatedParamValues());
             this.exceptionInfo.getRelatedFieldValues().addAll(exceptionInfo.getRelatedFieldValues());
-            this.exceptionInfo.getCaughtedValues().addAll(exceptionInfo.getCaughtedValues());
+            this.exceptionInfo.getCaughtValues().addAll(exceptionInfo.getCaughtValues());
             this.exceptionInfo.getRelatedValueIndex().addAll(exceptionInfo.getRelatedValueIndex());
             this.exceptionInfo.getRelatedFieldValuesInStr().addAll(exceptionInfo.getRelatedFieldValuesInStr());
             this.exceptionInfo.getRelatedParamValuesInStr().addAll(exceptionInfo.getRelatedParamValuesInStr());
