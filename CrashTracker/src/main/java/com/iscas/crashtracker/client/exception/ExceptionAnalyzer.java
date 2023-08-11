@@ -573,7 +573,7 @@ public class ExceptionAnalyzer extends Analyzer {
                 JIdentityStmt stmt = (JIdentityStmt) predUnit;
                 if(stmt.getRightOp() instanceof CaughtExceptionRef){
                     exceptionInfo.addCaughtValues(stmt.getRightOp());
-                    Log.error("1");
+//                    Log.error("1");
                     //analyze the try-catch block of this exception
                     List<Unit> caughtUnits = getTryCatchUnits(sootMethod, predUnit);
                     SootClass caughtType = getCaughtExceptionType(sootMethod, predUnit);
@@ -646,7 +646,7 @@ public class ExceptionAnalyzer extends Analyzer {
                     }else if(identityStmt.getRightOp() instanceof CaughtExceptionRef){
                         exceptionInfo.addCaughtValues(identityStmt.getRightOp());
                         //analyze the try-catch block of this exception
-                        Log.error("2");
+//                        Log.error("2");
                         List<Unit> caughtUnits = getTryCatchUnits(sootMethod, defUnit);
                         SootClass caughtType = getCaughtExceptionType(sootMethod, defUnit);
 

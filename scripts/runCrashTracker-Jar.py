@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 import threading
 import time
 
-reRun = True
+reRun = False
 filterList = list()
 
 def isJarisAnalyzed(resPath, name):
@@ -52,7 +52,7 @@ def analyzeJar(jarPath, resPath, sdk, frameworkVersion, strategy):
                 resFile = outputDir + os.sep + jar[:-4] + os.sep +jar[:-4] + ".json"
                 analyzed = isJarisAnalyzed(resPath,jar[:-4])
                 if(reRun or not os.path.exists(resFile) or not analyzed ): 
-                    command = "java -jar "+jarFile+"  -path "+ jarPath +" -name "+jar+" -androidJar "+ sdk +" "+ extraArgs +" -crashInput Files"+ os.sep +"crashInfo.json  -exceptionInput ETSResults  -client JarCrashAnalysisClient" +" -outputDir "+outputDir #+ " >> "+logDir+ os.sep +jar[:-4]+".txt"
+                    command = "java -jar "+jarFile+"  -path "+ jarPath +" -name "+jar+" -androidJar "+ sdk +" "+ extraArgs +" -crashInput Files"+ os.sep +"crashInfo.json  -exceptionInput ETSResults  -client JarCrashAnalysisClient" +" -outputDir "+outputDir + " >> "+logDir+ os.sep +jar[:-4]+".txt"
                     print(command + "@@@"+ str(analyzed))
                     future1 = pool.submit(executeCmd, command)
         pool.shutdown()

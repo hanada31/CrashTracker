@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class BuggyStatisticTest {
     @org.junit.Test
     public void test() {
-        MyConfig.getInstance().setResultFolder("..\\results" + File.separator);
+        MyConfig.getInstance().setResultFolder("..\\LocalizationResults" + File.separator);
         BuggyStatistic a = new BuggyStatistic();
         a.analyze();
     }

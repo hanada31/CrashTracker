@@ -3,6 +3,7 @@ package com.iscas.crashtracker.client.dataAnalysis;
 import com.iscas.crashtracker.base.MyConfig;
 import com.iscas.crashtracker.client.exception.RelatedVarType;
 import com.iscas.crashtracker.utils.FileUtils;
+import com.iscas.crashtracker.utils.SootUtils;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -23,6 +24,7 @@ public class BuggyStatistic {
 
     private void analyzeAllFiles() {
         String folder = MyConfig.getInstance().getResultFolder() +"statistic" +File.separator;
+        FileUtils.createFolder(folder);
         FileUtils.writeText2File(  folder + "VarTypeStatistic.txt", "", false);
         FileUtils.writeText2File( folder + "RankingStatistic-Category.txt", "", false);
         FileUtils.writeText2File( folder + "RankingStatistic-RVType.txt", "", false);
