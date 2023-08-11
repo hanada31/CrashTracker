@@ -5,6 +5,7 @@ import com.iscas.crashtracker.client.BaseClient;
 import com.iscas.crashtracker.client.cg.cgApk.CallGraphofApkClient;
 import com.iscas.crashtracker.client.crash.ApkCrashAnalysisClient;
 import com.iscas.crashtracker.client.crash.JarCrashAnalysisClient;
+import com.iscas.crashtracker.client.exception.ConditionTracker;
 import com.iscas.crashtracker.client.exception.ExceptionInfoClient;
 import com.iscas.crashtracker.client.manifest.ManifestClient;
 import com.iscas.crashtracker.client.soot.IROutputClient;
@@ -117,23 +118,23 @@ public class Main {
 	private static Options getOptions() {
 		Options options = new Options();
 
-		options.addOption("h", false, "-h: Show the help information.");
+		options.addOption("h", false, "Show the help information.");
 
 		/** input **/
-		options.addOption("name", true, "-name: Set the name of the apk under analysis.");
-		options.addOption("path", true, "-path: Set the path to the apk under analysis.");
-		options.addOption("androidJar", true, "-androidJar: Set the path of android.jar.");
-		options.addOption("crashPath", true, "-crashPath: crash information file.");
-		options.addOption("frameworkVersion", true, "-frameworkVersion: The version of framework under analysis");
-		options.addOption("strategy", true, "-strategy: effectiveness of strategy m");
+		options.addOption("name", true, "Set the name of the apk under analysis.");
+		options.addOption("path", true, "Set the path to the apk under analysis.");
+		options.addOption("androidJar", true, "Set the path of android.jar.");
+		options.addOption("crashPath", true, "crash information file.");
+		options.addOption("frameworkVersion", true, "The version of framework under analysis");
+		options.addOption("strategy", true, "effectiveness of strategy m");
 
-		options.addOption("exceptionPath", true, "-exceptionPath: exception file folder [optional].");
-		options.addOption("androidCGPath", true, "-androidCGPath: Android CallGraph file [optional.");
-		options.addOption("permissionPath", true, "-permissionPath: Android permissionPath file [optional.");
+		options.addOption("exceptionPath", true, "exception file folder [optional].");
+		options.addOption("androidCGPath", true, "Android CallGraph file [optional.");
+		options.addOption("permissionPath", true, "Android permissionPath file [optional.");
 
 
 		/** analysis config **/
-		options.addOption("client", true, "-client "
+		options.addOption("client", true, "client used.\n"
 				+ "ExceptionInfoClient: Extract exception information from Android framework.\n"
 				+ "CrashAnalysisClient: Analysis the crash information for an apk.\n"
 				+ "JarCrashAnalysisClient: Analysis the crash information for an third party SDK.\n"
@@ -142,14 +143,17 @@ public class Main {
 				+ "IROutputClient: Output soot IR files.\n"
 			);
 		/** analysis config **/
-		options.addOption("time", true, "-time [default:90]: Set the max running time (min).");
-		options.addOption("callgraphAlgorithm", true, "-callgraphAlgorithm [default:SPARK]: Set algorithm for CG, CHA or SPARK.");
+		options.addOption("time", true, "[default:90]: Set the max running time (min).");
+		options.addOption("callgraphAlgorithm", true, "[default:SPARK]: Set algorithm for CG, CHA or SPARK.");
 		/** output **/
-		options.addOption("outputDir", true, "-outputDir: Set the output folder of the apk.");
-		options.addOption("sootOutput", false, "-sootOutput: Output the sootOutput");
-		options.addOption("crashInput", true, "-crashInput: crashInfo.json file path");
-		options.addOption("exceptionInput", true, "-exceptionInput: exception file folder");
-//		options.addOption("callgraphAlgorithm", false, "-callgraphAlgorithm: callgraphAlgorithm");
+		options.addOption("outputDir", true, "Set the output folder of the apk.");
+		options.addOption("sootOutput", false, "Output the sootOutput");
+		options.addOption("crashInput", true, "crashInfo.json file path");
+		options.addOption("exceptionInput", true, "exception file folder");
+		options.addOption("conditionLimit", true, "the number of conditions to be retained.\n" +
+																		"all: keep all\n" +
+																		"one: keep one condition\n" +
+																		"three: keep three condition");
 
 		return options;
 	}
@@ -197,6 +201,24 @@ public class Main {
 				MyConfig.getInstance().setPermissionFilePath(mCmd.getOptionValue("permissionPath", exceptionFolder + "Permission" + File.separator + "permission.txt"));
 				MyConfig.getInstance().setExceptionFilePath(mCmd.getOptionValue("exceptionPath", exceptionFolder + "exceptionInfo" + File.separator));
 				MyConfig.getInstance().setAndroidCGFilePath(mCmd.getOptionValue("androidCGPath", exceptionFolder + "CallGraphInfo" + File.separator + "cg.txt"));
+			}
+		}
+
+		String limit = mCmd.getOptionValue("conditionLimit");
+		if (limit != null) {
+			switch(limit) {
+				case("all"):
+					MyConfig.getInstance().setConditionLimit(ConditionTracker.All);
+					break;
+				case("one"):
+					MyConfig.getInstance().setConditionLimit(ConditionTracker.One);
+					break;
+				case("three"):
+					MyConfig.getInstance().setConditionLimit(ConditionTracker.Three);
+					break;
+				default:
+					log.error("Invalid condition limit!");
+					System.exit(0);
 			}
 		}
 

@@ -22,10 +22,12 @@ if __name__ == '__main__':
     path = sys.argv[1]
     name = sys.argv[2]
     version = sys.argv[3]
-    output = sys.argv[4]
+    limit = sys.argv[4]
+    output = sys.argv[5]
 
     command = "java -jar " + jarFile + " -path " + path + " -name " + name + " -androidJar " + sdk + \
-              " -client ExceptionInfoClient" + " -outputDir " + output + " -frameworkVersion " + version
+              " -client ExceptionInfoClient" + " -outputDir " + output + " -frameworkVersion " + version + \
+              " -conditionLimit " + limit
     print("Start command")
     execute_cmd(command)
     print("Execute over!")

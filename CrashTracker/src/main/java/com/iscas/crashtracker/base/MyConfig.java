@@ -1,5 +1,6 @@
 package com.iscas.crashtracker.base;
 
+import com.iscas.crashtracker.client.exception.ConditionTracker;
 import com.iscas.crashtracker.utils.FileUtils;
 import soot.options.Options;
 
@@ -34,6 +35,7 @@ public class MyConfig {
 	private String PermissionFilePath;
 	private String AndroidCGFilePath ;
 	private String AndroidOSVersion = null;
+	private ConditionTracker conditionLimit = ConditionTracker.All;
 
 	private String Strategy="";
 	private boolean outputIR = false;
@@ -280,5 +282,13 @@ public class MyConfig {
 
 	public boolean getOutputIR() {
 		return outputIR;
+	}
+
+	public void setConditionLimit(ConditionTracker limit) {
+		conditionLimit = limit;
+	}
+
+	public ConditionTracker getConditionLimit() {
+		return conditionLimit;
 	}
 }

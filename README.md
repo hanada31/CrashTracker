@@ -126,7 +126,7 @@ Extracting exception-thrown summary (ETS) for that framework is required before 
 
 ```
 # Use the following commands to analyze your framework files.
-python scripts/runCrashTracker-framework.py [framework code path] [framework code folder name] [version] [outputDir]  
+python scripts/runCrashTracker-framework.py [framework code path] [framework code folder name] [version] [conditionLimit] [outputDir]  
 
 For example, if the sturcture of your files is as follows:
 +-- CrashTrackerTool
@@ -137,7 +137,7 @@ For example, if the sturcture of your files is as follows:
                 version. Also, you can download from  https://github.com/hanada31/AndroidFrameworkImpl and unzip files)
 
 run: 
-    python scripts/runCrashTracker-framework.py  M_framework android2.3 2.3 ETSResults
+    python scripts/runCrashTracker-framework.py  M_framework android2.3 2.3 all ETSResults
 ```
 
 ## CrashTracker.jar -h Arguments
@@ -154,6 +154,10 @@ usage: java -jar CrashTracker.jar [options] [-path] [-name] [-androidJar] [-outp
                                CallGraphClient: Output call graph files.
                                ManifestClient: Output manifest.xml file.
                                IROutputClient: Output soot IR files.
+ -conditionLimit <arg>     -conditionLimit: the number of conditions to be retained.
+                               all: keep all
+                               one: keep one condition
+                               three: keep three condition
  -name <arg>               -name: Set the name of the apk under analysis.
  -path <arg>               -path: Set the path to the apk under analysis.
  -crashPath <arg>          -crashInput: crash information file.
