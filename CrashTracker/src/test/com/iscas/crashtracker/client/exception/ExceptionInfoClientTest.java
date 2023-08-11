@@ -26,25 +26,25 @@ public class ExceptionInfoClientTest {
     }
 
     private void setArgs() {
-        String path, androidVersion;
+        String path, targetFolder;
         path = "C:\\Users\\yanjw\\programs\\framework\\classes\\";
         path = "D:\\SoftwareData\\dataset\\android-framework\\classes\\";
-        MyConfig.getInstance().setAndroidOSVersion("10.0");
-//        MyConfig.getInstance().setAndroidOSVersion("");
+        path = "..\\M_framework\\";
 
         String client = "ExceptionInfoClient";
 
-        androidVersion = "android"+MyConfig.getInstance().getAndroidOSVersion();;
-        MyConfig.getInstance().setAppName(androidVersion);
+        targetFolder = "android7.0";;
+//        targetFolder = "test";
+        MyConfig.getInstance().setAppName(targetFolder);
         MyConfig.getInstance().setAppPath(path + File.separator);
         MyConfig.getInstance().setClient(client);
-        MyConfig.getInstance().setResultWarpperFolder("..\\results" + File.separator);
-        MyConfig.getInstance().setResultFolder("..\\Files" + File.separator);
+        MyConfig.getInstance().setResultWarpperFolder("..\\ETSResults" + File.separator);
+        MyConfig.getInstance().setResultFolder("..\\ETSResults" + File.separator);
         MyConfig.getInstance().setTimeLimit(100);
         MyConfig.getInstance().setAndroidJar("E:\\AndroidSDK\\android-sdk-windows-new\\platforms");
         MyConfig.getInstance().setSrc_prec(Options.src_prec_only_class);
         MyConfig.getInstance().setFileSuffixLength(0);
-        String androidFolder = MyConfig.getInstance().getResultFolder() +File.separator+androidVersion+File.separator;
+        String androidFolder = MyConfig.getInstance().getResultFolder() +File.separator+targetFolder+File.separator;
         MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);
         MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
         MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"cg.txt");

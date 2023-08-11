@@ -8,6 +8,7 @@ import com.iscas.crashtracker.client.soot.SootAnalyzer;
 import com.iscas.crashtracker.utils.ConstantUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.DocumentException;
+import soot.PackManager;
 
 import java.io.IOException;
 
@@ -27,6 +28,7 @@ public class ExceptionInfoClient extends BaseClient {
         if (!MyConfig.getInstance().isSootAnalyzeFinish()) {
             SootAnalyzer sootAnalyzer = new SootAnalyzer();
             sootAnalyzer.analyze();
+//            PackManager.v().writeOutput();
         }
 
         if (!MyConfig.getInstance().isCallGraphAnalyzeFinish()) {

@@ -1,6 +1,7 @@
 package com.iscas.crashtracker.client.exception;
 
 import com.alibaba.fastjson.JSONArray;
+import com.esotericsoftware.minlog.Log;
 import com.google.common.collect.Lists;
 import com.iscas.crashtracker.base.Analyzer;
 import com.iscas.crashtracker.base.Global;
@@ -50,7 +51,7 @@ public class ExceptionAnalyzer extends Analyzer {
         JSONArray exceptionListElement  = new JSONArray(new ArrayList<>());
         HashSet<SootClass> applicationClasses = new HashSet<>(Scene.v().getApplicationClasses());
         for (SootClass sootClass : applicationClasses) {
-            if(!sootClass.getPackageName().startsWith(ConstantUtils.CGANALYSISPREFIX)) continue;
+            if(Global.v().getAppModel().getAppName().contains(ConstantUtils.FRAMEWORKPREFIX) && !sootClass.getPackageName().startsWith(ConstantUtils.FRAMEWORKPREFIX)) continue;
             exceptionInfoList = new ArrayList<>();
             HashSet<SootMethod> methodsInTheClass = new HashSet<>(sootClass.getMethods());
             for (SootMethod sootMethod : methodsInTheClass) {
@@ -86,7 +87,7 @@ public class ExceptionAnalyzer extends Analyzer {
     private void getPermissionSet() {
         HashSet<SootClass> applicationClasses = new HashSet<>(Scene.v().getApplicationClasses());
         for (SootClass sootClass : applicationClasses) {
-            if (!sootClass.getPackageName().startsWith(ConstantUtils.CGANALYSISPREFIX)) continue;
+            if(Global.v().getAppModel().getAppName().contains(ConstantUtils.FRAMEWORKPREFIX) && !sootClass.getPackageName().startsWith(ConstantUtils.FRAMEWORKPREFIX)) continue;
             for (SootMethod sootMethod : sootClass.getMethods()) {
                 if (!sootMethod.hasActiveBody()) continue;
                 for(Unit u: sootMethod.getActiveBody().getUnits()){
@@ -141,7 +142,7 @@ public class ExceptionAnalyzer extends Analyzer {
         InvokeExpr invoke = SootUtils.getInvokeExp(unit);
         if (invoke == null || invoke.getMethod() == null) return;
         if (invoke.getMethod().getName().contains("access$") || invoke.getMethod().getName().contains("<init>")) return;
-        if (!invoke.getMethod().getDeclaringClass().getPackageName().startsWith(ConstantUtils.CGANALYSISPREFIX)) return;
+        if (Global.v().getAppModel().getAppName().contains(ConstantUtils.FRAMEWORKPREFIX) && !invoke.getMethod().getDeclaringClass().getPackageName().startsWith(ConstantUtils.FRAMEWORKPREFIX)) return;
         for (Value arg : invoke.getArgs()) {
             if (!arg.getType().toString().endsWith("Throwable") && !arg.getType().toString().endsWith("Exception")) continue;
             if (!(arg instanceof Local)) continue;
@@ -226,7 +227,7 @@ public class ExceptionAnalyzer extends Analyzer {
                 }
 
             } else if (rightValue instanceof CaughtExceptionRef) {
-                log.warn("Unimplemented condition: rightValue is CaughtExceptionRef");
+//                log.warn("Unimplemented condition: rightValue is CaughtExceptionRef");
                 // todo
                 // caught an Exception here
                 // $r1 := @caughtexception;
@@ -536,6 +537,7 @@ public class ExceptionAnalyzer extends Analyzer {
         SootUtils.getAllPredsofUnit(sootMethod, unit,allPreds);
         List<Unit> gotoTargets = getGotoTargets(body);
         List<Unit> predsOf = unitGraph.getPredsOf(unit);
+        boolean ifMeetTryCatch = false;
         for (Unit predUnit : predsOf) {
             if (predUnit instanceof IfStmt) {
                 exceptionInfo.getTracedUnits().add(predUnit);
@@ -561,18 +563,38 @@ public class ExceptionAnalyzer extends Analyzer {
                 JIdentityStmt stmt = (JIdentityStmt) predUnit;
                 if(stmt.getRightOp() instanceof CaughtExceptionRef){
                     exceptionInfo.addCaughtValues(stmt.getRightOp());
+                    Log.error("1");
                     //analyze the try-catch block of this exception
                     List<Unit> caughtUnits = getTryCatchUnits(sootMethod, predUnit);
+                    SootClass caughtType = getCaughtExceptionType(sootMethod, predUnit);
+
                     for(Unit caughtUnit: caughtUnits) {
+                        boolean invocationThrowThatException = isInvocationThrowThatException(caughtType,caughtUnit);
+                        if(invocationThrowThatException==false) continue;
                         for (ValueBox vb : caughtUnit.getUseBoxes()) {
                             extendRelatedValues(sootMethod,SootUtils.getUnitListFromMethod(sootMethod), exceptionInfo, caughtUnit, vb.getValue(), new ArrayList<>(), getCondHistory, fromThrow);
                         }
+                        ifMeetTryCatch = true;
                     }
                 }
             }
+            if(ifMeetTryCatch) continue;
             getExceptionCondition(sootMethod, predUnit, exceptionInfo,getCondHistory, fromThrow, lastGoto);
         }
     }
+
+    private boolean isInvocationThrowThatException(SootClass caughtType, Unit caughtUnit) {
+        if(caughtType==null) return true;
+        InvokeExpr invokeExpr = SootUtils.getInvokeExp(caughtUnit);
+        if(invokeExpr==null) return false;
+        for(SootClass throwsException: invokeExpr.getMethod().getExceptions()){
+            if(Scene.v().getActiveHierarchy().isClassSubclassOfIncluding(throwsException, caughtType)){
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * tracing the values relates to the one used in if condition
@@ -606,10 +628,15 @@ public class ExceptionAnalyzer extends Analyzer {
                     }else if(identityStmt.getRightOp() instanceof CaughtExceptionRef){
                         exceptionInfo.addCaughtValues(identityStmt.getRightOp());
                         //analyze the try-catch block of this exception
+                        Log.error("2");
                         List<Unit> caughtUnits = getTryCatchUnits(sootMethod, defUnit);
+                        SootClass caughtType = getCaughtExceptionType(sootMethod, defUnit);
+
                         for(Unit caughtUnit: caughtUnits) {
+                            boolean invocationThrowThatException = isInvocationThrowThatException(caughtType,caughtUnit);
+                            if(invocationThrowThatException==false) continue;
                             for (ValueBox vb : caughtUnit.getUseBoxes()) {
-                                extendRelatedValues(sootMethod, SootUtils.getUnitListFromMethod(sootMethod), exceptionInfo, caughtUnit, vb.getValue(), valueHistory, getCondHistory, fromThrow);
+                                extendRelatedValues(sootMethod,SootUtils.getUnitListFromMethod(sootMethod), exceptionInfo, caughtUnit, vb.getValue(), new ArrayList<>(), getCondHistory, fromThrow);
                             }
                         }
                         return "CaughtExceptionRef";
@@ -676,6 +703,28 @@ public class ExceptionAnalyzer extends Analyzer {
         return "";
     }
 
+    /**
+     * get the type of the caught exception
+     * @param sootMethod
+     * @param defUnit
+     * @return
+     */
+    private SootClass getCaughtExceptionType(SootMethod sootMethod, Unit defUnit) {
+        for (Trap trap : sootMethod.getActiveBody().getTraps()) {
+            if (trap.getHandlerUnit() == defUnit) {
+                return  trap.getException();
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * get the units in the try-catch block
+     * @param sootMethod
+     * @param defUnit
+     * @return
+     */
     private List getTryCatchUnits(SootMethod sootMethod, Unit defUnit) {
         List<Unit> tryCatchUnits = new ArrayList<>();
         for (Trap trap : sootMethod.getActiveBody().getTraps()) {
