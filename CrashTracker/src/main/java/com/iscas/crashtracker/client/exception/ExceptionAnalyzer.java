@@ -573,18 +573,20 @@ public class ExceptionAnalyzer extends Analyzer {
                 JIdentityStmt stmt = (JIdentityStmt) predUnit;
                 if(stmt.getRightOp() instanceof CaughtExceptionRef){
                     exceptionInfo.addCaughtValues(stmt.getRightOp());
-//                    Log.error("1");
+                    //TODO statistic
                     //analyze the try-catch block of this exception
-                    List<Unit> caughtUnits = getTryCatchUnits(sootMethod, predUnit);
-                    SootClass caughtType = getCaughtExceptionType(sootMethod, predUnit);
+                    {
+                        List<Unit> caughtUnits = getTryCatchUnits(sootMethod, predUnit);
+                        SootClass caughtType = getCaughtExceptionType(sootMethod, predUnit);
 
-                    for(Unit caughtUnit: caughtUnits) {
-                        boolean invocationThrowThatException = isInvocationThrowThatException(caughtType,caughtUnit);
-                        if(invocationThrowThatException==false) continue;
-                        for (ValueBox vb : caughtUnit.getUseBoxes()) {
-                            extendRelatedValues(sootMethod,SootUtils.getUnitListFromMethod(sootMethod), exceptionInfo, caughtUnit, vb.getValue(), new ArrayList<>(), getCondHistory, fromThrow);
+                        for (Unit caughtUnit : caughtUnits) {
+                            boolean invocationThrowThatException = isInvocationThrowThatException(caughtType, caughtUnit);
+                            if (invocationThrowThatException == false) continue;
+                            for (ValueBox vb : caughtUnit.getUseBoxes()) {
+                                extendRelatedValues(sootMethod, SootUtils.getUnitListFromMethod(sootMethod), exceptionInfo, caughtUnit, vb.getValue(), new ArrayList<>(), getCondHistory, fromThrow);
+                            }
+                            ifMeetTryCatch = true;
                         }
-                        ifMeetTryCatch = true;
                     }
                 }
             }
@@ -645,16 +647,18 @@ public class ExceptionAnalyzer extends Analyzer {
                         return "ParameterRef";
                     }else if(identityStmt.getRightOp() instanceof CaughtExceptionRef){
                         exceptionInfo.addCaughtValues(identityStmt.getRightOp());
+                        //TODO statistic
                         //analyze the try-catch block of this exception
-//                        Log.error("2");
-                        List<Unit> caughtUnits = getTryCatchUnits(sootMethod, defUnit);
-                        SootClass caughtType = getCaughtExceptionType(sootMethod, defUnit);
+                        {
+                            List<Unit> caughtUnits = getTryCatchUnits(sootMethod, defUnit);
+                            SootClass caughtType = getCaughtExceptionType(sootMethod, defUnit);
 
-                        for(Unit caughtUnit: caughtUnits) {
-                            boolean invocationThrowThatException = isInvocationThrowThatException(caughtType,caughtUnit);
-                            if(invocationThrowThatException==false) continue;
-                            for (ValueBox vb : caughtUnit.getUseBoxes()) {
-                                extendRelatedValues(sootMethod,SootUtils.getUnitListFromMethod(sootMethod), exceptionInfo, caughtUnit, vb.getValue(), new ArrayList<>(), getCondHistory, fromThrow);
+                            for (Unit caughtUnit : caughtUnits) {
+                                boolean invocationThrowThatException = isInvocationThrowThatException(caughtType, caughtUnit);
+                                if (invocationThrowThatException == false) continue;
+                                for (ValueBox vb : caughtUnit.getUseBoxes()) {
+                                    extendRelatedValues(sootMethod, SootUtils.getUnitListFromMethod(sootMethod), exceptionInfo, caughtUnit, vb.getValue(), new ArrayList<>(), getCondHistory, fromThrow);
+                                }
                             }
                         }
                         return "CaughtExceptionRef";

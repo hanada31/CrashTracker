@@ -227,7 +227,7 @@ public class Main {
 
 		int timeLimit = Integer.valueOf(mCmd.getOptionValue("time", "90"));
 		MyConfig.getInstance().setTimeLimit(timeLimit);
-		MyConfig.getInstance().setCallgraphAlgorithm(mCmd.getOptionValue("callgraphAlgorithm", "CHA"));
+		MyConfig.getInstance().setCallgraphAlgorithm(mCmd.getOptionValue("callgraphAlgorithm", "SPARK"));
 
 		String client = mCmd.getOptionValue("client", "MainClient");
 		MyConfig.getInstance().setClient(mCmd.getOptionValue("client", client));
