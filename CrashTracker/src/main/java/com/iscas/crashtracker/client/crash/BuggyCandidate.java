@@ -3,16 +3,14 @@ package com.iscas.crashtracker.client.crash;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.annotation.JSONField;
-import com.iscas.crashtracker.utils.PrintUtils;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class BuggyCandidate {
     @JSONField(name = "Candidate Name")
     private String candidateName;
+    private String candidateSig;
     @JSONField(name = "Candidate Score")
     private final int candidateScore;
     @JSONField(name = "Reasons")
@@ -31,8 +29,9 @@ public class BuggyCandidate {
         return reasons;
     }
 
-    public BuggyCandidate(String candi, int score){
+    public BuggyCandidate(String candi, String candidateSig, int score){
         this.candidateName = candi;
+        this.candidateSig = candidateSig;
         this.candidateScore = score;
     }
 
@@ -43,4 +42,11 @@ public class BuggyCandidate {
         reasons.add(reason);
     }
 
+    public String getCandidateSig() {
+        return candidateSig;
+    }
+
+    public void setCandidateSig(String candidateSig) {
+        this.candidateSig = candidateSig;
+    }
 }

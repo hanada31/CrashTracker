@@ -112,8 +112,7 @@ public class CrashInfo {
         return buggyCandidateObjs;
     }
 
-
-    public void addBuggyCandidates(String candi, int score, JSONObject reason) {
+    public void addBuggyCandidates(String candi, String candidateSig,int score, JSONObject reason) {
         boolean findPrexInTrace = false;
         for(String traceMtd: getCrashMethodList()){
             int id = Math.max(traceMtd.split("\\.").length-2, 2);
@@ -135,7 +134,7 @@ public class CrashInfo {
 //                System.out.println(reason.remove("Influenced Field"));
                 this.buggyCandidateObjs.get(candi).addReasonTrace(reason);
             }else {
-                BuggyCandidate candiObj = new BuggyCandidate(candi, score);
+                BuggyCandidate candiObj = new BuggyCandidate(candi, candidateSig, score);
 //                System.out.println(reason.remove("Influenced Field"));
                 candiObj.addReasonTrace(reason);
                 this.buggyCandidateObjs.put(candi, candiObj);

@@ -1,5 +1,7 @@
 package com.iscas.crashtracker.utils;
 
+import com.alibaba.fastjson.JSONArray;
+import com.iscas.crashtracker.client.crash.BuggyCandidate;
 import heros.solver.Pair;
 import com.iscas.crashtracker.base.Global;
 import com.iscas.crashtracker.base.MyConfig;
@@ -248,6 +250,7 @@ public class SootUtils {
 		}
 		return ready;
 	}
+
 
 	private static void addExcludeList(ArrayList<String> excludeList) {
 		excludeList.add("<android.");
@@ -1567,5 +1570,46 @@ public class SootUtils {
 			}
 		}
 		return false;
+	}
+
+	public static Set<String> getUsedMethodList(String methodSig) {
+		Set<String> usedList = new HashSet<>();
+		SootMethod sootMethod = SootUtils.getSootMethodBySignature(methodSig);
+		for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesOutOf(sootMethod); it.hasNext(); ) {
+			Edge edge = it.next();
+			if(!edge.getTgt().method().getDeclaringClass().getName().startsWith("java")) {
+				if (!usedList.contains(edge.getTgt().method().getSignature())) {
+					usedList.add(edge.getTgt().method().getSignature());
+				}
+			}
+		}
+		return usedList;
+	}
+
+
+	public static Set<String> getUsedFieldList(String methodSig) {
+		Set<String> usedList = new HashSet<>();
+		SootMethod sootMethod = SootUtils.getSootMethodBySignature(methodSig);
+		for(Unit unit: getUnitListFromMethod(sootMethod)){
+			for (ValueBox valueBox : unit.getUseAndDefBoxes()) {
+				Value value = valueBox.getValue();
+				if (value instanceof FieldRef) {
+					FieldRef fieldRef = (FieldRef) value;
+					String fieldName = fieldRef.getField().getName();
+					String className = fieldRef.getField().getDeclaringClass().getName();
+					String fieldType = fieldRef.getField().getType().toString();
+					String classField = className + "." + fieldName + " : " + fieldType;
+					usedList.add(classField);
+				} else if (value instanceof StaticFieldRef) {
+					StaticFieldRef staticFieldRef = (StaticFieldRef) value;
+					String fieldName = staticFieldRef.getField().getName();
+					String className = staticFieldRef.getField().getDeclaringClass().getName();
+					String fieldType = staticFieldRef.getField().getType().toString();
+					String classField = className + "." + fieldName + " : " + fieldType;
+					usedList.add(classField);
+				}
+			}
+		}
+		return usedList;
 	}
 }

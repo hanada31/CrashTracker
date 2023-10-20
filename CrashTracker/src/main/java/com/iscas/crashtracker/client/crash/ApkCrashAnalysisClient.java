@@ -9,6 +9,7 @@ import com.iscas.crashtracker.client.soot.SootAnalyzer;
 import com.iscas.crashtracker.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.DocumentException;
+import soot.PackManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class ApkCrashAnalysisClient extends BaseClient {
         Analyzer analyzer = new CrashAnalysis();
         analyzer.analyze();
         log.info("Successfully analyze with CrashAnalysisClient.");
-        //        PackManager.v().writeOutput();
+
     }
 
     @Override
@@ -45,6 +46,6 @@ public class ApkCrashAnalysisClient extends BaseClient {
 
         CrashAnalysisClientOutput outer = new CrashAnalysisClientOutput();
         outer.writeToJson(summary_app_dir+Global.v().getAppModel().getAppName()+".json", Global.v().getAppModel().getCrashInfoList());
-
+//        PackManager.v().writeOutput();
     }
 }

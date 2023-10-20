@@ -22,6 +22,7 @@ public class MyConfig {
 	private int timeLimit;
 	private String androidJar;
 	private boolean stopFlag = false;
+	private String targetVersion;
 
 	private boolean isSootAnalyzeFinish;
 	private boolean isManifestClientFinish;
@@ -253,7 +254,12 @@ public class MyConfig {
 	public String getExceptionFilePath() {
 		return ExceptionFilePath;
 	}
-
+	public String getTargetVersion() {
+		return targetVersion;
+	}
+	public void setTargetVersion(String targetVersion) {
+		this.targetVersion = targetVersion;
+	}
 	public void setExceptionFilePath(String exceptionFilePath) {
 		ExceptionFilePath = exceptionFilePath;
 		FileUtils.createFolder(ExceptionFilePath);

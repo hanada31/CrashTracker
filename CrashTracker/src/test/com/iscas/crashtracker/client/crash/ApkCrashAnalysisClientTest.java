@@ -27,8 +27,8 @@ public class ApkCrashAnalysisClientTest {
     private void setArgs() {
         String path;
         path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
-//        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
-        path = "..\\app\\";
+        path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
+//        path = "..\\app\\";
 
         String name;
         name = "cgeo.geocaching-4450.apk";

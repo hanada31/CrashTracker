@@ -104,7 +104,11 @@ public class CrashAnalysis extends Analyzer {
             JSONArray trace = new JSONArray();
             reason.put("Trace", trace);
             trace.add(candi);
-            crashInfo.addBuggyCandidates(candi,initscore--,reason);
+            Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
+            for(SootMethod sm: methods) {
+                crashInfo.addBuggyCandidates(candi, sm.getSignature(), initscore--, reason);
+                break;
+            }
         }
     }
     private void getPartOfExtendedCallTrace(CrashInfo crashInfo) {
@@ -456,7 +460,7 @@ public class CrashAnalysis extends Analyzer {
                                     reason.put("Trace", trace);
                                     trace.add(crashInfo.getCrashAPI());
                                     trace.add(callee);
-                                    crashInfo.addBuggyCandidates(callee, score, reason);
+                                    crashInfo.addBuggyCandidates(callee, method.getSignature(), score, reason);
                                 }
                             }
                         }
@@ -477,7 +481,11 @@ public class CrashAnalysis extends Analyzer {
             reason.put("Explanation", "Not in the crash stack but has been executed");
             reason.put("Trace", method.trace.clone());
             int score = ConstantUtils.INITSCORE-method.depth;
-            crashInfo.addBuggyCandidates(candi, score, reason);
+            Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
+            for(SootMethod sm: methods) {
+                crashInfo.addBuggyCandidates(candi, sm.getSignature(), score, reason);
+                break;
+            }
         }
     }
     //according to the parameter send into framework API
@@ -547,7 +555,7 @@ public class CrashAnalysis extends Analyzer {
                     trace.add(otherMethod.getSignature());
                     trace.add("modify key field: " + field);
                     trace.add(crashMethod.getSignature());
-                    crashInfo.addBuggyCandidates(candi, score, reason);
+                    crashInfo.addBuggyCandidates(candi, otherMethod.getSignature(),score, reason);
                 }
             }
         }
@@ -628,7 +636,7 @@ public class CrashAnalysis extends Analyzer {
                     }else{
                         trace.add(candi);
                     }
-                    crashInfo.addBuggyCandidates(candi, score, reason);
+                    crashInfo.addBuggyCandidates(candi, sm.getSignature(), score, reason);
                     count++;
                     find = true;
                 }
@@ -653,7 +661,7 @@ public class CrashAnalysis extends Analyzer {
                     JSONArray trace = new JSONArray();
                     reason.put("Trace", trace);
                     trace.add(finalCaller.getSignature());
-                    crashInfo.addBuggyCandidates(candi,score,reason);
+                    crashInfo.addBuggyCandidates(candi,sm.getSignature(), score,reason);
                     count++;
                     find = true;
                 }
@@ -674,6 +682,7 @@ public class CrashAnalysis extends Analyzer {
         for(int k=start; k<=end; k++){
             String candi = crashInfo.getTrace().get(k);
             if(!isLibraryMethod(candi)){
+
                 String ParamIds = "Unknown";
                 if(crashInfo.getExceptionInfo()!=null)
                     ParamIds = PrintUtils.printList(crashInfo.getExceptionInfo().getRelatedParamIdsInStr());
@@ -686,9 +695,12 @@ public class CrashAnalysis extends Analyzer {
                 JSONArray trace = new JSONArray();
                 reason.put("Trace", trace);
                 trace.add(candi);
-                crashInfo.addBuggyCandidates(candi, initScore--, reason);
-
                 Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
+                for(SootMethod sm: methods) {
+                    crashInfo.addBuggyCandidates(candi, sm.getSignature(), initScore--, reason);
+                    break;
+                }
+
                 for(SootMethod sm: methods) {
                     if (sm == null) continue;
                     sub = sm.getDeclaringClass().getName();
@@ -768,7 +780,7 @@ public class CrashAnalysis extends Analyzer {
         reason.put("Reason Type", "Executed Method 2");
         reason.put("Explanation", "Not in the crash stack but has been executedNot in the crash stack but has been executed" );
         //TODO
-        crashInfo.addBuggyCandidates(candi, score, reason);
+        crashInfo.addBuggyCandidates(candi, sootMethod.getSignature(),score, reason);
 
         for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesOutOf(sootMethod); it.hasNext(); ) {
             Edge edge2 = it.next();
@@ -803,7 +815,7 @@ public class CrashAnalysis extends Analyzer {
                 }
             }
             reason.put("Signaler",crashInfo.getSignaler());
-            crashInfo.addBuggyCandidates(candi, score, reason);
+            crashInfo.addBuggyCandidates(candi, sootMethod.getSignature(), score, reason);
         }
         reason.getJSONArray("Trace").add(0,sootMethod.getSignature());
         //if the buggy type is not passed by parameter, do not find its caller
@@ -843,6 +855,7 @@ public class CrashAnalysis extends Analyzer {
      * @param crashInfo
      */
     private void getBuggyFromRelatedMethods(CrashInfo crashInfo, RelatedMethod relatedMethod, int initScore) {
+//        log.error(relatedMethod.getMethod());
         crashInfo.setEdges(new ArrayList<>());
         int size =  0;
         if(!MyConfig.getInstance().getStrategy().equals(Strategy.NoCallFilter.toString())){
@@ -962,13 +975,13 @@ public class CrashAnalysis extends Analyzer {
             if(!sc.hasSuperclass()) continue;
             if(sc.getSuperclass().getName().equals(crashInfo.getClassName())){
                 for(SootClass sub: Scene.v().getActiveHierarchy().getSubclassesOfIncluding(sc)){
-                    boolean hasMethod = false;
+                    SootMethod sootMethod = null;
                     for(SootMethod sm : sub.getMethods()){
                         if(sm.getName().equals(crashInfo.getSubMethodName()) && sm.hasActiveBody()){
-                            hasMethod = true;
+                            sootMethod = sm;
                         }
                     }
-                    if(!hasMethod) {
+                    if(sootMethod!=null) {
                         String candi = sub.getName() + "." + crashInfo.getSubMethodName();
                         int updateScore = score - getOrderInTrace(crashInfo, candi);
 
@@ -978,7 +991,7 @@ public class CrashAnalysis extends Analyzer {
                         JSONArray trace = new JSONArray();
                         reason.put("Trace", trace);
                         trace.add(crashInfo.getMethodName());
-                        crashInfo.addBuggyCandidates(candi, updateScore, reason);
+                        crashInfo.addBuggyCandidates(candi, sootMethod.getSignature(),updateScore, reason);
                     }
                 }
             }
@@ -1053,7 +1066,7 @@ public class CrashAnalysis extends Analyzer {
             MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
             MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"android"+targetVer+"_cg.txt");
             log.info("target is "+ targetVer);
-
+            MyConfig.getInstance().setTargetVersion(targetVer);
             readExceptionSummary(crashInfo, targetMethodName);
         }
     }

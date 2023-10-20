@@ -5,18 +5,18 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.iscas.crashtracker.base.Global;
+import com.iscas.crashtracker.base.MyConfig;
 import com.iscas.crashtracker.client.exception.ExceptionInfo;
 import com.iscas.crashtracker.client.exception.RelatedCondType;
 import com.iscas.crashtracker.client.exception.RelatedMethod;
 import com.iscas.crashtracker.client.exception.RelatedVarType;
 import com.iscas.crashtracker.utils.CollectionUtils;
 import com.iscas.crashtracker.utils.PrintUtils;
+import com.iscas.crashtracker.utils.SootUtils;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Author hanada
@@ -67,6 +67,7 @@ public class CrashAnalysisClientOutput {
         }
         jsonObject.put("stack trace" , traceArray);
         jsonObject.put("Labeled Buggy Method", crashInfo.getReal());
+
 //        jsonObject.put("Labeled Buggy API", crashInfo.getBuggyApi());
 //        jsonObject.put("labeledCategory", crashInfo.getCategory());
 //        jsonObject.put("labeledReason", crashInfo.getReason());
@@ -124,6 +125,7 @@ public class CrashAnalysisClientOutput {
 
         ExceptionInfo exceptionInfo = crashInfo.getExceptionInfo();
         if(exceptionInfo!=null) {
+            jsonObject.put("Target Version of Framework", MyConfig.getInstance().getTargetVersion());
             jsonObject.put("Regression Message", crashInfo.getExceptionInfo().getExceptionMsg());
             jsonObject.put("Related Variable Type", crashInfo.getExceptionInfo().getRelatedVarType());
             jsonObject.put("Fault Inducing Paras", crashInfo.getFaultInducingParas());
@@ -138,15 +140,29 @@ public class CrashAnalysisClientOutput {
                 jsonObject.put("Param Values", PrintUtils.printList(crashInfo.getExceptionInfo().getRelatedParamValues()));
             jsonObject.put("ETS-related Type", changeToETSType(crashInfo.getExceptionInfo().getRelatedVarType()));
         }
-
+        Map<String, String> refToInvokeStack = new HashMap<>();
+        List<String> workList = new ArrayList<>();
         JSONArray buggyArray = new JSONArray();
+        JSONArray refMethodList = new JSONArray();
+        JSONArray refFieldList = new JSONArray();
         List<Map.Entry<String, Integer>> treeMapList = CollectionUtils.getTreeMapEntriesSortedByValue(crashInfo.getBuggyCandidates());
         for (int i = 0; i < treeMapList.size(); i++) {
             String buggy = treeMapList.get(i).getKey();
             BuggyCandidate bc = crashInfo.getBuggyCandidateObjs().get(buggy);
             buggyArray.add(bc);
+            workList.add(bc.getCandidateSig());
+        }
+
+        for(int i =0; i<5; i++) {
+            List<String> addedInThisStep = new ArrayList<>();
+            for (String ref : workList) {
+                updateRefList(ref, refMethodList, refFieldList, addedInThisStep,refToInvokeStack);
+            }
+            workList = addedInThisStep;
         }
         jsonObject.put("Buggy Method Candidates" , buggyArray);
+        jsonObject.put("Reference Method List" , refMethodList);
+        jsonObject.put("Reference Field List" , refFieldList);
 
 
         JSONArray noneCodeLabelArray = new JSONArray();
@@ -154,6 +170,26 @@ public class CrashAnalysisClientOutput {
             noneCodeLabelArray.add(label);
         }
         jsonObject.put("None-Code Labels" , noneCodeLabelArray);
+    }
+
+    private void updateRefList(String candidateSig, JSONArray refMethodList, JSONArray refFieldList, List<String> addedInThisStep, Map<String, String> refToInvokeStack) {
+        for(String usedMethod: SootUtils.getUsedMethodList(candidateSig)){
+            String historyStack = "";
+            if(refMethodList.contains(usedMethod))continue;
+            if(refToInvokeStack.containsKey(candidateSig)){
+                historyStack = refToInvokeStack.get(candidateSig) +" --> ";
+            }
+            refMethodList.add(historyStack +candidateSig +" --> "+usedMethod);
+            refToInvokeStack.put(usedMethod, historyStack +candidateSig);
+            addedInThisStep.add(usedMethod);
+        }
+        for(String usedField: SootUtils.getUsedFieldList(candidateSig)){
+            String historyStack = "";
+            if(refToInvokeStack.containsKey(candidateSig)){
+                historyStack = refToInvokeStack.get(candidateSig) +" --> ";
+            }
+            refFieldList.add(historyStack +candidateSig +" --> "+usedField);
+        }
     }
 
 }

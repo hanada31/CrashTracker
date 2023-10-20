@@ -31,11 +31,11 @@ public class CallGraphJavaClient extends BaseClient {
 
 	@Override
 	public void clientOutput() {
-		String summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
-				+ File.separator;
-		FileUtils.createFolder(summary_app_dir + ConstantUtils.CGFOLDETR);
-		CgClientOutput.writeCG(summary_app_dir + ConstantUtils.CGFOLDETR,
-				Global.v().getAppModel().getAppName()+"_cg.txt", Global.v().getAppModel().getCg());
+//		String summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
+//				+ File.separator;
+//		FileUtils.createFolder(summary_app_dir + ConstantUtils.CGFOLDETR);
+//		CgClientOutput.writeCG(summary_app_dir + ConstantUtils.CGFOLDETR,
+//				Global.v().getAppModel().getAppName()+"_cg.txt", Global.v().getAppModel().getCg());
 	}
 
 }
