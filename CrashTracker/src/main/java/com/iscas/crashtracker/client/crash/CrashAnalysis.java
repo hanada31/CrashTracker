@@ -17,6 +17,7 @@ import soot.toolkits.scalar.Pair;
 import soot.toolkits.scalar.UnitValueBoxPair;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,6 +35,7 @@ public class CrashAnalysis extends Analyzer {
     Map<String, Set<String>> androidCGMap;
     String relatedVarType="";
     String[] versions = {"2.3", "4.4", "5.0", "6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0"};
+    int[] APILevels = {10, 19, 21, 23, 24, 26, 27, 28, 29, 30};
 
     public CrashAnalysis() {
         crashInfoList = Global.v().getAppModel().getCrashInfoList();
@@ -103,12 +105,15 @@ public class CrashAnalysis extends Analyzer {
             reason.put("Explanation", "Not influence the keyVar but in crash trace");
             JSONArray trace = new JSONArray();
             reason.put("Trace", trace);
-            trace.add(candi);
             Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
             for(SootMethod sm: methods) {
+                trace.add(sm.getSignature());
                 crashInfo.addBuggyCandidates(candi, sm.getSignature(), initscore--, reason);
                 break;
             }
+//            if(methods.size()==0){
+//                crashInfo.addBuggyCandidates(candi, "", initscore--, reason);
+//            }
         }
     }
     private void getPartOfExtendedCallTrace(CrashInfo crashInfo) {
@@ -142,13 +147,14 @@ public class CrashAnalysis extends Analyzer {
             String candi = crashInfo.getCrashMethodList().get(index);
             JSONArray trace = new JSONArray();
             reason.put("Trace", trace);
-            trace.add(candi);
             crashInfo.addExtendedCallDepth(candi, 1, reason.clone());
             Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
             for (SootMethod sm : methods) {
+                trace.add(sm.getSignature());
                 addEntryMethods2ExtendedCG(sm, crashInfo, reason.clone());
                 String last = (index == 0) ? crashInfo.getCrashAPI() : crashInfo.getCrashMethodList().get(index - 1);
                 addPredCallersOfMethodsInStack(last, sm, crashInfo, reason.clone());
+                break;
             }
         }
         String firstAppMethod = crashInfo.getCrashMethodList().get(crashInfo.getCrashMethodList().size() - 1);
@@ -376,7 +382,6 @@ public class CrashAnalysis extends Analyzer {
      */
     private void withParameterHandler(int score, CrashInfo crashInfo, boolean hasFaultInducingParas) {
         int n = 0;
-        //TODO!!! rerun
         if(crashInfo.getExceptionInfo()!=null && crashInfo.getExceptionInfo().getRelatedVarType()!=null) {
             if(crashInfo.getExceptionInfo().getCallerOfSingnlar2SourceVar()!=null){
                 if(hasFaultInducingParas) {
@@ -459,7 +464,7 @@ public class CrashAnalysis extends Analyzer {
                                     JSONArray trace = new JSONArray();
                                     reason.put("Trace", trace);
                                     trace.add(crashInfo.getCrashAPI());
-                                    trace.add(callee);
+                                    trace.add(method.getSignature());
                                     crashInfo.addBuggyCandidates(callee, method.getSignature(), score, reason);
                                 }
                             }
@@ -486,6 +491,9 @@ public class CrashAnalysis extends Analyzer {
                 crashInfo.addBuggyCandidates(candi, sm.getSignature(), score, reason);
                 break;
             }
+//            if(methods.size()==0){
+//                crashInfo.addBuggyCandidates(candi, "", score, reason);
+//            }
         }
     }
     //according to the parameter send into framework API
@@ -531,13 +539,12 @@ public class CrashAnalysis extends Analyzer {
         }
     }
 
-    private void findMethodsWhoModifyParam(int score, CrashInfo crashInfo, SootMethod crashMethod, Unit unit, Value faultInducingValue) {
+    private void findMethodsWhoModifyParam(int score, CrashInfo crashInfo, SootMethod crashMethod, Unit unit, Value faultInducingValue){
         List<Unit> allPreds = new ArrayList<>();
         SootUtils.getAllPredsofUnit(crashMethod, unit,allPreds);
         HashSet<SootField> fields = new HashSet<>();
         extendRelatedValues(crashMethod, allPreds, unit, faultInducingValue, new ArrayList<>(), fields);
-
-        List<SootField> keyFields = getKeySootFields(crashMethod, crashInfo, faultInducingValue);
+                List<SootField> keyFields = getKeySootFields(crashMethod, crashInfo, faultInducingValue);
         for (SootField field : fields) {
             if(keyFields!=null && !keyFields.contains(field))
                 continue;
@@ -630,7 +637,6 @@ public class CrashAnalysis extends Analyzer {
                     reason.put("Influenced method", crashInfo.getSignaler());
                     JSONArray trace = new JSONArray();
                     reason.put("Trace", trace);
-
                     if(signature != null){
                         trace.add(signature);
                     }else{
@@ -694,12 +700,15 @@ public class CrashAnalysis extends Analyzer {
                 reason.put("Influenced method", crashInfo.getSignaler());
                 JSONArray trace = new JSONArray();
                 reason.put("Trace", trace);
-                trace.add(candi);
                 Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
                 for(SootMethod sm: methods) {
+                    trace.add(sm.getSignature());
                     crashInfo.addBuggyCandidates(candi, sm.getSignature(), initScore--, reason);
                     break;
                 }
+//                if(methods.size()==0){
+//                    crashInfo.addBuggyCandidates(candi, "", initScore--, reason);
+//                }
 
                 for(SootMethod sm: methods) {
                     if (sm == null) continue;
@@ -981,7 +990,7 @@ public class CrashAnalysis extends Analyzer {
                             sootMethod = sm;
                         }
                     }
-                    if(sootMethod!=null) {
+                    if(sootMethod==null) {
                         String candi = sub.getName() + "." + crashInfo.getSubMethodName();
                         int updateScore = score - getOrderInTrace(crashInfo, candi);
 
@@ -991,7 +1000,7 @@ public class CrashAnalysis extends Analyzer {
                         JSONArray trace = new JSONArray();
                         reason.put("Trace", trace);
                         trace.add(crashInfo.getMethodName());
-                        crashInfo.addBuggyCandidates(candi, sootMethod.getSignature(),updateScore, reason);
+                        crashInfo.addBuggyCandidates(candi, "",updateScore, reason);
                     }
                 }
             }
@@ -1019,6 +1028,60 @@ public class CrashAnalysis extends Analyzer {
     }
 
     public void getExceptionOfCrashInfo() {
+        log.info("getExceptionOfCrashInfo...");
+        for(CrashInfo crashInfo: this.crashInfoList) {
+            if(crashInfo.getTrace().size()==0 ) continue;
+            String targetVer;
+            String targetMethodName;
+            if(MyConfig.getInstance().getAndroidOSVersion()==null) {
+                String str = crashInfo.getId() + "\t" + crashInfo.getSignaler() + "\t";
+                String[] versionTypes = new String[versions.length];
+                String[] versionTypeCandis = new String[versions.length];
+                String[] targetMethodNames = new String[versions.length];
+                int i = -1;
+                int targetVerId = 0;
+                int minDistance2TargetAPI = 100;
+                for (String version : versions) {
+                    i++;
+                    Pair<String, String> pair = getExceptionWithGivenVersion(crashInfo, version, true);
+                    versionTypes[i] = pair.getO1();
+                    targetMethodNames[i] = pair.getO2();
+                    if (versionTypes[i].equals("notFound")) {
+                        Pair<String, String> pair2 = getExceptionWithGivenVersion(crashInfo, version, false);
+                        versionTypeCandis[i] = pair2.getO1();
+                        targetMethodNames[i] = pair2.getO2();
+                    }else if (versionTypes[i].equals("noFile")){
+                        log.info("version "+ versions[i] +" not exist.");
+                    }else{
+                        if(APILevels[i]>=appModel.getMinSdkVersion()){
+                            if(Math.abs(appModel.getTargetSdkVersion()-APILevels[i])<minDistance2TargetAPI){
+                                minDistance2TargetAPI = Math.abs(appModel.getTargetSdkVersion()-APILevels[i]);
+                                targetVerId = i;
+                            }
+                        }
+                    }
+                }
+                targetVer = versions[targetVerId];
+                targetMethodName = targetMethodNames[targetVerId];
+                log.info("versionTypes: "+PrintUtils.printArray(versionTypes));
+                log.info("versionTypeCandis: "+PrintUtils.printArray(versionTypeCandis));
+                log.info("version "+ versions[targetVerId] +" is matched.");
+            }else{
+                targetVer = MyConfig.getInstance().getAndroidOSVersion();
+                targetMethodName = crashInfo.getSignaler();
+            }
+            String androidFolder = MyConfig.getInstance().getExceptionFolderPath()+File.separator+"android"+targetVer+File.separator;
+            MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);
+            MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
+            MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"android"+targetVer+"_cg.txt");
+            log.info("target is "+ targetVer);
+            MyConfig.getInstance().setTargetVersion(targetVer);
+            readExceptionSummary(crashInfo, targetMethodName);
+        }
+    }
+
+
+    public void getExceptionOfCrashInfo_Back() {
         log.info("getExceptionOfCrashInfo...");
         for(CrashInfo crashInfo: this.crashInfoList) {
             if(crashInfo.getTrace().size()==0 ) continue;

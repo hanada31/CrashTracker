@@ -31,7 +31,7 @@ public class ApkCrashAnalysisClientTest {
 //        path = "..\\app\\";
 
         String name;
-        name = "cgeo.geocaching-4450.apk";
+        name = "cgeo.geocaching-600.apk";
 
         String client = "ApkCrashAnalysisClient";
 

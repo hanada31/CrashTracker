@@ -46,7 +46,4 @@ public class BuggyCandidate {
         return candidateSig;
     }
 
-    public void setCandidateSig(String candidateSig) {
-        this.candidateSig = candidateSig;
-    }
 }

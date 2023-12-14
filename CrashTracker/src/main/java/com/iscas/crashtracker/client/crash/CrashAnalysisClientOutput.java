@@ -15,6 +15,7 @@ import com.iscas.crashtracker.utils.PrintUtils;
 import com.iscas.crashtracker.utils.SootUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
@@ -52,7 +53,7 @@ public class CrashAnalysisClientOutput {
                     SerializerFeature.SortField);
             printWriter.write(jsonString);
             printWriter.close();
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -67,7 +68,8 @@ public class CrashAnalysisClientOutput {
         }
         jsonObject.put("stack trace" , traceArray);
         jsonObject.put("Labeled Buggy Method", crashInfo.getReal());
-
+        jsonObject.put("Manifest targetSdkVersion",Global.v().getAppModel().getTargetSdkVersion());
+        jsonObject.put("Manifest minSdkVersion",Global.v().getAppModel().getMinSdkVersion());
 //        jsonObject.put("Labeled Buggy API", crashInfo.getBuggyApi());
 //        jsonObject.put("labeledCategory", crashInfo.getCategory());
 //        jsonObject.put("labeledReason", crashInfo.getReason());
@@ -153,10 +155,10 @@ public class CrashAnalysisClientOutput {
             workList.add(bc.getCandidateSig());
         }
 
-        for(int i =0; i<5; i++) {
+        for(int i =0; i<3; i++) {
             List<String> addedInThisStep = new ArrayList<>();
             for (String ref : workList) {
-                updateRefList(ref, refMethodList, refFieldList, addedInThisStep,refToInvokeStack);
+                updateRefList(crashInfo,ref, refMethodList, refFieldList, addedInThisStep,refToInvokeStack);
             }
             workList = addedInThisStep;
         }
@@ -165,15 +167,16 @@ public class CrashAnalysisClientOutput {
         jsonObject.put("Reference Field List" , refFieldList);
 
 
-        JSONArray noneCodeLabelArray = new JSONArray();
-        for (String label: crashInfo.getNoneCodeLabel()) {
-            noneCodeLabelArray.add(label);
-        }
-        jsonObject.put("None-Code Labels" , noneCodeLabelArray);
+//        JSONArray noneCodeLabelArray = new JSONArray();
+//        for (String label: crashInfo.getNoneCodeLabel( )) {
+//            noneCodeLabelArray.add(label);
+//        }
+//        Object put = jsonObject.put("None-Code Labels", noneCodeLabelArray);
     }
 
-    private void updateRefList(String candidateSig, JSONArray refMethodList, JSONArray refFieldList, List<String> addedInThisStep, Map<String, String> refToInvokeStack) {
-        for(String usedMethod: SootUtils.getUsedMethodList(candidateSig)){
+    private void updateRefList(CrashInfo crashInfo, String candidateSig, JSONArray refMethodList, JSONArray refFieldList, List<String> addedInThisStep, Map<String, String> refToInvokeStack) {
+
+        for(String usedMethod: SootUtils.getUsedMethodList(crashInfo, candidateSig)){
             String historyStack = "";
             if(refMethodList.contains(usedMethod))continue;
             if(refToInvokeStack.containsKey(candidateSig)){
@@ -183,7 +186,7 @@ public class CrashAnalysisClientOutput {
             refToInvokeStack.put(usedMethod, historyStack +candidateSig);
             addedInThisStep.add(usedMethod);
         }
-        for(String usedField: SootUtils.getUsedFieldList(candidateSig)){
+        for(String usedField: SootUtils.getUsedFieldList(crashInfo, candidateSig)){
             String historyStack = "";
             if(refToInvokeStack.containsKey(candidateSig)){
                 historyStack = refToInvokeStack.get(candidateSig) +" --> ";

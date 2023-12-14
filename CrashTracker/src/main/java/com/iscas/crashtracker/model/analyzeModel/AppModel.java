@@ -29,7 +29,9 @@ public class AppModel implements Serializable {
 	private String permission;
 	private Set<String> usesPermissionSet;
 	private Set<String> applicationClassNames;
+    private int targetSdkVersion;
 
+	private int minSdkVersion;
 
 	// call graph related
 	private final Set<SootMethod> allMethods;
@@ -387,5 +389,20 @@ public class AppModel implements Serializable {
 	}
 
 
+	public int getTargetSdkVersion() {
+		return targetSdkVersion;
+	}
+
+	public void setTargetSdkVersion(int targetSdkVersion) {
+		this.targetSdkVersion = targetSdkVersion;
+	}
+
+	public int getMinSdkVersion() {
+		return minSdkVersion;
+	}
+
+	public void setMinSdkVersion(int minSdkVersion) {
+		this.minSdkVersion = minSdkVersion;
+	}
 
 }

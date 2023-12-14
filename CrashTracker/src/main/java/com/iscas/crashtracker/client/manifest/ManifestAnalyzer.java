@@ -51,7 +51,10 @@ public class ManifestAnalyzer extends Analyzer {
         appModel.getExtendedPakgs().add(pkg);
         appModel.setVersionCode(manifestManager.getVersionCode());
         appModel.setUsesPermissionSet(manifestManager.getPermissions());
-
+        appModel.setUsesPermissionSet(manifestManager.getPermissions());
+        appModel.setUsesPermissionSet(manifestManager.getPermissions());
+        appModel.setTargetSdkVersion(manifestManager.getTargetSdkVersion());
+        appModel.setMinSdkVersion(manifestManager.getMinSdkVersion());
         // -------------------------------------------------------------------------------------------------------------
         // BUGFIX: 09/06/2022 LightningRS
         // -------------------------------------------------------------------------------------------------------------

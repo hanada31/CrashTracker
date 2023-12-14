@@ -1,7 +1,6 @@
 package com.iscas.crashtracker.utils;
 
-import com.alibaba.fastjson.JSONArray;
-import com.iscas.crashtracker.client.crash.BuggyCandidate;
+import com.iscas.crashtracker.client.crash.CrashInfo;
 import heros.solver.Pair;
 import com.iscas.crashtracker.base.Global;
 import com.iscas.crashtracker.base.MyConfig;
@@ -1575,6 +1574,7 @@ public class SootUtils {
 	public static Set<String> getUsedMethodList(String methodSig) {
 		Set<String> usedList = new HashSet<>();
 		SootMethod sootMethod = SootUtils.getSootMethodBySignature(methodSig);
+		if(sootMethod==null) return usedList;
 		for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesOutOf(sootMethod); it.hasNext(); ) {
 			Edge edge = it.next();
 			if(!edge.getTgt().method().getDeclaringClass().getName().startsWith("java")) {
@@ -1587,9 +1587,42 @@ public class SootUtils {
 	}
 
 
+
+	public static Set<String> getUsedMethodList(CrashInfo crashInfo, String methodSig) {
+		Set<String> usedList = new HashSet<>();
+		SootMethod sootMethod = SootUtils.getSootMethodBySignature(methodSig);
+		if(sootMethod==null) return usedList;
+        String candi = sootMethod.getDeclaringClass().getName() + "." + sootMethod.getName();
+		if (crashInfo.getTrace().contains(candi)){
+			int location = crashInfo.getTrace().indexOf(candi);
+			if(location==0) return usedList;
+			String calleeCandi = crashInfo.getTrace().get(location-1);
+			if(!sootMethod.hasActiveBody()) return usedList;
+			for(Unit u : sootMethod.getActiveBody().getUnits()) {
+				InvokeExpr invoke = SootUtils.getInvokeExp(u);
+				if (invoke == null) continue;
+				String callee = invoke.getMethod().getDeclaringClass().getName() + "." + invoke.getMethod().getName();
+				boolean flag = false;
+				if (callee.equals(calleeCandi))
+					flag = true;
+				if(!invoke.getMethod().getDeclaringClass().getName().startsWith("java")) {
+					if (!usedList.contains(invoke.getMethod().getSignature())) {
+						usedList.add(invoke.getMethod().getSignature());
+					}
+				}
+				if(flag) break;
+			}
+		}else{
+			getUsedMethodList(methodSig);
+		}
+		return usedList;
+	}
+
+
 	public static Set<String> getUsedFieldList(String methodSig) {
 		Set<String> usedList = new HashSet<>();
 		SootMethod sootMethod = SootUtils.getSootMethodBySignature(methodSig);
+		if(sootMethod==null) return usedList;
 		for(Unit unit: getUnitListFromMethod(sootMethod)){
 			for (ValueBox valueBox : unit.getUseAndDefBoxes()) {
 				Value value = valueBox.getValue();
@@ -1609,6 +1642,49 @@ public class SootUtils {
 					usedList.add(classField);
 				}
 			}
+		}
+		return usedList;
+	}
+
+	public static Set<String> getUsedFieldList(CrashInfo crashInfo, String methodSig) {
+		Set<String> usedList = new HashSet<>();
+		SootMethod sootMethod = SootUtils.getSootMethodBySignature(methodSig);
+		if(sootMethod==null) return usedList;
+		String candi = sootMethod.getDeclaringClass().getName() + "." + sootMethod.getName();
+		if (crashInfo.getTrace().contains(candi)){
+			int location = crashInfo.getTrace().indexOf(candi);
+			if(location==0) return usedList;
+			String calleeCandi = crashInfo.getTrace().get(location-1);
+			if(!sootMethod.hasActiveBody()) return usedList;
+			for(Unit u : sootMethod.getActiveBody().getUnits()) {
+				InvokeExpr invoke = SootUtils.getInvokeExp(u);
+				if (invoke == null) continue;
+				String callee = invoke.getMethod().getDeclaringClass().getName() + "." + invoke.getMethod().getName();
+				boolean flag = false;
+				if (callee.equals(calleeCandi))
+					flag = true;
+				for (ValueBox valueBox : u.getUseAndDefBoxes()) {
+					Value value = valueBox.getValue();
+					if (value instanceof FieldRef) {
+						FieldRef fieldRef = (FieldRef) value;
+						String fieldName = fieldRef.getField().getName();
+						String className = fieldRef.getField().getDeclaringClass().getName();
+						String fieldType = fieldRef.getField().getType().toString();
+						String classField = className + "." + fieldName + " : " + fieldType;
+						usedList.add(classField);
+					} else if (value instanceof StaticFieldRef) {
+						StaticFieldRef staticFieldRef = (StaticFieldRef) value;
+						String fieldName = staticFieldRef.getField().getName();
+						String className = staticFieldRef.getField().getDeclaringClass().getName();
+						String fieldType = staticFieldRef.getField().getType().toString();
+						String classField = className + "." + fieldName + " : " + fieldType;
+						usedList.add(classField);
+					}
+				}
+				if(flag) break;
+			}
+		}else{
+			getUsedFieldList(methodSig);
 		}
 		return usedList;
 	}
