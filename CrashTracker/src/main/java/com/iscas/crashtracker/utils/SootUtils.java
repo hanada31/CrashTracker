@@ -7,6 +7,7 @@ import com.iscas.crashtracker.base.MyConfig;
 import com.iscas.crashtracker.model.analyzeModel.StaticFiledInfo;
 import com.iscas.crashtracker.model.sootAnalysisModel.Context;
 import com.iscas.crashtracker.model.sootAnalysisModel.Counter;
+import scala.annotation.meta.field;
 import soot.*;
 import soot.jimple.*;
 import soot.jimple.internal.*;
@@ -1404,6 +1405,7 @@ public class SootUtils {
 		}
 		return methods;
 	}
+
 
 	public static List<SootClass> getSubClasses(SootMethod sm) {
 		List<SootClass> subClasses = new ArrayList<>();
