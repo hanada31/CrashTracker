@@ -10,6 +10,7 @@ import com.iscas.crashtracker.utils.ConstantUtils;
 import com.iscas.crashtracker.utils.PrintUtils;
 import com.iscas.crashtracker.utils.StringUtils;
 import soot.jimple.toolkits.callgraph.Edge;
+import soot.toolkits.scalar.Pair;
 
 import java.util.*;
 
@@ -56,6 +57,9 @@ public class CrashInfo {
     public RelatedVarType getRelatedVarTypeOracle() {
         return relatedVarTypeOracle;
     }
+
+    private ArrayList<Pair<String, List>> appParamIdTrackingList = new ArrayList<>();
+    private ArrayList<Pair<String, List>> frameworkParamIdTrackingList = new ArrayList<>();
 
     public String getFaultInducingParasInStr() {
         return PrintUtils.printList(faultInducingParas);
@@ -415,6 +419,22 @@ public class CrashInfo {
         }
         callerOfSingnlar2SourceVarOracle.get(method).add(sourceId);
 
+    }
+
+    public ArrayList<Pair<String, List>> getAppParamIdTrackingList() {
+        return appParamIdTrackingList;
+    }
+
+    public void setAppParamIdTrackingList(ArrayList<Pair<String, List>> appParamIdTrackingList) {
+        this.appParamIdTrackingList = appParamIdTrackingList;
+    }
+
+    public ArrayList<Pair<String, List>> getFrameworkParamIdTrackingList() {
+        return frameworkParamIdTrackingList;
+    }
+
+    public void setFrameworkParamIdTrackingList(ArrayList<Pair<String, List>> frameworkParamIdTrackingList) {
+        this.frameworkParamIdTrackingList = frameworkParamIdTrackingList;
     }
 
     @Override

@@ -46,6 +46,6 @@ public class ApkCrashAnalysisClient extends BaseClient {
 
         CrashAnalysisClientOutput outer = new CrashAnalysisClientOutput();
         outer.writeToJson(summary_app_dir+Global.v().getAppModel().getAppName()+".json", Global.v().getAppModel().getCrashInfoList());
-//        PackManager.v().writeOutput();
+        PackManager.v().writeOutput();
     }
 }
