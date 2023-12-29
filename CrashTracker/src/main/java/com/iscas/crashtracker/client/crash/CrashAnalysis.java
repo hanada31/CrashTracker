@@ -6,8 +6,8 @@ import com.iscas.crashtracker.base.Analyzer;
 import com.iscas.crashtracker.base.Global;
 import com.iscas.crashtracker.base.MyConfig;
 import com.iscas.crashtracker.client.exception.*;
+import com.iscas.crashtracker.model.analyzeModel.MethodModel;
 import com.iscas.crashtracker.utils.*;
-import java_cup.version;
 import lombok.extern.slf4j.Slf4j;
 import soot.*;
 import soot.jimple.*;
@@ -21,6 +21,8 @@ import java.io.File;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.iscas.crashtracker.utils.ConstantUtils.isLibraryMethod;
 
 
 /**
@@ -52,6 +54,7 @@ public class CrashAnalysis extends Analyzer {
         log.info("readCrashInfo Finish...");
         getExceptionOfCrashInfo();
         log.info("getExceptionOfCrashInfo Finish...");
+        readMethodInfo();
         readAndroidCG();
         getCandidateBuggyMethods();
         log.info("getCandidateBuggyMethods Finish...");
@@ -106,17 +109,16 @@ public class CrashAnalysis extends Analyzer {
     private void getPartOfExtendedCallTrace(CrashInfo crashInfo) {
         //methods that preds of the next one in call stack
         JSONObject reason = new JSONObject(true);
-        reason.put("Reason Type", "");
-        reason.put("Explanation", "");
-        reason.put("Trace", new JSONArray());
+//        reason.put("Explanation", "");
+//        reason.put("Trace", new JSONArray());
         for (int index = crashInfo.getCrashMethodList().size() - 1; index >= 0; index--) {
             String candi = crashInfo.getCrashMethodList().get(index);
-            crashInfo.addExtendedCallDepth(candi, 1, reason.clone());
+            crashInfo.addExtendedCallDepth(candi, 1, PrintUtils.deepCopy(reason));
             Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
             for (SootMethod sm : methods) {
-                addEntryMethods2ExtendedCG(sm, crashInfo, reason.clone());
+                addEntryMethods2ExtendedCG(sm, crashInfo, PrintUtils.deepCopy(reason));
                 String last = (index == 0) ? crashInfo.getCrashAPI() : crashInfo.getCrashMethodList().get(index - 1);
-                addPredCallersOfMethodsInStack(last, sm, crashInfo, reason.clone());
+                addPredCallersOfMethodsInStack(last, sm, crashInfo, PrintUtils.deepCopy(reason));
             }
         }
     }
@@ -128,26 +130,25 @@ public class CrashAnalysis extends Analyzer {
         //all function in the last method
         //methods that preds of the next one in call stack
         JSONObject reason = new JSONObject(true);
-        reason.put("Reason Type", "");
-        reason.put("Explanation", "");
+//        reason.put("Explanation", "");
         for (int index = crashInfo.getCrashMethodList().size() - 1; index >= 0; index--) {
             String candi = crashInfo.getCrashMethodList().get(index);
             JSONArray trace = new JSONArray();
-            reason.put("Trace", trace);
-            crashInfo.addExtendedCallDepth(candi, 1, reason.clone());
+//            reason.put("Trace", trace);
+            crashInfo.addExtendedCallDepth(candi, 1, PrintUtils.deepCopy(reason));
             Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
             for (SootMethod sm : methods) {
                 trace.add(sm.getSignature());
-                addEntryMethods2ExtendedCG(sm, crashInfo, reason.clone());
+                addEntryMethods2ExtendedCG(sm, crashInfo, PrintUtils.deepCopy(reason));
                 String last = (index == 0) ? crashInfo.getCrashAPI() : crashInfo.getCrashMethodList().get(index - 1);
-                addPredCallersOfMethodsInStack(last, sm, crashInfo, reason.clone());
+                addPredCallersOfMethodsInStack(last, sm, crashInfo, PrintUtils.deepCopy(reason));
                 break;
             }
         }
         String firstAppMethod = crashInfo.getCrashMethodList().get(crashInfo.getCrashMethodList().size() - 1);
         Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(firstAppMethod);
         for (SootMethod sm : methods) {
-            addCallersOfCrashMethod(sm, crashInfo, 2, reason.clone());
+            addCallersOfCrashMethod(sm, crashInfo, 2, PrintUtils.deepCopy(reason));
         }
 
     }
@@ -157,7 +158,7 @@ public class CrashAnalysis extends Analyzer {
         for(SootMethod entry: sm.getDeclaringClass().getMethods()) {
             if(appModel.getEntryMethods().contains(entry) || entry.getName().startsWith("on")){
                 String callee = entry.getDeclaringClass().getName()+ "." + entry.getName();
-                JSONObject newReason = reason.clone();
+                JSONObject newReason = PrintUtils.deepCopy(reason);
                 newReason.getJSONArray("Trace").add(callee);
                 if(crashInfo.addExtendedCallDepth(callee, 2, newReason)) {
                     addAllCallee2ExtendedCG(entry, crashInfo, 3, newReason);
@@ -171,7 +172,7 @@ public class CrashAnalysis extends Analyzer {
         for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesInto(sm); it.hasNext(); ) {
             Edge edge = it.next();
             String caller = edge.getTgt().method().getDeclaringClass().getName() + "." + edge.getSrc().method().getName();
-            JSONObject newReason = reason.clone();
+            JSONObject newReason = PrintUtils.deepCopy(reason);
             newReason.getJSONArray("Trace").add(caller);
             if (crashInfo.addExtendedCallDepth(caller, depth, newReason)) {
                 addAllCallee2ExtendedCG(edge.getSrc().method(), crashInfo, depth + 1, newReason);
@@ -188,7 +189,7 @@ public class CrashAnalysis extends Analyzer {
             if (invoke == null) continue;
             String callee = invoke.getMethod().getDeclaringClass().getName()+ "." + invoke.getMethod().getName();
             if(callee.equals(last)){
-                JSONObject newReason = reason.clone();
+                JSONObject newReason = PrintUtils.deepCopy(reason);
                 newReason.getJSONArray("Trace").add(callee);
                 addPredsOfUnit2ExtendedCG(u, sm, crashInfo,2, newReason,null);
             }
@@ -230,7 +231,7 @@ public class CrashAnalysis extends Analyzer {
             Set<SootMethod> calleeMethod = SootUtils.getInvokedMethodSet(sm, pred);
             for(SootMethod method: calleeMethod){
                 String callee = method.getDeclaringClass().getName()+ "." + method.getName();
-                JSONObject newReason = reason.clone();
+                JSONObject newReason = PrintUtils.deepCopy(reason);
                 newReason.getJSONArray("Trace").add(callee);
                 if(crashInfo.addExtendedCallDepth(callee, depth, newReason)){
                     addAllCallee2ExtendedCG(method, crashInfo, depth+1, newReason);
@@ -262,7 +263,7 @@ public class CrashAnalysis extends Analyzer {
         for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesOutOf(sm); it.hasNext(); ) {
             Edge edge = it.next();
             String callee = edge.getTgt().method().getDeclaringClass().getName()+ "." + edge.getTgt().method().getName();
-            JSONObject newReason = reason.clone();
+            JSONObject newReason = PrintUtils.deepCopy(reason);
             newReason.getJSONArray("Trace").add(callee);
             if(crashInfo.addExtendedCallDepth(callee, depth, newReason)){
                 addAllCallee2ExtendedCG(edge.getTgt().method(), crashInfo, depth+1, newReason);
@@ -295,20 +296,20 @@ public class CrashAnalysis extends Analyzer {
         for(String candi: crashInfo.getCrashMethodList()){
             if(l++>5) return;
             JSONObject reason = new JSONObject(true);
-            reason.put("Reason Type", "Executed Method 1");
-            reason.put("Explanation", "Not influence the keyVar but in crash trace");
-            JSONArray trace = new JSONArray();
-            reason.put("Trace", trace);
+//            reason.put("Explanation", "Not influence the keyVar but in crash trace");
+//            JSONArray trace = new JSONArray();
+//            reason.put("Trace", trace);
             Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
+            int finalScore = initscore;
             for(SootMethod sm: methods) {
-                trace.add(sm.getSignature());
-                crashInfo.addBuggyCandidates(candi, sm.getSignature(), initscore--, reason);
+//                trace.add(sm.getSignature());
+                finalScore = crashInfo.addBuggyCandidates(candi, sm.getSignature(), initscore--, reason);
                 break;
             }
             if(methods.size()==0){
-                crashInfo.addBuggyCandidates(candi, "", initscore--, reason);
+                finalScore = crashInfo.addBuggyCandidates(candi, "", initscore--, reason);
             }
-            reason.put("reason score",initscore+1);
+            reason.put("Reason Score",finalScore);
             GenerateReason.generateReasonForKeyAPIInStackTrace(reason, candi, crashInfo);
         }
     }
@@ -391,14 +392,13 @@ public class CrashAnalysis extends Analyzer {
      */
     private void withParameterHandler(int score, CrashInfo crashInfo, boolean hasFaultInducingParas) {
         String  paramValueTerminateCallerSignature = getParaPassingTerminateMethod(crashInfo, hasFaultInducingParas);
-        int n = paramValueTerminateCallerSignature!=null? crashInfo.getAppParamIdTrackingList().size():0;
         analyzeParameterTerminateMethod(score, crashInfo, paramValueTerminateCallerSignature);
-        analyzeParameterNonTerminateMethod(score, n, crashInfo);
+        analyzeParameterNonTerminateMethod(score, crashInfo);
 
         int nonTerminateScore = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
         if(MyConfig.getInstance().getStrategy().equals(Strategy.ExtendCGOnly.toString())) {
-            getExtendedCallTrace(crashInfo);
-            addExtendedCallGraph(crashInfo);
+//            getExtendedCallTrace(crashInfo);
+//            addExtendedCallGraph(crashInfo);
         }else{
             getCrashAPIInvocationRelatedMethod(crashInfo,nonTerminateScore);
         }
@@ -413,25 +413,45 @@ public class CrashAnalysis extends Analyzer {
      * @return
      */
     private String getParaPassingTerminateMethod(CrashInfo crashInfo, boolean hasFaultInducingParas) {
-        String paramValueTerminateCallerSignature =null;
+        String paramValueTerminateCallerSignature =crashInfo.crashMethod;
         if(crashInfo.getExceptionInfo()!=null && crashInfo.getExceptionInfo().getRelatedVarType()!=null) {
             if(crashInfo.getExceptionInfo().getCallerOfSingnlar2SourceVar()!=null){
                 if(hasFaultInducingParas) {
                     Map<String, List<Integer>> map = crashInfo.getExceptionInfo().getCallerOfSingnlar2SourceVar();
-                    for (String callerOfSingnlar : map.keySet()) {
-                        if (crashInfo.getTrace().contains(callerOfSingnlar)) {
-                            Pair pair = new Pair(callerOfSingnlar, map.get(callerOfSingnlar));
+                    List<String> vars = new ArrayList<>();
+                    Pair<String, List> temp = null;
+                    for(String frameworkMtd : crashInfo.getFrameworkTrace()){
+                        if(map.keySet().contains(frameworkMtd)){
+                            Pair<String, List> pair = new Pair(frameworkMtd, map.get(frameworkMtd));
                             crashInfo.getFrameworkParamIdTrackingList().add(pair);
+                            temp = pair;
                         }
                     }
+                    if(temp!=null){
+                        String signature = androidSimpleName2Signature.get(temp.getO1());
+                        String paraStr = signature.split("\\(")[1].split("\\)")[0];
+                        String[] paraList = paraStr.split(",");
+                        for(int id : (List<Integer>)temp.getO2()) {
+                            if(paraList.length>id && id>-1)
+                                vars.add(paraList[id]);
+                        }
+                    }
+//                    for (String callerOfSingnlar : map.keySet()) {
+//                        if (crashInfo.getTrace().contains(callerOfSingnlar)) {
+//                            Pair pair = new Pair(callerOfSingnlar, map.get(callerOfSingnlar));
+//                            crashInfo.getFrameworkParamIdTrackingList().add(pair);
+//                        }
+//                    }
                     if (map.containsKey(crashInfo.getCrashAPI())) {
                         crashInfo.faultInducingParas = map.get(crashInfo.getCrashAPI());
                     } else {
                         //if the parameter point to relationship is not tracked, use the type information to filter
-                        List<String> vars = crashInfo.getExceptionInfo().getRelatedParamValuesInStr();
+                        if(vars.size()==0)
+                            vars = crashInfo.getExceptionInfo().getRelatedParamValuesInStr();
                         crashInfo.faultInducingParas = getParaIdListByType(crashInfo, vars);
                     }
                     paramValueTerminateCallerSignature = traceCallerOfParamValue(crashInfo, crashInfo.faultInducingParas);
+//                    System.err.println(paramValueTerminateCallerSignature);
                 }
             }
         }
@@ -497,25 +517,26 @@ public class CrashAnalysis extends Analyzer {
                                 if(!dataSlice.contains(pred)) continue;
                                 Set<SootMethod> calleeMethod = SootUtils.getInvokedMethodSet(crashMethod, pred);
                                 for(SootMethod method: calleeMethod){
-
                                     crashInfo.getAppParamIdTrackingList().clear();
-                                    Pair method2ParamIdPair = new Pair(crashInfo.getCrashAPI(), new ArrayList<>(Collections.singleton(id)));
-                                    crashInfo.getAppParamIdTrackingList().add(method2ParamIdPair);
+
                                     String callee = method.getDeclaringClass().getName()+ "." + method.getName();
-                                    Pair method2ParamIdPair2 = new Pair(callee, new ArrayList<>());
+                                    Pair method2ParamIdPair1 = new Pair(callee, new ArrayList<>());
+                                    crashInfo.getAppParamIdTrackingList().add(method2ParamIdPair1);
+
+                                    Pair method2ParamIdPair2 = new Pair(crashInfo.getCrashAPI(), new ArrayList<>(Collections.singleton(id)));
                                     crashInfo.getAppParamIdTrackingList().add(method2ParamIdPair2);
 
+
                                     JSONObject reason = new JSONObject(true);
-                                    reason.put("Reason Type", "Key Variable Related 1-1");
-                                    reason.put("Explanation", "Influences the value of keyVar by modifying the value of the passed parameters");
-                                    reason.put("Influenced parameter id", id);
-                                    reason.put("Influenced method", crashInfo.getSignaler());
-                                    JSONArray trace = new JSONArray();
-                                    reason.put("Trace", trace);
-                                    trace.add(crashInfo.getCrashAPI());
-                                    trace.add(method.getSignature());
-                                    crashInfo.addBuggyCandidates(callee, method.getSignature(), score, reason);
-                                    reason.put("reason score",score);
+//                                    reason.put("Explanation", "Influences the value of keyVar by modifying the value of the passed parameters");
+//                                    reason.put("Influenced parameter id", id);
+//                                    reason.put("Influenced method", crashInfo.getSignaler());
+//                                    JSONArray trace = new JSONArray();
+//                                    reason.put("Trace", trace);
+//                                    trace.add(crashInfo.getCrashAPI());
+//                                    trace.add(method.getSignature());
+                                    int finalScore = crashInfo.addBuggyCandidates(callee, method.getSignature(), score, reason);
+                                    reason.put("Reason Score",finalScore);
                                     GenerateReason.generateReasonForKeyVariableRelatedPreviousCall(reason, callee, new ArrayList(id), crashInfo);
                                 }
                             }
@@ -533,9 +554,8 @@ public class CrashAnalysis extends Analyzer {
             String candi = (String) entry.getKey();
             CrashInfo.ExtendCandiMethod method = (CrashInfo.ExtendCandiMethod) entry.getValue();
             JSONObject reason = new JSONObject(true);
-            reason.put("Reason Type", "Executed Method 2");
-            reason.put("Explanation", "Not in the crash stack but has been executed");
-            reason.put("Trace", method.trace.clone());
+//            reason.put("Explanation", "Not in the crash stack but has been executed");
+            reason.put("Trace", PrintUtils.deepCopy(method.trace));
             int score = ConstantUtils.INITSCORE-method.depth;
             Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
             for(SootMethod sm: methods) {
@@ -607,27 +627,32 @@ public class CrashAnalysis extends Analyzer {
                     for (SootMethod otherMethod : crashMethod.getDeclaringClass().getMethods()) {
                         if (!otherMethod.hasActiveBody()) continue;
                         if (SootUtils.fieldIsChanged(field, otherMethod)) {
-
                             crashInfo.getAppParamIdTrackingList().clear();
-                            Pair method2ParamIdPair = new Pair(crashInfo.getCrashAPI(), new ArrayList<>(Collections.singleton(argId)));
-                            crashInfo.getAppParamIdTrackingList().add(method2ParamIdPair);
+
+                            String candi = otherMethod.getDeclaringClass().getName() + "." + otherMethod.getName();
+                            Pair method2ParamIdPair1 = new Pair(candi,  new ArrayList(Collections.singleton(field.toString())));
+                            crashInfo.getAppParamIdTrackingList().add(method2ParamIdPair1);
+
+
                             Pair method2ParamIdPair2 = new Pair(crashInfo.getCrashAPI(), new ArrayList(Collections.singleton(field.toString())));
                             crashInfo.getAppParamIdTrackingList().add(method2ParamIdPair2);
-                            String candi = otherMethod.getDeclaringClass().getName() + "." + otherMethod.getName();
-                            Pair method2ParamIdPair3 = new Pair(candi,  new ArrayList(Collections.singleton(field.toString())));
+
+
+                            Pair method2ParamIdPair3 = new Pair(crashInfo.getCrashAPI(), new ArrayList<>(Collections.singleton(argId)));
                             crashInfo.getAppParamIdTrackingList().add(method2ParamIdPair3);
+
                             JSONObject reason = new JSONObject(true);
-                            reason.put("Reason Type", "Key Variable Related 2");
-                            reason.put("Explanation", "Influences the value of keyVar by modifying the value of related object fields");
-                            reason.put("Influenced Field", field.toString());
-                            reason.put("Influenced By Method", otherMethod.getSignature());
-                            JSONArray trace = new JSONArray();
-                            reason.put("Trace", trace);
-                            trace.add(otherMethod.getSignature());
-                            trace.add("modify key field: " + field);
-                            trace.add(crashMethod.getSignature());
-                            crashInfo.addBuggyCandidates(candi, otherMethod.getSignature(), score, reason);
-                            reason.put("reason score", score);
+//                            reason.put("Explanation", "Influences the value of keyVar by modifying the value of related object fields");
+//                            reason.put("Influenced Field", field.toString());
+//                            reason.put("Influenced By Method", otherMethod.getSignature());
+//                            JSONArray trace = new JSONArray();
+//                            reason.put("Trace", trace);
+//                            trace.add(otherMethod.getSignature());
+//                            trace.add("modify key field: " + field);
+//                            trace.add(crashMethod.getSignature());
+
+                            int finalScore = crashInfo.addBuggyCandidates(candi, otherMethod.getSignature(), score, reason);
+                            reason.put("Reason Score", finalScore);
                             GenerateReason.generateReasonForKeyVariableRelatedModifySameField(reason, candi, argId, field, crashInfo);
                         }
                     }
@@ -638,32 +663,47 @@ public class CrashAnalysis extends Analyzer {
 
 
     private String traceCallerOfParamValue(CrashInfo crashInfo, List<Integer> faultInducingParaIds) {
+//        System.out.println(faultInducingParaIds);
         String calleeMethod = crashInfo.getCrashAPI();
+        Set<String> calleeMethodSet = new HashSet<>();
+        calleeMethodSet.add(crashInfo.getCrashAPI());
         String result = null;
         SootMethod resultMethod = null;
         for(String candi : crashInfo.getCrashMethodList()) {
+//            System.out.println("candi: " +candi);
             result = candi;
+            Set<Integer> ids_temp = new HashSet<>();
             Pair<String, List> method2ParamIdPair = new Pair<>(calleeMethod, faultInducingParaIds);
             crashInfo.getAppParamIdTrackingList().add(method2ParamIdPair);
             Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
-            Set<Integer> ids_temp = new HashSet<>();
             for (SootMethod caller : methods) {
+                boolean checkCaller = false;
+//                System.out.println("caller: " +caller);
+                //caller = <org.kontalk.util.MediaStorage: java.io.File cacheThumbnail(android.content.Context,android.net.Uri,java.lang.String,boolean)>
                 resultMethod = caller;
                 for (Unit u : SootUtils.getUnitListFromMethod(caller)) {
                     InvokeExpr invoke = SootUtils.getInvokeExp(u);
                     if (invoke == null) continue;
                     String sig = invoke.getMethod().getSignature();
                     if (sig.equals(calleeMethod) || SootUtils.getMethodSimpleNameFromSignature(sig).equals(calleeMethod)) {
-                        for(int id :faultInducingParaIds){
-                            if(id == -1)
+                        checkCaller = true;
+                        for (int id : faultInducingParaIds) {
+//                            System.out.println("id: " + id);
+                            if (id == -1)
                                 log.info("this");
                             else if (invoke.getArgs().size() > id) {
                                 //get the idth param
                                 List<Unit> defs = SootUtils.getDefOfLocal(caller.getSignature(), invoke.getArgs().get(id), u);
-                                getPossibleRelatedParaIdsFromDefs(caller.getSignature(),defs,ids_temp, new HashSet<>());
+                                getPossibleRelatedParaIdsFromDefs(caller.getSignature(), defs, ids_temp, new HashSet<>());
+//                                System.out.println("ids_temp: " + PrintUtils.printSet(ids_temp));
                             }
                         }
                     }
+                }
+                if(checkCaller) {
+                    break;
+                }else{
+                    ids_temp = new HashSet<>();
                 }
             }
             if(ids_temp.size()==0){
@@ -671,6 +711,7 @@ public class CrashAnalysis extends Analyzer {
             }
             faultInducingParaIds = new ArrayList<>(ids_temp);
             calleeMethod = resultMethod.getSignature();
+
         }
         return result;
     }
@@ -701,7 +742,34 @@ public class CrashAnalysis extends Analyzer {
     private List<Integer>  getParaIdListByType(CrashInfo crashInfo, List<String> vars) {
         Set<Integer> paraIds = new HashSet<>();
         String signature = androidSimpleName2Signature.get(crashInfo.getCrashAPI());
-        if(signature==null) return new ArrayList<>(paraIds);
+        if(signature==null){
+            //crash API is not in the analyzed framework code
+            for(SootMethod crashMethod: getCrashSootMethod(crashInfo)) {
+                for(Unit unit : crashMethod.getActiveBody().getUnits()){
+                    InvokeExpr invoke = SootUtils.getInvokeExp(unit);
+                    if (invoke == null) continue;
+                    String simpleName = invoke.getMethod().getDeclaringClass().getName()+ "." + invoke.getMethod().getName();
+                    if(simpleName.equals(crashInfo.getCrashAPI())){
+                        signature = invoke.getMethod().getSignature();
+                        break;
+                    }
+                }
+            }
+        }
+        if(signature==null){
+            //crash API is not in the analyzed framework code
+            for(SootMethod crashMethod: getCrashSootMethod(crashInfo)) {
+                for(Unit unit : crashMethod.getActiveBody().getUnits()){
+                    InvokeExpr invoke = SootUtils.getInvokeExp(unit);
+                    if (invoke == null) continue;
+                    if((crashInfo.getCrashAPI().contains(invoke.getMethod().getName()))){
+                        signature = invoke.getMethod().getSignature();
+                        break;
+                    }
+                }
+            }
+        }
+        if(signature==null) return new ArrayList<>();
         String paraStr = signature.split("\\(")[1].split("\\)")[0];
         String[] paraList = paraStr.split(",");
         int paraId = -1;
@@ -736,37 +804,37 @@ public class CrashAnalysis extends Analyzer {
             }
             if (candi.equals(finalCaller)) {
                 JSONObject reason = new JSONObject(true);
-                reason.put("Reason Type", "Key Variable Related 1-2");
-                reason.put("Explanation", "Influences the value of keyVar by modifying the value of the passed parameters");
-                reason.put("Influenced parameter id", PrintUtils.printList(crashInfo.getFaultInducingParas()));
-                reason.put("Influenced method", crashInfo.getSignaler());
-                JSONArray trace = new JSONArray();
-                reason.put("Trace", trace);
-                trace.add(finalCaller);
-                crashInfo.addBuggyCandidates(candi,signature, score,reason);
-                find = true;
-                reason.put("reason score",score);
+//                reason.put("Explanation", "Influences the value of keyVar by modifying the value of the passed parameters");
+//                reason.put("Influenced parameter id", PrintUtils.printList(crashInfo.getFaultInducingParas()));
+//                reason.put("Influenced method", crashInfo.getSignaler());
+//                JSONArray trace = new JSONArray();
+//                trace.add(finalCaller);
+//                reason.put("Trace", trace);
+                int finalScore = crashInfo.addBuggyCandidates(candi,signature, score,reason);
+                reason.put("Reason Score",finalScore);
                 GenerateReason.generateReasonForKeyVariableRelatedTerminate(reason, finalCaller, crashInfo.getFaultInducingParas(), crashInfo);
+                find = true;
             }else{
                 if(find) {
                     JSONObject reason = new JSONObject(true);
-                    reason.put("Reason Type", "Key Variable Related 1-3");
-                    reason.put("Explanation", "Influences the value of keyVar by modifying the value of the passed parameters");
-                    reason.put("Influenced parameter id", PrintUtils.printList(crashInfo.getFaultInducingParas()));
-                    reason.put("Influenced method", crashInfo.getSignaler());
-                    JSONArray trace = new JSONArray();
-                    reason.put("Trace", trace);
-                    trace.add(finalCaller);
-                    crashInfo.addBuggyCandidates(candi, signature, --score, reason);
-                    reason.put("reason score",score);
+//                    reason.put("Explanation", "Influences the value of keyVar by modifying the value of the passed parameters");
+//                    reason.put("Influenced parameter id", PrintUtils.printList(crashInfo.getFaultInducingParas()));
+//                    reason.put("Influenced method", crashInfo.getSignaler());
+//                    JSONArray trace = new JSONArray();
+//                    trace.add(finalCaller);
+//                    reason.put("Trace", trace);
+
+                    int finalScore = crashInfo.addBuggyCandidates(candi, signature, --score, reason);
+                    reason.put("Reason Score",finalScore);
                     GenerateReason.generateReasonForKeyVariableRelatedNotTerminate(reason, finalCaller, crashInfo.getFaultInducingParas(), crashInfo);
                 }
             }
         }
     }
 
-    private void analyzeParameterNonTerminateMethod(int initScore, int n, CrashInfo crashInfo) {
-        initScore = initScore-n;
+    private void analyzeParameterNonTerminateMethod(int initScore,  CrashInfo crashInfo) {
+        List<String> invokingList = new ArrayList<>();
+        initScore = initScore-crashInfo.getAppParamIdTrackingList().size();
         log.info("getParameterNonTerminateMethod...");
         int start = getTopNonLibMethod(crashInfo);
         int end = getBottomNonLibMethod(crashInfo);
@@ -774,84 +842,126 @@ public class CrashAnalysis extends Analyzer {
         SootClass superCls = null;
         String sub ="";
         List<String> history = new ArrayList<>();
-        for(int k=start+n; k<=end; k++){
+        for(int k=start+crashInfo.getAppParamIdTrackingList().size(); k<=end; k++){
             String candi = crashInfo.getTrace().get(k);
+            invokingList.add(candi);
             if(!isLibraryMethod(candi)){
                 JSONObject reason = new JSONObject(true);
-                reason.put("Reason Type", "Key Variable Related 1-4");
-                reason.put("Explanation", "Influences the value of keyVar by modifying the value of the passed parameters");
-                reason.put("Influenced parameter id", PrintUtils.printList(crashInfo.getFaultInducingParas()));
-                reason.put("Influenced method", crashInfo.getSignaler());
-                JSONArray trace = new JSONArray();
-                reason.put("Trace", trace);
+//                reason.put("Explanation", "Influences the value of keyVar by modifying the value of the passed parameters");
+//                reason.put("Influenced parameter id", PrintUtils.printList(crashInfo.getFaultInducingParas()));
+//                reason.put("Influenced method", crashInfo.getSignaler());
+//                JSONArray trace = new JSONArray();
+//                reason.put("Trace", trace);
                 Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
+                int finalScore =initScore;
                 for(SootMethod sm: methods) {
-                    trace.add(sm.getSignature());
-                    crashInfo.addBuggyCandidates(candi, sm.getSignature(), initScore--, reason);
+//                    trace.add(sm.getSignature());
+                    finalScore = crashInfo.addBuggyCandidates(candi, sm.getSignature(), initScore--, reason);
                     break;
                 }
                 if(methods.size()==0){
-                    crashInfo.addBuggyCandidates(candi, "", initScore--, reason);
+                    finalScore = crashInfo.addBuggyCandidates(candi, "", initScore--, reason);
                 }
-                reason.put("reason score",initScore+1);
+                reason.put("Reason Score",finalScore);
 
                 GenerateReason.generateReasonForKeyVariableRelatedNotTerminate(reason, candi,  crashInfo.faultInducingParas, crashInfo);
-
                 for(SootMethod sm: methods) {
                     if (sm == null) continue;
                     sub = sm.getDeclaringClass().getName();
                     superCls = Scene.v().getActiveHierarchy().getSuperclassesOf(sm.getDeclaringClass()).get(0);
-                    for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesOutOf(sm); it.hasNext(); ) {
-                        Edge outEdge = it.next();
-                        SootMethod callee = outEdge.getTgt().method();
-                        if (callee.getSignature().contains(superCls.getName())) {
-                            JSONObject reason2 = new JSONObject(true);
-                            reason2.put("Reason Type", "");
-                            reason2.put("Explanation", "");
-                            JSONArray trace2 = new JSONArray();
-                            reason2.put("Trace", trace2);
-                            trace2.add(0, sm.getSignature());
-                            trace2.add(0, callee.getSignature());
-                            getCalleeOfAndroidMethods(initScore, crashInfo, SootUtils.getMethodSimpleNameFromSignature(callee.getSignature()), sub, history, reason2);
-                        }
-                    }
+                    break;
                 }
+                // if candi invokes a method, it is a framework method, whose class is the father of current class,
+                // the framework method invokes its method, the method in the subclass is executed
+                analyzeApplicationMethodCalledByFrameworkMethod(methods,initScore,crashInfo,history, new ArrayList<>(invokingList));
             }else{
                 if(superCls!= null && candi.contains(superCls.getName() )){
                     JSONObject reason = new JSONObject(true);
-                    reason.put("Reason Type", "");
-                    reason.put("Explanation", "");
-                    JSONArray trace = new JSONArray();
-                    reason.put("Trace", trace);
-                    trace.add(0,candi);
-                    getCalleeOfAndroidMethods(initScore,crashInfo, candi , sub, history, reason);
+//                    reason.put("Explanation", "");
+//                    JSONArray trace = new JSONArray();
+//                    reason.put("Trace", trace);
+//                    trace.add(0,candi);
+//                    invokingList.add(0,candi);
+                    getCalleeOfAndroidMethods(initScore,crashInfo, candi , sub, history, reason,new ArrayList<>(invokingList));
                 }
                 initScore--;
             }
         }
     }
 
+    private void analyzeApplicationMethodCalledByFrameworkMethod(Set<SootMethod> methods, int initScore, CrashInfo crashInfo,
+                                                                 List<String> history, List<String> invokingList) {
+        SootClass superCls = null;
+        String sub ="";
+        for(SootMethod sm: methods) {
+            if (sm == null) continue;
+            sub = sm.getDeclaringClass().getName();
+            superCls = Scene.v().getActiveHierarchy().getSuperclassesOf(sm.getDeclaringClass()).get(0);
+            for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesOutOf(sm); it.hasNext(); ) {
+                Edge outEdge = it.next();
+                SootMethod callee = outEdge.getTgt().method();
+                if (callee.getSignature().contains(superCls.getName())) {
+                    JSONObject reason2 = new JSONObject(true);
+//                    reason2.put("Reason Type", "");
+//                    reason2.put("Explanation", "");
+//                    JSONArray trace2 = new JSONArray();
+//                    reason2.put("Trace", trace2);
+//                    trace2.add(0, sm.getSignature());
+//                    trace2.add(0, callee.getSignature());
+                    ArrayList<String> myInvokingList = new ArrayList<>(invokingList);
+                    myInvokingList.add(0, sm.getSignature());
+                    myInvokingList.add(0, callee.getSignature());
+                    getCalleeOfAndroidMethods(initScore, crashInfo, SootUtils.getMethodSimpleNameFromSignature(callee.getSignature()),
+                            sub, history, reason2, myInvokingList);
+                }
+            }
+        }
+    }
 
-
+    /**
+     * in stack trace, app methods invokes framework methods, and framework methods recalls the app method
+     * @param initScore
+     * @param crashInfo
+     * @param candi
+     * @param sub
+     * @param history
+     * @param reason
+     */
     private void getCalleeOfAndroidMethods(int initScore, CrashInfo crashInfo, String candi,
-                                           String sub, List<String> history, JSONObject reason) {
+                                           String sub, List<String> history, JSONObject reason , List<String> invokingList) {
         if(history.contains(candi)) return;
         history.add(candi);
+        readAndroidCG();
         if(!androidCGMap.containsKey(candi)) return;
+        if(!invokingList.contains(candi))
+            invokingList.add(candi);
         String candiClassName = candi.substring(0,candi.lastIndexOf("."));
-        for(String callee: androidCGMap.get(candi)){
-            if(callee.contains(candiClassName)) {
-                String realCallee = callee.replace(candiClassName, sub);
-                Set <SootMethod> methods = SootUtils.getSootMethodBySimpleName(realCallee);
-                for (SootMethod realSootMethod : methods) {
-                    if (realSootMethod != null) {
-                        reason.getJSONArray("Trace").add(realSootMethod.getSignature());
-                        addCalleesOfSourceOfEdge(initScore, crashInfo, realSootMethod, 0, reason);
+        for(String callee: androidCGMap.get(candi)) {
+            //the callee is a recall method
+            if (callee.contains(candiClassName)) {
+                if (callee.substring(callee.lastIndexOf(".")).startsWith(".on")) {
+                    String realCallee = "";
+                    SootClass subClass = Scene.v().getSootClass(sub);
+                    for (SootClass superCls : Scene.v().getActiveHierarchy().getSuperclassesOf(subClass)) {
+                        if (superCls.getName().contains(candiClassName)) {
+                            realCallee = callee.replace(candiClassName, sub);
+                        }
+                    }
+                    //only consider the recall method
+                    Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(realCallee);
+                    for (SootMethod realSootMethod : methods) {
+                        if (realSootMethod != null) {
+                            JSONObject newReason = PrintUtils.deepCopy(reason);
+//                            newReason.getJSONArray("Trace").add(realSootMethod.getSignature());
+                            ArrayList<String> myInvokingList = new ArrayList<>(invokingList);
+                            myInvokingList.add(callee);
+                            addCalleesOfSourceOfEdge(initScore, crashInfo, realSootMethod, 0, newReason, myInvokingList );
+                        }
                     }
                 }
-                JSONObject newReason = reason.clone();
-                newReason.getJSONArray("Trace").add(callee);
-                getCalleeOfAndroidMethods(initScore, crashInfo, callee, sub, history, newReason);
+                JSONObject newReason = PrintUtils.deepCopy(reason);
+//                newReason.getJSONArray("Trace").add(callee);
+                getCalleeOfAndroidMethods(initScore, crashInfo, callee, sub, history, newReason, new ArrayList<>(invokingList));
             }
         }
     }
@@ -863,28 +973,24 @@ public class CrashAnalysis extends Analyzer {
      * @param sootMethod
      * @param depth
      */
-    private void addCalleesOfSourceOfEdge(int initScore, CrashInfo crashInfo, SootMethod sootMethod, int depth, JSONObject reason ) {
-//        log.info(sootMethod.getSignature() +"  "+ sootMethod.getReturnType());
-//        if(sootMethod.getReturnType() instanceof VoidType && sootMethod.getParameterCount()==0)
-//            return;
+    private void addCalleesOfSourceOfEdge(int initScore, CrashInfo crashInfo, SootMethod sootMethod, int depth, JSONObject reason , List<String> invokingList) {
         String candi = sootMethod.getDeclaringClass().getName()+ "." + sootMethod.getName();
+        invokingList.add(sootMethod.getSignature());
         if(isLibraryMethod(candi)) return;
         int score = initScore - getOrderInTrace(crashInfo, candi)  - depth;
-//        log.info(candi +" " +initScore + " - 5*" +getOrderInTrace(crashInfo, candi) + " - 1*" +depth);
 
-        reason.put("Reason Type", "Executed Method 2");
-        reason.put("Explanation", "Not in the crash stack but has been executed" );
-        reason.put("reason score", score );
-        crashInfo.addBuggyCandidates(candi, sootMethod.getSignature(),score, reason);
-        GenerateReason.generateReasonForExecutedMethodNotInTrace(reason, candi, crashInfo);
+//        reason.put("Explanation", "Not in the crash stack but has been executed" );
+        int finalScore = crashInfo.addBuggyCandidates(candi, sootMethod.getSignature(),score, reason);
+        reason.put("Reason Score", finalScore );
+        GenerateReason.generateReasonForFrameworkRecallMethod(reason, candi, crashInfo, new ArrayList<>(invokingList));
 
         for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesOutOf(sootMethod); it.hasNext(); ) {
             Edge edge2 = it.next();
             if(!crashInfo.getEdges().contains(edge2) && !edge2.toString().contains("dummyMainMethod")){
                 crashInfo.add2EdgeMap(depth,edge2);
-                JSONObject newReason = reason.clone();
-                newReason.getJSONArray("Trace").add(edge2.getTgt().method().getSignature());
-                addCalleesOfSourceOfEdge(initScore, crashInfo, edge2.getTgt().method(), depth+1, newReason);
+                JSONObject newReason =  PrintUtils.deepCopy(reason);
+//                newReason.getJSONArray("Trace").add(edge2.getTgt().method().getSignature());
+                addCalleesOfSourceOfEdge(initScore, crashInfo, edge2.getTgt().method(), depth+1, newReason,  new ArrayList<>(invokingList));
             }
         }
     }
@@ -895,31 +1001,31 @@ public class CrashAnalysis extends Analyzer {
      * @param crashInfo
      * @param sootMethod
      * @param depth
-     * @param keyAPIInvokingStr
+     * @param keyAPIInvokingList
      */
     private void addCallersOfSourceOfEdge(int initScore, Edge edge, RelatedMethod relatedMethod,
-                                          CrashInfo crashInfo, SootMethod sootMethod, int depth, JSONObject reason, String keyAPIInvokingStr) {
-        keyAPIInvokingStr = edge.getSrc().method().getSignature() +" invokes "+edge.getTgt().method().getSignature() +"; "+ keyAPIInvokingStr;
+                                          CrashInfo crashInfo, SootMethod sootMethod, int depth, JSONObject reason, List<String> keyAPIInvokingList) {
+        keyAPIInvokingList.add(0, edge.getSrc().method().getSignature());
         String candi = sootMethod.getDeclaringClass().getName()+ "." + sootMethod.getName();
         int score = initScore - getOrderInTrace(crashInfo, candi) - relatedMethod.getDepth() - depth;
         if(crashInfo.getTrace().contains(candi)) score += ConstantUtils.METHODINTACE;
         if(currentMethodContainCandi(sootMethod, crashInfo)) {
-            reason.put("Reason Type", "Key API Related");
-            reason.put("Explanation", "Caller of keyAPI " +relatedMethod.getMethod());
-            reason.put("Influenced Field", new JSONArray());
+//            reason.put("Explanation", "Caller of keyAPI " +relatedMethod.getMethod());
+//            reason.put("Influenced Field", new JSONArray());
             List<String> fieldString = new ArrayList<>();
             for(String sf: crashInfo.getExceptionInfo().getRelatedFieldValuesInStr()){
-                if(reason.getJSONArray("Trace").toString().contains(sf.toString())){
-                    reason.getJSONArray("Influenced Field").add(sf.toString());
-                }
                 fieldString.add(sf);
+//                if(reason.getJSONArray("Trace").toString().contains(sf)){
+//                    reason.getJSONArray("Influenced Field").add(sf);
+//                }
             }
-            reason.put("Signaler",crashInfo.getSignaler());
-            reason.put("reason score", score );
-            crashInfo.addBuggyCandidates(candi, sootMethod.getSignature(), score, reason);
-            GenerateReason.generateReasonForKeyAPIRelated(reason, candi, relatedMethod, crashInfo, fieldString, keyAPIInvokingStr);
+//            reason.put("Signaler",crashInfo.getSignaler());
+
+            int finalScore = crashInfo.addBuggyCandidates(candi, sootMethod.getSignature(), score, reason);
+            reason.put("Reason Score", finalScore );
+            GenerateReason.generateReasonForKeyAPIRelated(reason, candi, relatedMethod, crashInfo, fieldString, new ArrayList<>(keyAPIInvokingList));
         }
-        reason.getJSONArray("Trace").add(0,sootMethod.getSignature());
+//        reason.getJSONArray("Trace").add(0,sootMethod.getSignature());
         //if the buggy type is not passed by parameter, do not find its caller
         Set<Integer> paramIndexCaller = SootUtils.getIndexesFromMethod(edge, crashInfo.exceptionInfo.getRelatedValueIndex());
         if(paramIndexCaller.size() == 0) return;
@@ -935,11 +1041,11 @@ public class CrashAnalysis extends Analyzer {
             if( crashInfo.getEdges().contains(edge2) ) continue;
             crashInfo.add2EdgeMap(depth,edge2);
             JSONObject newReason = new JSONObject();
-            newReason.put("Reason Type", reason.get("Reason Type"));
-            newReason.put("Explanation", reason.get("Explanation"));
-            newReason.put("Influenced Field", reason.get("Influenced Field"));
-            newReason.put("Signaler", reason.get("Signaler"));
-            addCallersOfSourceOfEdge(initScore, edge2, relatedMethod, crashInfo, edge2.getSrc().method(), depth+1,  newReason, keyAPIInvokingStr);
+//            newReason.put("Reason Type", reason.get("Reason Type"));
+//            newReason.put("Explanation", reason.get("Explanation"));
+//            newReason.put("Influenced Field", reason.get("Influenced Field"));
+//            newReason.put("Signaler", reason.get("Signaler"));
+            addCallersOfSourceOfEdge(initScore, edge2, relatedMethod, crashInfo, edge2.getSrc().method(), depth+1,  newReason, keyAPIInvokingList);
         }
     }
 
@@ -987,11 +1093,10 @@ public class CrashAnalysis extends Analyzer {
                 }
                 crashInfo.add2EdgeMap(0, edge);
                 JSONObject reason = new JSONObject(true);
-                reason.put("Reason Type", "");
-                reason.put("Explanation", "");
-                reason.put("Trace", relatedMethod.getTrace());
-                String keyAPIInvokingStr = "";
-                addCallersOfSourceOfEdge(initScore, edge, relatedMethod, crashInfo, sourceMtd, 1,  reason, keyAPIInvokingStr);
+//                reason.put("Explanation", "");
+//                reason.put("Trace", relatedMethod.getTrace());
+                List<String> keyAPIInvokingList = new ArrayList<>();
+                addCallersOfSourceOfEdge(initScore, edge, relatedMethod, crashInfo, sourceMtd, 1,  reason, keyAPIInvokingList);
             }
         }
     }
@@ -1027,9 +1132,7 @@ public class CrashAnalysis extends Analyzer {
         }
         return 0;
     }
-    private boolean isLibraryMethod(String candi) {
-        return candi.startsWith("android.")  || candi.startsWith("androidx.")|| candi.startsWith("com.android.") || candi.startsWith("java.");
-    }
+
 
     /**
      * get fields the related to the buggy variable passes to framework
@@ -1080,18 +1183,18 @@ public class CrashAnalysis extends Analyzer {
         log.info("overrideMissingHandler...");
         List buggyClasses = new ArrayList();
         for(SootClass sc: Scene.v().getApplicationClasses()){
-            String extendRelationStr = "";
+            List<String> extendRelation = new ArrayList<>();
             if(!sc.hasSuperclass()) continue;
             if(sc.getSuperclass().getName().equals(crashInfo.getClassName())){
-                extendRelationStr = sc.getName() + " extends " + crashInfo.getClassName();
-                traceExtendTracesToNotOverrideCrash(crashInfo, sc, score,buggyClasses, extendRelationStr);
+                extendRelation.add(sc.getName() + " extends " + crashInfo.getClassName());
+                traceExtendTracesToNotOverrideCrash(crashInfo, sc, score,buggyClasses, extendRelation);
             }
         }
         int score2 = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
         addCrashTracesNotOverride(score2, crashInfo, buggyClasses);
     }
 
-    private void traceExtendTracesToNotOverrideCrash(CrashInfo crashInfo, SootClass currentCls, int score, List buggyClasses, String extendRelationStr) {
+    private void traceExtendTracesToNotOverrideCrash(CrashInfo crashInfo, SootClass currentCls, int score, List buggyClasses, List<String> extendRelation) {
         SootMethod sootMethod = null;
         for(SootMethod sm : currentCls.getMethods()){
             if(sm.getName().equals(crashInfo.getSubMethodName()) && sm.hasActiveBody()){
@@ -1102,19 +1205,19 @@ public class CrashAnalysis extends Analyzer {
             String candi = currentCls.getName() + "." + crashInfo.getSubMethodName();
             int updateScore = score - getOrderInTrace(crashInfo, candi);
             JSONObject reason = new JSONObject(true);
-            reason.put("Reason Type", "Not Override Method");
-            reason.put("Explanation", "Forgets to override the signaler method");
-            JSONArray trace = new JSONArray();
-            reason.put("Trace", trace);
-            trace.add(crashInfo.getMethodName());
-            crashInfo.addBuggyCandidates(candi, "",updateScore, reason);
+//            reason.put("Explanation", "Forgets to override the signaler method");
+//            JSONArray trace = new JSONArray();
+//            reason.put("Trace", trace);
+//            trace.add(crashInfo.getMethodName());
+            int finalScore = crashInfo.addBuggyCandidates(candi, "",updateScore, reason);
+            reason.put("Reason Score", finalScore );
             buggyClasses.add(currentCls.getName());
-            reason.put("reason score", updateScore );
-            GenerateReason.generateReasonForNotOverride(reason, currentCls, candi, crashInfo, extendRelationStr);
+            GenerateReason.generateReasonForNotOverride(reason, currentCls, candi, crashInfo, extendRelation);
 
         }
         for(SootClass subCls: Scene.v().getActiveHierarchy().getSubclassesOf(currentCls)) {
-            String extendRelationStr2 =  subCls.getName()+ " extends " + currentCls.getName()+"; " + extendRelationStr;
+            List<String> extendRelationStr2 =  new ArrayList<>(extendRelation);
+            extendRelationStr2.add(0,subCls.getName()+ " extends " + currentCls.getName());
             traceExtendTracesToNotOverrideCrash(crashInfo, subCls, score,buggyClasses, extendRelationStr2);
         }
     }
@@ -1125,20 +1228,20 @@ public class CrashAnalysis extends Analyzer {
             if(l++>5) return;
             JSONObject reason = new JSONObject(true);
 
-            reason.put("Reason Type", "Executed Method 1");
-            reason.put("Explanation", "Not influence the keyVar but in crash trace");
-            JSONArray trace = new JSONArray();
-            reason.put("Trace", trace);
+//            reason.put("Explanation", "Not influence the keyVar but in crash trace");
+//            JSONArray trace = new JSONArray();
+//            reason.put("Trace", trace);
             Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(candi);
+            int finalScore =  initscore;
             for(SootMethod sm: methods) {
-                trace.add(sm.getSignature());
-                crashInfo.addBuggyCandidates(candi, sm.getSignature(), initscore--, reason);
+//                trace.add(sm.getSignature());
+                finalScore = crashInfo.addBuggyCandidates(candi, sm.getSignature(), initscore--, reason);
                 break;
             }
             if(methods.size()==0){
-                crashInfo.addBuggyCandidates(candi, "", initscore--, reason);
+                finalScore = crashInfo.addBuggyCandidates(candi, "", initscore--, reason);
             }
-            reason.put("reason score",initscore+1);
+            reason.put("Reason Score",finalScore);
             GenerateReason.generateReasonForNotOverrideInStackTrace(reason, candi, crashInfo);
         }
     }
@@ -1235,6 +1338,7 @@ public class CrashAnalysis extends Analyzer {
             MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);
             MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
             MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"android"+targetVer+"_cg.txt");
+            MyConfig.getInstance().setMethodInfoFilePath(androidFolder+"CodeInfo"+File.separator+"methodInfo.json");
             log.info("target is "+ targetVer);
             MyConfig.getInstance().setTargetVersion(targetVer);
             readExceptionSummary(crashInfo, targetMethodName);
@@ -1289,6 +1393,8 @@ public class CrashAnalysis extends Analyzer {
             MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);
             MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
             MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"android"+targetVer+"_cg.txt");
+            MyConfig.getInstance().setMethodInfoFilePath(androidFolder+"CodeInfo"+File.separator+"methodInfo.json");
+
             log.info("target is "+ targetVer);
             MyConfig.getInstance().setTargetVersion(targetVer);
             readExceptionSummary(crashInfo, targetMethodName);
@@ -1339,6 +1445,7 @@ public class CrashAnalysis extends Analyzer {
         MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);
         MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
         MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"android"+version+"_cg.txt");
+        MyConfig.getInstance().setMethodInfoFilePath(androidFolder+"CodeInfo"+File.separator+"methodInfo.json");
 
         String fn = MyConfig.getInstance().getExceptionFilePath()+"summary"+ File.separator+ "exception.json";
         String jsonString = FileUtils.readJsonFile(fn);
@@ -1470,8 +1577,11 @@ public class CrashAnalysis extends Analyzer {
                 relatedMethod.setSource(RelatedMethodSource.valueOf(sameClsObj.getString("source")));
                 String trace = sameClsObj.getString("trace");
                 String newTrace =  trace.replace("[", "").
-                        replace("]", "").replace("\"", "").replace(">,", ">, ");
-                relatedMethod.addTrace(newTrace);
+                        replace("]", "").replace("\"", "");
+                for(String mtd:newTrace.split(",")){
+                    relatedMethod.addTrace(mtd);
+                }
+                relatedMethod.getTrace().remove(relatedMethod.getTrace().size()-1);
                 exceptionInfo.addRelatedMethodsInSameClass(relatedMethod);
             }
             JSONArray diffClsObjs = jsonObject.getJSONArray("keyAPIDiffClass");
@@ -1556,6 +1666,26 @@ public class CrashAnalysis extends Analyzer {
         }
     }
 
+    /**
+     * read  method info from json file, CodeInfo/methodInfo.json
+     */
+    private void readMethodInfo() {
+        String fn = MyConfig.getInstance().getMethodInfoFilePath();
+        log.info("readMethodInfo::"+fn);
+        String jsonString = FileUtils.readJsonFile(fn);
+        JSONArray methods = (JSONArray) JSONArray.parse(jsonString);
+        for (Object method : methods) {
+            JSONObject jsonObject = (JSONObject) method;
+            MethodModel methodModel = new MethodModel();
+            methodModel.setMethodSignature((String) jsonObject.get("methodSignature"));
+            methodModel.setClassName((String) jsonObject.get("className"));
+            methodModel.setSimpleName((String) jsonObject.get("simpleName"));
+            methodModel.setArguments((List<String>) jsonObject.get("Arguments"));
+            androidSimpleName2Signature.put(methodModel.getSimpleName(),methodModel.getMethodSignature());
+            appModel.getMethodModelList().add(methodModel);
+        }
+    }
+
     private void readAndroidCG() {
         if(androidCGMap.size()>0) return;
         String fn = MyConfig.getInstance().getAndroidCGFilePath();
@@ -1565,9 +1695,9 @@ public class CrashAnalysis extends Analyzer {
         for(String edge: edges){
             if(!edge.contains(" -> ")) continue;
             String src = SootUtils.getMethodSimpleNameFromSignature(edge.split(" -> ")[0]);
-            androidSimpleName2Signature.put(src,edge.split(" -> ")[0]);
+//            androidSimpleName2Signature.put(src,edge.split(" -> ")[0]);
             String des = SootUtils.getMethodSimpleNameFromSignature(edge.split(" -> ")[1]);
-            androidSimpleName2Signature.put(des,edge.split(" -> ")[1]);
+//            androidSimpleName2Signature.put(des,edge.split(" -> ")[1]);
             if(!androidCGMap.containsKey(src))
                 androidCGMap.put(src,new HashSet<>());
             androidCGMap.get(src).add(des);

@@ -19,10 +19,6 @@ import java.util.Map;
  */
 public class BuggyStatistic {
     public void analyze() {
-        analyzeAllFiles();
-    }
-
-    private void analyzeAllFiles() {
         String folder = MyConfig.getInstance().getResultFolder() +"statistic" +File.separator;
         FileUtils.createFolder(folder);
         FileUtils.writeText2File(  folder + "VarTypeStatistic.txt", "", false);
@@ -48,6 +44,8 @@ public class BuggyStatistic {
             FileUtils.writeText2File( folder + File.separator+"RankingStatistic-RVType.txt", sb3 +"\n\n\n", true);
         }
     }
+
+
     private Map initMap() {
         Map map = new HashMap();
         map.put("Recall@1", 0);

@@ -1,5 +1,10 @@
 package com.iscas.crashtracker.utils;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.google.gson.JsonArray;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -134,5 +139,26 @@ public class PrintUtils {
 		if (res.length() > 0)
 			res = res.substring(0, res.length() - split.length());
 		return res;
+	}
+	public static JSONObject deepCopy(JSONObject object) {
+		JSONObject copyObject = (JSONObject) object.clone();
+		try {
+			copyObject = (JSONObject) JSONObject.parse(object.toJSONString());
+		}catch (Exception e){
+		}
+		return copyObject;
+	}
+
+	public static JSONArray deepCopy(JSONArray jsonArray) {
+		JSONArray copyObject = new JSONArray();
+
+		try {
+			for(Object object: jsonArray){
+				copyObject.add(deepCopy((JSONObject) object));
+			}
+		}catch (Exception e){
+			copyObject = jsonArray;
+		}
+		return copyObject;
 	}
 }

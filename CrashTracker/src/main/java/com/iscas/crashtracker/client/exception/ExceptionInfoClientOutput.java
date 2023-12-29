@@ -54,7 +54,7 @@ public class ExceptionInfoClientOutput {
                 }
                 PrintWriter printWriter = new PrintWriter(file);
                 String jsonString = toJSONString(rootElement, SerializerFeature.PrettyFormat,
-                        SerializerFeature.SortField);
+                        SerializerFeature.SortField, SerializerFeature.DisableCircularReferenceDetect);
                 printWriter.write(jsonString);
                 printWriter.close();
             } catch (Exception e) {
@@ -97,7 +97,7 @@ public class ExceptionInfoClientOutput {
             rootElement.put("exceptions", exceptionListElement);
             PrintWriter printWriter = new PrintWriter(file);
             String jsonString = toJSONString(rootElement, SerializerFeature.PrettyFormat,
-                    SerializerFeature.SortField);
+                    SerializerFeature.SortField, SerializerFeature.DisableCircularReferenceDetect);
             printWriter.write(jsonString);
             printWriter.close();
         } catch (Exception e) {
@@ -170,7 +170,7 @@ public class ExceptionInfoClientOutput {
         if (exceptionInfo.getRelatedMethodsInSameClass(true).size() > 0) {
             for (RelatedMethod mtd : exceptionInfo.getRelatedMethodsInSameClass(false)) {
                 String mtdString = toJSONString(mtd, SerializerFeature.PrettyFormat,
-                        SerializerFeature.SortField);
+                        SerializerFeature.SortField, SerializerFeature.DisableCircularReferenceDetect);
                 JSONObject mtdObject = JSONObject.parseObject(mtdString);  // 转换为json对象
                 relatedMethodsSameArray.add(mtdObject);
             }
@@ -181,7 +181,7 @@ public class ExceptionInfoClientOutput {
         if (exceptionInfo.getRelatedMethodsInDiffClass(true).size() > 0) {
             for (RelatedMethod mtd : exceptionInfo.getRelatedMethodsInDiffClass(false)) {
                 String mtdString = toJSONString(mtd, SerializerFeature.PrettyFormat,
-                        SerializerFeature.SortField);
+                        SerializerFeature.SortField, SerializerFeature.DisableCircularReferenceDetect);
                 JSONObject mtdObject = JSONObject.parseObject(mtdString);  // 转换为json对象
                 relatedMethodsDiffArray.add(mtdObject);
             }

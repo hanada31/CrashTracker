@@ -173,6 +173,7 @@ public class ExceptionMather {
         MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);
         MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
         MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"cg.txt");
+        MyConfig.getInstance().setMethodInfoFilePath(androidFolder+"CodeInfo"+File.separator+"methodInfo.json");
 
         String fn = MyConfig.getInstance().getExceptionFilePath()+"summary"+ File.separator+ "exception.json";
         String jsonString = FileUtils.readJsonFile(fn);
@@ -232,6 +233,7 @@ public class ExceptionMather {
             MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);
             MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
             MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"cg.txt");
+            MyConfig.getInstance().setMethodInfoFilePath(androidFolder+"CodeInfo"+File.separator+"methodInfo.json");
 
             String fn = MyConfig.getInstance().getExceptionFilePath() + "summary" + File.separator + "exception.json";
             jsonString = FileUtils.readJsonFile(fn);

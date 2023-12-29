@@ -1,16 +1,21 @@
 package com.iscas.crashtracker.client.exception;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.esotericsoftware.minlog.Log;
 import com.google.common.collect.Lists;
 import com.iscas.crashtracker.base.Analyzer;
 import com.iscas.crashtracker.base.Global;
 import com.iscas.crashtracker.base.MyConfig;
+import com.iscas.crashtracker.client.crash.CrashInfo;
 import com.iscas.crashtracker.model.sootAnalysisModel.Context;
 import com.iscas.crashtracker.model.sootAnalysisModel.Counter;
 import com.iscas.crashtracker.model.sootAnalysisModel.NestableObj;
 import com.iscas.crashtracker.utils.*;
 import lombok.extern.slf4j.Slf4j;
+import scala.annotation.meta.field;
 import soot.*;
 import soot.jimple.*;
 import soot.jimple.internal.*;
@@ -22,6 +27,8 @@ import soot.toolkits.scalar.UnitValueBoxPair;
 import soot.toolkits.scalar.ValueUnitPair;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 
 /**
@@ -41,12 +48,50 @@ public class ExceptionAnalyzer extends Analyzer {
 
     @Override
     public void analyze() {
+        getMethodInfo();
         getPermissionSet();
         getExceptionList();
     }
 
+    private void getMethodInfo() {
+        JSONArray methodInfoList  = new JSONArray(new ArrayList<>());
+        HashSet<SootClass> applicationClasses = new HashSet<>(Scene.v().getApplicationClasses());
+        for (SootClass sootClass : applicationClasses) {
+            HashSet<SootMethod> methodsInTheClass = new HashSet<>(sootClass.getMethods());
+            for (SootMethod sootMethod : methodsInTheClass) {
+                JSONObject methodInfo = new JSONObject(true);
+                methodInfo.put("methodSignature", sootMethod.getSignature());
+                methodInfo.put("simpleName", SootUtils.getMethodSimpleNameFromSignature(sootMethod.getSignature()));
+                methodInfo.put("className", sootMethod.getDeclaringClass().getName());
+                JSONArray paraInfo = new JSONArray();
+                methodInfo.put("Arguments",paraInfo );
+                for(Type type:sootMethod.getParameterTypes()){
+                    paraInfo.add(type.toString());
+                }
+                methodInfoList.add(methodInfo);
+            }
+        }
+
+        String folder = MyConfig.getInstance().getResultFolder() + File.separator + MyConfig.getInstance().getAppName() + File.separator + "CodeInfo" + File.separator;
+        FileUtils.createFolder(folder);
+        File file = new File(folder+ "methodInfo.json");
+        try {
+            file.createNewFile();
+            PrintWriter printWriter = new PrintWriter(file);
+            String jsonString = JSON.toJSONString(methodInfoList, SerializerFeature.PrettyFormat,
+                    SerializerFeature.SortField, SerializerFeature.DisableCircularReferenceDetect);
+            printWriter.write(jsonString);
+            printWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     private void getExceptionList() {
-        String throwUnitsURL = MyConfig.getInstance().getExceptionFilePath() + "throwUnits.txt";
+        String folder = MyConfig.getInstance().getResultFolder() +File.separator+ MyConfig.getInstance().getAppName()+File.separator+"CodeInfo"+File.separator;
+        FileUtils.createFolder(folder);
+        String throwUnitsURL = folder + "throwUnitInfo.txt";
         FileUtils.writeText2File(throwUnitsURL, "", false);
         JSONArray exceptionListElement  = new JSONArray(new ArrayList<>());
         HashSet<SootClass> applicationClasses = new HashSet<>(Scene.v().getApplicationClasses());

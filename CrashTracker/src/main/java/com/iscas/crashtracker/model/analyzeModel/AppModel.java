@@ -66,6 +66,7 @@ public class AppModel implements Serializable {
 	private Map<Pair<SootMethod, Unit>, Set<SootMethod>> entryMethod2MethodAddThisCallBack;
 	private Map<Unit, List<ParameterSource>> unit2ParameterSource;
 	private List<CrashInfo> crashInfoList;
+	private List<MethodModel> methodModelList;
 
 	
 	public AppModel() {
@@ -111,6 +112,7 @@ public class AppModel implements Serializable {
 		unit2ParameterSource = new HashMap<Unit, List<ParameterSource>>();
 		setExtendedPakgs(new HashSet<String>());
 		crashInfoList = new ArrayList<>();
+		methodModelList = new ArrayList<>();
 	}
 
 	@Override
@@ -405,4 +407,11 @@ public class AppModel implements Serializable {
 		this.minSdkVersion = minSdkVersion;
 	}
 
+	public List<MethodModel> getMethodModelList() {
+		return methodModelList;
+	}
+
+	public void setMethodModelList(List<MethodModel> methodModelList) {
+		this.methodModelList = methodModelList;
+	}
 }

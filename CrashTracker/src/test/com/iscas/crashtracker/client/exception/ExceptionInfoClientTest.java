@@ -33,7 +33,7 @@ public class ExceptionInfoClientTest {
 
         String client = "ExceptionInfoClient";
 
-        targetFolder = "android7.0";;
+        targetFolder = "android2.3";;
 //        targetFolder = "test";
         MyConfig.getInstance().setAppName(targetFolder);
         MyConfig.getInstance().setAppPath(path + File.separator);
@@ -48,5 +48,6 @@ public class ExceptionInfoClientTest {
         MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);
         MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
         MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"cg.txt");
+        MyConfig.getInstance().setMethodInfoFilePath(androidFolder+"CodeInfo"+File.separator+"methodInfo.json");
     }
 }

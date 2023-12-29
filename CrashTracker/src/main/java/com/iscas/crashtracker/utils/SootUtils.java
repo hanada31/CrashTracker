@@ -1,6 +1,7 @@
 package com.iscas.crashtracker.utils;
 
 import com.iscas.crashtracker.client.crash.CrashInfo;
+import com.iscas.crashtracker.model.analyzeModel.MethodModel;
 import heros.solver.Pair;
 import com.iscas.crashtracker.base.Global;
 import com.iscas.crashtracker.base.MyConfig;
@@ -1689,5 +1690,20 @@ public class SootUtils {
 			getUsedFieldList(methodSig);
 		}
 		return usedList;
+	}
+
+	public static  String getSignatureBySimpleName(String simpleName) {
+		if(simpleName.startsWith("android")){
+			for(MethodModel model: Global.v().getAppModel().getMethodModelList()){
+				if(model.getSimpleName().equals(simpleName))
+					return model.getMethodSignature();
+			}
+		}else {
+			Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(simpleName);
+			for (SootMethod method : methods) {
+				return method.getSignature();
+			}
+		}
+		return simpleName;
 	}
 }

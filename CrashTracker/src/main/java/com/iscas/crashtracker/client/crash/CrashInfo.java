@@ -77,6 +77,16 @@ public class CrashInfo {
         this.relatedCondTypeOracle = relatedCondTypeOracle;
     }
 
+    public List<String> getFrameworkTrace() {
+        List<String> frameworkTrace = new ArrayList<>();
+        for(String method : trace){
+            if(method.equals(crashMethod)) break;
+            if(method.startsWith("android"))
+                frameworkTrace.add(method);
+        }
+        return frameworkTrace;
+    }
+
     class ExtendCandiMethod {
         int depth;
         JSONArray trace;
@@ -116,7 +126,7 @@ public class CrashInfo {
         return buggyCandidateObjs;
     }
 
-    public void addBuggyCandidates(String candi, String candidateSig,int score, JSONObject reason) {
+    public int addBuggyCandidates(String candi, String candidateSig,int score, JSONObject reason) {
         boolean findPrexInTrace = false;
         for(String traceMtd: getCrashMethodList()){
             int id = Math.max(traceMtd.split("\\.").length-2, 2);
@@ -126,7 +136,7 @@ public class CrashInfo {
                 break;
             }
         }
-        if(!findPrexInTrace) return;
+        if(!findPrexInTrace) return -1;
         String pkgPrefix = StringUtils.getPkgPrefix(Global.v().getAppModel().getPackageName(),2);
         if(!candi.contains(pkgPrefix)) {
             score = score - ConstantUtils.OUTOFPKGSCORE;
@@ -135,11 +145,9 @@ public class CrashInfo {
             score = this.buggyCandidates.get(candi);
         if(score > ConstantUtils.BOTTOMSCORE) {
             if(this.buggyCandidates.containsKey(candi)){
-//                System.out.println(reason.remove("Influenced Field"));
                 this.buggyCandidateObjs.get(candi).addReasonTrace(reason);
             }else {
                 BuggyCandidate candiObj = new BuggyCandidate(candi, candidateSig, score);
-//                System.out.println(reason.remove("Influenced Field"));
                 candiObj.addReasonTrace(reason);
                 this.buggyCandidateObjs.put(candi, candiObj);
             }
@@ -149,6 +157,7 @@ public class CrashInfo {
             if(score> maxScore) maxScore = score;
 
         }
+        return score;
     }
 
     public List<String> getCrashMethodList() {

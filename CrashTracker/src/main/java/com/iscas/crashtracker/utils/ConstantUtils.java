@@ -141,5 +141,7 @@ public class ConstantUtils {
 			"SensorManager", "SlidingDrawer", "StorageManager", "Surface", "SurfaceHolder", "TagTechnology",
 			"TokenWatcher", "UsbManager", "VelocityTracker", "WebIconDatabase", "WifiManager$MulticastLock", "WifiManager$WifiLock", "WifiManager"};
 	//strategies
-
+	public static boolean isLibraryMethod(String candi) {
+		return candi.startsWith("android.")  || candi.startsWith("androidx.")|| candi.startsWith("com.android.") || candi.startsWith("java.");
+	}
 }

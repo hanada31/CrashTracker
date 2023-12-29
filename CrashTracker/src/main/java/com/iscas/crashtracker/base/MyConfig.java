@@ -35,6 +35,7 @@ public class MyConfig {
 	private String ExceptionFolderPath;
 	private String PermissionFilePath;
 	private String AndroidCGFilePath ;
+	private String MethodInfoFilePath ;
 	private String AndroidOSVersion = null;
 	private ConditionTracker conditionLimit = ConditionTracker.All;
 
@@ -50,6 +51,14 @@ public class MyConfig {
 
 	public void setExceptionFolderPath(String exceptionFolderPath) {
 		ExceptionFolderPath = exceptionFolderPath;
+	}
+
+	public String getMethodInfoFilePath() {
+		return MethodInfoFilePath;
+	}
+
+	public void setMethodInfoFilePath(String methodInfoFilePath) {
+		MethodInfoFilePath = methodInfoFilePath;
 	}
 
 

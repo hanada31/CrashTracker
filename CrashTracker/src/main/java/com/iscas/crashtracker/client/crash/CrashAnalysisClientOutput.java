@@ -50,7 +50,7 @@ public class CrashAnalysisClientOutput {
 
             PrintWriter printWriter = new PrintWriter(file);
             String jsonString = JSON.toJSONString(rootElement, SerializerFeature.PrettyFormat,
-                    SerializerFeature.SortField);
+                    SerializerFeature.SortField, SerializerFeature.DisableCircularReferenceDetect);
             printWriter.write(jsonString);
             printWriter.close();
         } catch (IOException e) {
@@ -61,6 +61,7 @@ public class CrashAnalysisClientOutput {
     private void addBasicInDataset(JSONObject jsonObject, CrashInfo crashInfo) {
         jsonObject.put("Apk name", Global.v().getAppModel().getAppName());
         jsonObject.put("Method", crashInfo.getMethodName());
+        jsonObject.put("Exception Type", crashInfo.getException());
         jsonObject.put("Crash Message", crashInfo.getMsg());
         JSONArray traceArray = new JSONArray();
         for (String  trace: crashInfo.getTrace()) {
@@ -86,7 +87,7 @@ public class CrashAnalysisClientOutput {
         if (exceptionInfo.getRelatedMethodsInSameClass(false).size() > 0) {
             for (RelatedMethod mtd : exceptionInfo.getRelatedMethodsInSameClass(false)) {
                 String mtdString = JSONObject.toJSONString(mtd, SerializerFeature.PrettyFormat,
-                        SerializerFeature.SortField);
+                        SerializerFeature.SortField, SerializerFeature.DisableCircularReferenceDetect);
                 JSONObject mtdObject = JSONObject.parseObject(mtdString);  // 转换为json对象
                 relatedMethodsSameArray.add(mtdObject);
             }
@@ -97,7 +98,7 @@ public class CrashAnalysisClientOutput {
         if (exceptionInfo.getRelatedMethodsInDiffClass(false).size() > 0) {
             for (RelatedMethod mtd : exceptionInfo.getRelatedMethodsInDiffClass(false)) {
                 String mtdString = JSONObject.toJSONString(mtd, SerializerFeature.PrettyFormat,
-                        SerializerFeature.SortField);
+                        SerializerFeature.SortField, SerializerFeature.DisableCircularReferenceDetect);
                 JSONObject mtdObject = JSONObject.parseObject(mtdString);  // 转换为json对象
                 relatedMethodsDiffArray.add(mtdObject);
             }
@@ -124,23 +125,25 @@ public class CrashAnalysisClientOutput {
     }
 
     private void addResultsByTool(JSONObject jsonObject, CrashInfo crashInfo) {
-
         ExceptionInfo exceptionInfo = crashInfo.getExceptionInfo();
+        JSONObject exceptionInfoJson = new JSONObject(true);
+        jsonObject.put("Exception Info", exceptionInfoJson);
         if(exceptionInfo!=null) {
-            jsonObject.put("Target Version of Framework", MyConfig.getInstance().getTargetVersion());
-            jsonObject.put("Regression Message", crashInfo.getExceptionInfo().getExceptionMsg());
-            jsonObject.put("Related Variable Type", crashInfo.getExceptionInfo().getRelatedVarType());
-            jsonObject.put("Fault Inducing Paras", crashInfo.getFaultInducingParas());
-            jsonObject.put("Related Condition Type", crashInfo.getExceptionInfo().getRelatedCondType()+"Condition");
+            exceptionInfoJson.put("Exception Type", crashInfo.getExceptionInfo().getExceptionType());
+            exceptionInfoJson.put("Target Version of Framework", MyConfig.getInstance().getTargetVersion());
+            exceptionInfoJson.put("Regression Message", crashInfo.getExceptionInfo().getExceptionMsg());
+            exceptionInfoJson.put("Related Variable Type", crashInfo.getExceptionInfo().getRelatedVarType());
+            exceptionInfoJson.put("Fault Inducing Paras", PrintUtils.printList(crashInfo.getFaultInducingParas()));
+            exceptionInfoJson.put("Related Condition Type", crashInfo.getExceptionInfo().getRelatedCondType()+"Condition");
             if(!crashInfo.getExceptionInfo().getRelatedCondType().equals(RelatedCondType.Empty))
-                jsonObject.put("Conditions", crashInfo.getExceptionInfo().getConditions());
+                exceptionInfoJson.put("Conditions", crashInfo.getExceptionInfo().getConditions());
             if(crashInfo.getExceptionInfo().getConditions().size()>0)
-                jsonObject.put("Conditions", PrintUtils.printList(crashInfo.getExceptionInfo().getConditions()));
+                exceptionInfoJson.put("Conditions", PrintUtils.printList(crashInfo.getExceptionInfo().getConditions()));
             if(crashInfo.getExceptionInfo().getRelatedFieldValues().size()>0)
-                jsonObject.put("Field Values", PrintUtils.printList(crashInfo.getExceptionInfo().getRelatedFieldValues()));
+                exceptionInfoJson.put("Field Values", PrintUtils.printList(crashInfo.getExceptionInfo().getRelatedFieldValues()));
             if(crashInfo.getExceptionInfo().getRelatedParamValues().size()>0)
-                jsonObject.put("Param Values", PrintUtils.printList(crashInfo.getExceptionInfo().getRelatedParamValues()));
-            jsonObject.put("ETS-related Type", changeToETSType(crashInfo.getExceptionInfo().getRelatedVarType()));
+                exceptionInfoJson.put("Param Values", PrintUtils.printList(crashInfo.getExceptionInfo().getRelatedParamValues()));
+            exceptionInfoJson.put("ETS-related Type", changeToETSType(crashInfo.getExceptionInfo().getRelatedVarType()));
         }
         Map<String, String> refToInvokeStack = new HashMap<>();
         List<String> workList = new ArrayList<>();

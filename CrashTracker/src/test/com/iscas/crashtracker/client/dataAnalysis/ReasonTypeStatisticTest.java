@@ -1,0 +1,19 @@
+package com.iscas.crashtracker.client.dataAnalysis;
+
+import com.iscas.crashtracker.base.MyConfig;
+
+import java.io.File;
+
+/**
+ * @Author hanada
+ * @Date 2022/9/8 14:01
+ * @Version 1.0
+ */
+public class ReasonTypeStatisticTest {
+    @org.junit.Test
+    public void test() {
+        MyConfig.getInstance().setResultFolder("..\\LocalizationResults" + File.separator);
+        ReasonTypeStatistic a = new ReasonTypeStatistic();
+        a.analyze();
+    }
+}

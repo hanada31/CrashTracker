@@ -197,10 +197,14 @@ public class Main {
 				MyConfig.getInstance().setPermissionFilePath(exceptionFolder + "Permission" + File.separator + "permission.txt");
 				MyConfig.getInstance().setExceptionFilePath(exceptionFolder + "exceptionInfo" + File.separator);
 				MyConfig.getInstance().setAndroidCGFilePath(exceptionFolder + "CallGraphInfo" + File.separator + "cg.txt");
+				MyConfig.getInstance().setMethodInfoFilePath(exceptionFolder+"CodeInfo"+File.separator+"methodInfo.json");
+
 			}else {
 				MyConfig.getInstance().setPermissionFilePath(mCmd.getOptionValue("permissionPath", exceptionFolder + "Permission" + File.separator + "permission.txt"));
 				MyConfig.getInstance().setExceptionFilePath(mCmd.getOptionValue("exceptionPath", exceptionFolder + "exceptionInfo" + File.separator));
 				MyConfig.getInstance().setAndroidCGFilePath(mCmd.getOptionValue("androidCGPath", exceptionFolder + "CallGraphInfo" + File.separator + "cg.txt"));
+				MyConfig.getInstance().setMethodInfoFilePath(mCmd.getOptionValue("CodeInfoPath", exceptionFolder + "CodeInfo" + File.separator + "methodInfo.json"));
+
 			}
 		}
 
