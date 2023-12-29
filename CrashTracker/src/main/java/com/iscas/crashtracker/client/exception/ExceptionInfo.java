@@ -48,6 +48,7 @@ public class ExceptionInfo {
     private Map<String, List<Integer>> callerOfSingnlar2SourceVar;
     public int keyAPISameClassNum;
     public int keyAPIDiffClassNum;
+    private Map<String, Set<String>> field2InitialMethod;
 
     public ExceptionInfo() {
         this.relatedParamValues = new ArrayList<>();
@@ -68,14 +69,15 @@ public class ExceptionInfo {
         this.relatedCondType = RelatedCondType.Empty;
         this.relatedVarType = RelatedVarType.Unknown;
         this.callerOfSingnlar2SourceVar = new HashMap<String, List<Integer>>();
-        }
+        this.field2InitialMethod = new HashMap<>();
+    }
+
     public ExceptionInfo(SootMethod sootMethod, Unit unit, String exceptionType) {
         this();
         this.sootMethod = sootMethod;
         initModifier();
         this.unit = unit;
         this.exceptionType = exceptionType;
-
     }
 
     private void initModifier() {
@@ -441,7 +443,15 @@ public class ExceptionInfo {
             callerOfSingnlar2SourceVar.put(method, new ArrayList<>());
         }
         callerOfSingnlar2SourceVar.get(method).add(sourceId);
+    }
 
+
+    public Map<String, Set<String>> getField2InitialMethod() {
+        return field2InitialMethod;
+    }
+
+    public void setField2InitialMethod(Map<String, Set<String>> field2InitialMethod) {
+        this.field2InitialMethod = field2InitialMethod;
     }
 }
 

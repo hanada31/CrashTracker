@@ -331,6 +331,7 @@ public class CrashInfo {
             this.exceptionInfo.setManifestRelated(this.exceptionInfo.isManifestRelated() | exceptionInfo.isManifestRelated());
             this.exceptionInfo.setAssessRelated(this.exceptionInfo.isAssessRelated() | exceptionInfo.isAssessRelated());
             this.exceptionInfo.setOsVersionRelated(this.exceptionInfo.isOsVersionRelated() | exceptionInfo.isOsVersionRelated());
+            this.exceptionInfo.setField2InitialMethod(this.exceptionInfo.getField2InitialMethod());
 
         }else{
             this.exceptionInfo = exceptionInfo;

@@ -33,7 +33,7 @@ public class ExceptionInfoClientTest {
 
         String client = "ExceptionInfoClient";
 
-        targetFolder = "android2.3";;
+        targetFolder = "android10.0";;
 //        targetFolder = "test";
         MyConfig.getInstance().setAppName(targetFolder);
         MyConfig.getInstance().setAppPath(path + File.separator);

@@ -37,8 +37,6 @@ public class JarCrashAnalysisClient extends BaseClient {
         Analyzer analyzer = new CrashAnalysis();
         analyzer.analyze();
         log.info("Successfully analyze with CrashAnalysisClient.");
-        //        PackManager.v().writeOutput();
-
     }
 
     @Override
@@ -49,6 +47,7 @@ public class JarCrashAnalysisClient extends BaseClient {
 
         CrashAnalysisClientOutput outer = new CrashAnalysisClientOutput();
         outer.writeToJson(summary_app_dir+Global.v().getAppModel().getAppName()+".json", Global.v().getAppModel().getCrashInfoList());
-
+        // output .jimple
+        //        PackManager.v().writeOutput();
     }
 }

@@ -68,6 +68,11 @@ public class CrashAnalysisClientOutput {
             traceArray.add(trace);
         }
         jsonObject.put("stack trace" , traceArray);
+        JSONArray traceSigArray = new JSONArray();
+        for (String  trace: crashInfo.getTrace()) {
+            traceSigArray.add(SootUtils.getAllSignatureBySimpleName(trace));
+        }
+        jsonObject.put("stack trace signature" , traceSigArray);
         jsonObject.put("Labeled Buggy Method", crashInfo.getReal());
         jsonObject.put("Manifest targetSdkVersion",Global.v().getAppModel().getTargetSdkVersion());
         jsonObject.put("Manifest minSdkVersion",Global.v().getAppModel().getMinSdkVersion());
@@ -129,21 +134,23 @@ public class CrashAnalysisClientOutput {
         JSONObject exceptionInfoJson = new JSONObject(true);
         jsonObject.put("Exception Info", exceptionInfoJson);
         if(exceptionInfo!=null) {
-            exceptionInfoJson.put("Exception Type", crashInfo.getExceptionInfo().getExceptionType());
+            exceptionInfoJson.put("Exception Type", exceptionInfo.getExceptionType());
             exceptionInfoJson.put("Target Version of Framework", MyConfig.getInstance().getTargetVersion());
-            exceptionInfoJson.put("Regression Message", crashInfo.getExceptionInfo().getExceptionMsg());
-            exceptionInfoJson.put("Related Variable Type", crashInfo.getExceptionInfo().getRelatedVarType());
+            exceptionInfoJson.put("Regression Message", exceptionInfo.getExceptionMsg());
+            exceptionInfoJson.put("Related Variable Type", exceptionInfo.getRelatedVarType());
             exceptionInfoJson.put("Fault Inducing Paras", PrintUtils.printList(crashInfo.getFaultInducingParas()));
-            exceptionInfoJson.put("Related Condition Type", crashInfo.getExceptionInfo().getRelatedCondType()+"Condition");
-            if(!crashInfo.getExceptionInfo().getRelatedCondType().equals(RelatedCondType.Empty))
-                exceptionInfoJson.put("Conditions", crashInfo.getExceptionInfo().getConditions());
-            if(crashInfo.getExceptionInfo().getConditions().size()>0)
-                exceptionInfoJson.put("Conditions", PrintUtils.printList(crashInfo.getExceptionInfo().getConditions()));
-            if(crashInfo.getExceptionInfo().getRelatedFieldValues().size()>0)
-                exceptionInfoJson.put("Field Values", PrintUtils.printList(crashInfo.getExceptionInfo().getRelatedFieldValues()));
-            if(crashInfo.getExceptionInfo().getRelatedParamValues().size()>0)
-                exceptionInfoJson.put("Param Values", PrintUtils.printList(crashInfo.getExceptionInfo().getRelatedParamValues()));
-            exceptionInfoJson.put("ETS-related Type", changeToETSType(crashInfo.getExceptionInfo().getRelatedVarType()));
+            exceptionInfoJson.put("Related Condition Type", exceptionInfo.getRelatedCondType()+"Condition");
+            if(!exceptionInfo.getRelatedCondType().equals(RelatedCondType.Empty))
+                exceptionInfoJson.put("Conditions", exceptionInfo.getConditions());
+            if(exceptionInfo.getConditions().size()>0)
+                exceptionInfoJson.put("Conditions", PrintUtils.printList(exceptionInfo.getConditions()));
+            if(exceptionInfo.getRelatedFieldValues().size()>0)
+                exceptionInfoJson.put("Field Values", PrintUtils.printList(exceptionInfo.getRelatedFieldValues()));
+            if(exceptionInfo.getRelatedParamValues().size()>0)
+                exceptionInfoJson.put("Param Values", PrintUtils.printList(exceptionInfo.getRelatedParamValues()));
+            exceptionInfoJson.put("ETS-related Type", changeToETSType(exceptionInfo.getRelatedVarType()));
+            if(exceptionInfo.getField2InitialMethod()!=null && exceptionInfo.getField2InitialMethod().size()>0)
+                exceptionInfoJson.put("Field2InitialMethod", exceptionInfo.getField2InitialMethod());
         }
         Map<String, String> refToInvokeStack = new HashMap<>();
         List<String> workList = new ArrayList<>();

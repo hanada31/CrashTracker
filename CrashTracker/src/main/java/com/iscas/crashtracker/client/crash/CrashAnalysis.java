@@ -18,6 +18,7 @@ import soot.toolkits.scalar.Pair;
 import soot.toolkits.scalar.UnitValueBoxPair;
 
 import java.io.File;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -842,7 +843,7 @@ public class CrashAnalysis extends Analyzer {
         SootClass superCls = null;
         String sub ="";
         List<String> history = new ArrayList<>();
-        for(int k=start+crashInfo.getAppParamIdTrackingList().size(); k<=end; k++){
+        for(int k=start; k<=end; k++){
             String candi = crashInfo.getTrace().get(k);
             invokingList.add(candi);
             if(!isLibraryMethod(candi)){
@@ -1507,6 +1508,12 @@ public class CrashAnalysis extends Analyzer {
             ExceptionInfo exceptionInfo = new ExceptionInfo();
             exceptionInfo.setSootMethodName(jsonObject.getString("method"));
             exceptionInfo.setExceptionMsg(jsonObject.getString("message"));
+
+            //??????????????????
+            //if(info.getField2InitialMethod().size()>0)
+            //    jsonObject.put("field2InitialMethod", info.getField2InitialMethod());
+            Map fieldMap = jsonObject.getObject("field2InitialMethod",  HashMap.class);
+            exceptionInfo.setField2InitialMethod(fieldMap);
 
             if (exceptionInfo.getSootMethodName().equals(crashInfo.getMethodName())) {
                 if (exceptionInfo.getExceptionMsg() == null) continue;

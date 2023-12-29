@@ -29,15 +29,15 @@ public class IROutputClientTest {
         path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
         path = "D:\\SoftwareData\\dataset\\android-framework\\classes\\";
         path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
-        path = "..\\apk\\";
-        path = "..\\M_framework\\";
+//        path = "..\\apk\\";
+//        path = "..\\M_framework\\";
+        String name;
 
-        String targetFolder;
+        name = "cgeo.geocaching-600.apk"; //Key Variable Related 1, Key Variable Related 2
+
         String client = "IROutputClient";
 
-        targetFolder = "test";
-
-        MyConfig.getInstance().setAppName(targetFolder);
+        MyConfig.getInstance().setAppName(name);
         MyConfig.getInstance().setAppPath(path + File.separator);
         MyConfig.getInstance().setClient(client);
         MyConfig.getInstance().setResultWarpperFolder("..\\results" + File.separator);

@@ -36,6 +36,7 @@ public class ApkCrashAnalysisClient extends BaseClient {
         analyzer.analyze();
         log.info("Successfully analyze with CrashAnalysisClient.");
 
+
     }
 
     @Override
@@ -46,6 +47,7 @@ public class ApkCrashAnalysisClient extends BaseClient {
 
         CrashAnalysisClientOutput outer = new CrashAnalysisClientOutput();
         outer.writeToJson(summary_app_dir+Global.v().getAppModel().getAppName()+".json", Global.v().getAppModel().getCrashInfoList());
+        // output .jimple
         PackManager.v().writeOutput();
     }
 }

@@ -1,10 +1,10 @@
 package com.iscas.crashtracker.client.exception;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.esotericsoftware.minlog.Log;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONWriter;
 import com.google.common.collect.Lists;
 import com.iscas.crashtracker.base.Analyzer;
 import com.iscas.crashtracker.base.Global;
@@ -59,7 +59,7 @@ public class ExceptionAnalyzer extends Analyzer {
         for (SootClass sootClass : applicationClasses) {
             HashSet<SootMethod> methodsInTheClass = new HashSet<>(sootClass.getMethods());
             for (SootMethod sootMethod : methodsInTheClass) {
-                JSONObject methodInfo = new JSONObject(true);
+                JSONObject methodInfo = new JSONObject();
                 methodInfo.put("methodSignature", sootMethod.getSignature());
                 methodInfo.put("simpleName", SootUtils.getMethodSimpleNameFromSignature(sootMethod.getSignature()));
                 methodInfo.put("className", sootMethod.getDeclaringClass().getName());
@@ -78,8 +78,8 @@ public class ExceptionAnalyzer extends Analyzer {
         try {
             file.createNewFile();
             PrintWriter printWriter = new PrintWriter(file);
-            String jsonString = JSON.toJSONString(methodInfoList, SerializerFeature.PrettyFormat,
-                    SerializerFeature.SortField, SerializerFeature.DisableCircularReferenceDetect);
+            String jsonString = JSON.toJSONString(methodInfoList, JSONWriter.Feature.PrettyFormat,
+                    JSONWriter.Feature.MapSortField, JSONWriter.Feature.LargeObject);
             printWriter.write(jsonString);
             printWriter.close();
         } catch (IOException e) {
@@ -368,7 +368,26 @@ public class ExceptionAnalyzer extends Analyzer {
                 exceptionInfo.setManifestRelated(true);
             }
         }
+        searchFieldInitialMethods(exceptionInfo);
+        
         exceptionInfoList.add(exceptionInfo);
+    }
+
+    private void searchFieldInitialMethods(ExceptionInfo exceptionInfo) {
+        for(SootField sootField: exceptionInfo.getRelatedFieldValues()){
+            for(SootMethod sootMethod: sootField.getDeclaringClass().getMethods()){
+                if(!sootMethod.hasActiveBody()) continue;
+                for(Unit u: sootMethod.getActiveBody().getUnits()){
+                    if(u instanceof AssignStmt){
+                        AssignStmt assignStmt = (AssignStmt) u;
+                        if(assignStmt.getLeftOp().toString().contains(sootField.toString())){
+                            exceptionInfo.getField2InitialMethod().putIfAbsent(sootField.toString(), new HashSet<>());
+                            exceptionInfo.getField2InitialMethod().get(sootField.toString()).add(sootMethod.getSignature()+" --> " + assignStmt.getRightOp().toString());
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void getConditionType(ExceptionInfo exceptionInfo, int retValue) {

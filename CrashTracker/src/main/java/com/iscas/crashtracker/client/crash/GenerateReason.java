@@ -197,6 +197,7 @@ public class GenerateReason {
         if(crashInfo.getNoneCodeLabel().size()>0){
             reason.put("Non-Code Label",  crashInfo.getNoneCodeLabel());
 //            reason.put("Non-Code Info",  "this crash may have relationship with non-code reasons, e.g., " + PrintUtils.printList(crashInfo.getNoneCodeLabel())+".");
+//            reason.put("Non-Code Info",  "this crash may have relationship with non-code reasons, e.g., " + PrintUtils.printList(crashInfo.getNoneCodeLabel())+".");
 //            reason.put("Non-Code Info by LLM",  "what is the relationship between between "+buggyCandidate+" and "+PrintUtils.printList(crashInfo.getNoneCodeLabel())+ " (if it has)?");
         }
     }

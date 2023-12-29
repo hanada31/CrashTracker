@@ -1,8 +1,10 @@
 package com.iscas.crashtracker.client.exception;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson2.JSONWriter;
 import com.iscas.crashtracker.base.MyConfig;
 import com.iscas.crashtracker.utils.FileUtils;
 import com.iscas.crashtracker.utils.PrintUtils;
@@ -14,8 +16,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-
-import static com.alibaba.fastjson.JSON.toJSONString;
 
 /**
  * @Author hanada
@@ -43,7 +43,7 @@ public class ExceptionInfoClientOutput {
                 JSONArray exceptionListElement  = new JSONArray(new ArrayList<>());
                 rootElement.put("exceptions", exceptionListElement);
                 for(ExceptionInfo info :exceptionInfoList){
-                    JSONObject jsonObject = new JSONObject(true);
+                    JSONObject jsonObject = new JSONObject();
                     exceptionListElement.add(jsonObject);
                     addBasic1(jsonObject, info);
                     addBasic2(jsonObject, info);
@@ -53,8 +53,8 @@ public class ExceptionInfoClientOutput {
                     addCallerOfParam(jsonObject, info);
                 }
                 PrintWriter printWriter = new PrintWriter(file);
-                String jsonString = toJSONString(rootElement, SerializerFeature.PrettyFormat,
-                        SerializerFeature.SortField, SerializerFeature.DisableCircularReferenceDetect);
+                String jsonString = JSON.toJSONString(rootElement, JSONWriter.Feature.PrettyFormat,
+                        JSONWriter.Feature.MapSortField, JSONWriter.Feature.LargeObject);
                 printWriter.write(jsonString);
                 printWriter.close();
             } catch (Exception e) {
@@ -74,7 +74,7 @@ public class ExceptionInfoClientOutput {
     public static void getSummaryJsonArray(List<ExceptionInfo> exceptionInfoList, JSONArray exceptionListElement) {
         if(exceptionInfoList.size()>0) {
             for(ExceptionInfo info :exceptionInfoList){
-                JSONObject jsonObject = new JSONObject(true);
+                JSONObject jsonObject = new JSONObject();
                 exceptionListElement.add(jsonObject);
                 addBasic1(jsonObject, info);
                 addBasic2(jsonObject, info);
@@ -96,8 +96,8 @@ public class ExceptionInfoClientOutput {
             file.createNewFile();
             rootElement.put("exceptions", exceptionListElement);
             PrintWriter printWriter = new PrintWriter(file);
-            String jsonString = toJSONString(rootElement, SerializerFeature.PrettyFormat,
-                    SerializerFeature.SortField, SerializerFeature.DisableCircularReferenceDetect);
+            String jsonString = JSON.toJSONString(rootElement, JSONWriter.Feature.PrettyFormat,
+                    JSONWriter.Feature.MapSortField, JSONWriter.Feature.LargeObject);
             printWriter.write(jsonString);
             printWriter.close();
         } catch (Exception e) {
@@ -148,6 +148,8 @@ public class ExceptionInfoClientOutput {
         if(info.getRelatedParamValues().size() + info.getRelatedFieldValues().size() + info.getCaughtValues().size()>0)
             jsonObject.put("relatedValues", PrintUtils.printList(info.getRelatedParamValues())+"; "
                     +PrintUtils.printList(info.getRelatedFieldValues()) +"; "); // + PrintUtils.printList(info.getCaughtValues())
+        if(info.getField2InitialMethod().size()>0)
+            jsonObject.put("field2InitialMethod", info.getField2InitialMethod());
     }
 
     private static void addBackwardParamCallerNum(JSONObject jsonObject, ExceptionInfo exceptionInfo) {
@@ -169,8 +171,8 @@ public class ExceptionInfoClientOutput {
         JSONArray relatedMethodsSameArray = new JSONArray();
         if (exceptionInfo.getRelatedMethodsInSameClass(true).size() > 0) {
             for (RelatedMethod mtd : exceptionInfo.getRelatedMethodsInSameClass(false)) {
-                String mtdString = toJSONString(mtd, SerializerFeature.PrettyFormat,
-                        SerializerFeature.SortField, SerializerFeature.DisableCircularReferenceDetect);
+                String mtdString = JSON.toJSONString(mtd, JSONWriter.Feature.PrettyFormat,
+                        JSONWriter.Feature.MapSortField, JSONWriter.Feature.LargeObject);
                 JSONObject mtdObject = JSONObject.parseObject(mtdString);  // 转换为json对象
                 relatedMethodsSameArray.add(mtdObject);
             }
@@ -180,8 +182,8 @@ public class ExceptionInfoClientOutput {
         JSONArray relatedMethodsDiffArray = new JSONArray();
         if (exceptionInfo.getRelatedMethodsInDiffClass(true).size() > 0) {
             for (RelatedMethod mtd : exceptionInfo.getRelatedMethodsInDiffClass(false)) {
-                String mtdString = toJSONString(mtd, SerializerFeature.PrettyFormat,
-                        SerializerFeature.SortField, SerializerFeature.DisableCircularReferenceDetect);
+                String mtdString = JSON.toJSONString(mtd, JSONWriter.Feature.PrettyFormat,
+                        JSONWriter.Feature.MapSortField, JSONWriter.Feature.LargeObject);
                 JSONObject mtdObject = JSONObject.parseObject(mtdString);  // 转换为json对象
                 relatedMethodsDiffArray.add(mtdObject);
             }
@@ -190,7 +192,7 @@ public class ExceptionInfoClientOutput {
     }
 
     private static void addCallerOfParam(JSONObject jsonObject, ExceptionInfo exceptionInfo) {
-        JSONObject callerOfSingnlar2SourceVar = new JSONObject(true);
+        JSONObject callerOfSingnlar2SourceVar = new JSONObject();
         if (exceptionInfo.getCallerOfSingnlar2SourceVar().size() > 0) {
             for (String mtd : exceptionInfo.getCallerOfSingnlar2SourceVar().keySet()) {
                 String vals = PrintUtils.printList(exceptionInfo.getCallerOfSingnlar2SourceVar().get(mtd));

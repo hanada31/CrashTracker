@@ -1660,28 +1660,29 @@ public class SootUtils {
 			String calleeCandi = crashInfo.getTrace().get(location-1);
 			if(!sootMethod.hasActiveBody()) return usedList;
 			for(Unit u : sootMethod.getActiveBody().getUnits()) {
-				InvokeExpr invoke = SootUtils.getInvokeExp(u);
-				if (invoke == null) continue;
-				String callee = invoke.getMethod().getDeclaringClass().getName() + "." + invoke.getMethod().getName();
 				boolean flag = false;
+				String callee = "";
+				InvokeExpr invoke = SootUtils.getInvokeExp(u);
+				if (invoke != null)
+					callee = invoke.getMethod().getDeclaringClass().getName() + "." + invoke.getMethod().getName();
 				if (callee.equals(calleeCandi))
 					flag = true;
 				for (ValueBox valueBox : u.getUseAndDefBoxes()) {
 					Value value = valueBox.getValue();
 					if (value instanceof FieldRef) {
 						FieldRef fieldRef = (FieldRef) value;
-						String fieldName = fieldRef.getField().getName();
-						String className = fieldRef.getField().getDeclaringClass().getName();
-						String fieldType = fieldRef.getField().getType().toString();
-						String classField = className + "." + fieldName + " : " + fieldType;
-						usedList.add(classField);
+//						String fieldName = fieldRef.getField().getName();
+//						String className = fieldRef.getField().getDeclaringClass().getName();
+//						String fieldType = fieldRef.getField().getType().toString();
+//						String classField = className + "." + fieldName + " : " + fieldType;
+						usedList.add(fieldRef.getField().toString());
 					} else if (value instanceof StaticFieldRef) {
 						StaticFieldRef staticFieldRef = (StaticFieldRef) value;
-						String fieldName = staticFieldRef.getField().getName();
-						String className = staticFieldRef.getField().getDeclaringClass().getName();
-						String fieldType = staticFieldRef.getField().getType().toString();
-						String classField = className + "." + fieldName + " : " + fieldType;
-						usedList.add(classField);
+//						String fieldName = staticFieldRef.getField().getName();
+//						String className = staticFieldRef.getField().getDeclaringClass().getName();
+//						String fieldType = staticFieldRef.getField().getType().toString();
+//						String classField = className + "." + fieldName + " : " + fieldType;
+						usedList.add(staticFieldRef.getField().toString());
 					}
 				}
 				if(flag) break;
@@ -1698,6 +1699,25 @@ public class SootUtils {
 				if(model.getSimpleName().equals(simpleName))
 					return model.getMethodSignature();
 			}
+		}else {
+			Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(simpleName);
+			for (SootMethod method : methods) {
+				return method.getSignature();
+			}
+		}
+		return simpleName;
+	}
+
+	public static  String getAllSignatureBySimpleName(String simpleName) {
+		if(simpleName.startsWith("android")){
+			String res = "";
+			for(MethodModel model: Global.v().getAppModel().getMethodModelList()){
+				if(model.getSimpleName().equals(simpleName))
+					res +=model.getMethodSignature()+"; ";
+			}
+			if(res.endsWith("; "))
+				res = res.substring(0,res.lastIndexOf(";"));
+			return res;
 		}else {
 			Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(simpleName);
 			for (SootMethod method : methods) {
