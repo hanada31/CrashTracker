@@ -5,6 +5,7 @@ import com.iscas.crashtracker.base.Global;
 import com.iscas.crashtracker.base.MyConfig;
 import com.iscas.crashtracker.client.BaseClient;
 import com.iscas.crashtracker.client.cg.cgApk.CallGraphofApkClient;
+import com.iscas.crashtracker.client.exception.ExceptionAnalyzer;
 import com.iscas.crashtracker.client.soot.SootAnalyzer;
 import com.iscas.crashtracker.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ public class ApkCrashAnalysisClient extends BaseClient {
             new CallGraphofApkClient().start();
             MyConfig.getInstance().setCallGraphAnalyzeFinish(true);
         }
+
         log.info("Start analyze with CrashAnalysisClient.");
         Analyzer analyzer = new CrashAnalysis();
         analyzer.analyze();

@@ -29,11 +29,12 @@ public class ExceptionInfoClientTest {
         String path, targetFolder;
         path = "C:\\Users\\yanjw\\programs\\framework\\classes\\";
         path = "D:\\SoftwareData\\dataset\\android-framework\\classes\\";
-        path = "..\\M_framework\\";
+//        path = "..\\M_framework\\";
 
         String client = "ExceptionInfoClient";
 
-        targetFolder = "android10.0";;
+        targetFolder = "android2.3";
+//        targetFolder = "android-support-v7-appcompat";
 //        targetFolder = "test";
         MyConfig.getInstance().setAppName(targetFolder);
         MyConfig.getInstance().setAppPath(path + File.separator);

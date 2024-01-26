@@ -40,8 +40,7 @@ public class BuggyCandidate {
     }
 
     public void addReasonTrace(JSONObject reason) {
-        if(reasonTrace.contains(reason.toJSONString()))
-            return;
+//
         reasonTrace.add(reason.toJSONString());
         reasons.add(reason);
     }

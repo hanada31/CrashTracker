@@ -141,7 +141,8 @@ public class CrashInfo {
         if(!candi.contains(pkgPrefix)) {
             score = score - ConstantUtils.OUTOFPKGSCORE;
         }
-        if(this.buggyCandidates.containsKey(candi) && this.buggyCandidates.get(candi) >= score)
+        int returnSocre = score;
+        if(this.buggyCandidates.containsKey(candi) && this.buggyCandidates.get(candi) > score)
             score = this.buggyCandidates.get(candi);
         if(score > ConstantUtils.BOTTOMSCORE) {
             if(this.buggyCandidates.containsKey(candi)){
@@ -157,7 +158,7 @@ public class CrashInfo {
             if(score> maxScore) maxScore = score;
 
         }
-        return score;
+        return returnSocre;
     }
 
     public List<String> getCrashMethodList() {

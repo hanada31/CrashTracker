@@ -18,7 +18,6 @@ import soot.toolkits.scalar.Pair;
 import soot.toolkits.scalar.UnitValueBoxPair;
 
 import java.io.File;
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -53,14 +52,35 @@ public class CrashAnalysis extends Analyzer {
     public void analyze() {
         readCrashInfo();
         log.info("readCrashInfo Finish...");
+
+        performExceptionAnalysis();
+        log.info("performExceptionAnalysis Finish...");
+
         getExceptionOfCrashInfo();
         log.info("getExceptionOfCrashInfo Finish...");
         readMethodInfo();
-        readAndroidCG();
         getCandidateBuggyMethods();
         log.info("getCandidateBuggyMethods Finish...");
         printCrash2Edges();
     }
+
+    private void performExceptionAnalysis() {
+        boolean flag = false;
+        for(CrashInfo crashInfo : crashInfoList) {
+            for(String trace: crashInfo.getTrace()){
+                if(trace.contains("support.v4") || trace.contains("support.v7") ) {
+                    flag = true;
+                }
+            }
+        }
+        if(flag) {
+            log.info("Start analyze with ExceptionInfoClient.");
+            Analyzer analyzer1 = new ExceptionAnalyzer();
+            analyzer1.analyze();
+            log.info("Successfully analyze with ExceptionInfoClient.");
+        }
+    }
+
 
     /**
      * key method
@@ -283,7 +303,8 @@ public class CrashAnalysis extends Analyzer {
         for(RelatedMethod method: exceptionInfo.getRelatedMethodsInSameClass(false)){
             getBuggyFromRelatedMethods(crashInfo, method, score);
         }
-        score = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
+        score = crashInfo.getBuggyCandidates().size()>ConstantUtils.LARGERELATEDMETHODCALLERSET ? ConstantUtils.INITSCORE:
+                Math.max(crashInfo.minScore,crashInfo.maxScore)-ConstantUtils.SMALLGAPSCORE;
         addCrashTracesKeyAPI(score, crashInfo);
         if(!crashInfo.findCandidateInTrace) {
             //add diff class results, when the same class results returns nothing
@@ -394,7 +415,7 @@ public class CrashAnalysis extends Analyzer {
     private void withParameterHandler(int score, CrashInfo crashInfo, boolean hasFaultInducingParas) {
         String  paramValueTerminateCallerSignature = getParaPassingTerminateMethod(crashInfo, hasFaultInducingParas);
         analyzeParameterTerminateMethod(score, crashInfo, paramValueTerminateCallerSignature);
-        analyzeParameterNonTerminateMethod(score, crashInfo);
+        analyzeParameterNonTerminateMethod(score, crashInfo,paramValueTerminateCallerSignature );
 
         int nonTerminateScore = Math.max(crashInfo.maxScore-ConstantUtils.SMALLGAPSCORE, crashInfo.minScore - ConstantUtils.SMALLGAPSCORE);
         if(MyConfig.getInstance().getStrategy().equals(Strategy.ExtendCGOnly.toString())) {
@@ -792,7 +813,7 @@ public class CrashAnalysis extends Analyzer {
         return new ArrayList<>(paraIds);
     }
 
-    private void analyzeParameterTerminateMethod(int score, CrashInfo crashInfo, String finalCaller) {
+    private void analyzeParameterTerminateMethod(int score, CrashInfo crashInfo, String paramValueTerminateCallerSignature) {
         boolean find = false;
 
         ListIterator<String> iterator = crashInfo.getCrashMethodList().listIterator(crashInfo.getCrashMethodList().size()); // 从列表末尾开始
@@ -803,7 +824,7 @@ public class CrashAnalysis extends Analyzer {
             for(SootMethod sm: methods) {
                 signature = sm.getSignature();
             }
-            if (candi.equals(finalCaller)) {
+            if (candi.equals(paramValueTerminateCallerSignature)) {
                 JSONObject reason = new JSONObject(true);
 //                reason.put("Explanation", "Influences the value of keyVar by modifying the value of the passed parameters");
 //                reason.put("Influenced parameter id", PrintUtils.printList(crashInfo.getFaultInducingParas()));
@@ -813,7 +834,7 @@ public class CrashAnalysis extends Analyzer {
 //                reason.put("Trace", trace);
                 int finalScore = crashInfo.addBuggyCandidates(candi,signature, score,reason);
                 reason.put("Reason Score",finalScore);
-                GenerateReason.generateReasonForKeyVariableRelatedTerminate(reason, finalCaller, crashInfo.getFaultInducingParas(), crashInfo);
+                GenerateReason.generateReasonForKeyVariableRelatedTerminate(reason, paramValueTerminateCallerSignature, crashInfo.getFaultInducingParas(), crashInfo);
                 find = true;
             }else{
                 if(find) {
@@ -827,13 +848,13 @@ public class CrashAnalysis extends Analyzer {
 
                     int finalScore = crashInfo.addBuggyCandidates(candi, signature, --score, reason);
                     reason.put("Reason Score",finalScore);
-                    GenerateReason.generateReasonForKeyVariableRelatedNotTerminate(reason, finalCaller, crashInfo.getFaultInducingParas(), crashInfo);
+                    GenerateReason.generateReasonForKeyVariableRelatedNotTerminate(reason, paramValueTerminateCallerSignature, crashInfo.getFaultInducingParas(), crashInfo);
                 }
             }
         }
     }
 
-    private void analyzeParameterNonTerminateMethod(int initScore,  CrashInfo crashInfo) {
+    private void analyzeParameterNonTerminateMethod(int initScore, CrashInfo crashInfo, String paramValueTerminateCallerSignature) {
         List<String> invokingList = new ArrayList<>();
         initScore = initScore-crashInfo.getAppParamIdTrackingList().size();
         log.info("getParameterNonTerminateMethod...");
@@ -864,8 +885,9 @@ public class CrashAnalysis extends Analyzer {
                     finalScore = crashInfo.addBuggyCandidates(candi, "", initScore--, reason);
                 }
                 reason.put("Reason Score",finalScore);
-
-                GenerateReason.generateReasonForKeyVariableRelatedNotTerminate(reason, candi,  crashInfo.faultInducingParas, crashInfo);
+                if(!candi.equals(paramValueTerminateCallerSignature)) {
+                    GenerateReason.generateReasonForKeyVariableRelatedNotTerminate(reason, candi, crashInfo.faultInducingParas, crashInfo);
+                }
                 for(SootMethod sm: methods) {
                     if (sm == null) continue;
                     sub = sm.getDeclaringClass().getName();
@@ -968,6 +990,8 @@ public class CrashAnalysis extends Analyzer {
     }
 
 
+
+
     /**
      * addCalleesOfSourceOfEdge
      * @param crashInfo
@@ -1035,18 +1059,24 @@ public class CrashAnalysis extends Analyzer {
             int size = CollectionUtils.getSizeOfIterator(Global.v().getAppModel().getCg().edgesInto(sootMethod));
             if(size>ConstantUtils.LARGECALLERSET) return;
         }
-
+        int count = 0;
         for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesInto(sootMethod); it.hasNext(); ) {
-            Edge edge2 = it.next();
-            if(edge2.toString().contains("dummyMainMethod")) continue;
-            if( crashInfo.getEdges().contains(edge2) ) continue;
-            crashInfo.add2EdgeMap(depth,edge2);
-            JSONObject newReason = new JSONObject();
+            it.next();
+            count++;
+        }
+        if(count < ConstantUtils.LARGERELATEDMETHODCALLERSET) {
+            for (Iterator<Edge> it = Global.v().getAppModel().getCg().edgesInto(sootMethod); it.hasNext(); ) {
+                Edge edge2 = it.next();
+                if (edge2.toString().contains("dummyMainMethod")) continue;
+                if (crashInfo.getEdges().contains(edge2)) continue;
+                crashInfo.add2EdgeMap(depth, edge2);
+                JSONObject newReason = new JSONObject();
 //            newReason.put("Reason Type", reason.get("Reason Type"));
 //            newReason.put("Explanation", reason.get("Explanation"));
 //            newReason.put("Influenced Field", reason.get("Influenced Field"));
 //            newReason.put("Signaler", reason.get("Signaler"));
-            addCallersOfSourceOfEdge(initScore, edge2, relatedMethod, crashInfo, edge2.getSrc().method(), depth+1,  newReason, keyAPIInvokingList);
+                addCallersOfSourceOfEdge(initScore, edge2, relatedMethod, crashInfo, edge2.getSrc().method(), depth + 1, newReason, keyAPIInvokingList);
+            }
         }
     }
 
@@ -1068,14 +1098,17 @@ public class CrashAnalysis extends Analyzer {
      * @param crashInfo
      */
     private void getBuggyFromRelatedMethods(CrashInfo crashInfo, RelatedMethod relatedMethod, int initScore) {
-//        log.error(relatedMethod.getMethod());
         crashInfo.setEdges(new ArrayList<>());
-        int size =  0;
-        if(!MyConfig.getInstance().getStrategy().equals(Strategy.NoCallFilter.toString())){
-            size =getsizeOfCaller(relatedMethod.getMethod());
-        }
-//        log.info(size);
+
         //filter the related methods with too many caller
+        int count = 0;
+        for (Edge edge : Global.v().getAppModel().getCg()) {
+            String sig = edge.getTgt().method().getSignature();
+            if (sig.equals(relatedMethod.getMethod())){
+                count++;
+            }
+        }
+
         for (Edge edge : Global.v().getAppModel().getCg()) {
             String sig = edge.getTgt().method().getSignature();
             if (sig.equals(relatedMethod.getMethod())){
@@ -1083,9 +1116,9 @@ public class CrashAnalysis extends Analyzer {
                 if (isLibraryMethod(sourceMtd.getDeclaringClass().getName()))
                     continue;
                 boolean findInTrace = false;
-                if (size > ConstantUtils.LARGECALLERSET) {
+                if(count > ConstantUtils.LARGERELATEDMETHODCALLERSET){
                     for (String className : crashInfo.getClassesInTrace()) {
-                        if (sourceMtd.getSignature().contains(className)) {
+                        if (sourceMtd.getDeclaringClass().getName().equals(className)) {
                             findInTrace = true;
                             break;
                         }
@@ -1094,23 +1127,10 @@ public class CrashAnalysis extends Analyzer {
                 }
                 crashInfo.add2EdgeMap(0, edge);
                 JSONObject reason = new JSONObject(true);
-//                reason.put("Explanation", "");
-//                reason.put("Trace", relatedMethod.getTrace());
                 List<String> keyAPIInvokingList = new ArrayList<>();
                 addCallersOfSourceOfEdge(initScore, edge, relatedMethod, crashInfo, sourceMtd, 1,  reason, keyAPIInvokingList);
             }
         }
-    }
-
-    private int getsizeOfCaller(String signature) {
-        int size =0;
-        for (Edge edge : Global.v().getAppModel().getCg()) {
-            String tgtSig = edge.getTgt().method().getSignature();
-            if (tgtSig.equals(signature)) {
-                size++;
-            }
-        }
-        return size;
     }
 
     private int getBottomNonLibMethod(CrashInfo crashInfo) {
@@ -1266,61 +1286,167 @@ public class CrashAnalysis extends Analyzer {
         return order+2;
     }
 
+//    public void getExceptionOfCrashInfobak() {
+//        log.info("getExceptionOfCrashInfo...");
+//        for(CrashInfo crashInfo: this.crashInfoList) {
+//            if(crashInfo.getTrace().size()==0 ) continue;
+//            String targetVer;
+//            String targetMethodName;
+//            if(MyConfig.getInstance().getAndroidOSVersion()==null) {
+//                String[] versionTypes = new String[versions.length];
+//                String[] versionTypeCandis = new String[versions.length];
+//                String[] targetMethodNames = new String[versions.length];
+//                int i = -1;
+//                int targetVerId = -1;
+//                int minDistance2TargetAPI = 100;
+//                log.info("use versionTypes to match");
+//                String summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
+//                        + File.separator;
+//                String fn = summary_app_dir+"exceptionInfo"+File.separator+"summary"+ File.separator+ "exception.json";
+//                Pair<String, String> pair = getMatchedExceptionPair(crashInfo, true, fn);
+//                if (!pair.getO1().equals("notFound")) {
+//                    targetVer = "support";
+//                    targetMethodName =pair.getO2();
+//                } else{
+//                    for (String version : versions) {
+//                        i++;
+//                        String androidFolder = MyConfig.getInstance().getExceptionFolderPath() + File.separator + "android" + version + File.separator;
+//                        MyConfig.getInstance().setExceptionFilePath(androidFolder + "exceptionInfo" + File.separator);
+//                        MyConfig.getInstance().setPermissionFilePath(androidFolder + "Permission" + File.separator + "permission.txt");
+//                        MyConfig.getInstance().setAndroidCGFilePath(androidFolder + "CallGraphInfo" + File.separator + "android" + version + "_cg.txt");
+//                        MyConfig.getInstance().setMethodInfoFilePath(androidFolder + "CodeInfo" + File.separator + "methodInfo.json");
+//
+//                        fn = MyConfig.getInstance().getExceptionFilePath() + "summary" + File.separator + "exception.json";
+//                        pair = getMatchedExceptionPair(crashInfo, true, fn);
+//                        versionTypes[i] = pair.getO1();
+//                        targetMethodNames[i] = pair.getO2();
+//                        if (versionTypes[i].equals("notFound")) {
+//                            Pair<String, String> pair2 = getMatchedExceptionPair(crashInfo, false, fn);
+//                            versionTypeCandis[i] = pair2.getO1();
+//                            targetMethodNames[i] = pair2.getO2();
+//                        } else if (versionTypes[i].equals("noFile")) {
+//                            log.info("version " + versions[i] + " not exist.");
+//                        } else {
+//                            if (APILevels[i] >= appModel.getMinSdkVersion()) {
+//                                if (Math.abs(appModel.getTargetSdkVersion() - APILevels[i]) < minDistance2TargetAPI) {
+//                                    minDistance2TargetAPI = Math.abs(appModel.getTargetSdkVersion() - APILevels[i]);
+//                                    targetVerId = i;
+//                                }
+//                            }
+//                        }
+//                    }
+//                    log.info("versionTypes: "+PrintUtils.printArray(versionTypes));
+//
+//                    if (targetVerId == -1) {
+//                        log.info("use versionTypeCandis to match");
+//                        log.info("versionTypeCandis: " + PrintUtils.printArray(versionTypeCandis));
+//                        for (int j = 0; j < versionTypeCandis.length; j++) {
+//                            if (!(versionTypeCandis[j].equals("notFound") || versionTypeCandis[j].equals("noFile"))) {
+//                                if (APILevels[j] >= appModel.getMinSdkVersion()) {
+//                                    if (Math.abs(appModel.getTargetSdkVersion() - APILevels[j]) < minDistance2TargetAPI) {
+//                                        minDistance2TargetAPI = Math.abs(appModel.getTargetSdkVersion() - APILevels[j]);
+//                                        targetVerId = j;
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                    if (targetVerId == -1) {
+//                        log.info("use min and target version to match");
+//                        for (int j = 0; j < versionTypeCandis.length; j++) {
+//                            if (APILevels[j] >= appModel.getMinSdkVersion()) {
+//                                if (Math.abs(appModel.getTargetSdkVersion() - APILevels[j]) < minDistance2TargetAPI) {
+//                                    minDistance2TargetAPI = Math.abs(appModel.getTargetSdkVersion() - APILevels[j]);
+//                                    targetVerId = j;
+//                                }
+//                            }
+//                        }
+//                    }
+//                    targetVer = versions[targetVerId];
+//                    targetMethodName = targetMethodNames[targetVerId];
+//                    log.info("MinSdkVersion: " + appModel.getMinSdkVersion());
+//                    log.info("TargetSdkVersion: " + appModel.getTargetSdkVersion());
+//                    log.info("version " + versions[targetVerId] + " is matched.");
+//                }
+//            }else{
+//                targetVer = MyConfig.getInstance().getAndroidOSVersion();
+//                targetMethodName = crashInfo.getSignaler();
+//            }
+//            String folder = MyConfig.getInstance().getExceptionFolderPath()+File.separator+"android"+targetVer+File.separator;
+//            if(targetVer.equals("support")){
+//                folder = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
+//                        + File.separator;;
+//            }
+//            MyConfig.getInstance().setExceptionFilePath(folder+"exceptionInfo"+File.separator);
+//            MyConfig.getInstance().setPermissionFilePath(folder+"Permission"+File.separator+"permission.txt");
+//            MyConfig.getInstance().setAndroidCGFilePath(folder+"CallGraphInfo"+File.separator+"android"+targetVer+"_cg.txt");
+//            MyConfig.getInstance().setMethodInfoFilePath(folder+"CodeInfo"+File.separator+"methodInfo.json");
+//            log.info("target is "+ targetVer);
+//            MyConfig.getInstance().setTargetVersion(targetVer);
+//
+//            readExceptionSummary(crashInfo, targetMethodName, targetMethodName);
+//        }
+//    }
+
     public void getExceptionOfCrashInfo() {
         log.info("getExceptionOfCrashInfo...");
         for(CrashInfo crashInfo: this.crashInfoList) {
             if(crashInfo.getTrace().size()==0 ) continue;
-            String targetVer;
-            String targetMethodName;
-            if(MyConfig.getInstance().getAndroidOSVersion()==null) {
-                String[] versionTypes = new String[versions.length];
-                String[] versionTypeCandis = new String[versions.length];
-                String[] targetMethodNames = new String[versions.length];
-                int i = -1;
+
+            Pair<String,String> targetVersionAndMethodName = getTargetVersionAndMethodName(crashInfo);
+            String targetVer =targetVersionAndMethodName.getO1();
+            String targetMethodName = targetVersionAndMethodName.getO2();
+            MyConfig.getInstance().setTargetVersion(targetVer);
+            log.info("target is "+ targetVer);
+            readExceptionSummary(crashInfo, targetVer, targetMethodName);
+        }
+    }
+
+    /**
+     * match crashInfo and exception to get the TargetVersion And MethodName
+     * @param crashInfo
+     * @return
+     */
+    private Pair<String, String > getTargetVersionAndMethodName(CrashInfo crashInfo) {
+        String targetVer;
+        String targetMethodName;
+        String[] versionTypes = new String[versions.length];
+        String[] versionTypeCandis = new String[versions.length];
+        String[] targetMethodNames = new String[versions.length];
+
+        Pair<String, String> pair = analyzeAndroidSupportFiles(crashInfo);
+
+        if (!pair.getO1().equals("notFound")) {
+            targetVer = "support";
+            targetMethodName =pair.getO2();
+        }else {
+            if (MyConfig.getInstance().getAndroidOSVersion() != null) {
+                targetVer = MyConfig.getInstance().getAndroidOSVersion();
+                targetMethodName = crashInfo.getSignaler();
+            } else {
                 int targetVerId = -1;
                 int minDistance2TargetAPI = 100;
                 log.info("use versionTypes to match");
-                for (String version : versions) {
-                    i++;
-                    Pair<String, String> pair = getExceptionWithGivenVersion(crashInfo, version, true);
+                for (int i=0; i<versions.length; i++) {
+                    pair = analyzeSpecificVersionFiles(versions[i], crashInfo);
                     versionTypes[i] = pair.getO1();
                     targetMethodNames[i] = pair.getO2();
-                    if (versionTypes[i].equals("notFound")) {
-                        Pair<String, String> pair2 = getExceptionWithGivenVersion(crashInfo, version, false);
-                        versionTypeCandis[i] = pair2.getO1();
-                        targetMethodNames[i] = pair2.getO2();
-                    }else if (versionTypes[i].equals("noFile")){
-                        log.info("version "+ versions[i] +" not exist.");
-                    }else{
-                        if(APILevels[i]>=appModel.getMinSdkVersion()){
-                            if(Math.abs(appModel.getTargetSdkVersion()-APILevels[i])<minDistance2TargetAPI){
-                                minDistance2TargetAPI = Math.abs(appModel.getTargetSdkVersion()-APILevels[i]);
-                                targetVerId = i;
-                            }
+                    if(versionTypes[i].equals("notFound")) continue;
+                    if (APILevels[i] >= appModel.getMinSdkVersion()) {
+                        if (Math.abs(appModel.getTargetSdkVersion() - APILevels[i]) < minDistance2TargetAPI) {
+                            minDistance2TargetAPI = Math.abs(appModel.getTargetSdkVersion() - APILevels[i]);
+                            targetVerId = i;
                         }
                     }
                 }
-                log.info("versionTypes: "+PrintUtils.printArray(versionTypes));
-                if(targetVerId==-1){
-                    log.info("use versionTypeCandis to match");
-                    log.info("versionTypeCandis: "+PrintUtils.printArray(versionTypeCandis));
-                    for (int j=0; j< versionTypeCandis.length; j++) {
-                        if (!(versionTypeCandis[j].equals("notFound") || versionTypeCandis[j].equals("noFile"))){
-                            if(APILevels[j]>=appModel.getMinSdkVersion()){
-                                if(Math.abs(appModel.getTargetSdkVersion()-APILevels[j])<minDistance2TargetAPI){
-                                    minDistance2TargetAPI = Math.abs(appModel.getTargetSdkVersion()-APILevels[j]);
-                                    targetVerId = j;
-                                }
-                            }
-                        }
-                    }
-                }
-                if(targetVerId==-1){
+                log.info("versionTypes: " + PrintUtils.printArray(versionTypes));
+
+                if (targetVerId == -1) {
                     log.info("use min and target version to match");
-                    for (int j=0; j< versionTypeCandis.length; j++) {
-                        if(APILevels[j]>=appModel.getMinSdkVersion()){
-                            if(Math.abs(appModel.getTargetSdkVersion()-APILevels[j])<minDistance2TargetAPI){
-                                minDistance2TargetAPI = Math.abs(appModel.getTargetSdkVersion()-APILevels[j]);
+                    for (int j = 0; j < versionTypeCandis.length; j++) {
+                        if (APILevels[j] >= appModel.getMinSdkVersion()) {
+                            if (Math.abs(appModel.getTargetSdkVersion() - APILevels[j]) < minDistance2TargetAPI) {
+                                minDistance2TargetAPI = Math.abs(appModel.getTargetSdkVersion() - APILevels[j]);
                                 targetVerId = j;
                             }
                         }
@@ -1328,151 +1454,70 @@ public class CrashAnalysis extends Analyzer {
                 }
                 targetVer = versions[targetVerId];
                 targetMethodName = targetMethodNames[targetVerId];
-                log.info("MinSdkVersion: "+appModel.getMinSdkVersion());
-                log.info("TargetSdkVersion: "+appModel.getTargetSdkVersion());
-                log.info("version "+ versions[targetVerId] +" is matched.");
-            }else{
-                targetVer = MyConfig.getInstance().getAndroidOSVersion();
-                targetMethodName = crashInfo.getSignaler();
+                log.info("MinSdkVersion: " + appModel.getMinSdkVersion());
+                log.info("TargetSdkVersion: " + appModel.getTargetSdkVersion());
+                log.info("version " + versions[targetVerId] + " is matched.");
             }
-            String androidFolder = MyConfig.getInstance().getExceptionFolderPath()+File.separator+"android"+targetVer+File.separator;
-            MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);
-            MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
-            MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"android"+targetVer+"_cg.txt");
-            MyConfig.getInstance().setMethodInfoFilePath(androidFolder+"CodeInfo"+File.separator+"methodInfo.json");
-            log.info("target is "+ targetVer);
-            MyConfig.getInstance().setTargetVersion(targetVer);
-            readExceptionSummary(crashInfo, targetMethodName);
         }
+        return new Pair<>(targetVer, targetMethodName);
     }
 
-
-    public void getExceptionOfCrashInfo_Back() {
-        log.info("getExceptionOfCrashInfo...");
-        for(CrashInfo crashInfo: this.crashInfoList) {
-            if(crashInfo.getTrace().size()==0 ) continue;
-            String targetVer;
-            String targetMethodName;
-            if(MyConfig.getInstance().getAndroidOSVersion()==null) {
-                String str = crashInfo.getId() + "\t" + crashInfo.getSignaler() + "\t";
-                String[] versionTypes = new String[versions.length];
-                String[] versionTypeCandis = new String[versions.length];
-                String[] targetMethodNames = new String[versions.length];
-                int i = 0;
-                for (String version : versions) {
-                    Pair<String, String> pair = getExceptionWithGivenVersion(crashInfo, version, true);
-                    versionTypes[i] = pair.getO1();
-                    targetMethodNames[i] = pair.getO2();
-                    if (versionTypes[i].equals("notFound")) {
-                        Pair<String, String> pair2 = getExceptionWithGivenVersion(crashInfo, version, false);
-                        versionTypeCandis[i] = pair2.getO1();
-                        targetMethodNames[i] = pair2.getO2();
-                    }else if (versionTypes[i].equals("noFile")){
-                        log.info("version "+ versions[i] +" not exist.");
-                    }else{
-                        log.info("version "+ versions[i] +" is matched.");
-                    }
-                    i++;
-                }
-
-                int targetVerId = getTargetVersion(versionTypes);
-                if (targetVerId == -1) {
-                    targetVerId = getTargetVersion(versionTypeCandis);
-                    log.info(PrintUtils.printArray(versionTypeCandis));
-                } else {
-                    log.info(PrintUtils.printArray(versionTypes));
-                }
-                if (targetVerId == -1)
-                    targetVerId = 6;
-                targetVer = versions[targetVerId];
-                targetMethodName = targetMethodNames[targetVerId];
-            }else{
-                targetVer = MyConfig.getInstance().getAndroidOSVersion();
-                targetMethodName = crashInfo.getSignaler();
-            }
-            String androidFolder = MyConfig.getInstance().getExceptionFolderPath()+File.separator+"android"+targetVer+File.separator;
-            MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);
-            MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
-            MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"android"+targetVer+"_cg.txt");
-            MyConfig.getInstance().setMethodInfoFilePath(androidFolder+"CodeInfo"+File.separator+"methodInfo.json");
-
-            log.info("target is "+ targetVer);
-            MyConfig.getInstance().setTargetVersion(targetVer);
-            readExceptionSummary(crashInfo, targetMethodName);
-        }
+    private Pair<String, String> analyzeSpecificVersionFiles(String version, CrashInfo crashInfo) {
+        String androidFolder = MyConfig.getInstance().getExceptionFolderPath() + File.separator + "android" + version + File.separator;
+        MyConfig.getInstance().setExceptionFilePath(androidFolder + "exceptionInfo" + File.separator);
+        MyConfig.getInstance().setPermissionFilePath(androidFolder + "Permission" + File.separator + "permission.txt");
+        MyConfig.getInstance().setAndroidCGFilePath(androidFolder + "CallGraphInfo" + File.separator + "android" + version + "_cg.txt");
+        MyConfig.getInstance().setMethodInfoFilePath(androidFolder + "CodeInfo" + File.separator + "methodInfo.json");
+        String fn = MyConfig.getInstance().getExceptionFilePath() + "summary" + File.separator + "exception.json";
+        Pair<String, String> pair = getMatchedExceptionPair(crashInfo, false, fn);
+        return pair;
     }
 
-    private int getTargetVersion(String[] versionType) {
-        int paraAndField =0 , fieldOnly =0 ,parameterOnly =0 , overrideMissing = 0;
-        log.info(PrintUtils.printArray(versionType));
-        for(String relatedVarType: versionType) {
-            if(relatedVarType ==null) continue;
-            if (relatedVarType.equals(RelatedVarType.ParaAndField.toString())) paraAndField++;
-            if (relatedVarType.equals(RelatedVarType.Field.toString())) fieldOnly++;
-            if (relatedVarType.equals(RelatedVarType.Parameter.toString())) parameterOnly++;
-            if (relatedVarType.equals(RelatedVarType.Empty.toString())) overrideMissing++;
-        }
-        String choice = RelatedVarType.Unknown.toString();
-        if(paraAndField + parameterOnly + fieldOnly + overrideMissing ==0)
-            choice = RelatedVarType.Unknown.toString();
-        else if(paraAndField >= parameterOnly && paraAndField >= fieldOnly && paraAndField >= overrideMissing)
-            choice =  RelatedVarType.ParaAndField.toString();
-        else if(parameterOnly >= fieldOnly && parameterOnly >= paraAndField && parameterOnly >= overrideMissing)
-            choice = RelatedVarType.Parameter.toString();
-        else if(fieldOnly >= parameterOnly && fieldOnly >= paraAndField && fieldOnly >= overrideMissing)
-            choice =  RelatedVarType.Field.toString();
-        else if(overrideMissing >= parameterOnly && overrideMissing >= paraAndField && overrideMissing >= fieldOnly)
-            choice = RelatedVarType.Empty.toString();
-
-        int count=0;
-        List<Integer> vers = new ArrayList<>();
-        for(int i = 0; i<versionType.length; i++) {
-            if(versionType[i]!=null && versionType[i].equals(choice)){
-                count++;
-                vers.add(i);
-            }
-        }
-        if(count>0){
-           return vers.get(count/2);
-        }
-        return -1;
+    private Pair<String, String> analyzeAndroidSupportFiles(CrashInfo crashInfo) {
+        String summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
+                + File.separator;
+        String fn = summary_app_dir+"exceptionInfo"+File.separator+"summary"+ File.separator+ "exception.json";
+        Pair<String, String> pair = getMatchedExceptionPair(crashInfo, false, fn);
+        return pair;
     }
 
     /**
      * getExceptionOfCrashInfo from exception.json
      */
-    private Pair<String,String> getExceptionWithGivenVersion(CrashInfo crashInfo, String version, boolean classFilter) {
-        String androidFolder = MyConfig.getInstance().getExceptionFolderPath()+File.separator+"android"+version+File.separator;
-        MyConfig.getInstance().setExceptionFilePath(androidFolder+"exceptionInfo"+File.separator);
-        MyConfig.getInstance().setPermissionFilePath(androidFolder+"Permission"+File.separator+"permission.txt");
-        MyConfig.getInstance().setAndroidCGFilePath(androidFolder+"CallGraphInfo"+File.separator+"android"+version+"_cg.txt");
-        MyConfig.getInstance().setMethodInfoFilePath(androidFolder+"CodeInfo"+File.separator+"methodInfo.json");
-
-        String fn = MyConfig.getInstance().getExceptionFilePath()+"summary"+ File.separator+ "exception.json";
+    private Pair<String,String> getMatchedExceptionPair(CrashInfo crashInfo, boolean readMore, String fn) {
+        JSONArray methods = new JSONArray();
         String jsonString = FileUtils.readJsonFile(fn);
         JSONObject wrapperObject = (JSONObject) JSONObject.parse(jsonString);
-        if(wrapperObject==null) return new Pair<>("noFile",crashInfo.getSignaler());
-        JSONArray methods = wrapperObject.getJSONArray("exceptions");//构建JSONArray数组
+        if(wrapperObject!=null)
+            methods = wrapperObject.getJSONArray("exceptions");//构建JSONArray数组
+
         for (Object method : methods) {
             JSONObject jsonObject = (JSONObject) method;
-            ExceptionInfo exceptionInfo = new ExceptionInfo();
-            exceptionInfo.setSootMethodName(jsonObject.getString("method"));
-            if (!classFilter || crashInfo.getSignaler().equals(exceptionInfo.getSootMethodName())) {
-                exceptionInfo.setExceptionMsg(jsonObject.getString("message"));
-                if (exceptionInfo.getExceptionMsg() == null) continue;
-                Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg());
-                Matcher m = p.matcher(crashInfo.getMsg());
-                if (m.matches()) {
-                    String str = exceptionInfo.getExceptionMsg();
-                    str = str.replace("[\\s\\S]*", "");
-                    str = str.replace("\\Q", "");
-                    str = str.replace("\\E", "");
-                    if (str.length() < 3)
-                        continue;
-                    if (jsonObject.getString("relatedVarType") != null) {
-                        return new Pair<>(jsonObject.getString("relatedVarType"), exceptionInfo.getSootMethodName());
-                    }else{
-                        return new Pair<>("Unknown", exceptionInfo.getSootMethodName());
+            String jsonMethod = SootUtils.getMethodSimpleNameFromSignature(jsonObject.getString("method"));
+            if ( crashInfo.getSignaler().equals(jsonMethod)) {
+                if(jsonObject.getString("type").equals(crashInfo.getException())) {
+                    ExceptionInfo exceptionInfo = new ExceptionInfo();
+                    exceptionInfo.setSootMethodName(jsonObject.getString("method"));
+                    exceptionInfo.setExceptionMsg(jsonObject.getString("message"));
+                    if (exceptionInfo.getExceptionMsg() == null) continue;
+                    Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg());
+                    Matcher m = p.matcher(crashInfo.getMsg());
+                    if (m.matches()) {
+//                        String str = exceptionInfo.getExceptionMsg();
+//                        str = str.replace("[\\s\\S]*", "");
+//                        str = str.replace("\\Q", "");
+//                        str = str.replace("\\E", "");
+//                        if (str.length() < 3)
+//                            continue;
+                        if(readMore) {
+                            crashInfo.setExceptionInfo(exceptionInfo);
+                            readMoreInfo(exceptionInfo, jsonObject);
+                        }
+                        if (jsonObject.getString("relatedVarType") != null) {
+                            return new Pair<>(jsonObject.getString("relatedVarType"), exceptionInfo.getSootMethodName());
+                        } else {
+                            return new Pair<>("Unknown", exceptionInfo.getSootMethodName());
+                        }
                     }
                 }
             }
@@ -1482,79 +1527,35 @@ public class CrashAnalysis extends Analyzer {
 
 
 
+
     /**
      * readExceptionSummary from ExceptionFile
      * @param crashInfo
+     * @param targetVersion
      * @param targetMethodName
      */
-    private void readExceptionSummary(CrashInfo crashInfo, String targetMethodName) {
+    private void readExceptionSummary(CrashInfo crashInfo, String targetVersion, String targetMethodName) {
+        String folder = MyConfig.getInstance().getExceptionFolderPath()+File.separator+"android"+targetVersion+File.separator;
+        if(targetVersion.equals("support")){
+            folder = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
+                    + File.separator;;
+        }
+        MyConfig.getInstance().setExceptionFilePath(folder+"exceptionInfo"+File.separator);
+        MyConfig.getInstance().setPermissionFilePath(folder+"Permission"+File.separator+"permission.txt");
+        MyConfig.getInstance().setAndroidCGFilePath(folder+"CallGraphInfo"+File.separator+"android"+targetVersion+"_cg.txt");
+        MyConfig.getInstance().setMethodInfoFilePath(folder+"CodeInfo"+File.separator+"methodInfo.json");
+
         if(!crashInfo.getMethodName().equals(targetMethodName)) {
             crashInfo.setMethodName(targetMethodName);
         }
+
         String fn = MyConfig.getInstance().getExceptionFilePath()+crashInfo.getClassName()+".json";
         if(loadedExceptionSummary.contains(fn)) return;
         loadedExceptionSummary.add(fn);
         log.info("readExceptionSummary::"+fn);
-        String jsonString = FileUtils.readJsonFile(fn);
-        JSONObject wrapperObject = (JSONObject) JSONObject.parse(jsonString);
-        if(wrapperObject==null) {
-            log.info( crashInfo.getClassName()+" is not modeled.");
-            return;
-        }
-        JSONArray methods = wrapperObject.getJSONArray("exceptions");//构建JSONArray数组
-        boolean flag= false;
-        for (Object method : methods) {
-            JSONObject jsonObject = (JSONObject) method;
-            ExceptionInfo exceptionInfo = new ExceptionInfo();
-            exceptionInfo.setSootMethodName(jsonObject.getString("method"));
-            exceptionInfo.setExceptionMsg(jsonObject.getString("message"));
-
-            //??????????????????
-            //if(info.getField2InitialMethod().size()>0)
-            //    jsonObject.put("field2InitialMethod", info.getField2InitialMethod());
-            Map fieldMap = jsonObject.getObject("field2InitialMethod",  HashMap.class);
-            exceptionInfo.setField2InitialMethod(fieldMap);
-
-            if (exceptionInfo.getSootMethodName().equals(crashInfo.getMethodName())) {
-                if (exceptionInfo.getExceptionMsg() == null) continue;
-                Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg());
-                Matcher m = p.matcher(crashInfo.getMsg());
-                String str = exceptionInfo.getExceptionMsg();
-                str = str.replace("[\\s\\S]*", "");
-                str = str.replace("\\Q", "");
-                str = str.replace("\\E", "");
-                if (str.length() >= 3) {
-                    if (m.matches()) {
-                        crashInfo.setExceptionInfo(exceptionInfo);
-                        flag = true;
-                    } else {
-                        continue;
-                    }
-                }
-            }
-            readMoreInfo(exceptionInfo, jsonObject);
-        }
-        if(flag) return;
-        for (Object method : methods) {
-            JSONObject jsonObject = (JSONObject) method;
-            ExceptionInfo exceptionInfo = new ExceptionInfo();
-            exceptionInfo.setSootMethodName(jsonObject.getString("method"));
-            exceptionInfo.setExceptionMsg(jsonObject.getString("message"));
-
-            if (exceptionInfo.getSootMethodName().equals(crashInfo.getMethodName())) {
-                if (exceptionInfo.getExceptionMsg() == null) continue;
-                Pattern p = Pattern.compile(exceptionInfo.getExceptionMsg());
-                Matcher m = p.matcher(crashInfo.getMsg());
-                if (m.matches()) {
-                    crashInfo.setExceptionInfo(exceptionInfo);
-                } else {
-                    continue;
-                }
-
-            }
-            readMoreInfo(exceptionInfo, jsonObject);
-        }
+        getMatchedExceptionPair(crashInfo, true, fn);
     }
+
 
     private void readMoreInfo(ExceptionInfo exceptionInfo, JSONObject jsonObject) {
         exceptionInfo.setExceptionType(jsonObject.getString("type"));
@@ -1673,14 +1674,38 @@ public class CrashAnalysis extends Analyzer {
         }
     }
 
+    private void readMethodInfo() {
+        readMethodInfo(MyConfig.getInstance().getMethodInfoFilePath());
+        String summary_app_dir;
+        if(MyConfig.getInstance().getTargetVersion().equals("support")){
+            summary_app_dir = MyConfig.getInstance().getExceptionFolderPath() + File.separator + "android6.0" + File.separator;
+        }else{
+            summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
+                    + File.separator;
+        }
+        readMethodInfo(summary_app_dir+"CodeInfo"+File.separator+"methodInfo.json");
+    }
+
+    private void readAndroidCG() {
+        readAndroidCG(MyConfig.getInstance().getAndroidCGFilePath());
+        String summary_app_dir;
+        if(MyConfig.getInstance().getTargetVersion().equals("support")){
+            summary_app_dir = MyConfig.getInstance().getAndroidCGFilePath() + File.separator + "android6.0" + File.separator;
+        }else{
+            summary_app_dir = MyConfig.getInstance().getResultFolder() + Global.v().getAppModel().getAppName()
+                    + File.separator;
+        }
+        readAndroidCG(summary_app_dir+"CallGraphInfo"+File.separator+Global.v().getAppModel().getAppName()+"_cg.txt");
+    }
+
     /**
      * read  method info from json file, CodeInfo/methodInfo.json
      */
-    private void readMethodInfo() {
-        String fn = MyConfig.getInstance().getMethodInfoFilePath();
+    private void readMethodInfo(String fn) {
         log.info("readMethodInfo::"+fn);
         String jsonString = FileUtils.readJsonFile(fn);
         JSONArray methods = (JSONArray) JSONArray.parse(jsonString);
+        if(methods== null) return;
         for (Object method : methods) {
             JSONObject jsonObject = (JSONObject) method;
             MethodModel methodModel = new MethodModel();
@@ -1693,9 +1718,8 @@ public class CrashAnalysis extends Analyzer {
         }
     }
 
-    private void readAndroidCG() {
+    private void readAndroidCG(String fn) {
         if(androidCGMap.size()>0) return;
-        String fn = MyConfig.getInstance().getAndroidCGFilePath();
         log.info("readAndroidCG::"+fn);
         List<String> edges = FileUtils.getListFromFile(fn);
         if(edges==null) return;

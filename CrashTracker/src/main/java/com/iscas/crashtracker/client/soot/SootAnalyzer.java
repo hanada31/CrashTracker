@@ -53,6 +53,7 @@ public class SootAnalyzer extends Analyzer {
 		}
 		List<String> processDir = Lists.newArrayList();
 		processDir.add( Global.v().getAppModel().getAppPath());
+//		processDir.add("D:\\SoftwareData\\dataset\\android-framework\\classes\\android2.2\\android-support-v4");
 		Options.v().set_include_all(true);
 		Options.v().set_process_dir(processDir);
 		Options.v().set_no_bodies_for_excluded(true);

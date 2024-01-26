@@ -189,24 +189,25 @@ public class Main {
 			MyConfig.getInstance().setOutputIR(true);
 		}
 
-		if(mCmd.getOptionValue("frameworkVersion")!=null) {
+		if(mCmd.getOptionValue("frameworkVersion")!=null)
 			MyConfig.getInstance().setAndroidOSVersion(mCmd.getOptionValue("frameworkVersion"));
-			String appName = MyConfig.getInstance().getAppName();
-			String exceptionFolder = MyConfig.getInstance().getResultFolder() + File.separator + appName + File.separator;
-			if(mCmd.getOptionValue("client").equals("ExceptionInfoClient")){
-				MyConfig.getInstance().setPermissionFilePath(exceptionFolder + "Permission" + File.separator + "permission.txt");
-				MyConfig.getInstance().setExceptionFilePath(exceptionFolder + "exceptionInfo" + File.separator);
-				MyConfig.getInstance().setAndroidCGFilePath(exceptionFolder + "CallGraphInfo" + File.separator + "cg.txt");
-				MyConfig.getInstance().setMethodInfoFilePath(exceptionFolder+"CodeInfo"+File.separator+"methodInfo.json");
+		String appName = MyConfig.getInstance().getAppName();
+		String exceptionFolder = MyConfig.getInstance().getResultFolder() + File.separator + appName + File.separator;
+		if(mCmd.getOptionValue("client").equals("ExceptionInfoClient")){
+			MyConfig.getInstance().setPermissionFilePath(exceptionFolder + "Permission" + File.separator + "permission.txt");
+			MyConfig.getInstance().setExceptionFilePath(exceptionFolder + "exceptionInfo" + File.separator);
+			MyConfig.getInstance().setAndroidCGFilePath(exceptionFolder + "CallGraphInfo" + File.separator + "cg.txt");
+			MyConfig.getInstance().setMethodInfoFilePath(exceptionFolder+"CodeInfo"+File.separator+"methodInfo.json");
 
-			}else {
-				MyConfig.getInstance().setPermissionFilePath(mCmd.getOptionValue("permissionPath", exceptionFolder + "Permission" + File.separator + "permission.txt"));
-				MyConfig.getInstance().setExceptionFilePath(mCmd.getOptionValue("exceptionPath", exceptionFolder + "exceptionInfo" + File.separator));
-				MyConfig.getInstance().setAndroidCGFilePath(mCmd.getOptionValue("androidCGPath", exceptionFolder + "CallGraphInfo" + File.separator + "cg.txt"));
-				MyConfig.getInstance().setMethodInfoFilePath(mCmd.getOptionValue("CodeInfoPath", exceptionFolder + "CodeInfo" + File.separator + "methodInfo.json"));
+		}else {
+			MyConfig.getInstance().setPermissionFilePath(mCmd.getOptionValue("permissionPath", exceptionFolder + "Permission" + File.separator + "permission.txt"));
+			MyConfig.getInstance().setExceptionFilePath(mCmd.getOptionValue("exceptionPath", exceptionFolder + "exceptionInfo" + File.separator));
+//			System.err.println("qq "+MyConfig.getInstance().getExceptionFilePath());
+			MyConfig.getInstance().setAndroidCGFilePath(mCmd.getOptionValue("androidCGPath", exceptionFolder + "CallGraphInfo" + File.separator + "cg.txt"));
+			MyConfig.getInstance().setMethodInfoFilePath(mCmd.getOptionValue("CodeInfoPath", exceptionFolder + "CodeInfo" + File.separator + "methodInfo.json"));
 
-			}
 		}
+
 
 		String limit = mCmd.getOptionValue("conditionLimit");
 		if (limit != null) {

@@ -1410,7 +1410,7 @@ public class SootUtils {
 
 	public static List<SootClass> getSubClasses(SootMethod sm) {
 		List<SootClass> subClasses = new ArrayList<>();
-		if (!sm.isAbstract() && !sm.getDeclaringClass().isInterface()) {
+		if (!sm.getDeclaringClass().isInterface()) {
 			subClasses = Scene.v().getActiveHierarchy().getSubclassesOf(sm.getDeclaringClass());
 		}
 		return subClasses;
@@ -1418,7 +1418,7 @@ public class SootUtils {
 
 	public static List<SootClass> getSubclassesWithoutMethod(SootClass sc, SootMethod sm) {
 		List<SootClass> subClasses = new ArrayList<>();
-		if (sm.isAbstract() || sm.getDeclaringClass().isInterface()) return subClasses;
+		if (sm.getDeclaringClass().isInterface()) return subClasses;
 		for (SootClass sub : Scene.v().getActiveHierarchy().getDirectSubclassesOf(sc)) {
 			String signature = sm.getSignature().replace(sm.getDeclaringClass().getName(), sub.getName());
 			SootMethod subMethod = SootUtils.getSootMethodBySignature(signature);
@@ -1451,15 +1451,27 @@ public class SootUtils {
 		if(!caller.hasActiveBody()) return paramIndexCaller;
 		for(Unit unit: caller.getActiveBody().getUnits()){
 			InvokeExpr invoke = SootUtils.getInvokeExp(unit);
-			if(invoke!=null && invoke.getMethod() == callee){
+//			if(invoke!=null && invoke.getMethod() == callee){
+			if(invoke!=null && isSameOrSubClassCall(invoke.getMethod(), callee)){
 				for(int index: paramIndexCallee){
-					Value value = invoke.getArg(index);
-					getIndexesFromUnit(new ArrayList<>(),caller, unit, value, paramIndexCaller);
+					if(index < invoke.getArgCount()) {
+						Value value = invoke.getArg(index);
+						getIndexesFromUnit(new ArrayList<>(), caller, unit, value, paramIndexCaller);
+					}
 				}
 			}
 		}
-
 		return paramIndexCaller;
+	}
+
+	public static boolean isSameOrSubClassCall(SootMethod invokeMethod, SootMethod calleeMethod){
+		if(invokeMethod == calleeMethod) return true;
+		if(invokeMethod.getName().equals(calleeMethod.getName()) && PrintUtils.printList(invokeMethod.getParameterTypes()).equals(PrintUtils.printList(calleeMethod.getParameterTypes()))){
+			if(getSubClasses(invokeMethod).contains(calleeMethod.getDeclaringClass())){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static void getIndexesFromUnit(List<Value> valueHistory, SootMethod caller, Unit unit, Value value, Set<Integer> paramIndexCaller) {
@@ -1717,6 +1729,9 @@ public class SootUtils {
 			}
 			if(res.endsWith("; "))
 				res = res.substring(0,res.lastIndexOf(";"));
+			else{
+				res = simpleName;
+			}
 			return res;
 		}else {
 			Set<SootMethod> methods = SootUtils.getSootMethodBySimpleName(simpleName);

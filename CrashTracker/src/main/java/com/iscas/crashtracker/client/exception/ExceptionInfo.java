@@ -16,6 +16,7 @@ import java.util.*;
  * @Version 1.0
  */
 public class ExceptionInfo {
+    private int id;
     private String exceptionType;
     private String exceptionMsg;
     private final List<Value> relatedParamValues;
@@ -452,6 +453,14 @@ public class ExceptionInfo {
 
     public void setField2InitialMethod(Map<String, Set<String>> field2InitialMethod) {
         this.field2InitialMethod = field2InitialMethod;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }
 

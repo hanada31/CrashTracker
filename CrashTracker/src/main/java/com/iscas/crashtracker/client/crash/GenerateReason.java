@@ -154,7 +154,7 @@ public class GenerateReason {
 
         reason.put("Explanation Info", "Method "+buggyCandidate+" call keyAPI in Android framework code, " +
                 "which influence the value of field (" + PrintUtils.printList(fieldString)+"). " +
-                "The invocation of " +relatedMethod.getMethod() +" in  conflicts with the invocation of "+crashInfo.getCrashAPI()+ " in " +crashInfo.getCrashMethod());
+                "The invocation of " +relatedMethod.getMethod() +" conflicts with the invocation of "+crashInfo.getCrashAPI()+ " in " +crashInfo.getCrashMethod());
 
 
 //        reason.put("M_frame Trace Info", PrintUtils.printList(relatedMethod.getTrace()));

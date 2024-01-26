@@ -151,6 +151,8 @@ public class CrashAnalysisClientOutput {
             exceptionInfoJson.put("ETS-related Type", changeToETSType(exceptionInfo.getRelatedVarType()));
             if(exceptionInfo.getField2InitialMethod()!=null && exceptionInfo.getField2InitialMethod().size()>0)
                 exceptionInfoJson.put("Field2InitialMethod", exceptionInfo.getField2InitialMethod());
+            if(crashInfo.getFrameworkParamIdTrackingList()!=null && crashInfo.getFrameworkParamIdTrackingList().size()>0)
+                exceptionInfoJson.put("Framework Variable PassChain Info", GenerateReason.printTrackingList(crashInfo.getFrameworkParamIdTrackingList()));
         }
         Map<String, String> refToInvokeStack = new HashMap<>();
         List<String> workList = new ArrayList<>();
