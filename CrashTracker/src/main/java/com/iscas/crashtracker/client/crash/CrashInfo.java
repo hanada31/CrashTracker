@@ -53,7 +53,6 @@ public class CrashInfo {
     List<Integer> faultInducingParas = null;
     RelatedVarType relatedVarTypeOracle;
     RelatedCondType relatedCondTypeOracle = RelatedCondType.Empty;
-    private Map<String, List<Integer>> callerOfSingnlar2SourceVarOracle = new HashMap<>();
     public RelatedVarType getRelatedVarTypeOracle() {
         return relatedVarTypeOracle;
     }
@@ -412,25 +411,7 @@ public class CrashInfo {
         this.faultInducingParas = faultInducingParas;
     }
 
-    public Map<String, List<Integer>> getCallerOfSingnlar2SourceVarOracle() {
-        return callerOfSingnlar2SourceVarOracle;
-    }
 
-    public void setCallerOfSingnlar2SourceVarOracle(Map<String, List<Integer>> callerOfSingnlar2SourceVar) {
-        this.callerOfSingnlar2SourceVarOracle = callerOfSingnlar2SourceVar;
-    }
-
-    public void addCallerOfSingnlar2SourceVarOracle(String method, int sourceId ) {
-        if(callerOfSingnlar2SourceVarOracle.containsKey(method)){
-            if(callerOfSingnlar2SourceVarOracle.get(method).contains(sourceId)){
-                return;
-            }
-        }else{
-            callerOfSingnlar2SourceVarOracle.put(method, new ArrayList<>());
-        }
-        callerOfSingnlar2SourceVarOracle.get(method).add(sourceId);
-
-    }
 
     public ArrayList<Pair<String, List>> getAppParamIdTrackingList() {
         return appParamIdTrackingList;

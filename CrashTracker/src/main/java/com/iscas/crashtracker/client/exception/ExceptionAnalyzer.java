@@ -616,14 +616,8 @@ public class ExceptionAnalyzer extends Analyzer {
         for (Unit predUnit : predsOf) {
             if (predUnit instanceof IfStmt) {
                 //direct condition or multiple condition
-                if(conditionTracker == ConditionTracker.One){
+                if(conditionTracker == ConditionTracker.Default){
                     if(exceptionInfo.getConditionUnits().size()>0) continue;
-                } else if(conditionTracker == ConditionTracker.Three){
-                    if(exceptionInfo.getConditionUnits().size()>=3) continue;
-                }else if(conditionTracker == ConditionTracker.SmallBlock) {
-                    // && ((IfStmt) predUnit).getTarget() != lastGoto
-                    if (exceptionInfo.getConditionUnits().size() > 0 && lastGoto != null)
-                        continue;
                 }
                 exceptionInfo.getTracedUnits().add(predUnit);
                 IfStmt ifStmt = (IfStmt) predUnit;
@@ -666,13 +660,8 @@ public class ExceptionAnalyzer extends Analyzer {
                 }
             }
             if(ifMeetTryCatch) continue;
-            if(conditionTracker == ConditionTracker.One){
+            if(conditionTracker == ConditionTracker.Default){
                 if(fromThrow  && exceptionInfo.getConditions().size()>0 ) continue;
-            } else if(conditionTracker == ConditionTracker.Three){
-                if(fromThrow  && exceptionInfo.getConditionUnits().size()>=3) continue;
-            }else if(conditionTracker == ConditionTracker.SmallBlock) {
-                if(fromThrow  && exceptionInfo.getConditions().size()>0 && gotoTargets.contains(predUnit))
-                    continue;
             }
             getExceptionCondition(sootMethod, predUnit, exceptionInfo,getCondHistory, fromThrow, lastGoto);
         }

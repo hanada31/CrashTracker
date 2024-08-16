@@ -28,23 +28,18 @@ public class ApkCrashAnalysisClientTest {
     }
     private void setArgs() {
         String path;
-        path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
+//        path = "D:\\SoftwareData\\dataset\\apk\\Empirical500\\";
         path = "D:\\SoftwareData\\dataset\\apk\\FanDataICSE2018-before\\";
-//        path = "..\\app\\";
 
         String name;
         name = "com.streema.podcast-22.apk";//Not Override Method 1, Not Override Method 2
         name = "cgeo.geocaching-600.apk"; //Key Variable Related 1, Key Variable Related 2
-//        name = "com.cracked.android.lite-483.apk";//Key Variable Related 3
-//        name = "be.thomashermine.prochainbus-96.apk";//Key Variable Related 4
+        name = "com.cracked.android.lite-483.apk";//Key Variable Related 3
+        name = "be.thomashermine.prochainbus-96.apk";//Key Variable Related 4
         name = "cgeo.geocaching-4450.apk";//Key API Related 1, Key API Related 2
 //        name = "com.Android56-123.apk";// Framework Recall
 //        name = "com.kalpvaig.quest-150.apk";// Framework Recall
 //        name = "org.wordpress.android-1590.apk";// ParaAndField
-//        name = "com.malib.dhbtcepte-399.apk";
-        name = "com.hxb.poetry-199.apk";
-        name = "org.kontalk-883.apk";
-        name = "org.kontalk-883.apk";
 
         String client = "ApkCrashAnalysisClient";
         MyConfig.getInstance().setAppName(name);

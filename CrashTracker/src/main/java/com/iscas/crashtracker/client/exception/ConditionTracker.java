@@ -6,4 +6,4 @@ package com.iscas.crashtracker.client.exception;
  * @Version 1.0
  */
 public enum ConditionTracker {
-    One, All, SmallBlock, Three}
+    Default, All}

@@ -296,15 +296,6 @@ public class ExceptionMather {
                 crashInfo.setRelatedVarTypeOracle(RelatedVarType.valueOf(jsonObject.getString("relatedVarType")));
             if (jsonObject.getString("relatedCondType") != null)
                 crashInfo.setRelatedCondTypeOracle(RelatedCondType.valueOf(jsonObject.getString("relatedCondType")));
-
-            JSONObject callerOfSingnlar2SourceVar = jsonObject.getJSONObject("callerOfSingnlar2SourceVar");
-            if (callerOfSingnlar2SourceVar != null) {
-                for (String key : callerOfSingnlar2SourceVar.keySet()) {
-                    String[] ids = ((String) callerOfSingnlar2SourceVar.get(key)).split(",");
-                    for (String id : ids)
-                        crashInfo.addCallerOfSingnlar2SourceVarOracle(SootUtils.getMethodSimpleNameFromSignature(key), Integer.parseInt(id));
-                }
-            }
         }
     }
 }

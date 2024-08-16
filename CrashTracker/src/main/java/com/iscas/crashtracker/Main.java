@@ -215,11 +215,8 @@ public class Main {
 				case("all"):
 					MyConfig.getInstance().setConditionLimit(ConditionTracker.All);
 					break;
-				case("one"):
-					MyConfig.getInstance().setConditionLimit(ConditionTracker.One);
-					break;
-				case("three"):
-					MyConfig.getInstance().setConditionLimit(ConditionTracker.Three);
+				case("default"):
+					MyConfig.getInstance().setConditionLimit(ConditionTracker.Default);
 					break;
 				default:
 					log.error("Invalid condition limit!");
@@ -263,3 +260,4 @@ public class Main {
 	}
 
 }
+
