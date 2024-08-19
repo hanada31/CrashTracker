@@ -41,7 +41,7 @@ replay_pid*
 .DS_Store
 
 # Python Virtual Environment
-venv/
+.venv/
 
 # custom
 .settings/
