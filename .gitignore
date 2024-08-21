@@ -40,16 +40,21 @@ replay_pid*
 # MacOS
 .DS_Store
 
-# Python Virtual Environment
+# Python
 .venv/
+__pycache__/
 
 # custom
 .settings/
 target/
-Files/
 dependency-reduced-pom.xml
 src/main/generated
 CrashTracker.jar
 
+# Environment
+.env
+
 # Result Files
-LocalizationReport/
+input/
+references/
+output/
