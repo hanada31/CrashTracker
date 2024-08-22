@@ -100,8 +100,6 @@ def init_doc(doc: Doc):
         c.append(Header(Str("Global Explanation"), level=2))
         c.extend(convert_text(global_summary))
     doc.content[8:8] = c
-    doc.content.append(Header(Str("Note"), level=1))
-    doc.content.extend(convert_text(r"The [Codes](./Codes/) folder contains the complete Java code for the relevant candidate methods, the [LLM_Appendix](./LLM_Appendix/) folder contains supplementary information related to the LLM report, and the [StaticAnalysis_Appendix](./StaticAnalysis_Appendix/) folder contains supplementary information related to the static analysis report."))
 
 
 def end_doc(doc: Doc):
