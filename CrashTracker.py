@@ -33,7 +33,7 @@ def run_locate(file: Path, ets_path: Path, android_jars: Path, crashInfo: Path, 
             client = 'ApkCrashAnalysisClient'
         elif file.suffix == '.jar':
             client = 'JarCrashAnalysisClient'
-        subprocess.run(['java', '-jar', 'CrashTracker.jar', '-path', dir, '-name', file.name, '-androidJar', android_jars, '-strategy', 'no', '-crashInput', crashInfo, '-exceptionInput', ets_path, '-client', client, '-outputDir', output / 'output'], stdout=log, stderr=log)
+        subprocess.run(['java', '-jar', 'CrashTracker_FL.jar', '-path', dir, '-name', file.name, '-androidJar', android_jars, '-strategy', 'no', '-crashInput', crashInfo, '-exceptionInput', ets_path, '-client', client, '-outputDir', output / 'output'], stdout=log, stderr=log)
     # Magic Clean
     redundant_dir = output / 'output' / file.name
     shutil.rmtree(redundant_dir)
