@@ -18,9 +18,9 @@
 
 **Evaluation Data**
 
-For RQ1 and RQ2 in the paper, please refer to project [**CrashTracker-ArtifactForICSE** ](https://github.com/hanada31/CrashTracker-ArtifactForICSE).
+For RQ1 and RQ2 in the paper, please refer to project [CrashTracker-ArtifactForICSE](https://github.com/hanada31/CrashTracker-ArtifactForICSE).
 
-For RQ3 in the paper, please refer to release.
+For RQ3 in the paper, please refer to [release](https://github.com/hanada31/CrashTracker/releases/tag/v2.0.0).
 
 **Tool Overview**
 
@@ -44,7 +44,7 @@ The tool are developed and tested on Ubuntu. If you are not running the tool on 
 
 ### Quick Started
 
-You can download the quick start demo in the release page. We provided three example apk files as input and out-of-the-box `references` directory which include pre-built ETS, Android framework code, stubs, apk code and crash information.
+You can download the [quick start demo](https://github.com/hanada31/CrashTracker/releases/tag/v2.0.0) in the release page. We provided three example apk files as input and out-of-the-box `references` directory which include pre-built ETS, Android framework code, stubs, apk code and crash information.
 
 ```shell
 # Decompress the quick start demo
@@ -94,3 +94,7 @@ To run your custom apk, you need:
 3. Add crash inforamtion into `references/crash_info.json` file.
 
 Then you can run the `locate`, `precheck`, `explain`, and `generate` commands as shown in the quick start demo.
+
+## Additional Notes
+
+This paper is an extension of our previous publication in the proceedings of ICSE 2023, you can found the original information by [ICSE23 branch](https://github.com/hanada31/CrashTracker/tree/ICSE23)
