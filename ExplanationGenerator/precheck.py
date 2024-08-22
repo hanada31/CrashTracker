@@ -389,7 +389,7 @@ def main():
             with open(RESULT_SUMMARY_PATH, "w") as f:
                 json.dump(result_summary, f, indent=4)
 
-        logger.info(f"Pre-check finished, {len(result_summary['pending_list'])} reports are waiting for processing")
+        logger.info(f"Pre-check finished, {len(result_summary['pending_list'])} reports are waiting for explain generation, {len(result_summary['failed_list'])} reports are failed")
 
 
 if __name__ == "__main__":

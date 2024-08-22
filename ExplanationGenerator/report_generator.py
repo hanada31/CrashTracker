@@ -1,6 +1,6 @@
 from ExplanationGenerator.utils.parser import parse_message
 from ExplanationGenerator.config import logger
-from ExplanationGenerator.config import EXPLANATION_RESULT_PATH, EXPLANATION_RESULT_DIRECTORY, FINAL_REPORT_PATH, APK_CODE_PATH, REPORT_TEMPLATE_PATH, ROOT_PATH
+from ExplanationGenerator.config import EXPLANATION_RESULT_PATH, EXPLANATION_RESULT_DIRECTORY, FINAL_REPORT_PATH, APK_CODE_PATH, REPORT_TEMPLATE_PATH, ROOT_PATH, FINAL_REPORT_DIRECTORY
 from ExplanationGenerator import report_global_summary_generator
 from pathlib import Path
 import shutil
@@ -114,6 +114,8 @@ def main():
         ]
         
         subprocess.run(command)
+
+    logger.info(f"All reports are generated, See {FINAL_REPORT_DIRECTORY} for the final report")
 
 if __name__ == "__main__":
     main()
