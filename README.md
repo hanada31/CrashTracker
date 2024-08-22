@@ -97,4 +97,6 @@ Then you can run the `locate`, `precheck`, `explain`, and `generate` commands as
 
 ## Additional Notes
 
-This paper is an extension of our previous publication in the proceedings of ICSE 2023, you can found the original information by [ICSE23 branch](https://github.com/hanada31/CrashTracker/tree/ICSE23)
+This paper is an extension of our previous publication[1] in the proceedings of ICSE 2023, you can found the original information by [ICSE23 branch](https://github.com/hanada31/CrashTracker/tree/ICSE23)
+
+[1] J. Yan, M. Wang, Y. Liu, J. Yan and L. Zhang, "Locating Framework-specific Crashing Faults with Compact and Explainable Candidate Set," 2023 IEEE/ACM 45th International Conference on Software Engineering (ICSE), Melbourne, Australia, 2023, pp. 172-183, doi: 10.1109/ICSE48619.2023.00026.
