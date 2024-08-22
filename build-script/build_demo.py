@@ -25,6 +25,7 @@ def main():
     shutil.copy2(cwd / ".env.template", build_dir)
     shutil.copy2(cwd / "requirements.txt", build_dir)
 
+    shutil.copytree(cwd / "input", build_dir / "input", dirs_exist_ok=True)
     shutil.copytree(cwd / "references", build_dir / "references", dirs_exist_ok=True)
 
 
