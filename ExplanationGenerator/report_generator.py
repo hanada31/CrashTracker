@@ -1,7 +1,7 @@
 from ExplanationGenerator.utils.parser import parse_message
 from ExplanationGenerator.config import logger
 from ExplanationGenerator.config import EXPLANATION_RESULT_PATH, EXPLANATION_RESULT_DIRECTORY, FINAL_REPORT_PATH, APK_CODE_PATH, REPORT_TEMPLATE_PATH, ROOT_PATH
-from ExplanationGenerator import survery_global_summary_generator
+from ExplanationGenerator import report_global_summary_generator
 from pathlib import Path
 import shutil
 import json
@@ -93,7 +93,7 @@ def main():
 
         if (survey_path / "global_summary.txt").exists():
             logger.info(f"Global summary for {report_name} already exists, skipping")
-        survery_global_summary_generator.main(report_name)
+        report_global_summary_generator.main(report_name)
 
         command = [
             "pandoc",

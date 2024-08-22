@@ -157,8 +157,8 @@ def generate_global_summary(report_directory, reference_files_directory):
     setup_path_config(report_directory, reference_files_directory)
     setup_llm_config()
 
-    from ExplanationGenerator import survery_global_summary_generator
-    survery_global_summary_generator.main()
+    from ExplanationGenerator import report_global_summary_generator
+    report_global_summary_generator.main()
 
 if __name__ == '__main__':
     cli()
