@@ -1,11 +1,7 @@
-# 生成问卷的整体解释
 from ExplanationGenerator.config import EXPLANATION_RESULT_PATH, logger, FINAL_REPORT_DIRECTORY, FINAL_REPORT_PATH
 from pathlib import Path
 import json
 
-# SURVEY_ROOT = Path("RQ/survey")
-# SURVEY_PATH: Path = lambda report_name: SURVEY_ROOT / report_name
-# PENDING_SURVEY_PATH = Path("RQ/pending_report.json")
 SUMMARY_FILE_NAME = "global_summary.txt"
 SUMMARY_MESSAGE_FILE_NAME = "global_summary_message.json"
 
@@ -131,15 +127,6 @@ def generate(report_name, report_info, key_api_effects):
         f.write(global_summary)
 
 def main(report_name):
-    # with open(PENDING_SURVEY_PATH, mode='r') as f:
-    #     pending_report = json.load(f)
-    # pending_list = dict2list(pending_report)
-
-    # logger.info(f"Generating global summary for {len(pending_list)} reports")
-
-    # for report_name in pending_list:
-    # for report_dir in FINAL_REPORT_DIRECTORY.iterdir():
-        # report_name = report_dir.name
     result_path = Path(EXPLANATION_RESULT_PATH(report_name))
     report_info_path = result_path / "report_info.json"
     report_info = json.load(report_info_path.open())
