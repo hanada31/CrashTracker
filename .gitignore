@@ -47,6 +47,7 @@ __pycache__/
 # custom
 .settings/
 target/
+.build/
 dependency-reduced-pom.xml
 src/main/generated
 CrashTracker.jar
