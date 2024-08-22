@@ -1,202 +1,96 @@
-# CrashTracker: Locating Framework-specific Crashing Faults with Compact and Explainable Candidate Set
+# CrashTracker
 
-- [CrashTracker: Locating Framework-specific Crashing Faults with Compact and Explainable Candidate Set](#crashtracker-locating-framework-specific-crashing-faults-with-compact-and-explainable-candidate-set)
-- [Paper Information](#paper-information)
-  - [Name \& Abstract](#name--abstract)
-  - [Artifact Project](#artifact-project)
-- [CrashTracker Tool](#crashtracker-tool)
-  - [Tool Overview](#tool-overview)
-  - [Install Requirements](#install-requirements)
-  - [Steps to run *CrashTracker*](#steps-to-run-crashtracker)
-  - [CrashTracker.jar -h Arguments](#crashtrackerjar--h-arguments)
-  - [Examples for CrashTracker's Report](#examples-for-crashtrackers-report)
-  - [Examples for Exception-Thrown Summary (ETS)](#examples-for-exception-thrown-summary-ets)
+## Paper Information
 
-# Paper Information
-
-## Name & Abstract 
-
-For ICSE 2023 paper：
-
-> **Locating Framework-specific Crashing Faults with Compact and Explainable Candidate Set.**  [pdf](paper.pdf)
+> **Better Debugging: Combining Static Analysis and LLMs for Explainable Crashing Fault Localization**
 
 **Abstract:**
 
-> Nowadays, many applications do not exist independently but rely on various frameworks or libraries. The frequent evolution and the complex implementation of APIs induce lots of unexpected post-release crashes. Starting from the crash stack traces, existing approaches either perform application-level call graph (CG) tracing or construct datasets with similar crash-fixing records to locate buggy methods. However, these approaches are limited by the completeness of CG or dependent on historical fixing records, and some of them only focus on specific manually modeled exception types. 
+> Nowadays, many applications do not exist independently but rely on various frameworks or libraries. The frequent evolution and the complex implementation of framework APIs induce many unexpected post-release crashes. Starting from the crash stack traces, existing approaches either perform direct call graph (CG) tracing or construct datasets with similar crash-fixing records to locate buggy methods. However, these approaches are limited by the completeness of CG or dependent on historical fixing records. Moreover, they fail to explain the buggy candidates by revealing their relationship with the crashing point, which decreases the efficiency of user debugging. 
 > 
-> To achieve effective debugging on complex framework-specific crashes, we propose a code-separation-based locating approach that weakly relies on CG tracing and does not require any prior knowledge. Our key insight is that one crash trace with the description message can be mapped to a definite exception-thrown point in the framework, the semantics analysis of which can help to figure out the root causes of the crash-triggering procedure. Thus, we can pre-construct reusable summaries for all the framework-specific exceptions to support fault localization in application code. Based on that idea, we design the exception-thrown summary (ETS) that describes both the key variables and key APIs related to the exception triggering.  Then, we perform static analysis to automatically compute such summaries and make a data-tracking of key variables and APIs in the application code to get the ranked buggy candidates. In the scenario of locating Android framework-specific crashing faults, our tool CrashTracker exhibited an overall MRR value of 0.91 and outperforms the state-of-the-art tool Anchor with higher precision. It only provides a compact candidate set and gives user-friendly reports with explainable reasons for each candidate.
+> To fill the gap, we propose an explainable crashing fault localization approach by combining static analysis and LLM techniques. Our primary insight is that understanding the semantics of exception-throwing statements in the framework code can help find and apprehend the buggy methods in the application code. Based on this idea, first, we design the *exception-thrown summary* (ETS) that describes the key elements related to each framework-specific exception and extract ETSs by performing static analysis.
+> As each crash can map to a target ETS, we make data-tracking of its key elements to identify and sort buggy candidates for the given crash. Then, we introduce LLMs to improve the explainability of the localization results. To construct effective LLM prompts, we design the *candidate information summary* (CIS) that describes multiple types of explanation-related contexts and then extract CISs via static analysis. Compared to SOTA fault localization works, our approach does not solely depend on CG tracing and does not require prior knowledge. Instead, it fully utilizes the information from the framework code and is the first to consider the explainability of the localization results. 
+> Finally, we apply our approach to one typical scenario, i.e., locating Android framework-specific crashing faults, and implement a tool called CrashTracker. For fault localization, CrashTracker exhibited an overall MRR value of 0.91 and outperformed the SOTA tool Anchor in precision. For fault explanation, compared to the naive one produced by static analysis only, the LLM-powered explanation achieved a 67.04\% improvement in users' satisfaction score.
 
 **Keywords:**
 
-> Fault localization, Framework-specific Exception, Crash Stack Trace, Android Application
+> Crash Debugging, Fault Localization, Static Analysis, Large Language Model, Android Application
 
-## Artifact Project
-For more evaluation data in the paper, please refer to project [**CrashTracker-ArtifactForICSE** ](https://github.com/hanada31/CrashTracker-ArtifactForICSE).
+**Evaluation Data**
 
-# CrashTracker Tool 
+For RQ1 and RQ2 in the paper, please refer to project [**CrashTracker-ArtifactForICSE** ](https://github.com/hanada31/CrashTracker-ArtifactForICSE).
 
-## Tool Overview
-<p align="left">
-<img src="Figures/LoFDroid-overview.png" width="70%">
-</p>
+For RQ3 in the paper, please refer to release.
 
-## Install Requirements
+**Tool Overview**
 
-1. Python 3.8
-2. Java 1.8
-3. maven 3.6
-4. Linux OS  (by default)
-5. When using Windows, the separator should be changed from / to  \\ for part of commands.  Also, please use the Windows PowerShell to execute commands.
+![Overview](Figures/CrashTracker-overview.svg)
 
-## Steps to run *CrashTracker* 
+CrashTracker consists of two modules: the FaultLocalization module and the ExplanationGenerator module.
 
-*Note: Only **English** characters are allowed in the path.*
+![FL-Overview](Figures/CrashTracker-overview-sa.svg)
 
-The default usage is to perform **Android** framework-specific  fault localization using CrashTracker.jar. 
+![EG-Overview](Figures/CrashTracker-overview-llm.svg)
 
-First，
+## Tool Usage
 
-```
-# Initialize soot-dev submodule
-git submodule update --init soot-dev
+### Requirements
 
-# Use -DskipTests to skip tests of soot (make build faster)
-mvn -f pom.xml clean package -DskipTests
+1. Python 3.8(with packages in requirements.txt)
+2. OpenJDK 17
+3. Pandoc 3.3
 
-# Copy jar to root directory
-cp target/CrashTracker-jar-with-dependencies.jar CrashTracker.jar
+The tool are developed and tested on Ubuntu. If you are not running the tool on a Unix-like system, you may need do some extra work to make it work.
 
-# unzip all the android*.zip files in Files/ folder first. 
-# Choice 1: use unzip_files script
-./unzip_files.sh
+### Quick Started
 
-# Choice 2: unzip files manually
-unzip Files/android2.3.zip -d Files/android2.3/
-unzip Files/android4.4.zip -d Files/android4.4/
-unzip Files/android5.0.zip -d Files/android5.0/
-unzip Files/android6.0.zip -d Files/android6.0/
-unzip Files/android7.0.zip -d Files/android7.0/
-unzip Files/android8.0.zip -d Files/android8.0/
-unzip Files/android9.0.zip -d Files/android9.0/
-unzip Files/android10.0.zip -d Files/android10.0/
-unzip Files/android11.0.zip -d Files/android11.0/
-unzip Files/android12.0.zip -d Files/android12.0/
+You can download the quick start demo in the release page. We provided three example apk files as input and out-of-the-box `references` directory which include pre-built ETS, Android framework code, stubs, apk code and crash information.
 
-# If unzip failed on windows, use other commands or unzip them manually.
-```
+```shell
+# Decompress the quick start demo
+tar -xvf CrashTracker-QuickStart.tar.gz
 
-Then, You have two choices:
+# Create a python virtual environment for installing required packages
+python -m venv .venv
 
- **Choice 1:** build and run *CrashTracker* to analyze single apk with java command:
+# Activate the virtual environment
+source .venv/bin/activate
 
-```
-# Run the tool
-## for apk files (When using Windows, the separator should be changed from / to \)
-java -jar CrashTracker.jar  -path M_application -name cgeo.geocaching-4450.apk -androidJar platforms  -crashInput Files/crashInfo.json  -exceptionInput Files -client ApkCrashAnalysisClient -time 30  -outputDir results/output
+# Install required packages
+pip install -r requirements.txt
 
-## for java libraries based on android framework files (When using Windows, the separator should be changed from / to \)
-java -jar CrashTracker.jar  -path M_application -name facebook-android-sdk-905.jar -androidJar platforms  -crashInput Files/crashInfo.json  -exceptionInput Files -client JarCrashAnalysisClient -time 30  -outputDir results/output
+# Run the locate command
+python CrashTracker.py locate input references output
 
-you can config the -path, -name, -androidJar and -outputDir.
+# Run the precheck command
+python CrashTracker.py precheck output references
+
+# Copy the .env.template to .env
+cp .env.template .env
+
+# Set the openai api key in .env file
+vim .env
+
+# Run the explain command
+python CrashTracker.py explain output references
+
+# Ensure that the pandoc is installed on your system, and version is 3.3
+pandoc --version
+
+# Run the generate command
+python CrashTracker.py generate output references
+
+# Check the output/ExplanationReport/reports for the generated explanation reports
 ```
 
-**Choice 2:**  build and run *CrashTracker* to analyze a set of apks under given folder with Python script:
+### Run custom apk
 
-```
-Run the .py file. (use python or python3 according to your configration)
+To run your custom apk, you need:
 
-# for apk files
-python scripts/runCrashTracker-Apk.py  [apkPath] [resultPath] [target framework version] [strategy name]
-e.g., python scripts/runCrashTracker-Apk.py  M_application results "no" "no"
+1. place the apk file in the `input` folder
 
-# for java libraries based on android framework files
-python scripts/runCrashTracker-Jar.py  [apkPath] [resultPath] [target framework version] [strategy name]
-e.g., python scripts/runCrashTracker-Jar.py  M_application results "no" "no"
+2. place the source code in the `references/ApkCode` folder(or you can use [jadx](https://github.com/skylot/jadx) to decompiler).
 
-- [target framework version]: E.g., "2.3", "4.4", "6.0", "7.0", "8.0", "9.0", "10.0", "11.0", "12.0" or "no". Pick "no" if the crash triggering framework version is unknown.
+3. Add crash inforamtion into `references/crash_info.json` file.
 
-- [strategy name]:  "NoCallFilter", "NoSourceType", "ExtendCGOnly",  "NoKeyAPI", "NoParaChain, "NoAppDataTrace", "NOParaChainANDDataTrace"or "no". Pick "no" to use the best/default strategy.
-```
-
-**(Optional)**
-
-If you want to localize other versions of Android framework using CrashTracker.jar.
-
-Extracting exception-thrown summary (ETS) for that framework is required before the localization!
-
-```
-# Use the following commands to analyze your framework files.
-python scripts/runCrashTracker-framework.py [framework code path] [framework code folder name] [version] [conditionLimit] [outputDir]  
-
-For example, if the sturcture of your files is as follows:
-+-- CrashTrackerTool
-|   +-- framework
-|   |   +-- android5.0
-|   |   |   +-- a list of .class files extracted from android.jar files (do not use the android.jar file in the Android SDK, as they
-                have empty implementation. Instead, extract android.jar files from your android phone or an emulator with the target
-                version. Also, you can download from  https://github.com/hanada31/AndroidFrameworkImpl and unzip files)
-
-run: 
-    python scripts/runCrashTracker-framework.py  M_framework android2.3 2.3 all ETSResults
-```
-
-## CrashTracker.jar -h Arguments
-
-```
-java -jar CrashTracker.jar -h
-
-usage: java -jar CrashTracker.jar [options] [-path] [-name] [-androidJar] [-outputDir] [-crashInput] [-exceptionInput] [-client]
- -h                        -h: Show the help information.
- -client <arg>             -client 
-                               ExceptionInfoClient: Extract exception information from Android framework.
-                               CrashAnalysisClient: Analysis the crash information for an apk.
-                               JarCrashAnalysisClient: Analysis the crash information for an third party SDK.
-                               CallGraphClient: Output call graph files.
-                               ManifestClient: Output manifest.xml file.
-                               IROutputClient: Output soot IR files.
- -conditionLimit <arg>     -conditionLimit: the number of conditions to be retained.
-                               all: keep all
-                               one: keep one condition
-                               three: keep three condition
- -name <arg>               -name: Set the name of the apk under analysis.
- -path <arg>               -path: Set the path to the apk under analysis.
- -crashPath <arg>          -crashInput: crash information file.
- -exceptionInput <arg>     -exceptionPath: exception file folder.
- -androidJar <arg>         -androidJar: Set the path of android.jar.
- -frameworkVersion <arg>   -frameworkVersion: The version of framework under analysis
- -strategy <arg>           -strategy: effectiveness of strategy "NoCallFilter", "NoSourceType", "ExtendCGOnly",  "NoKeyAPI", "NoParaChain, "NoAppDataTrace", "NOParaChainANDDataTrace"or "no"
- -time <arg>               -time [default:90]: Set the max running time (min).
- -outputDir <arg>          -outputDir: Set the output folder of the apk.
-
-```
-
-## Examples for CrashTracker's Report 
-
-In folder results/output
-
-- *Six types of reasons provided by CrashTracker.*
-
-  - **a)**  **Key_API_Related**: Caller of *keyAPI*;
-  - **b)**  **Key_Variable_Related_1**: Influences the value of *keyVar* by modifying the value of the passed parameters;
-  - **c)**  **Key_Variable_Related_2**: Influences the value of *keyVar* by modifying the value of related object fields;
-  - **d)**  **Executed_Method_1**: Not influence the *keyVar* but in crash trace; 
-  - **e)**  **Executed_Method_2**: Not in the crash stack but has been executed;
-  - **f)**   **Not_Override_Method**: Forgets to override the *Signaler* method.
-
-- *The simplified report by CrashTracker for com.travelzoo.android.apk.*
-
-  - As we can see, there is one reason for this buggy candidate. The crash is triggered when a framework API that throws an exception without any condition is invoked, and the override is required.
-
-  ![com.travelzoo.android](Figures/com.travelzoo.android.png)
-
-- *The simplified report by CrashTracker for com.nextgis.mobile.apk.*
-
-  - As we can see, there are two types of reasons, explaining how the exception is triggered in both the application level (which influences the data passed to crashAPI) and framework level (which influences the exception-triggering condition in signaler).
-
-  ![com.nextgis.mobile](Figures/com.nextgis.mobile.png)
-
-## Examples for Exception-Thrown Summary (ETS)
-
-In folder Files
-
-![ETS](Figures/ETS.png)
+Then you can run the `locate`, `precheck`, `explain`, and `generate` commands as shown in the quick start demo.
