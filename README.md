@@ -4,6 +4,8 @@
 
 > **Better Debugging: Combining Static Analysis and LLMs for Explainable Crashing Fault Localization**
 
+**Paper Link:** [arXiv](https://arxiv.org/abs/2408.12070)
+
 **Abstract:**
 
 > Nowadays, many applications do not exist independently but rely on various frameworks or libraries. The frequent evolution and the complex implementation of framework APIs induce many unexpected post-release crashes. Starting from the crash stack traces, existing approaches either perform direct call graph (CG) tracing or construct datasets with similar crash-fixing records to locate buggy methods. However, these approaches are limited by the completeness of CG or dependent on historical fixing records. Moreover, they fail to explain the buggy candidates by revealing their relationship with the crashing point, which decreases the efficiency of user debugging. 
