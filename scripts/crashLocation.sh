@@ -1,5 +1,10 @@
 
-# python scripts/runCrashTracker-Apk.py  ../../apk/FanDataICSE2018-before/ Data-0901-ExtendCGOnly  "no" "ExtendCGOnly" 
+python scripts/runCrashTracker-Apk.py  D:/SoftwareData/dataset/apk/FanDataICSE2018-before/ Data-20250425 "no" "FilterCandidates"
+python scripts/runCrashTracker-Jar.py  D:/SoftwareData/dataset/apk/android-sdk-project/ Data-20250425 "no" "FilterCandidates"
+python scripts/runCrashTracker-Apk.py  D:/SoftwareData/dataset/apk/Empirical500/ Data-20250425 "no" "FilterCandidates"
+
+
+# python scripts/runCrashTracker-Apk.py  ../../apk/FanDataICSE2018-before/ Data-0901-ExtendCGOnly  "no" "ExtendCGOnly"
 # python scripts/runCrashTracker-Apk.py  ../../apk/Empirical500/ Data-0901-ExtendCGOnly  "no" "ExtendCGOnly" 
 # python scripts/runCrashTracker-Jar.py  ../../apk/android-sdk-project/ Data-0901-ExtendCGOnly  "no" "ExtendCGOnly" 
 
@@ -7,12 +12,9 @@
 # python scripts/runCrashTracker-Apk.py  ../../apk/Empirical500/ Data-0901-version8 "8.0"  "no" 
 # python scripts/runCrashTracker-Jar.py  ../../apk/android-sdk-project/ Data-0901-version8 "8.0"  "no" 
 
-
-
-
-python scripts/runCrashTracker-Apk.py  ../../apk/FanDataICSE2018-before/ Data-1104-baseline "no" "no" 
-# python scripts/runCrashTracker-Apk.py  ../../apk/Empirical500/ Data-1104-baseline "no" "no"  
-python scripts/runCrashTracker-Jar.py  ../../apk/android-sdk-project/ Data-1104-baseline "no" "no"  
+#python scripts/runCrashTracker-Apk.py  ../../apk/FanDataICSE2018-before/ Data-1104-baseline "no" "no"
+#python scripts/runCrashTracker-Apk.py  ../../apk/Empirical500/ Data-1104-baseline "no" "no"
+#python scripts/runCrashTracker-Jar.py  ../../apk/android-sdk-project/ Data-1104-baseline "no" "no"
 
 # python scripts/runCrashTracker-Apk.py  ../../apk/FanDataICSE2018-before/ Data-0902-ExtendCGOnly  "no" "ExtendCGOnly" 
 # python scripts/runCrashTracker-Apk.py  ../../apk/Empirical500/ Data-0902-ExtendCGOnly  "no" "ExtendCGOnly" 

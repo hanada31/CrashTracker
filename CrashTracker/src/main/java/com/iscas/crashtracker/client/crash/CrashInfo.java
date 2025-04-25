@@ -3,12 +3,16 @@ package com.iscas.crashtracker.client.crash;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.iscas.crashtracker.base.Global;
+import com.iscas.crashtracker.base.MyConfig;
 import com.iscas.crashtracker.client.exception.ExceptionInfo;
 import com.iscas.crashtracker.client.exception.RelatedCondType;
 import com.iscas.crashtracker.client.exception.RelatedVarType;
 import com.iscas.crashtracker.utils.ConstantUtils;
 import com.iscas.crashtracker.utils.PrintUtils;
 import com.iscas.crashtracker.utils.StringUtils;
+import soot.Scene;
+import soot.SootClass;
+import soot.SootMethod;
 import soot.jimple.toolkits.callgraph.Edge;
 import soot.toolkits.scalar.Pair;
 
@@ -125,22 +129,27 @@ public class CrashInfo {
         return buggyCandidateObjs;
     }
 
-    public int addBuggyCandidates(String candi, String candidateSig,int score, JSONObject reason) {
-        boolean findPrexInTrace = false;
-        for(String traceMtd: getCrashMethodList()){
-            int id = Math.max(traceMtd.split("\\.").length-2, 2);
-            String prefixInTrace = StringUtils.getPkgPrefix(traceMtd, id);
-            if(candi.contains(prefixInTrace)) {
-                findPrexInTrace = true;
-                break;
+    public int reComputeScoreAndAddBuggyCandidates(String candi, SootClass sootClass, String candidateSig, int score, JSONObject reason) {
+        int returnSocre = score; //the input score
+        // if user want to filter candidates, recompute score and add candidates
+        if(MyConfig.getInstance().getStrategy().equals(Strategy.FilterCandidates.toString())){
+            boolean findPrexInTrace = false;
+            for(String traceMtd: getCrashMethodList()){
+                int id = Math.max(traceMtd.split("\\.").length-2, 2);
+                String prefixInTrace = StringUtils.getPkgPrefix(traceMtd, id);
+                if(candi.contains(prefixInTrace)) {
+                    findPrexInTrace = true;
+                    break;
+                }
             }
+            if(!findPrexInTrace) return -1;
+            String pkgPrefix = StringUtils.getPkgPrefix(Global.v().getAppModel().getPackageName(),2);
+            if(!candi.contains(pkgPrefix)) {
+                score = score - ConstantUtils.OUTOFPKGSCORE;
+            }
+            returnSocre = score; // the updated score
         }
-        if(!findPrexInTrace) return -1;
-        String pkgPrefix = StringUtils.getPkgPrefix(Global.v().getAppModel().getPackageName(),2);
-        if(!candi.contains(pkgPrefix)) {
-            score = score - ConstantUtils.OUTOFPKGSCORE;
-        }
-        int returnSocre = score;
+        //has a higher score, ignore it
         if(this.buggyCandidates.containsKey(candi) && this.buggyCandidates.get(candi) > score)
             score = this.buggyCandidates.get(candi);
         if(score > ConstantUtils.BOTTOMSCORE) {
@@ -148,6 +157,11 @@ public class CrashInfo {
                 this.buggyCandidateObjs.get(candi).addReasonTrace(reason);
             }else {
                 BuggyCandidate candiObj = new BuggyCandidate(candi, candidateSig, score);
+                if(sootClass!= null) {
+                    for (SootClass superClass : Scene.v().getActiveHierarchy().getSuperclassesOfIncluding(sootClass)) {
+                        candiObj.addExtendHierarchy(superClass.getName());
+                    }
+                }
                 candiObj.addReasonTrace(reason);
                 this.buggyCandidateObjs.put(candi, candiObj);
             }
@@ -155,10 +169,14 @@ public class CrashInfo {
             this.buggyCandidates.put(candi, score);
             if(score< minScore) minScore = score;
             if(score> maxScore) maxScore = score;
-
         }
         return returnSocre;
     }
+
+    private void xxx(String candi, SootMethod sootMethod, String candidateSig, int score, JSONObject reason) {
+
+    }
+
 
     public List<String> getCrashMethodList() {
         return crashMethodList;

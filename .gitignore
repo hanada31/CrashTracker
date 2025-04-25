@@ -46,7 +46,6 @@ replay_pid*
 target
 Files/
 !Files/crashInfo.json
-!Files/*.zip
 ETSResults/
 /result/
 /results/

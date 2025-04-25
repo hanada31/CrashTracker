@@ -6,7 +6,9 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.iscas.crashtracker.utils.SootUtils;
 import soot.SootMethod;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class BuggyCandidate {
@@ -19,6 +21,9 @@ public class BuggyCandidate {
     @JSONField(name = "Reasons")
     private JSONArray reasons = new JSONArray();
 
+    @JSONField(name = "Extend Hierarchy")
+    private List<String> extendHierarchy = new ArrayList<String>();
+
     private Set<String> reasonTrace = new HashSet<String>();
 
     public int getcandidateScore() {
@@ -27,6 +32,10 @@ public class BuggyCandidate {
 
     public String getCandidateName() {
         return candidateName;
+    }
+
+    public List<String> getExtendHierarchy() {
+        return extendHierarchy;
     }
 
     public JSONArray getReasons() {
@@ -40,9 +49,12 @@ public class BuggyCandidate {
     }
 
     public void addReasonTrace(JSONObject reason) {
-//
         reasonTrace.add(reason.toJSONString());
         reasons.add(reason);
+    }
+
+    public void addExtendHierarchy(String extendedClass) {
+        extendHierarchy.add(extendedClass);
     }
 
     public String getCandidateSig() {

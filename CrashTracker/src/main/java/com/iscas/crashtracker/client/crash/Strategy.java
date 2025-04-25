@@ -6,5 +6,5 @@ package com.iscas.crashtracker.client.crash;
  * @Version 1.0
  */
 public enum Strategy {
-    NoCallFilter, NoSourceType, ExtendCGOnly,  NoKeyAPI, NoParaChain, NoAppDataTrace, NOParaChainANDDataTrace
+    NoSourceType, ExtendCGOnly,  NoKeyAPI, NoParaChain, NoAppDataTrace, NOParaChainANDDataTrace, FilterCallers,  FilterCandidates
 }
